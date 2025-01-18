@@ -80,6 +80,8 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	protected int lastChargingTick;
 	protected int chargingAmount;
 	protected ChargeableSkill chargingSkill;
+
+	protected Player player;
 	
 	// Manage the previous position here because playerpatch#tick called before entity#travel method.
 	protected double xo;
@@ -220,6 +222,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	@Override
 	public void tick(LivingEvent.LivingTickEvent event) {
+		this.player = (Player) event.getEntity();
 		if (this.playerMode == PlayerMode.BATTLE || this.battleModeRestricted) {
 			BattleModeSustainableEvent battleModeSustainableEvent = new BattleModeSustainableEvent(this);
 			MinecraftForge.EVENT_BUS.post(battleModeSustainableEvent);
@@ -661,6 +664,10 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 				default -> null;
 			};
 		}
+	}
+
+	public Player getPlayer() {
+		return this.player;
 	}
 	
 	public enum PlayerMode {

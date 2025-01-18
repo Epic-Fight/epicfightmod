@@ -131,6 +131,8 @@ dependencies {
     
     implementation fg.deobf("curse.maven:ice-and-fire-dragons-264231:5633453")
     implementation fg.deobf("curse.maven:citadel-331936:5559513")
+
+    implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
     
     // These mods don't allow 3rd party distribution
     compileOnly fg.deobf("local:skinlayers3d:1.6.6")

@@ -198,7 +198,7 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		ModLoader.get().postEvent(new AnimationRegistryEvent(registryMap));
 		this.animationClips.clear();
 		
-		registryMap.entrySet().forEach((entry) -> {
+		registryMap.entrySet().stream().sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey())).forEach((entry) -> {
 			EpicFightMod.LOGGER.info("Register animations from " + entry.getKey());
 			this.currentWorkingModid = entry.getKey();
 			entry.getValue().run();

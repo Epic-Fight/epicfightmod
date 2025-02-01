@@ -32,7 +32,7 @@
 		"MixinThrownTrident",
 		"MixinServerGamePacketListenerImpl"
 	],
-	"injector": {
+	"injectors": {
 		"defaultRequire": 1
 	},
 	"refmap": "mixins.epicfight.refmap.json"

@@ -50,16 +50,7 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
-import yesman.epicfight.compat.AzureLibArmorCompat;
-import yesman.epicfight.compat.AzureLibCompat;
-import yesman.epicfight.compat.FirstPersonCompat;
-import yesman.epicfight.compat.GeckolibCompat;
-import yesman.epicfight.compat.ICompatModule;
-import yesman.epicfight.compat.IRISCompat;
-import yesman.epicfight.compat.IceAndFireCompat;
-import yesman.epicfight.compat.SkinLayer3DCompat;
-import yesman.epicfight.compat.VampirismCompat;
-import yesman.epicfight.compat.WerewolvesCompat;
+import yesman.epicfight.compat.*;
 import yesman.epicfight.config.ConfigManager;
 import yesman.epicfight.config.EpicFightOptions;
 import yesman.epicfight.data.conditions.EpicFightConditions;
@@ -236,6 +227,10 @@ public class EpicFightMod {
         
         if (ModList.get().isLoaded("iceandfire")) {
 			ICompatModule.loadCompatModule(IceAndFireCompat.class);
+		}
+
+		if (ModList.get().isLoaded("playeranimator")) {
+			ICompatModule.loadCompatModule(PlayerAnimatorCompat.class);
 		}
 	}
     

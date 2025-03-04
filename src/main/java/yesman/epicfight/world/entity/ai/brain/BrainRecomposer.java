@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.BackUpIfTooCloseStopInaction;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
@@ -28,7 +29,12 @@ public final class BrainRecomposer {
 	);
 	
 	public static void recomposeBrainByType(EntityType<?> entityType, Brain<?> brain, AnimatedCombatBehavior<?> animatedCombatBehavior, MoveToTargetSinkStopInaction chaseBehavior) {
-		BRAIN_REPLACE_DEST_MAPPER.get(entityType).recomposeBrain(brain, animatedCombatBehavior, chaseBehavior);
+		BrainRecomposeFunction brainRecomposeFunction = BRAIN_REPLACE_DEST_MAPPER.get(entityType);
+		if (brainRecomposeFunction == null) {
+			EpicFightMod.LOGGER.error("Failed to find brain recompose function for entity type: {}", entityType);
+			return;
+		}
+		brainRecomposeFunction.recomposeBrain(brain, animatedCombatBehavior, chaseBehavior);
 	}
 	
 	public static void recomposePiglinBrain(Brain<?> brain, AnimatedCombatBehavior<?> animatedCombatBehavior, MoveToTargetSinkStopInaction chaseBehavior) {

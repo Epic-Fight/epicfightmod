@@ -25,7 +25,7 @@ public class PlayerAnimatorCompat implements ICompatModule {
 
     @OnlyIn(Dist.CLIENT)
     private void renderEvent(RenderEpicFightPlayerEvent event) {
-        AnimationApplier emote = ((IAnimatedPlayer) event.getPlayerPatch().getPlayer()).playerAnimator_getAnimation();
+        AnimationApplier emote = ((IAnimatedPlayer) event.getPlayerPatch().getOriginal()).playerAnimator_getAnimation();
         if (emote.isActive()) event.setShouldRender(false);
     }
 }

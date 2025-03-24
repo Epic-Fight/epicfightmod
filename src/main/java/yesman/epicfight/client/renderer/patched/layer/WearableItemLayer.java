@@ -138,35 +138,40 @@ public class WearableItemLayer<E extends LivingEntity, T extends LivingEntityPat
 					poseStack.popPose();
 					return;
 				}
-				
+
 				if (armorModel instanceof HumanoidModel humanoidModel) {
-					boolean shouldSit = entityliving.isPassenger() && (entityliving.getVehicle() != null && entityliving.getVehicle().shouldRiderSit());
-					float f8 = 0.0F;
-					float f5 = 0.0F;
-					
-					if (!shouldSit && entityliving.isAlive()) {
-						f8 = entityliving.walkAnimation.speed(partialTicks);
-						f5 = entityliving.walkAnimation.position(partialTicks);
-						
-						if (entityliving.isBaby()) {
-							f5 *= 3.0F;
+					boolean isArmorStandModel = armorModel instanceof net.minecraft.client.model.ArmorStandArmorModel;
+					boolean isEntityArmorStand = entityliving instanceof net.minecraft.world.entity.decoration.ArmorStand;
+
+					if (!(isArmorStandModel && !isEntityArmorStand)) {
+						boolean shouldSit = entityliving.isPassenger() && (entityliving.getVehicle() != null && entityliving.getVehicle().shouldRiderSit());
+						float f8 = 0.0F;
+						float f5 = 0.0F;
+
+						if (!shouldSit && entityliving.isAlive()) {
+							f8 = entityliving.walkAnimation.speed(partialTicks);
+							f5 = entityliving.walkAnimation.position(partialTicks);
+
+							if (entityliving.isBaby()) {
+								f5 *= 3.0F;
+							}
+
+							if (f8 > 1.0F) {
+								f8 = 1.0F;
+							}
 						}
-						
-						if (f8 > 1.0F) {
-							f8 = 1.0F;
-						}
+
+						humanoidModel.setupAnim(entityliving, f8, f5, bob, yRot, xRot);
+						humanoidModel.head.loadPose(humanoidModel.head.getInitialPose());
+						humanoidModel.hat.loadPose(humanoidModel.hat.getInitialPose());
+						humanoidModel.body.loadPose(humanoidModel.body.getInitialPose());
+						humanoidModel.leftArm.loadPose(humanoidModel.leftArm.getInitialPose());
+						humanoidModel.rightArm.loadPose(humanoidModel.rightArm.getInitialPose());
+						humanoidModel.leftLeg.loadPose(humanoidModel.leftLeg.getInitialPose());
+						humanoidModel.rightLeg.loadPose(humanoidModel.rightLeg.getInitialPose());
 					}
-					
-					humanoidModel.setupAnim(entityliving, f8, f5, bob, yRot, xRot);
-					humanoidModel.head.loadPose(humanoidModel.head.getInitialPose());
-					humanoidModel.hat.loadPose(humanoidModel.hat.getInitialPose());
-					humanoidModel.body.loadPose(humanoidModel.body.getInitialPose());
-					humanoidModel.leftArm.loadPose(humanoidModel.leftArm.getInitialPose());
-					humanoidModel.rightArm.loadPose(humanoidModel.rightArm.getInitialPose());
-					humanoidModel.leftLeg.loadPose(humanoidModel.leftLeg.getInitialPose());
-					humanoidModel.rightLeg.loadPose(humanoidModel.rightLeg.getInitialPose());
 				}
-				
+
 				armorMesh.initialize();
 				
 				if (firstPersonChest) {

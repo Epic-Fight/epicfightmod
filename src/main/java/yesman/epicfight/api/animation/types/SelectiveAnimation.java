@@ -34,9 +34,14 @@ public class SelectiveAnimation extends StaticAnimation {
 			subAnimations.get().addEvents(SimpleEvent.create((entitypatch, animation, params) -> {
 				int result = this.selector.apply(entitypatch);
 				
-				if (entitypatch.getAnimator().getVariables().get(PREVIOUS_STATE, this.getAccessor()) != result) {
+				if (entitypatch.getAnimator().getVariables().get(PREVIOUS_STATE, this.getAccessor()) != null && entitypatch.getAnimator().getVariables().get(PREVIOUS_STATE, this.getAccessor()) != result) {
 					entitypatch.getAnimator().playAnimation(this.selectOptions.get(result), 0.0F);
 					entitypatch.getAnimator().getVariables().put(PREVIOUS_STATE, this.getAccessor(), result);
+				}
+				else
+				{
+					entitypatch.getAnimator().playAnimation(this.selectOptions.get(0), 0.0F);
+					entitypatch.getAnimator().getVariables().put(PREVIOUS_STATE, this.getAccessor(), 0);
 				}
 				
 			}, AnimationEvent.Side.BOTH));

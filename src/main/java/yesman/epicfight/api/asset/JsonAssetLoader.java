@@ -556,7 +556,7 @@ public class JsonAssetLoader {
 					continue;
 				}
 			}
-			
+
 			TransformSheet sheet = getTransformSheet(jObject, OpenMatrix4f.invert(joint.getLocalTransform(), null), root, format);
 			
 			if (!noTransformData) {
@@ -663,7 +663,10 @@ public class JsonAssetLoader {
 		JsonArray transformArray = jObject.getAsJsonArray("transform");
 		
 		if (timeArray.size() != transformArray.size()) {
-			throw new AssetLoadingException("Can't read transform sheet: the size of timestamp and transform array is different.");
+			throw new AssetLoadingException(
+					"Can't read transform sheet: the size of timestamp and transform array is different."
+					+ "timestamp array size: " + timeArray.size() + ", transform array size: " + transformArray.size()
+			);
 		}
 		
 		int timesCount = timeArray.size();

@@ -98,14 +98,23 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 	}
 	
 	public AnimationClip loadAnimationClip(StaticAnimation animation, BiFunction<JsonAssetLoader, StaticAnimation, AnimationClip> clipLoader) {
-		if (getAnimationResourceManager() == null) {
-			return null;
+
+		try
+		{
+			if (getAnimationResourceManager() == null) {
+				return null;
+			}
+
+			JsonAssetLoader modelLoader = new JsonAssetLoader(getAnimationResourceManager(), animation.getLocation());
+			AnimationClip loadedClip = clipLoader.apply(modelLoader, animation);
+
+			return loadedClip;
 		}
-		
-		JsonAssetLoader modelLoader = new JsonAssetLoader(getAnimationResourceManager(), animation.getLocation());
-		AnimationClip loadedClip = clipLoader.apply(modelLoader, animation);
-		
-		return loadedClip;
+		catch (AssetLoadingException e)
+		{
+			throw new AssetLoadingException("Failed to load animation clip from: " + animation, e);
+		}
+
 	}
 	
 	public static void readAnimationProperties(StaticAnimation animation) {

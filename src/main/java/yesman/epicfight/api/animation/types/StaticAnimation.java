@@ -69,7 +69,7 @@ import yesman.epicfight.world.entity.eventlistener.AnimationEndEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class StaticAnimation extends DynamicAnimation implements InverseKinematicsProvider {
-	public static final IndependentAnimationVariableKey<Boolean> HAD_NO_PHYSICS = AnimationVariables.independent(() -> false, true);
+	public static final IndependentAnimationVariableKey<Boolean> HAD_NO_PHYSICS = AnimationVariables.independent((animator) -> false, true);
 	
 	public static String getFileHash(ResourceLocation rl) {
 		String fileHash;
@@ -306,7 +306,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 		
 		this.getProperty(StaticAnimationProperty.NO_PHYSICS).ifPresent((val) -> {
 			if (val) {
-				entitypatch.getOriginal().noPhysics = entitypatch.getAnimator().getVariables().get(HAD_NO_PHYSICS, this.getAccessor());
+				entitypatch.getOriginal().noPhysics = entitypatch.getAnimator().getVariables().getOrDefault(HAD_NO_PHYSICS, this.getAccessor());
 			}
 		});
 		

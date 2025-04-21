@@ -331,7 +331,7 @@ public class ControllEngine {
 			}
 		}
 		
-		if (this.playerpatch.getEntityState().inaction() || this.hotbarLocked) {
+		if (!this.playerpatch.getEntityState().canSwitchHoldingItem() || this.hotbarLocked) {
 			for (int i = 0; i < 9; ++i) {
 				while (this.options.keyHotbarSlots[i].consumeClick());
 			}
@@ -461,10 +461,9 @@ public class ControllEngine {
 		
 		@SubscribeEvent
 		public static void mouseScrollEvent(InputEvent.MouseScrollingEvent event) {
-			if (controllEngine.minecraft.player != null && controllEngine.playerpatch != null && controllEngine.playerpatch.getEntityState().inaction()) {
-				if (controllEngine.minecraft.screen == null) {
-					event.setCanceled(true);
-				}
+			// Disable item switching
+			if (controllEngine.minecraft.player != null && controllEngine.playerpatch != null && !controllEngine.playerpatch.getEntityState().canSwitchHoldingItem() && controllEngine.minecraft.screen == null) {
+				event.setCanceled(true);
 			}
 		}
 		

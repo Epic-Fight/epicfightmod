@@ -249,6 +249,12 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		super.tick(event);
 		
+		// Cancel using item depending on player state
+		if (!this.state.canUseItem()) {
+			this.cancelItemUse();
+		}
+		
+		// When turning is locked, stop synching the entity patch's y rotation to the original entity
 		if (this.getEntityState().turningLocked()) {
 			if (!this.useModelYRot) {
 				this.setModelYRot(this.original.getYRot(), false);

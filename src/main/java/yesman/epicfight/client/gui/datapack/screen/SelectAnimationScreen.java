@@ -36,11 +36,13 @@ public class SelectAnimationScreen extends Screen {
 	public SelectAnimationScreen(Screen parentScreen, Consumer<AssetAccessor<? extends StaticAnimation>> selectCallback, Consumer<AssetAccessor<? extends StaticAnimation>> cancelCallback, Predicate<AssetAccessor<? extends StaticAnimation>> filter, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
 		super(Component.translatable("gui.epicfight.select.animations"));
 		
-		this.modelPreviewer = new ModelPreviewer(10, 20, 36, 60, null, null, armature, mesh);
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
+		this.modelPreviewer = new ModelPreviewer(10, 20, 36, 60, null, null, armature, mesh);
 		this.animationList = new AnimationList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21);
 		this.animationList.setRenderTopAndBottom(false);
-		this.parentScreen = parentScreen;
 		this.selectCallback = selectCallback;
 		this.cancelCallback = cancelCallback;
 		this.filter = filter;
@@ -50,7 +52,7 @@ public class SelectAnimationScreen extends Screen {
 		this.animationList.refreshAniamtionList(null);
 		
 		if (armature != null) {
-			this.searchBox.setValue(armature.toString().substring(armature.toString().indexOf("/") + 1));
+			this.searchBox.setValue(armature.get().toString().substring(armature.get().toString().indexOf("/") + 1));
 			this.searchBox.moveCursorTo(0);
 		}
 	}

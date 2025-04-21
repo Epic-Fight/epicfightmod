@@ -59,7 +59,7 @@ import yesman.epicfight.gameasset.ColliderPreset;
 
 @OnlyIn(Dist.CLIENT)
 public class ImportAnimationsScreen extends Screen {
-	private final SelectAnimationScreen caller;
+	private final SelectAnimationScreen parentScreen;
 	private final Grid animationGrid;
 	private final ModelPreviewer modelPreviewer;
 	private final List<EditorAnimation> fakeAnimations = Lists.newArrayList();
@@ -68,21 +68,22 @@ public class ImportAnimationsScreen extends Screen {
 	private Consumer<EditorAnimation.AnimationType> responder;
 	private Map<ResourceLocation, PackEntry<EditorAnimation, DatapackAnimation<? extends StaticAnimation>>> userAnimations;
 	
-	public ImportAnimationsScreen(SelectAnimationScreen caller, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
+	public ImportAnimationsScreen(SelectAnimationScreen parentScreen, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
 		super(Component.literal("register_animation_screen"));
+		
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
 		this.userAnimations = DatapackEditScreen.getCurrentScreen().getUserAniamtions();
 		this.fakeAnimations.addAll(this.userAnimations.values().stream().map(PackEntry::getKey).map(EditorAnimation::deepCopy).toList());
-		this.caller = caller;
 		this.modelPreviewer = new ModelPreviewer(10, 15, 0, 140, HorizontalSizing.LEFT_RIGHT, null, armature, mesh);
 		this.modelPreviewer.setCollider(ColliderPreset.FIST);
-		this.minecraft = caller.getMinecraft();
-		this.font = caller.getMinecraft().font;
 		
-		ScreenRectangle screenRect = caller.getRectangle();
+		ScreenRectangle screenRect = parentScreen.getRectangle();
 		int split = screenRect.width() / 2 - 60;
 		
-		this.animationGrid = Grid.builder(this, caller.getMinecraft())
+		this.animationGrid = Grid.builder(this, parentScreen.getMinecraft())
 									.xy1(8, screenRect.top() + 14)
 									.xy2(split - 10, screenRect.height() - 21)
 									.rowHeight(26)
@@ -826,8 +827,8 @@ public class ImportAnimationsScreen extends Screen {
 	
 	@Override
 	public void onClose() {
-		this.caller.refreshAnimationList();
-		this.minecraft.setScreen(this.caller);
+		this.parentScreen.refreshAnimationList();
+		this.minecraft.setScreen(this.parentScreen);
 		this.modelPreviewer.onDestroy();
 	}
 	
@@ -844,7 +845,7 @@ public class ImportAnimationsScreen extends Screen {
 						File file = path.toFile();
 						stream = new FileInputStream(file);
 						JsonAssetLoader jsonLoader = new JsonAssetLoader(stream, ResourceLocation.fromNamespaceAndPath(modid, file.getName()));
-						String armatureName = this.modelPreviewer.getArmature().toString();
+						String armatureName = this.modelPreviewer.getArmature().get().toString();
 						armatureName = armatureName.substring(armatureName.indexOf(":") + 1);
 						
 						String animationPath = modid + ":" + armatureName.substring(armatureName.lastIndexOf("/") + 1) + "/" + file.getName().replace(".json", "");

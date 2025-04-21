@@ -29,7 +29,7 @@ public class EnderDragonDynamicActionAnimation extends ActionAnimation {
 			Vec3 entitypos = ikSimulatable.toEntity().position();
 			OpenMatrix4f toWorld = OpenMatrix4f.mul(OpenMatrix4f.createTranslation((float)entitypos.x, (float)entitypos.y, (float)entitypos.z), ikSimulatable.getModelMatrix(1.0F), null);
 			//ikSimulatable.resetTipAnimations();
-			TransformSheet movementAnimation = entitypatch.getAnimator().getVariables().getSharedVariable(ACTION_ANIMATION_COORD);
+			TransformSheet movementAnimation = entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD);
 			
 			this.getProperty(StaticAnimationProperty.BAKED_IK_DEFINITION).ifPresent((ikDefinitions) -> {
 				for (BakedInverseKinematicsDefinition bakedIKInfo : ikDefinitions) {

@@ -103,19 +103,26 @@ public class ClientEvents {
 	
 	@SubscribeEvent
 	public static void rightClickItemClient(PlayerInteractEvent.RightClickItem event) {
-		if (event.getSide() == LogicalSide.CLIENT) {
-			EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
-				if (playerpatch.getOriginal().getOffhandItem().getUseAnimation() == UseAnim.NONE) {
-					boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.CLIENT_ITEM_USE_EVENT, new RightClickItemEvent<>(playerpatch));
-					
-					if (playerpatch.getEntityState().movementLocked()) {
-						canceled = true;
-					}
-					
-					event.setCanceled(canceled);
-				}
-			});
+		/**
+		 * Server item use event is fired in {@link PlayerEvents#rightClickItemServerEvent}
+		 */
+		if (event.getSide() == LogicalSide.SERVER) {
+			return;
 		}
+		
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
+			if (!playerpatch.getEntityState().canUseItem()) {
+				event.setCanceled(true);
+			} else if (playerpatch.getOriginal().getOffhandItem().getUseAnimation() == UseAnim.NONE) {
+				boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.CLIENT_ITEM_USE_EVENT, new RightClickItemEvent<>(playerpatch));
+				
+				if (playerpatch.getEntityState().movementLocked()) {
+					canceled = true;
+				}
+				
+				event.setCanceled(canceled);
+			}
+		});
 	}
 	
 	@SubscribeEvent

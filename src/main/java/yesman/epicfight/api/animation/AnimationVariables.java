@@ -2,12 +2,17 @@ package yesman.epicfight.api.animation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap.TypeKey;
 import yesman.epicfight.gameasset.Animations;
@@ -21,47 +26,50 @@ public class AnimationVariables {
 		this.animator = animator;
 	}
 	
-	public <T> T getSharedVariable(SharedAnimationVariableKey<T> key) {
-		return this.animationVariables.get(key);
+	public <T> Optional<T> getSharedVariable(SharedAnimationVariableKey<T> key) {
+		return Optional.ofNullable(this.animationVariables.get(key));
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getOrDefaultSharedVariable(SharedAnimationVariableKey<T> key) {
-		return (T)this.animationVariables.getOrDefault(key, key.defaultValue());
+		return ParseUtil.orElse((T)this.animationVariables.get(key), () -> key.defaultValue(this.animator));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T get(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation) {
+	public <T> Optional<T> get(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation) {
 		if (animation == null) {
-			return null;
+			return Optional.empty();
 		}
 		
 		Map<ResourceLocation, Object> subMap = this.animationVariables.get(key);
 		
 		if (subMap == null) {
-			return key.defaultValue();
+			return Optional.empty();
 		} else {
-			return (T)subMap.get(animation.registryName());
+			return Optional.ofNullable((T)subMap.get(animation.registryName()));
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getOrDefault(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation) {
 		if (animation == null) {
-			return null;
+			return Objects.requireNonNull(key.defaultValue(this.animator), "Null value returned by default provider.");
 		}
 		
 		Map<ResourceLocation, Object> subMap = this.animationVariables.get(key);
 		
 		if (subMap == null) {
-			return key.defaultValue();
+			return Objects.requireNonNull(key.defaultValue(this.animator), "Null value returned by default provider.");
 		} else {
-			return (T)subMap.getOrDefault(animation.registryName(), key.defaultValue());
+			return ParseUtil.orElse((T)subMap.get(animation.registryName()), () -> key.defaultValue(this.animator));
 		}
 	}
 	
-	public <T> void putSharedVariable(SharedAnimationVariableKey<T> key) {
-		this.putSharedVariable(key, key.defaultValue());
+	public <T> void putDefaultSharedVariable(SharedAnimationVariableKey<T> key) {
+		T value = key.defaultValue(this.animator);
+		Objects.requireNonNull(value, "Null value returned by default provider.");
+		
+		this.putSharedVariable(key, value);
 	}
 	
 	public <T> void putSharedVariable(SharedAnimationVariableKey<T> key, T value) {
@@ -83,8 +91,11 @@ public class AnimationVariables {
 		}
 	}
 	
-	public <T> void put(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation) {
-		this.put(key, animation, key.defaultValue());
+	public <T> void putDefaultValue(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation) {
+		T value = key.defaultValue(this.animator);
+		Objects.requireNonNull(value, "Null value returned by default provider.");
+		
+		this.put(key, animation, value);
 	}
 	
 	public <T> void put(IndependentAnimationVariableKey<T> key, AssetAccessor<? extends StaticAnimation> animation, T value) {
@@ -181,30 +192,35 @@ public class AnimationVariables {
 		}
 	}
 	
-	public static <T> SharedAnimationVariableKey<T> shared(Supplier<T> initValueSupplier, boolean mutable) {
-		return new SharedAnimationVariableKey<> (initValueSupplier, mutable);
+	public static <T> SharedAnimationVariableKey<T> shared(Function<Animator, T> defaultValueSupplier, boolean mutable) {
+		return new SharedAnimationVariableKey<> (defaultValueSupplier, mutable);
 	}
 	
-	public static <T> IndependentAnimationVariableKey<T> independent(Supplier<T> initValueSupplier, boolean mutable) {
-		return new IndependentAnimationVariableKey<> (initValueSupplier, mutable);
+	public static <T> IndependentAnimationVariableKey<T> independent(Function<Animator, T> defaultValueSupplier, boolean mutable) {
+		return new IndependentAnimationVariableKey<> (defaultValueSupplier, mutable);
 	}
 	
 	protected abstract static class AnimationVariableKey<T> implements TypeKey<T> {
-		private final Supplier<T> initValueSupplier;
-		private final boolean mutable;
+		protected final Function<Animator, T> defaultValueSupplier;
+		protected final boolean mutable;
 		
-		protected AnimationVariableKey(Supplier<T> initValueSupplier, boolean mutable) {
-			this.initValueSupplier = initValueSupplier;
+		protected AnimationVariableKey(Function<Animator, T> defaultValueSupplier, boolean mutable) {
+			this.defaultValueSupplier = defaultValueSupplier;
 			this.mutable = mutable;
 		}
 		
-		@Override
-		public T defaultValue() {
-			return this.initValueSupplier.get();
+		@NonNull
+		public T defaultValue(Animator animator) {
+			return this.defaultValueSupplier.apply(animator);
 		}
 		
 		public boolean mutable() {
 			return this.mutable;
+		}
+		
+		@Override
+		public T defaultValue() {
+			throw new UnsupportedOperationException("Use defaultValue(Animator animator) to get default value of animation variable key");
 		}
 		
 		public abstract boolean isSharedKey();
@@ -212,7 +228,7 @@ public class AnimationVariables {
 	}
 	
 	public static class SharedAnimationVariableKey<T> extends AnimationVariableKey<T> {
-		protected SharedAnimationVariableKey(Supplier<T> initValueSupplier, boolean mutable) {
+		protected SharedAnimationVariableKey(Function<Animator, T> initValueSupplier, boolean mutable) {
 			super(initValueSupplier, mutable);
 		}
 		
@@ -228,7 +244,7 @@ public class AnimationVariables {
 	}
 	
 	public static class IndependentAnimationVariableKey<T> extends AnimationVariableKey<T> {
-		protected IndependentAnimationVariableKey(Supplier<T> initValueSupplier, boolean mutable) {
+		protected IndependentAnimationVariableKey(Function<Animator, T> initValueSupplier, boolean mutable) {
 			super(initValueSupplier, mutable);
 		}
 		

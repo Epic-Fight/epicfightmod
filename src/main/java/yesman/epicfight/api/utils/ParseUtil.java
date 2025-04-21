@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -343,6 +344,12 @@ public class ParseUtil {
 		}
 		
 		return c - '0';
+	}
+	
+	public static <T> T orElse(T value, Supplier<T> defaultVal) {
+		Objects.requireNonNull(defaultVal);
+		
+		return value == null ? defaultVal.get() : value;
 	}
 	
 	private ParseUtil() {}

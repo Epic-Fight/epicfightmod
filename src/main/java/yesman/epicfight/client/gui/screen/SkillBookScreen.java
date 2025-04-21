@@ -301,7 +301,7 @@ public class SkillBookScreen extends Screen {
 			window.setGuiScale(this.customScale);
 			
 			//Fix: expand extra far plane distance
-			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane() + 10000.0F);
+			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
 			RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
 		}
 		
@@ -448,7 +448,10 @@ public class SkillBookScreen extends Screen {
 				}
 				
 				WeaponCategory category = this.availableCategories.get(i);
-				guiGraphics.renderItem(WEAPON_CATEGORY_ICONS.get(category), (int)x, y);
+				
+				if (WEAPON_CATEGORY_ICONS.containsKey(category)) {
+					guiGraphics.renderItem(WEAPON_CATEGORY_ICONS.get(category), (int)x, y);
+				}
 				
 				if (mouseX >= x && mouseX <= x + ICON_LENGTH && mouseY >= y && mouseY <= y + ICON_LENGTH) {
 					this.setTooltip(Tooltip.create(Component.translatable("epicfight.weapon_category." + category.toString().toLowerCase(Locale.ROOT))));

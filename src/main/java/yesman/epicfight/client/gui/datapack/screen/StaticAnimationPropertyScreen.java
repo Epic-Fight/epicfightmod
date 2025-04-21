@@ -51,7 +51,7 @@ public class StaticAnimationPropertyScreen extends Screen {
 		
 		this.parentScreen = parentScreen;
 		this.minecraft = parentScreen.getMinecraft();
-		this.font = this.minecraft.font;
+		this.font = parentScreen.getMinecraft().font;
 		this.animation = animation;
 		
 		this.inputComponentsList = new InputComponentList<> (this, 0, 0, 0, 0, 30) {

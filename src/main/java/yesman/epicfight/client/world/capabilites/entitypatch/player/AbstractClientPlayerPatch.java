@@ -150,7 +150,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			else
 				currentCompositeMotion = currentLivingMotion;
 		} else {
-			if (!this.getEntityState().inaction() && this.original.getMainHandItem().getItem() instanceof ProjectileWeaponItem && CrossbowItem.isCharged(this.original.getMainHandItem()))
+			if (this.getEntityState().canUseItem() && this.original.getMainHandItem().getItem() instanceof ProjectileWeaponItem && CrossbowItem.isCharged(this.original.getMainHandItem()))
 				currentCompositeMotion = LivingMotions.AIM;
 			else if (this.getClientAnimator().getCompositeLayer(Layer.Priority.MIDDLE).animationPlayer.getAnimation().get().isReboundAnimation())
 				currentCompositeMotion = LivingMotions.NONE;
@@ -159,7 +159,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			else
 				currentCompositeMotion = currentLivingMotion;
 			
-			if (!this.getEntityState().inaction() && this.getClientAnimator().isAiming() && currentCompositeMotion != LivingMotions.AIM && holdingItemCap instanceof RangedWeaponCapability) {
+			if (this.getEntityState().canUseItem() && this.getClientAnimator().isAiming() && currentCompositeMotion != LivingMotions.AIM && holdingItemCap instanceof RangedWeaponCapability) {
 				this.playShootingAnimation();
 			}
 		}

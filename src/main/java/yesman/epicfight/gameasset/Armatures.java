@@ -163,10 +163,6 @@ public class Armatures {
 			return (A)ARMATURES.get(this);
 		}
 		
-		public boolean isPresent() {
-			return true;
-		}
-		
 		public String toString() {
 			return this.registryName.toString();
 		}

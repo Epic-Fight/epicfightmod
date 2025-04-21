@@ -45,18 +45,18 @@ public class HumanoidWeaponMotionScreen extends Screen {
 	private Grid motionSetGrid;
 	private InputComponentList<CompoundTag> inputComponentsList;
 	private final List<CompoundTag> motionSetList = Lists.newLinkedList();
-	private final Screen caller;
+	private final Screen parentScreen;
 	private final CompoundTag rootTag;
 	
-	protected HumanoidWeaponMotionScreen(Screen caller, CompoundTag rootTag, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
+	protected HumanoidWeaponMotionScreen(Screen parentScreen, CompoundTag rootTag, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
 		super(Component.translatable("datapack_edit.mob_patch.humanoid_weapon_motions"));
 		
-		this.font = caller.getMinecraft().font;
-		this.minecraft = caller.getMinecraft();
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
-		this.caller = caller;
 		this.rootTag = rootTag;
-		this.motionSetGrid = Grid.builder(this, caller.getMinecraft())
+		this.motionSetGrid = Grid.builder(this, parentScreen.getMinecraft())
 									.xy1(8, 45)
 									.xy2(150, 50)
 									.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -127,7 +127,7 @@ public class HumanoidWeaponMotionScreen extends Screen {
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(5), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.humanoid_weapon_motions.weapon_categories"));
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.newRow();
-		this.inputComponentsList.addComponentCurrentRow(Grid.builder(this, caller.getMinecraft())
+		this.inputComponentsList.addComponentCurrentRow(Grid.builder(this, parentScreen.getMinecraft())
 															.xy1(this.inputComponentsList.nextStart(5), 0)
 															.xy2(10, 80)
 															.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -171,7 +171,7 @@ public class HumanoidWeaponMotionScreen extends Screen {
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(5), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.humanoid_weapon_motions.living_animations"));
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.newRow();
-		this.inputComponentsList.addComponentCurrentRow(Grid.builder(this, caller.getMinecraft())
+		this.inputComponentsList.addComponentCurrentRow(Grid.builder(this, parentScreen.getMinecraft())
 															.xy1(this.inputComponentsList.nextStart(5), 0)
 															.xy2(10, 80)
 															.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -272,7 +272,7 @@ public class HumanoidWeaponMotionScreen extends Screen {
 	
 	@Override
 	public void onClose() {
-		this.minecraft.setScreen(this.caller);
+		this.minecraft.setScreen(this.parentScreen);
 	}
 	
 	@Override

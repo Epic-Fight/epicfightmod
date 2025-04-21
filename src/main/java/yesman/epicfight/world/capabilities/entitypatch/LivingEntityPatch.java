@@ -135,9 +135,9 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	protected void initAnimator(Animator animator) {
-		animator.getVariables().putSharedVariable(AttackAnimation.HIT_ENTITIES);
-		animator.getVariables().putSharedVariable(AttackAnimation.HURT_ENTITIES);
-		animator.getVariables().putSharedVariable(ActionAnimation.ACTION_ANIMATION_COORD);
+		animator.getVariables().putDefaultSharedVariable(AttackAnimation.HIT_ENTITIES);
+		animator.getVariables().putDefaultSharedVariable(AttackAnimation.HURT_ENTITIES);
+		animator.getVariables().putDefaultSharedVariable(ActionAnimation.ACTION_ANIMATION_COORD);
 		
 		this.setParentJointOfHand(InteractionHand.MAIN_HAND, Armatures.BIPED.get().toolR);
 		this.setParentJointOfHand(InteractionHand.OFF_HAND, Armatures.BIPED.get().toolL);
@@ -239,8 +239,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	public void cancelItemUse() {
-		this.original.stopUsingItem();
-		ForgeEventFactory.onUseItemStop(this.original, this.original.getUseItem(), this.original.getUseItemRemainingTicks());
+		if (this.original.isUsingItem()) {
+			this.original.stopUsingItem();
+			ForgeEventFactory.onUseItemStop(this.original, this.original.getUseItem(), this.original.getUseItemRemainingTicks());
+		}
 	}
 	
 	public CapabilityItem getHoldingItemCapability(InteractionHand hand) {
@@ -733,6 +735,13 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void onDodgeSuccess(DamageSource damageSource) {
 	}
 	
+	public void countHurtTime(float damageTaken) {
+		this.original.lastHurt = damageTaken;
+		this.original.invulnerableTime = 20;
+		this.original.hurtDuration = 10;
+		this.original.hurtTime = this.original.hurtDuration;
+	}
+	
 	@Override
 	public boolean isStunned() {
 		return this.getEntityState().hurt();
@@ -820,16 +829,16 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		this.parentJointOfHands.put(hand, joint);
 	}
 	
-	public boolean isTargetInvulnerable(Entity taget) {
-		if (!taget.isPickable() || taget.isSpectator()) {
+	public boolean isTargetInvulnerable(Entity target) {
+		if (!target.isPickable() || target.isSpectator()) {
 			return true;
 		}
 		
-		if (this.original.getRootVehicle() == taget.getRootVehicle() && !taget.canRiderInteract()) {
+		if (this.original.getRootVehicle() == target.getRootVehicle() && !target.canRiderInteract()) {
 			return true;
 		}
 		
-		return this.original.isAlliedTo(taget) && this.original.getTeam() != null && !this.original.getTeam().isAllowFriendlyFire();
+		return this.original.isAlliedTo(target) && this.original.getTeam() != null && !this.original.getTeam().isAllowFriendlyFire();
 	}
 	
 	public boolean canPush(Entity entity) {
@@ -956,16 +965,16 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	public List<LivingEntity> getCurrenltyAttackedEntities() {
-		return this.getAnimator().getVariables().getSharedVariable(AttackAnimation.HIT_ENTITIES);
+		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HIT_ENTITIES);
 	}
 
 	public List<LivingEntity> getCurrenltyHurtEntities() {
-		return this.getAnimator().getVariables().getSharedVariable(AttackAnimation.HURT_ENTITIES);
+		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HURT_ENTITIES);
 	}
 
 	public void removeHurtEntities() {
-		this.getAnimator().getVariables().getSharedVariable(AttackAnimation.HIT_ENTITIES).clear();
-		this.getAnimator().getVariables().getSharedVariable(AttackAnimation.HURT_ENTITIES).clear();
+		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HIT_ENTITIES).clear();
+		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HURT_ENTITIES).clear();
 	}
 	
 	@OnlyIn(Dist.CLIENT)

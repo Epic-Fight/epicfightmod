@@ -69,11 +69,6 @@ public class ParryingSkill extends GuardSkill {
 	}
 	
 	@Override
-	public void onRemoved(SkillContainer container) {
-		super.onRemoved(container);
-	}
-	
-	@Override
 	public void guard(SkillContainer container, CapabilityItem itemCapability, HurtEvent.Pre event, float knockback, float impact, boolean advanced) {
 		if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.ADVANCED_GUARD)) {
 			DamageSource damageSource = event.getDamageSource();

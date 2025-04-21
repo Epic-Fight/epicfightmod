@@ -127,12 +127,13 @@ dependencies {
     **/
     
     /**
-     * Curios compatibility planned.
+     * Curios compatibility with Relics.
      **/
-    /**
-    compileOnly fg.deobf("curse.maven:curios-309927:6216710")
-    compileOnly fg.deobf("curse.maven:octo-lib-916747:5115332")
-    compileOnly fg.deobf("curse.maven:relics-mod-445274:5435202")
+     /**
+    implementation fg.deobf("curse.maven:curios-309927:6418456")
+    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
+    implementation fg.deobf("curse.maven:octo-lib-916747:5644693")
+    implementation fg.deobf("local:relics:0.8.0.9")
     **/
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

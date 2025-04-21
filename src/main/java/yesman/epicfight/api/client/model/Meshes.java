@@ -145,16 +145,12 @@ public class Meshes implements PreparableReloadListener {
 		@SuppressWarnings("unchecked")
 		@Override
 		public M get() {
-			if (MESHES.get(this) == null) {
+			if (!MESHES.containsKey(this)) {
 				JsonAssetLoader jsonModelLoader = new JsonAssetLoader(resourceManager, wrapLocation(this.registryName));
 				MESHES.put(this, this.jsonLoader.apply(jsonModelLoader));
 			}
 			
 			return (M)MESHES.get(this);
-		}
-		
-		public boolean isPresent() {
-			return true;
 		}
 		
 		public String toString() {

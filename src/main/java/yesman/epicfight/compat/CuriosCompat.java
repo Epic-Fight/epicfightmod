@@ -5,10 +5,13 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.EntityType;
@@ -29,6 +32,7 @@ import yesman.epicfight.api.client.model.Mesh.DrawingFunction;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
@@ -66,11 +70,7 @@ public class CuriosCompat implements ICompatModule {
 	
 	@OnlyIn(Dist.CLIENT)
 	public static class PatchedCuriosLayerRenderer extends ModelRenderLayer<LivingEntity, LivingEntityPatch<LivingEntity>, EntityModel<LivingEntity>, CuriosLayer<LivingEntity, EntityModel<LivingEntity>>, SkinnedMesh> {
-		private static Map<HumanoidModel<LivingEntity>, SkinnedMesh> CURIO_MESHES = Maps.newHashMap();
-		
-		public static SkinnedMesh getSkinnedMesh(HumanoidModel<LivingEntity> curioModel) {
-			return CURIO_MESHES.computeIfAbsent(curioModel, HumanoidModelBaker.VANILLA_TRANSFORMER::transformArmorModel);
-		}
+		private static final Map<HumanoidModel<LivingEntity>, SkinnedMesh> CURIO_MESHES = Maps.newHashMap();
 		
 		public PatchedCuriosLayerRenderer() {
 			super(null);
@@ -113,9 +113,29 @@ public class CuriosCompat implements ICompatModule {
 							CuriosRendererRegistry.getRenderer(stack.getItem()).ifPresent(curioRenderer -> {
 								if (curioRenderer instanceof HumanoidRender humanoidRenderer) {
 									HumanoidModel<LivingEntity> curioModel = humanoidRenderer.getModel(finalStack, slotContext);
-									SkinnedMesh skinMesh = getSkinnedMesh(curioModel);
+									SkinnedMesh skinnedMesh;
 									
-									skinMesh.drawPosed(
+									if (ClientEngine.getInstance().isVanillaModelDebuggingMode() || !CURIO_MESHES.containsKey(curioModel)) {
+										poseStack.pushPose();
+										poseStack.translate(10000.0D, 0.0D, 0.0D);
+										LivingEntityRenderer<?, ?> parentRenderer;
+										
+										if (livingEntity instanceof AbstractClientPlayer abstractClientPlayer) {
+											parentRenderer = (LivingEntityRenderer<?, ?>)Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(abstractClientPlayer.getModelName());
+										} else {
+											parentRenderer = (LivingEntityRenderer<?, ?>)Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get("default");
+										}
+										
+										curioRenderer.render(finalStack, slotContext, poseStack, parentRenderer, buffer, 0, 0, 0, 0, 0, 0, 0);
+										poseStack.popPose();
+										
+										skinnedMesh = HumanoidModelBaker.VANILLA_TRANSFORMER.transformArmorModel(curioModel);
+										CURIO_MESHES.put(curioModel, skinnedMesh);
+									} else {
+										skinnedMesh = CURIO_MESHES.get(curioModel);
+									}
+									
+									skinnedMesh.drawPosed(
 										  poseStack
 										, buffer.getBuffer(EpicFightRenderTypes.getTriangulated(RenderType.entityCutoutNoCull(humanoidRenderer.getModelTexture(finalStack, slotContext))))
 										, DrawingFunction.NEW_ENTITY

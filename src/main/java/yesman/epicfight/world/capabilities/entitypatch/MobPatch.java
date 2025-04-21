@@ -159,7 +159,7 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
 			if (this.getTarget() == null) {
 				return true;
 			} else {
-				return this.getTarget().is(entity);
+				return !this.getTarget().is(entity);
 			}
 		}
 		

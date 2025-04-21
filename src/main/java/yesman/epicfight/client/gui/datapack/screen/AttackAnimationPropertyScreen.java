@@ -51,9 +51,10 @@ public class AttackAnimationPropertyScreen extends Screen {
 	protected AttackAnimationPropertyScreen(Screen parentScreen, EditorAnimation animation, List<Joint> joints, ModelPreviewer modelPlayer) {
 		super(Component.translatable("datapack_edit.import_animation.client_data"));
 		
-		this.minecraft = parentScreen.getMinecraft();
 		this.parentScreen = parentScreen;
-		this.font = this.minecraft.font;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
+		
 		this.animation = animation;
 		this.modelPlayer = modelPlayer;
 		

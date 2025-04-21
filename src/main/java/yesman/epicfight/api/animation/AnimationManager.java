@@ -3,6 +3,7 @@ package yesman.epicfight.api.animation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -66,6 +67,20 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 	
 	public AnimationManager() {
 		super(new GsonBuilder().create(), "animmodels/animations");
+	}
+	
+	public static boolean checkNonNull(AssetAccessor<? extends StaticAnimation> animation) {
+		if (animation == null || animation.isEmpty()) {
+			if (animation != null) {
+				EpicFightMod.stacktraceIfDevSide("Empty animation accessor: " + animation.registryName(), NoSuchElementException::new);
+			} else {
+				EpicFightMod.stacktraceIfDevSide("Null animation accessor", NoSuchElementException::new);
+			}
+			
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public static <T extends StaticAnimation> AnimationAccessor<T> byKey(String registryName) {
@@ -337,7 +352,6 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		}
 	}
 	
-	
 	private static final Set<String> NO_WARNING_MODID = Sets.newHashSet();
 	
 	public static void addNoWarningModId(String modid) {
@@ -404,15 +418,11 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		
 		@Override
 		public A get() {
-			if (INSTANCE.animations.get(this) == null) {
+			if (!INSTANCE.animations.containsKey(this)) {
 				INSTANCE.animations.put(this, this.onLoad.apply(this));
 			}
 			
 			return (A)INSTANCE.animations.get(this);
-		}
-		
-		public boolean isPresent() {
-			return true;
 		}
 		
 		public String toString() {

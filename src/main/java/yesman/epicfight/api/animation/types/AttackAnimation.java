@@ -55,9 +55,9 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType
 
 public class AttackAnimation extends ActionAnimation {
 	/** Entities that collided **/
-	public static final SharedAnimationVariableKey<List<LivingEntity>> HIT_ENTITIES = AnimationVariables.shared(Lists::newArrayList, false);
+	public static final SharedAnimationVariableKey<List<LivingEntity>> HIT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
 	/** Entities that actually hurt **/
-	public static final SharedAnimationVariableKey<List<LivingEntity>> HURT_ENTITIES = AnimationVariables.shared(Lists::newArrayList, false);
+	public static final SharedAnimationVariableKey<List<LivingEntity>> HURT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
 	
 	public final Phase[] phases;
 	

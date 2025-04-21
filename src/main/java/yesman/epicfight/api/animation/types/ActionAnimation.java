@@ -41,9 +41,9 @@ import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ActionAnimation extends MainFrameAnimation {
-	public static final SharedAnimationVariableKey<TransformSheet> ACTION_ANIMATION_COORD = AnimationVariables.shared(TransformSheet::new, false);
-	public static final IndependentAnimationVariableKey<Vec3> BEGINNING_LOCATION = AnimationVariables.independent(() -> (Vec3)null, true);
-	public static final IndependentAnimationVariableKey<Float> INITIAL_LOOK_VEC_DOT = AnimationVariables.independent(() -> (Float)null, true);
+	public static final SharedAnimationVariableKey<TransformSheet> ACTION_ANIMATION_COORD = AnimationVariables.shared((animator) -> new TransformSheet(), false);
+	public static final IndependentAnimationVariableKey<Vec3> BEGINNING_LOCATION = AnimationVariables.independent((animator) -> animator.getEntityPatch().getOriginal().position(), true);
+	public static final IndependentAnimationVariableKey<Float> INITIAL_LOOK_VEC_DOT = AnimationVariables.independent((animator) -> animator.getEntityPatch().getYRot(), true);
 	
 	public ActionAnimation(float transitionTime, AnimationAccessor<? extends ActionAnimation> accessor, AssetAccessor<? extends Armature> armature) {
 		this(transitionTime, Float.MAX_VALUE, accessor, armature);
@@ -88,7 +88,7 @@ public class ActionAnimation extends MainFrameAnimation {
 	public void putOnPlayer(AnimationPlayer animationPlayer, LivingEntityPatch<?> entitypatch) {
 		if (entitypatch.shouldMoveOnCurrentSide(this)) {
 			MoveCoordSetter moveCoordSetter = this.getProperty(ActionAnimationProperty.COORD_SET_BEGIN).orElse(MoveCoordFunctions.RAW_COORD);
-			moveCoordSetter.set(this, entitypatch, entitypatch.getAnimator().getVariables().getSharedVariable(ACTION_ANIMATION_COORD));
+			moveCoordSetter.set(this, entitypatch, entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD));
 		}
 		
 		super.putOnPlayer(animationPlayer, entitypatch);
@@ -300,7 +300,7 @@ public class ActionAnimation extends MainFrameAnimation {
 		
 		if (entitypatch.shouldMoveOnCurrentSide(this)) {
 			MoveCoordSetter moveCoordSetter = this.getProperty(ActionAnimationProperty.COORD_SET_BEGIN).orElse(MoveCoordFunctions.RAW_COORD);
-			moveCoordSetter.set(dest, entitypatch, entitypatch.getAnimator().getVariables().getSharedVariable(ACTION_ANIMATION_COORD));
+			moveCoordSetter.set(dest, entitypatch, entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD));
 		}
 	}
 	
@@ -338,7 +338,7 @@ public class ActionAnimation extends MainFrameAnimation {
 		TimePairList coordUpdateTime = this.getProperty(ActionAnimationProperty.COORD_UPDATE_TIME).orElse(null);
 		boolean inUpdateTime = coordUpdateTime == null || coordUpdateTime.isTimeInPairs(player.getElapsedTime());
 		boolean getRawCoord = this.getProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(!inUpdateTime);
-		TransformSheet transformSheet = entitypatch.getAnimator().getVariables().getSharedVariable(ACTION_ANIMATION_COORD);
+		TransformSheet transformSheet = entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD);
 		MoveCoordSetter moveCoordsetter = getRawCoord ? MoveCoordFunctions.RAW_COORD : this.getProperty(ActionAnimationProperty.COORD_SET_TICK).orElse(null);
 		
 		if (moveCoordsetter != null) {

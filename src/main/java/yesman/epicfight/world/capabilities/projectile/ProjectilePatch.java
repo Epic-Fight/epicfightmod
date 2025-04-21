@@ -71,8 +71,8 @@ public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<
 	@Override
 	public void onAddedToWorld() {
 		if (this.getOriginal().level().isClientSide()) {
-			double eid = Double.longBitsToDouble((long)this.getOriginal().getId());
-			this.getOriginal().level().addParticle(EpicFightParticles.PROJECTILE_TRAIL.get(), eid, 0, 0, 0, 0, 0);
+			double entityId = Double.longBitsToDouble((long)this.getOriginal().getId());
+			this.getOriginal().level().addParticle(EpicFightParticles.PROJECTILE_TRAIL.get(), entityId, 0, 0, 0, 0, 0);
 		}
 	}
 	

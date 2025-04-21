@@ -18,7 +18,9 @@ public class SynchedAnimationVariableKeys {
 	public static final DeferredRegister<SynchedAnimationVariableKey<?>> SYNCHED_ANIMATION_VARIABLE_KEYS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "synched_animation_variable_keys"), EpicFightMod.MODID);
 	public static final Supplier<IForgeRegistry<SynchedAnimationVariableKey<?>>> REGISTRY = SYNCHED_ANIMATION_VARIABLE_KEYS.makeRegistry(BUILDER);
 	
-	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Vec3>> DESTINATION = SYNCHED_ANIMATION_VARIABLE_KEYS.register("destination", () -> SynchedAnimationVariableKey.independent(() -> (Vec3)null, true, PacketBufferCodec.VEC3));
+	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Vec3>> DESTINATION = SYNCHED_ANIMATION_VARIABLE_KEYS.register("destination", () ->
+		SynchedAnimationVariableKey.independent((animator) -> animator.getEntityPatch().getOriginal().position(), true, PacketBufferCodec.VEC3));
 	
-	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Integer>> TARGET_ENTITY = SYNCHED_ANIMATION_VARIABLE_KEYS.register("target_entity", () -> SynchedAnimationVariableKey.independent(() -> (Integer)null, true, PacketBufferCodec.INTEGER));
+	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Integer>> TARGET_ENTITY = SYNCHED_ANIMATION_VARIABLE_KEYS.register("target_entity", () ->
+		SynchedAnimationVariableKey.independent((animator) -> (Integer)null, true, PacketBufferCodec.INTEGER));
 }

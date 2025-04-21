@@ -35,10 +35,13 @@ public class SelectModelScreen extends Screen {
 	public SelectModelScreen(Screen parentScreen, BiConsumer<String, AssetAccessor<SkinnedMesh>> selectCallback, BiConsumer<String, AssetAccessor<SkinnedMesh>> cancelCallback) {
 		super(Component.translatable("gui.epicfight.select.models"));
 		
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
+		
 		this.modelPreviewer = new ModelPreviewer(10, 20, 36, 60, null, null, null, null);
 		this.modelList = new ModelList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21);
 		this.modelList.setRenderTopAndBottom(false);
-		this.parentScreen = parentScreen;
 		this.searchBox = new EditBox(parentScreen.getMinecraft().font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal("datapack_edit.keyword"));
 		this.searchBox.setResponder(this.modelList::refreshModelList);
 		this.selectCallback = selectCallback;

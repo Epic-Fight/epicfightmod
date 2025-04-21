@@ -2021,7 +2021,7 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.0F)
 				.addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0F, 0.35F))
-				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ENTITY_VARIABLE)
+				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
 				.addProperty(ActionAnimationProperty.COORD_UPDATE_TIME, TimePairList.create(0.0F, 0.25F))
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, null) 
 				.addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_ORIGIN_AS_DESTINATION)
@@ -2039,7 +2039,7 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.0F)
 				.addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0F, 0.35F))
-				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ENTITY_VARIABLE)
+				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
 				.addProperty(ActionAnimationProperty.COORD_UPDATE_TIME, TimePairList.create(0.0F, 0.3F))
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, null) 
 				.addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_ORIGIN_AS_DESTINATION)
@@ -2057,7 +2057,7 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.0F)
 				.addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0F, 0.35F))
-				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ENTITY_VARIABLE)
+				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
 				.addProperty(ActionAnimationProperty.COORD_UPDATE_TIME, TimePairList.create(0.0F, 0.25F))
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, null) 
 				.addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_ORIGIN_AS_DESTINATION)
@@ -2104,7 +2104,7 @@ public class Animations {
 			new GrapplingTryAnimation(0.1F, 0.0F, 0.4F, 0.4F, 0.45F, ColliderPreset.BIPED_BODY_COLLIDER, Armatures.BIPED.get().rootJoint, accessor, BLADE_RUSH_HIT, BLADE_RUSH_EXECUTE_BIPED, BLADE_RUSH_FAILED, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.COORD_START_KEYFRAME_INDEX, 1)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.15F, 0.35F))
-				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ENTITY_VARIABLE));
+				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE));
 		
 		WRATHFUL_LIGHTING = builder.nextAccessor("biped/skill/wrathful_lighting", (accessor) ->
 			new AttackAnimation(0.15F, accessor, Armatures.BIPED,
@@ -2283,7 +2283,7 @@ public class Animations {
 		};
 		
 		public static final AnimationEvent.E1<SoundEvent> PLAY_SOUND = (entitypatch, animation, params) -> entitypatch.playSound(params.first(), 0, 0);
-		public static final IndependentAnimationVariableKey<Boolean> TOOLS_IN_BACK = AnimationVariables.independent(() -> false, true);
+		public static final IndependentAnimationVariableKey<Boolean> TOOLS_IN_BACK = AnimationVariables.independent((animator) -> false, true);
 		
 		private static void moveToolBonesToBack(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends StaticAnimation> animation, HumanoidArmature humanoidArmature) {
 			entitypatch.setParentJointOfHand(InteractionHand.MAIN_HAND, humanoidArmature.chest);

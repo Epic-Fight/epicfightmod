@@ -494,7 +494,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 				this.linkCameraTransform.getKeyframes()[1].setTime(EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME);
 			}
 			
-			this.playAnimation(Animations.EMPTY_ANIMATION, LocalPlayerPatch.this, EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME);
+			super.off(LocalPlayerPatch.this);
 		}
 		
 		@Override

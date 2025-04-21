@@ -67,7 +67,7 @@ public class EpicFightServerConnectionHelper {
 						fos.flush();
 						fos.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						EpicFightMod.LOGGER.info("Can't read library file: " + e.getMessage());
 					}
 				}
 				
@@ -76,14 +76,14 @@ public class EpicFightServerConnectionHelper {
 				try {
 					System.load(file.toString());
 				} catch (UnsatisfiedLinkError e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					exceptionOccurred = true;
 				}
 				
 				supported = !exceptionOccurred;
 			} else {
 				supported = false;
-				throw new IllegalArgumentException("Cannot find library file in " + libpath);
+				EpicFightMod.LOGGER.info("Can't read library file: " + libpath);
 			}
 		}
 		

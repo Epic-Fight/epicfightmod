@@ -11,7 +11,13 @@ public interface AssetAccessor<O> extends Supplier<O> {
 	
 	public ResourceLocation registryName();
 	
-	public boolean isPresent();
+	default boolean isPresent() {
+		return this.get() != null;
+	}
+	
+	default boolean isEmpty() {
+		return !this.isPresent();
+	}
 	
 	public boolean inRegistry();
 	

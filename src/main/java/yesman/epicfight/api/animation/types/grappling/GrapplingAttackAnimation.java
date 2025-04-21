@@ -40,7 +40,7 @@ public class GrapplingAttackAnimation extends AttackAnimation {
 	@Override
 	public void begin(LivingEntityPatch<?> entitypatch) {
 		if (entitypatch.shouldMoveOnCurrentSide(this)) {
-			Keyframe[] grapplingAnimCoord = entitypatch.getAnimator().getVariables().getSharedVariable(ACTION_ANIMATION_COORD).getKeyframes();
+			Keyframe[] grapplingAnimCoord = entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD).getKeyframes();
 			Vec3f translation = grapplingAnimCoord[grapplingAnimCoord.length - 1].transform().translation();
 			entitypatch.getOriginal().setDeltaMovement(0.0D, 0.0D, 0.0D);
 			entitypatch.getOriginal().setPos(translation.toDoubleVector());

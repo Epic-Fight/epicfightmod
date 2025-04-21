@@ -203,7 +203,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				if (this.armature.get() == null || this.mesh.get() == null) {
+				if (this.armature == null || this.armature.get() == null || this.mesh == null || this.mesh.get() == null) {
 					this.owner.getMinecraft().setScreen(new MessageScreen<>("", "Define model and armature first.", this.owner, (button2) -> this.owner.getMinecraft().setScreen(this.owner), 180, 60));
 				} else {
 					this.owner.getMinecraft().setScreen(new SelectAnimationScreen(this.owner, this::_setValue, this::_setValue, this.getFilter(), this.armature, this.mesh));

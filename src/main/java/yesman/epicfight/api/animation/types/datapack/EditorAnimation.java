@@ -23,6 +23,7 @@ import yesman.epicfight.api.animation.types.AirSlashAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.BasicAttackAnimation;
 import yesman.epicfight.api.animation.types.DashAttackAnimation;
+import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.HitAnimation;
 import yesman.epicfight.api.animation.types.KnockdownAnimation;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
@@ -247,17 +248,17 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 		staticAnimationParameters.put("convertTime", float.class);
 		staticAnimationParameters.put("isRepeat", boolean.class);
 		staticAnimationParameters.put("path", String.class);
-		staticAnimationParameters.put("armature", Armature.class);
+		staticAnimationParameters.put("armature", AssetAccessor.class);
 		
 		Map<String, Class<?>> hitAnimationParameters = Maps.newLinkedHashMap();
 		hitAnimationParameters.put("convertTime", float.class);
 		hitAnimationParameters.put("path", String.class);
-		hitAnimationParameters.put("armature", Armature.class);
+		hitAnimationParameters.put("armature", AssetAccessor.class);
 		
 		Map<String, Class<?>> attackAnimationParameters = Maps.newLinkedHashMap();
 		attackAnimationParameters.put("convertTime", float.class);
 		attackAnimationParameters.put("path", String.class);
-		attackAnimationParameters.put("armature", Armature.class);
+		attackAnimationParameters.put("armature", AssetAccessor.class);
 		attackAnimationParameters.put("phases", ListTag.class);
 		
 		PARAMETERS.put(AnimationType.STATIC, staticAnimationParameters);
@@ -346,5 +347,11 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 	@Override
 	public boolean inRegistry() {
 		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <A extends DynamicAnimation> AnimationAccessor<A> getAccessor() {
+		return (AnimationAccessor<A>)this;
 	}
 }

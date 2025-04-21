@@ -54,6 +54,8 @@ public class WeaponComboScreen extends Screen {
 	public WeaponComboScreen(Screen parentScreen, CompoundTag rootTag) {
 		super(Component.translatable("datapack_edit.weapon_type.combos"));
 		
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		this.parentScreen = parentScreen;
 		
 		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 20) {
@@ -93,9 +95,6 @@ public class WeaponComboScreen extends Screen {
 		};
 		this.inputComponentsList.setLeftPos(parentScreen.width - 205);
 		this.rootTag = ParseUtil.getOrDefaultTag(rootTag, "combos", new CompoundTag());
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
-		
 		this.stylesGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(12, 60)
 								.xy2(85, 50)

@@ -46,7 +46,7 @@ import yesman.epicfight.main.EpicFightMod;
 public class CombatBehaviorScreen extends Screen {
 	private InputComponentList<CompoundTag> inputComponentsList;
 	private final List<CompoundTag> movesetList = Lists.newLinkedList();
-	private final Screen caller;
+	private final Screen parentScreen;
 	private final CompoundTag rootTag;
 	private final ModelPreviewer modelPreviewer;
 	private final boolean isHumanoidSubTag;
@@ -56,13 +56,13 @@ public class CombatBehaviorScreen extends Screen {
 	private Grid conditionGrid;
 	private Grid parameterGrid;
 	
-	protected CombatBehaviorScreen(Screen caller, CompoundTag rootTag, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh, boolean isHumanoidSubTag) {
+	protected CombatBehaviorScreen(Screen parentScreen, CompoundTag rootTag, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh, boolean isHumanoidSubTag) {
 		super(Component.translatable("datapack_edit.mob_patch.combat_behavior"));
 		
 		this.isHumanoidSubTag = isHumanoidSubTag;
-		this.caller = caller;
-		this.minecraft = caller.getMinecraft();
-		this.font = caller.getMinecraft().font;
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
 		this.rootTag = rootTag;
 		this.modelPreviewer = new ModelPreviewer(0, 10, 35, 50, HorizontalSizing.LEFT_RIGHT, VerticalSizing.TOP_BOTTOM, armature, mesh);
@@ -78,7 +78,7 @@ public class CombatBehaviorScreen extends Screen {
 		animationPopupBox.applyFilter((animation) -> animation instanceof AttackAnimation);
 		animationPopupBox.setModel(armature, mesh);
 		
-		this.movesetGrid = Grid.builder(this, caller.getMinecraft())
+		this.movesetGrid = Grid.builder(this, parentScreen.getMinecraft())
 									.xy1(8, 45)
 									.xy2(55, 50)
 									.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -121,7 +121,7 @@ public class CombatBehaviorScreen extends Screen {
 									})
 									.build();
 		
-		this.behaviorGrid = Grid.builder(this, caller.getMinecraft())
+		this.behaviorGrid = Grid.builder(this, parentScreen.getMinecraft())
 				.xy1(2, 0)
 				.xy2(55, 245)
 				.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -253,7 +253,7 @@ public class CombatBehaviorScreen extends Screen {
 		
 		cooldownEditBox.setFilter((context) -> StringUtil.isNullOrEmpty(context) || ParseUtil.isParsable(context, Integer::parseInt));
 		
-		this.conditionGrid = Grid.builder(this, caller.getMinecraft())
+		this.conditionGrid = Grid.builder(this, parentScreen.getMinecraft())
 									.xy1(63, 0)
 									.xy2(10, 80)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -332,7 +332,7 @@ public class CombatBehaviorScreen extends Screen {
 									})
 									.build();
 		
-		this.parameterGrid = Grid.builder(this, caller.getMinecraft())
+		this.parameterGrid = Grid.builder(this, parentScreen.getMinecraft())
 									.xy1(63, 0)
 									.xy2(10, 80)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -367,11 +367,11 @@ public class CombatBehaviorScreen extends Screen {
 		
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(4), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.weight"));
-		this.inputComponentsList.addComponentCurrentRow(weightEditBox.relocateX(caller.getRectangle(), this.inputComponentsList.nextStart(5)));
+		this.inputComponentsList.addComponentCurrentRow(weightEditBox.relocateX(parentScreen.getRectangle(), this.inputComponentsList.nextStart(5)));
 		
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(4), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.cooldown"));
-		this.inputComponentsList.addComponentCurrentRow(cooldownEditBox.relocateX(caller.getRectangle(), this.inputComponentsList.nextStart(5)));
+		this.inputComponentsList.addComponentCurrentRow(cooldownEditBox.relocateX(parentScreen.getRectangle(), this.inputComponentsList.nextStart(5)));
 		
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(4), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.interceptable"));
@@ -392,7 +392,7 @@ public class CombatBehaviorScreen extends Screen {
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(63), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.conditions"));
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.newRow();
-		this.inputComponentsList.addComponentCurrentRow(this.conditionGrid.relocateX(caller.getRectangle(), this.inputComponentsList.nextStart(60)));
+		this.inputComponentsList.addComponentCurrentRow(this.conditionGrid.relocateX(parentScreen.getRectangle(), this.inputComponentsList.nextStart(60)));
 		this.inputComponentsList.newRow();
 		
 		this.inputComponentsList.newRow();
@@ -401,12 +401,12 @@ public class CombatBehaviorScreen extends Screen {
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(7), 100, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.parameters"));
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.newRow();
-		this.inputComponentsList.addComponentCurrentRow(this.parameterGrid.relocateX(caller.getRectangle(), this.inputComponentsList.nextStart(60)));
+		this.inputComponentsList.addComponentCurrentRow(this.parameterGrid.relocateX(parentScreen.getRectangle(), this.inputComponentsList.nextStart(60)));
 		this.inputComponentsList.newRow();
 		
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, this.inputComponentsList.nextStart(63), 55, 0, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior.animation"));
-		this.inputComponentsList.addComponentCurrentRow(animationPopupBox.relocateX(caller.getRectangle(), this.inputComponentsList.nextStart(5)));
+		this.inputComponentsList.addComponentCurrentRow(animationPopupBox.relocateX(parentScreen.getRectangle(), this.inputComponentsList.nextStart(5)));
 		
 		if (this.rootTag.contains("combat_behavior") || this.isHumanoidSubTag && this.rootTag.contains("behavior_series")) {
 			Grid.PackImporter packImporter = new Grid.PackImporter();
@@ -481,7 +481,7 @@ public class CombatBehaviorScreen extends Screen {
 	
 	@Override
 	public void onClose() {
-		this.minecraft.setScreen(this.caller);
+		this.minecraft.setScreen(this.parentScreen);
 		this.modelPreviewer.onDestroy();
 	}
 	

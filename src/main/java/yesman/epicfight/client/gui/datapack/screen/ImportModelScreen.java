@@ -34,31 +34,31 @@ import yesman.epicfight.client.gui.datapack.widgets.Static;
 
 @OnlyIn(Dist.CLIENT)
 public class ImportModelScreen extends Screen {
-	private final SelectModelScreen caller;
+	private final SelectModelScreen parentScreen;
 	private final Grid meshGrid;
 	private final Grid armatureGrid;
 	private final ModelPreviewer modelPreviewer;
 	private List<PackEntry<String, AssetAccessor<? extends SkinnedMesh>>> userMeshes;
 	private List<PackEntry<String, AssetAccessor<? extends Armature>>> userArmatures;
 	
-	public ImportModelScreen(SelectModelScreen caller) {
+	public ImportModelScreen(SelectModelScreen parentScreen) {
 		super(Component.literal("register_model_screen"));
+		
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
 		Stream<PackEntry<String, AssetAccessor<? extends SkinnedMesh>>> meshesStream = DatapackEditScreen.getCurrentScreen().getUserMeshes().entrySet().stream().map((entry) -> PackEntry.ofValue(entry.getKey().toString(), entry.getValue()));
 		this.userMeshes = new ArrayList<>(meshesStream.toList());
 		
 		Stream<PackEntry<String, AssetAccessor<? extends Armature>>> armaturesStream = DatapackEditScreen.getCurrentScreen().getUserArmatures().entrySet().stream().map((entry) -> PackEntry.ofValue(entry.getKey().toString(), entry.getValue()));
 		this.userArmatures = new ArrayList<>(armaturesStream.toList());
-		
-		this.caller = caller;
 		this.modelPreviewer = new ModelPreviewer(0, 10, 30, 30, HorizontalSizing.LEFT_RIGHT, VerticalSizing.TOP_BOTTOM, null, null);
-		this.minecraft = caller.getMinecraft();
-		this.font = caller.getMinecraft().font;
 		
-		ScreenRectangle screenRect = caller.getRectangle();
+		ScreenRectangle screenRect = parentScreen.getRectangle();
 		int split = screenRect.width() / 2 - 60;
 		
-		this.meshGrid = Grid.builder(this, caller.getMinecraft())
+		this.meshGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(8, screenRect.top() + 14)
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
@@ -77,7 +77,7 @@ public class ImportModelScreen extends Screen {
 								})
 								.build();
 		
-		this.armatureGrid = Grid.builder(this, caller.getMinecraft())
+		this.armatureGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(8, screenRect.top() + 14)
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
@@ -157,8 +157,8 @@ public class ImportModelScreen extends Screen {
 	
 	@Override
 	public void onClose() {
-		this.caller.refreshModelList();
-		this.minecraft.setScreen(this.caller);
+		this.parentScreen.refreshModelList();
+		this.minecraft.setScreen(this.parentScreen);
 		this.modelPreviewer.onDestroy();
 	}
 	

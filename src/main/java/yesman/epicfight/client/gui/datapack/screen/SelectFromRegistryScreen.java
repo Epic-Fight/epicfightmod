@@ -44,11 +44,14 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	public SelectFromRegistryScreen(Screen parentScreen, IForgeRegistry<T> registry, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Consumer<T> onPressRow, Predicate<T> filter) {
 		super(Component.translatable("gui.epicfight.select", ParseUtil.snakeToSpacedCamel(registry.getRegistryName().getPath())));
 		
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
+		
 		final Map<ResourceLocation, T> filteredItems = Maps.newHashMap();
 		registry.getValues().stream().filter(filter).forEach((value) -> filteredItems.put(registry.getKey(value), value));
 		
 		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21, filteredItems);
-		this.parentScreen = parentScreen;
 		this.onPressRow = onPressRow;
 		this.onAccept = onAccept;
 		this.onCancel = onCancel;
@@ -56,6 +59,10 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	
 	public SelectFromRegistryScreen(Screen parentScreen, Set<Pair<ResourceLocation, T>> entries, String title, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Consumer<T> onPressRow, Predicate<T> filter) {
 		super(Component.translatable("gui.epicfight.select", ParseUtil.snakeToSpacedCamel(title)));
+		
+		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
 		
 		Map<ResourceLocation, T> filteredItems = entries.stream().filter((entry) -> filter.test(entry.getSecond())).reduce(Maps.newHashMap(), (map, element) -> {
 			map.put(element.getFirst(), element.getSecond());
@@ -66,7 +73,6 @@ public class SelectFromRegistryScreen<T> extends Screen {
 		});
 		
 		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21, filteredItems);
-		this.parentScreen = parentScreen;
 		this.onPressRow = onPressRow;
 		this.onAccept = onAccept;
 		this.onCancel = onCancel;

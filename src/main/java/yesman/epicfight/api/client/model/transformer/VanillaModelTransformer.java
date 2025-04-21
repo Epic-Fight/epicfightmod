@@ -36,14 +36,36 @@ import yesman.epicfight.mixin.MixinAgeableListModel;
 
 @OnlyIn(Dist.CLIENT)
 public class VanillaModelTransformer extends HumanoidModelTransformer {
-	public static final PartTransformer<ModelPart.Cube> HEAD = new SimpleTransformer(9);
-	public static final PartTransformer<ModelPart.Cube> LEFT_FEET = new SimpleTransformer(5);
-	public static final PartTransformer<ModelPart.Cube> RIGHT_FEET = new SimpleTransformer(2);
-	public static final PartTransformer<ModelPart.Cube> LEFT_ARM = new LimbPartTransformer(16, 17, 19, 19.0F, false, AABB.ofSize(new Vec3(-6.0D, 18.0D, 0), 8.0D, 14.0D, 8.0D));
-	public static final PartTransformer<ModelPart.Cube> RIGHT_ARM = new LimbPartTransformer(11, 12, 14, 19.0F, false, AABB.ofSize(new Vec3(6.0D, 18.0D, 0), 8.0D, 14.0D, 8.0D));
-	public static final PartTransformer<ModelPart.Cube> LEFT_LEG = new LimbPartTransformer(4, 5, 6, 6.0F, true, AABB.ofSize(new Vec3(-2.0D, 6.0D, 0), 8.0D, 14.0D, 8.0D));
-	public static final PartTransformer<ModelPart.Cube> RIGHT_LEG = new LimbPartTransformer(1, 2, 3, 6.0F, true, AABB.ofSize(new Vec3(2.0D, 6.0D, 0), 8.0D, 14.0D, 8.0D));
-	public static final PartTransformer<ModelPart.Cube> CHEST = new ChestPartTransformer(8, 7, 18.0F, AABB.ofSize(new Vec3(0, 18.0D, 0), 12.0D, 14.0D, 6.0D));
+	public static final SimpleTransformer HEAD = new SimpleTransformer(AABB.ofSize(new Vec3(0.0D, -4.0D, 0.0D), 8.0D, 8.0D, 8.0D), 9);
+	public static final SimpleTransformer LEFT_FEET = new SimpleTransformer(AABB.ofSize(new Vec3(0.0D, -4.0D, 0.0D), 8.0D, 8.0D, 8.0D), 5);
+	public static final SimpleTransformer RIGHT_FEET = new SimpleTransformer(AABB.ofSize(new Vec3(0.0D, -4.0D, 0.0D), 8.0D, 8.0D, 8.0D), 2);
+	public static final LimbPartTransformer LEFT_ARM = new LimbPartTransformer(AABB.ofSize(new Vec3(1.0D, 6.0D, 0.0D), 4.0D, 12.0D, 4.0D), 16, 17, 19, 19.0F, false, AABB.ofSize(new Vec3(-6.0D, 18.0D, 0), 8.0D, 14.0D, 8.0D));
+	public static final LimbPartTransformer RIGHT_ARM = new LimbPartTransformer(AABB.ofSize(new Vec3(-1.0D, 6.0D, 0.0D), 4.0D, 12.0D, 4.0D), 11, 12, 14, 19.0F, false, AABB.ofSize(new Vec3(6.0D, 18.0D, 0), 8.0D, 14.0D, 8.0D));
+	public static final LimbPartTransformer LEFT_LEG = new LimbPartTransformer(AABB.ofSize(new Vec3(1.9D, 18.0D, 0.0D), 4.0D, 12.0D, 4.0D), 4, 5, 6, 6.0F, true, AABB.ofSize(new Vec3(-2.0D, 6.0D, 0), 8.0D, 14.0D, 8.0D));
+	public static final LimbPartTransformer RIGHT_LEG = new LimbPartTransformer(AABB.ofSize(new Vec3(-1.9D, 18.0D, 0.0D), 4.0D, 12.0D, 4.0D), 1, 2, 3, 6.0F, true, AABB.ofSize(new Vec3(2.0D, 6.0D, 0), 8.0D, 14.0D, 8.0D));
+	public static final ChestPartTransformer CHEST = new ChestPartTransformer(AABB.ofSize(new Vec3(0.0D, 6.0D, 0.0D), 8.0D, 12.0D, 4.0D), 8, 7, 18.0F, AABB.ofSize(new Vec3(0, 18.0D, 0), 12.0D, 14.0D, 6.0D));
+	
+	private static PartTransformer<ModelPart.Cube> getModelPartTransformer(ModelPart modelPart) {
+		if (HEAD.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return HEAD;
+		} else if (LEFT_FEET.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return LEFT_FEET;
+		} else if (RIGHT_FEET.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return RIGHT_FEET;
+		} else if (LEFT_ARM.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return LEFT_ARM;
+		} else if (RIGHT_ARM.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return RIGHT_ARM;
+		} else if (LEFT_LEG.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return LEFT_LEG;
+		} else if (RIGHT_LEG.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return RIGHT_LEG;
+		} else if (CHEST.coverArea.contains(modelPart.x, modelPart.y, modelPart.z)) {
+			return CHEST;
+		}
+		
+		return CHEST;
+	}
 	
 	@OnlyIn(Dist.CLIENT)
 	static record VanillaModelPartition(PartTransformer<ModelPart.Cube> partTransformer, ModelPart modelPart, String partName) {
@@ -78,31 +100,31 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		
 		modelParts.forEach((modelPart) -> modelPart.loadPose(modelPart.getInitialPose()));
 		
-		if (humanoidModel.head.visible) {
+		if (humanoidModel.head.skipDraw || humanoidModel.head.visible) {
 			partitions.add(new VanillaModelPartition(HEAD, humanoidModel.head, "head"));
 		}
 		
-		if (humanoidModel.hat.visible) {
+		if (humanoidModel.hat.skipDraw || humanoidModel.hat.visible) {
 			partitions.add(new VanillaModelPartition(HEAD, humanoidModel.hat, "hat"));
 		}
 		
-		if (humanoidModel.body.visible) {
+		if (humanoidModel.body.skipDraw || humanoidModel.body.visible) {
 			partitions.add(new VanillaModelPartition(CHEST, humanoidModel.body, "body"));
 		}
 		
-		if (humanoidModel.rightArm.visible) {
+		if (humanoidModel.rightArm.skipDraw || humanoidModel.rightArm.visible) {
 			partitions.add(new VanillaModelPartition(RIGHT_ARM, humanoidModel.rightArm, "rightArm"));
 		}
 		
-		if (humanoidModel.leftArm.visible) {
+		if (humanoidModel.leftArm.skipDraw || humanoidModel.leftArm.visible) {
 			partitions.add(new VanillaModelPartition(LEFT_ARM, humanoidModel.leftArm, "leftArm"));
 		}
 		
-		if (humanoidModel.leftLeg.visible) {
+		if (humanoidModel.leftLeg.skipDraw || humanoidModel.leftLeg.visible) {
 			partitions.add(new VanillaModelPartition(LEFT_LEG, humanoidModel.leftLeg, "leftLeg"));
 		}
 		
-		if (humanoidModel.rightLeg.visible) {
+		if (humanoidModel.rightLeg.skipDraw || humanoidModel.rightLeg.visible) {
 			partitions.add(new VanillaModelPartition(RIGHT_LEG, humanoidModel.rightLeg, "rightLeg"));
 		}
 		
@@ -117,8 +139,8 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		int i = 0;
 		
 		for (ModelPart modelpart : modelParts) {
-			if (modelpart.visible) {
-				partitions.add(new VanillaModelPartition(HEAD, modelpart, "part" + (i++)));
+			if (modelpart.skipDraw || modelpart.visible) {
+				partitions.add(new VanillaModelPartition(getModelPartTransformer(modelpart), modelpart, "part" + (i++)));
 			}
 		}
 		
@@ -186,8 +208,10 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 	@OnlyIn(Dist.CLIENT)
 	static class SimpleTransformer extends PartTransformer<ModelPart.Cube> {
 		final int jointId;
+		final AABB coverArea;
 		
-		public SimpleTransformer(int jointId) {
+		public SimpleTransformer(AABB coverArea, int jointId) {
+			this.coverArea = coverArea;
 			this.jointId = jointId;
 		}
 		
@@ -221,12 +245,14 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		final SimpleTransformer upperAttachmentTransformer;
 		final SimpleTransformer lowerAttachmentTransformer;
 		final AABB noneAttachmentArea;
+		final AABB coverArea;
 		final float yClipCoord;
 		
-		public ChestPartTransformer(int upperJoint, int lowerJoint, float yBasis, AABB noneAttachmentArea) {
+		public ChestPartTransformer(AABB coverArea, int upperJoint, int lowerJoint, float yBasis, AABB noneAttachmentArea) {
+			this.coverArea = coverArea;
 			this.noneAttachmentArea = noneAttachmentArea;
-			this.upperAttachmentTransformer = new SimpleTransformer(upperJoint);
-			this.lowerAttachmentTransformer = new SimpleTransformer(lowerJoint);
+			this.upperAttachmentTransformer = new SimpleTransformer(null, upperJoint);
+			this.lowerAttachmentTransformer = new SimpleTransformer(null, lowerJoint);
 			this.yClipCoord = yBasis;
 		}
 		
@@ -414,16 +440,18 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		final SimpleTransformer upperAttachmentTransformer;
 		final SimpleTransformer lowerAttachmentTransformer;
 		final AABB noneAttachmentArea;
+		final AABB coverArea;
 		final float yClipCoord;
 		
-		public LimbPartTransformer(int upperJoint, int lowerJoint, int middleJoint, float yClipCoord, boolean bendInFront, AABB noneAttachmentArea) {
+		public LimbPartTransformer(AABB coverArea, int upperJoint, int lowerJoint, int middleJoint, float yClipCoord, boolean bendInFront, AABB noneAttachmentArea) {
 			this.upperJoint = upperJoint;
 			this.lowerJoint = lowerJoint;
 			this.middleJoint = middleJoint;
 			this.bendInFront = bendInFront;
-			this.upperAttachmentTransformer = new SimpleTransformer(upperJoint);
-			this.lowerAttachmentTransformer = new SimpleTransformer(lowerJoint);
+			this.upperAttachmentTransformer = new SimpleTransformer(null, upperJoint);
+			this.lowerAttachmentTransformer = new SimpleTransformer(null, lowerJoint);
 			this.noneAttachmentArea = noneAttachmentArea;
+			this.coverArea = coverArea;
 			this.yClipCoord = yClipCoord;
 		}
 		

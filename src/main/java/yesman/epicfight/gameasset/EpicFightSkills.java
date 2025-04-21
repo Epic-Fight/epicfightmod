@@ -103,8 +103,6 @@ public class EpicFightSkills {
 	public static Skill TSUNAMI;
 	public static Skill EVERLASTING_ALLEGIANCE;
 	
-	public static Skill FLYING_KICK;
-	
 	/** Battle style skills **/
 	public static Skill METEOR_STRIKE;
 	public static Skill REVELATION;
@@ -133,7 +131,7 @@ public class EpicFightSkills {
 		FORBIDDEN_STRENGTH = modRegistry.build("forbidden_strength", ForbiddenStrengthSkill::new, PassiveSkill.createPassiveBuilder());
 		HYPERVITALITY = modRegistry.build("hypervitality", HyperVitalitySkill::new, PassiveSkill.createPassiveBuilder().setResource(Resource.COOLDOWN).setActivateType(ActivateType.TOGGLE));
 		STAMINA_PILLAGER = modRegistry.build("stamina_pillager", StaminaPillagerSkill::new, PassiveSkill.createPassiveBuilder());
-		SWORD_MASTER = modRegistry.build("swordmaster", SwordmasterSkill::new, PassiveSkill.createPassiveBuilder());
+		SWORD_MASTER = modRegistry.build("swordmaster", SwordmasterSkill::new, SwordmasterSkill.createSwordMasterBuilder());
 		TECHNICIAN = modRegistry.build("technician", TechnicianSkill::new, PassiveSkill.createPassiveBuilder());
 		
 		METEOR_STRIKE = modRegistry.build("meteor_slam", MeteorSlamSkill::new, MeteorSlamSkill.createMeteorSlamBuilder());

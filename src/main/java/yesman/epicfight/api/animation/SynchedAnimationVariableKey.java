@@ -1,6 +1,6 @@
 package yesman.epicfight.api.animation;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -23,12 +23,12 @@ import yesman.epicfight.network.server.SPAnimationVariablePacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public interface SynchedAnimationVariableKey<T> {
-	public static <T> SynchedSharedAnimationVariableKey<T> shared(Supplier<T> initValueSupplier, boolean mutable, PacketBufferCodec<T> codec) {
-		return new SynchedSharedAnimationVariableKey<> (initValueSupplier, mutable, codec);
+	public static <T> SynchedSharedAnimationVariableKey<T> shared(Function<Animator, T> defaultValueSupplier, boolean mutable, PacketBufferCodec<T> codec) {
+		return new SynchedSharedAnimationVariableKey<> (defaultValueSupplier, mutable, codec);
 	}
 	
-	public static <T> SynchedIndependentAnimationVariableKey<T> independent(Supplier<T> initValueSupplier, boolean mutable, PacketBufferCodec<T> codec) {
-		return new SynchedIndependentAnimationVariableKey<> (initValueSupplier, mutable, codec);
+	public static <T> SynchedIndependentAnimationVariableKey<T> independent(Function<Animator, T> defaultValueSupplier, boolean mutable, PacketBufferCodec<T> codec) {
+		return new SynchedIndependentAnimationVariableKey<> (defaultValueSupplier, mutable, codec);
 	}
 	
 	public static final ResourceLocation BY_ID_REGISTRY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "variablekeytoid");
@@ -87,8 +87,8 @@ public interface SynchedAnimationVariableKey<T> {
 	public static class SynchedSharedAnimationVariableKey<T> extends SharedAnimationVariableKey<T> implements SynchedAnimationVariableKey<T> {
 		private final PacketBufferCodec<T> packetBufferCodec;
 		
-		protected SynchedSharedAnimationVariableKey(Supplier<T> initValueSupplier, boolean mutable, PacketBufferCodec<T> packetBufferCodec) {
-			super(initValueSupplier, mutable);
+		protected SynchedSharedAnimationVariableKey(Function<Animator, T> defaultValueSupplier, boolean mutable, PacketBufferCodec<T> packetBufferCodec) {
+			super(defaultValueSupplier, mutable);
 			this.packetBufferCodec = packetBufferCodec;
 		}
 		
@@ -106,8 +106,8 @@ public interface SynchedAnimationVariableKey<T> {
 	public static class SynchedIndependentAnimationVariableKey<T> extends IndependentAnimationVariableKey<T> implements SynchedAnimationVariableKey<T> {
 		private final PacketBufferCodec<T> packetBufferCodec;
 		
-		protected SynchedIndependentAnimationVariableKey(Supplier<T> initValueSupplier, boolean mutable, PacketBufferCodec<T> packetBufferCodec) {
-			super(initValueSupplier, mutable);
+		protected SynchedIndependentAnimationVariableKey(Function<Animator, T> defaultValueSupplier, boolean mutable, PacketBufferCodec<T> packetBufferCodec) {
+			super(defaultValueSupplier, mutable);
 			this.packetBufferCodec = packetBufferCodec;
 		}
 		

@@ -320,54 +320,63 @@ public class EntityEvents {
 			return;
 		}
 		
-		DamageSource damageSource = null;
+		if (event.getEntity().isInvulnerableTo(event.getSource())) {
+			return;
+		}
 		
-		if (event.getEntity().getHealth() > 0.0F) {
-			LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(event.getSource().getEntity(), LivingEntityPatch.class);
+		if (event.getEntity().invulnerableTime > 10 && event.getAmount() <= event.getEntity().lastHurt) {
+			return;
+		}
+		
+		if (event.getEntity().getHealth() <= 0.0F) {
+			return;
+		}
+		
+		DamageSource damageSource = null;
+		LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(event.getSource().getEntity(), LivingEntityPatch.class);
+		
+		if (event.getSource() instanceof EpicFightDamageSource efDamageSource) {
+			damageSource = efDamageSource;
+		} else if (event.getSource().isIndirect() && event.getSource().getDirectEntity() != null) {
+			ProjectilePatch<?> projectilepatch = EpicFightCapabilities.getEntityPatch(event.getSource().getDirectEntity(), ProjectilePatch.class);
 			
-			if (event.getSource() instanceof EpicFightDamageSource efDamageSource) {
-				damageSource = efDamageSource;
-			} else if (event.getSource().isIndirect() && event.getSource().getDirectEntity() != null) {
-				ProjectilePatch<?> projectilepatch = EpicFightCapabilities.getEntityPatch(event.getSource().getDirectEntity(), ProjectilePatch.class);
-				
-				if (projectilepatch != null) {
-					damageSource = projectilepatch.getEpicFightDamageSource(event.getSource());
-				}
-			} else if (attackerPatch != null && attackerPatch.getEpicFightDamageSource() != null) {
-				damageSource = attackerPatch.getEpicFightDamageSource();
+			if (projectilepatch != null) {
+				damageSource = projectilepatch.getEpicFightDamageSource(event.getSource());
 			}
+		} else if (attackerPatch != null && attackerPatch.getEpicFightDamageSource() != null) {
+			damageSource = attackerPatch.getEpicFightDamageSource();
+		}
+		
+		if (damageSource == null) {
+			damageSource = event.getSource();
+		}
+		
+		if (damageSource instanceof EpicFightDamageSource efDamageSource && event.getSource().getEntity() instanceof ServerPlayer serverplayer && !efDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE)) {
+			ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(serverplayer, ServerPlayerPatch.class);
+			DealtDamageEvent.Attack dealDamageAttack = new DealtDamageEvent.Attack(playerpatch, event.getEntity(), efDamageSource, event);
+			playerpatch.getEventListener().triggerEvents(EventType.DEALT_DAMAGE_EVENT_ATTACK, dealDamageAttack);
 			
-			if (damageSource == null) {
-				damageSource = event.getSource();
-			}
-			
-			if (damageSource instanceof EpicFightDamageSource efDamageSource && event.getSource().getEntity() instanceof ServerPlayer serverplayer && !efDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE)) {
-				ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(serverplayer, ServerPlayerPatch.class);
-				DealtDamageEvent.Attack dealDamageAttack = new DealtDamageEvent.Attack(playerpatch, event.getEntity(), efDamageSource, event);
-				playerpatch.getEventListener().triggerEvents(EventType.DEALT_DAMAGE_EVENT_ATTACK, dealDamageAttack);
-				
-				if (dealDamageAttack.isCanceled()) {
-					event.setCanceled(true);
-					return;
-				}
-			}
-			
-			LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LivingEntityPatch.class);
-			AttackResult result = entitypatch != null ? entitypatch.tryHurt(damageSource, event.getAmount()) : AttackResult.success(event.getAmount());
-			
-			if (attackerPatch != null) {
-				attackerPatch.setLastAttackResult(result);
-			}
-			
-			if (!result.resultType.dealtDamage()) {
+			if (dealDamageAttack.isCanceled()) {
 				event.setCanceled(true);
-			} else if (event.getAmount() != result.damage) {
-				EpicFightDamageSource deflictedDamage = (damageSource instanceof EpicFightDamageSource epicfightDamageSource) ? epicfightDamageSource : EpicFightDamageSources.copy(damageSource);
-				deflictedDamage.addRuntimeTag(EpicFightDamageType.PARTIAL_DAMAGE);
-				
-				event.setCanceled(true);
-				event.getEntity().hurt(deflictedDamage, result.damage);
+				return;
 			}
+		}
+		
+		LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LivingEntityPatch.class);
+		AttackResult result = entitypatch != null ? entitypatch.tryHurt(damageSource, event.getAmount()) : AttackResult.success(event.getAmount());
+		
+		if (attackerPatch != null) {
+			attackerPatch.setLastAttackResult(result);
+		}
+		
+		if (!result.resultType.dealtDamage()) {
+			event.setCanceled(true);
+		} else if (event.getAmount() != result.damage) {
+			EpicFightDamageSource deflictedDamage = (damageSource instanceof EpicFightDamageSource epicfightDamageSource) ? epicfightDamageSource : EpicFightDamageSources.copy(damageSource);
+			deflictedDamage.addRuntimeTag(EpicFightDamageType.PARTIAL_DAMAGE);
+			
+			event.setCanceled(true);
+			event.getEntity().hurt(deflictedDamage, result.damage);
 		}
 	}
 	

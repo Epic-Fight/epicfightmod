@@ -32,6 +32,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.netty.util.internal.StringUtil;
 import net.minecraft.SharedConstants;
@@ -2666,12 +2667,16 @@ public class DatapackEditScreen extends Screen {
 		}
 		
 		public void importJson(ResourceLocation registryName, InputStream inputStream) throws Exception {
-			JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-			
-			try {
-				jsonReader.setLenient(true);
-				JsonObject jsonObject = Streams.parse(jsonReader).getAsJsonObject();
-				CompoundTag compTag = TagParser.parseTag(jsonObject.toString());
+			InputStreamReader reader = new InputStreamReader(inputStream);
+		    StringBuilder sb = new StringBuilder();
+		    Exception exception = null;
+		    
+		    try {
+		    	for (int data = reader.read(); data != -1; data = reader.read()) {
+					sb.append((char) data);
+				}
+				
+				CompoundTag compTag = TagParser.parseTag(sb.toString());
 				
 				if (compTag.getBoolean("isHumanoid")) {
 					ListTag combatBehaviorList = compTag.getList("combat_behavior", Tag.TAG_COMPOUND);
@@ -2684,16 +2689,15 @@ public class DatapackEditScreen extends Screen {
 				
 				this.packList.add(PackEntry.of(registryName, () -> compTag));
 				this.packListGrid.addRowWithDefaultValues("pack_item", registryName.toString());
-			} catch (Exception e) {
-				EpicFightMod.LOGGER.info("Failed to import " + registryName + ": " + e.getMessage());
-				throw e;
-			} finally {
-				try {
-					jsonReader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		    } catch (IOException | CommandSyntaxException e) {
+		    	exception = e;
+		    } finally {
+		    	reader.close();
+		    }
+		    
+		    if (exception != null) {
+		    	throw exception;
+		    }
 		}
 		
 		@Override

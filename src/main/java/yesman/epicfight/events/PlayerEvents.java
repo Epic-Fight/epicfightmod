@@ -14,6 +14,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -84,10 +85,19 @@ public class PlayerEvents {
 	
 	@SubscribeEvent
 	public static void rightClickItemServerEvent(RightClickItem event) {
+		/**
+		 * Client item use event is fired in {@link ClientEvents#rightClickItemClient}
+		 */
+		if (event.getSide() == LogicalSide.CLIENT) {
+			return;
+		}
+		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
 			ItemStack itemstack = playerpatch.getOriginal().getOffhandItem();
 			
-			if (itemstack.getUseAnimation() == UseAnim.NONE || !playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(playerpatch).canUseOffhand()) {
+			if (!playerpatch.getEntityState().canUseItem()) {
+				event.setCanceled(true);
+			} else if (itemstack.getUseAnimation() == UseAnim.NONE || !playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(playerpatch).canUseOffhand()) {
 				boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.SERVER_ITEM_USE_EVENT, new RightClickItemEvent<>(playerpatch));
 				
 				if (playerpatch.getEntityState().movementLocked()) {
@@ -105,7 +115,7 @@ public class PlayerEvents {
 			InteractionHand hand = playerpatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).equals(event.getItem()) ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 			CapabilityItem itemCap = playerpatch.getHoldingItemCapability(hand);
 			
-			if (!playerpatch.getEntityState().canUseSkill()) {
+			if (!playerpatch.getEntityState().canUseSkill() || !playerpatch.getEntityState().canUseItem()) {
 				event.setCanceled(true);
 			} else if (event.getItem() == playerpatch.getOriginal().getOffhandItem() && !playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(playerpatch).canUseOffhand()) {
 				event.setCanceled(true);

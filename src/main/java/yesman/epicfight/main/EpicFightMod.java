@@ -100,42 +100,55 @@ import yesman.epicfight.world.level.block.EpicFightBlocks;
 import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
 
 /**
- *  Changes from 20.9.7 -> 20.10.1
+ *  Major version changes
+ *  20.9.7 -> 20.10.1
  *  
- *  1. Fixed skill book screen not showing up when Enhanced Visuals installed
+ *  Cloth simulation for cape
+ *  Added arrow trails
+ *  Added first person animations for some animations
  *  
- *  2. Fixed witches not throwing potion
+ *  Fixed witches not throwing potion
+ *  Fixed custom armors parts invisible
+ *  Fixed a crash when selecting mob capability model in datapack editor
+ *  Fixed a crash with better nether when player equips armors
+ *  Fixed skill book screen not showing up when Enhanced Visuals installed
+ *  Fixed player model jitters when flying with elytra
+ *  Fixed guard skill activates rapidly when blocking vanilla attacks
+ *  Enhanced the accuracy of tracing ability of attack animations
  *  
- *  3. Fixed custom armors parts invisible
+ *  ***************************************************************
  *  
- *  4. Fixed a crash when selecting mob capability model in datapack editor
+ *  Minor version changes
+ *  20.10.310 -> 20.10.401
  *  
- *  5. Enhanced the accuracy of tracing ability of the player when attacking
+ *  Added first-person animations for drink and eat animation
+ *  Fixed guard consuming stamina rapidly when players block vanilla attacks
+ *  Fixed arrow trail remaining after hitting a player in creative mode
+ *  Corrected the shield's location when in the player's back
+ *  Added {@link SkillCreateEvent.class} to modify skill builder before instantiate skills
+ *  Better null check for {@link AnimationVariables.class}
  *  
- *  6. Cloth simulation for cape
+ *  ***************************************************************
  *  
- *  7. Fixed player model jitters when flying with elytra
+ *  20.10.401 -> 20.10.403
+ *  
+ *  Fixed multiple datapack editor crashes
+ *  Fixed tooltips being hidden by the skill book screen
+ *  Fixed zombies attacking each other
+ *  Fixed {@link SkillCreateEvent.class} to follow generic event rule
+ *  Added to register custom available weapon categories in {@link SwordmasterSkill$Builder.class}
  *  
  *  --- TO DO ---
  *  
  *  Update language files (always)
- *  
  *  Add an reach property to attack animation (idea)
- *  
  *  Add an alert function when an entity targeting the player tries grappling or execution attack
- *  
  *  Add UI for execution resistance
- *  
  *  Add functionality to blooming effect (resists wither effect)
- *  
  *  Add a screen for setting animation properties in datapack editor
- *  
  *  First person animation system by adding /data/ folder in the path, and few samples
- *  
  *  Enhance the stun system (maybe remove or barely leave knockback)
- *  
  *  Add toasts & achievements to guide beginners
- *  
  *  Add resource hashing for animation file to prevent client modifying animation by resource pack
  *  
  *  @author yesman
@@ -152,7 +165,14 @@ public class EpicFightMod {
 	
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider, String stackTraceMessage) {
 		logFunction.accept(LOGGER, message);
-		
+		stacktraceIfDevSide(message, exceptionProvider, stackTraceMessage);
+	}
+	
+	public static void stacktraceIfDevSide(String message, Function<String, Throwable> exceptionProvider) {
+		stacktraceIfDevSide(message, exceptionProvider, message);
+	}
+	
+	public static void stacktraceIfDevSide(String message, Function<String, Throwable> exceptionProvider, String stackTraceMessage) {
 		if (exceptionProvider != null && EpicFightSharedConstants.IS_DEV_ENV) {
 			exceptionProvider.apply(stackTraceMessage).printStackTrace();
 		}

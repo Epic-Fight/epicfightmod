@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -239,6 +240,10 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	
 	@Override
 	public AttackResult tryHurt(DamageSource damageSource, float amount) {
+		if (this.getOriginal().getAbilities().invulnerable && !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			return AttackResult.missed(amount); 
+		}
+		
 		HurtEvent.Pre hurtEvent = new HurtEvent.Pre(this, damageSource, amount);
 		
 		if (this.getEventListener().triggerEvents(EventType.HURT_EVENT_PRE, hurtEvent)) {
@@ -275,12 +280,12 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	}
 	
 	@Override
-	public boolean isTargetInvulnerable(Entity entityIn) {
-		if (entityIn instanceof Player && !this.getOriginal().server.isPvpAllowed()) {
+	public boolean isTargetInvulnerable(Entity target) {
+		if (target instanceof Player && !this.getOriginal().server.isPvpAllowed()) {
 			return true;
 		}
 		
-		return super.isTargetInvulnerable(entityIn);
+		return super.isTargetInvulnerable(target);
 	}
 	
 	@Override

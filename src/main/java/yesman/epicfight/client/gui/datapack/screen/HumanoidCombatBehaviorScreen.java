@@ -50,8 +50,11 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 	public HumanoidCombatBehaviorScreen(Screen parentScreen, CompoundTag rootTag, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
 		super(Component.translatable("datapack_edit.mob_patch.humanoid_combat_behavior"));
 		
-		this.rootTag = rootTag;
 		this.parentScreen = parentScreen;
+		this.minecraft = parentScreen.getMinecraft();
+		this.font = parentScreen.getMinecraft().font;
+		
+		this.rootTag = rootTag;
 		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 26) {
 			@Override
 			public void importTag(CompoundTag tag) {
@@ -72,9 +75,6 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 			}
 		};
 		this.inputComponentsList.setLeftPos(150);
-		
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
 		
 		this.weaponGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(12, 50)

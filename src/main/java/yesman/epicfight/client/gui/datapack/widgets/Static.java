@@ -1,5 +1,7 @@
 package yesman.epicfight.client.gui.datapack.widgets;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -25,7 +27,7 @@ public class Static extends AbstractWidget implements ResizableComponent {
 		this(owner, x1, x2, y1, y2, horizontal, vertical, message, null);
 	}
 	
-	public Static(Screen owner, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component message, Component tooltip) {
+	public Static(Screen owner, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component message, @Nullable Component tooltip) {
 		super(x1, y1, x2, y2, message);
 		
 		this.owner = owner;
@@ -38,7 +40,7 @@ public class Static extends AbstractWidget implements ResizableComponent {
 		this.verticalSizingOption = vertical;
 		this.tooltip = tooltip;
 		
-		this.setTooltip(Tooltip.create(this.tooltip));
+		this.setTooltip(this.tooltip == null ? null : Tooltip.create(this.tooltip));
 	}
 	
 	@Override

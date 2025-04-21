@@ -7,6 +7,7 @@ import org.joml.Quaternionf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -129,20 +130,29 @@ public class MoveCoordFunctions {
 		return entitypatch.getTarget() == null ? null : entitypatch.getTarget().position();
 	};
 	
-	public static final DestLocationProvider DEST_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
-		return entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.DESTINATION.get(), self.getRealAnimation());
+	public static final DestLocationProvider SYNCHED_DEST_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
+		return entitypatch.getAnimator().getVariables().getOrDefault(SynchedAnimationVariableKeys.DESTINATION.get(), self.getRealAnimation());
 	};
 	
-	public static final DestLocationProvider ENTITY_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
-		int entityId = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.TARGET_ENTITY.get(), self.getRealAnimation());
-		return entitypatch.getOriginal().level().getEntity(entityId).position();
+	public static final DestLocationProvider SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
+		Optional<Integer> targetEntityId = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.TARGET_ENTITY.get(), self.getRealAnimation());
+		
+		if (targetEntityId.isPresent()) {
+			Entity entity = entitypatch.getOriginal().level().getEntity(targetEntityId.get());
+			
+			if (entity != null) {
+				return entity.position();
+			}
+		}
+		
+		return entitypatch.getOriginal().position();
 	};
 	
 	public static final YRotProvider LOOK_DEST = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		Vec3 destLocation = self.getRealAnimation().get().getProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER).orElse(NO_DEST).get(self, entitypatch);
 		
 		if (destLocation != null) {
-			Vec3 startInWorld = entitypatch.getAnimator().getVariables().get(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
+			Vec3 startInWorld = entitypatch.getAnimator().getVariables().getOrDefault(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
 			
 			if (startInWorld == null) {
 				startInWorld = entitypatch.getOriginal().position();
@@ -213,7 +223,7 @@ public class MoveCoordFunctions {
 			destInWorld = entitypatch.getOriginal().position().add(-beginningPosition.x, -beginningPosition.y, -beginningPosition.z);
 		}
 		
-		Vec3 startInWorld = entitypatch.getAnimator().getVariables().get(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
+		Vec3 startInWorld = entitypatch.getAnimator().getVariables().getOrDefault(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
 		
 		if (startInWorld == null) {
 			startInWorld = entitypatch.getOriginal().position();
@@ -240,7 +250,7 @@ public class MoveCoordFunctions {
 			TransformSheet transform = self.getCoord().copyAll();
 			Keyframe[] coord = transform.getKeyframes();
 			Keyframe[] realAnimationCoord = self.getRealAnimation().get().getCoord().getKeyframes();
-			Vec3 startInWorld = entitypatch.getAnimator().getVariables().get(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
+			Vec3 startInWorld = entitypatch.getAnimator().getVariables().getOrDefault(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
 			
 			if (startInWorld == null) {
 				startInWorld = entitypatch.getOriginal().position();
@@ -257,7 +267,7 @@ public class MoveCoordFunctions {
 			float worldLength = Math.max((float)toDestWorld.length() - entityRadius, 0.0F);
 			float animLength = toDestAnim.length();
 			
-			Float dot = entitypatch.getAnimator().getVariables().get(ActionAnimation.INITIAL_LOOK_VEC_DOT, self.getRealAnimation());
+			Float dot = entitypatch.getAnimator().getVariables().getOrDefault(ActionAnimation.INITIAL_LOOK_VEC_DOT, self.getRealAnimation());
 			float lookLength = Mth.lerp(dot == null ? 1.0F : dot.floatValue(), animLength, worldLength);
 			float scale = Math.min(lookLength / animLength, 1.0F);
 			
@@ -292,7 +302,7 @@ public class MoveCoordFunctions {
 			TransformSheet transform = self.getCoord().copyAll();
 			Keyframe[] coord = transform.getKeyframes();
 			Keyframe[] realAnimationCoord = self.getRealAnimation().get().getCoord().getKeyframes();
-			Vec3 startInWorld = entitypatch.getAnimator().getVariables().get(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
+			Vec3 startInWorld = entitypatch.getAnimator().getVariables().getOrDefault(ActionAnimation.BEGINNING_LOCATION, self.getRealAnimation());
 			
 			if (startInWorld == null) {
 				startInWorld = entitypatch.getOriginal().position();

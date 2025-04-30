@@ -295,11 +295,19 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		if (packet.getType() == SPDatapackSync.Type.WEAPON_TYPE) {
 			PRESETS.clear();
 			registerDefaultWeaponTypes();
-			
+
+
 			for (CompoundTag tag : packet.getTags()) {
 				ResourceLocation rl = ResourceLocation.parse(tag.getString("registry_name"));
-				
-				PRESETS.put(rl, (itemstack) -> deserializeWeaponCapabilityBuilder(rl, tag));
+
+				try
+				{
+					PRESETS.put(rl, (itemstack) -> deserializeWeaponCapabilityBuilder(rl, tag));
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException("Weapon type " + rl + " encountered an error",e);
+				}
 			}
 			
 			ItemCapabilityReloadListener.weaponTypeProcessedCheck();

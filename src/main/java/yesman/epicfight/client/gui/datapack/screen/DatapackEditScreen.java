@@ -1200,7 +1200,7 @@ public class DatapackEditScreen extends Screen {
 					WeaponCapability.Builder builder = WeaponTypeReloadListener.deserializeWeaponCapabilityBuilder(registryName, compTag);
 					DatapackEditScreen.this.userWeaponTypes.put(registryName, (item) -> builder);
 				} catch (Exception e) {
-					EpicFightMod.LOGGER.warn("Failed to deserialize weapon type from datapack.");
+					EpicFightMod.LOGGER.warn("Failed to deserialize weapon type from datapack." + registryName + ": " + e.getMessage());
 					e.printStackTrace();
 				}
 				

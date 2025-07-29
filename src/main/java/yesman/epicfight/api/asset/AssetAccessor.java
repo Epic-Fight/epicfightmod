@@ -21,6 +21,10 @@ public interface AssetAccessor<O> extends Supplier<O> {
 	
 	public boolean inRegistry();
 	
+	default boolean checkType(Class<?> cls) {
+		return cls.isAssignableFrom(this.get().getClass());
+	}
+	
 	default O orElse(O whenNull) {
 		return this.isPresent() ? this.get() : whenNull;
 	}

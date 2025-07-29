@@ -70,6 +70,10 @@ public class SkillDataKey<T> {
 		return SkillDataKeyCallbacks.INSTANCE;
 	}
 	
+	public static <T> SkillDataKey<T> createSkillDataKey(PacketBufferCodec<T> packetCodec, T defaultValue, Class<?>... skillClass) {
+		return createSkillDataKey(packetCodec, defaultValue, false, skillClass);
+	}
+	
 	public static <T> SkillDataKey<T> createSkillDataKey(PacketBufferCodec<T> packetCodec, T defaultValue, boolean syncronizeTrackingPlayers, Class<?>... skillClass) {
 		SkillDataKey<T> key = new SkillDataKey<T>(packetCodec, defaultValue, syncronizeTrackingPlayers);
 		
@@ -97,6 +101,8 @@ public class SkillDataKey<T> {
 	
 	private final PacketBufferCodec<T> packetCodec;
 	private final T defaultValue;
+	
+	@Deprecated(forRemoval = true, since = "1.21.1")
 	private final boolean syncronizeTrackingPlayers;
 	
 	public SkillDataKey(PacketBufferCodec<T> packetCodec, T defaultValue, boolean syncronizeTrackingPlayers) {

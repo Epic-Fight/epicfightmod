@@ -19,8 +19,11 @@ public class SynchedAnimationVariableKeys {
 	public static final Supplier<IForgeRegistry<SynchedAnimationVariableKey<?>>> REGISTRY = SYNCHED_ANIMATION_VARIABLE_KEYS.makeRegistry(BUILDER);
 	
 	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Vec3>> DESTINATION = SYNCHED_ANIMATION_VARIABLE_KEYS.register("destination", () ->
-		SynchedAnimationVariableKey.independent((animator) -> animator.getEntityPatch().getOriginal().position(), true, PacketBufferCodec.VEC3));
+		SynchedAnimationVariableKey.independent(animator -> animator.getEntityPatch().getOriginal().position(), true, PacketBufferCodec.VEC3));
 	
 	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Integer>> TARGET_ENTITY = SYNCHED_ANIMATION_VARIABLE_KEYS.register("target_entity", () ->
-		SynchedAnimationVariableKey.independent((animator) -> (Integer)null, true, PacketBufferCodec.INTEGER));
+		SynchedAnimationVariableKey.independent(animator -> (Integer)null, true, PacketBufferCodec.INTEGER));
+	
+	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Integer>> CHARGING_TICKS = SYNCHED_ANIMATION_VARIABLE_KEYS.register("animation_playing_speed", () ->
+		SynchedAnimationVariableKey.independent(animator ->  0, true, PacketBufferCodec.INTEGER));
 }

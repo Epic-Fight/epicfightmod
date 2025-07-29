@@ -1,8 +1,12 @@
 package yesman.epicfight.client;
 
+import java.util.Comparator;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.ControllEngine;
@@ -52,5 +56,31 @@ public class ClientEngine {
 		}
 		
 		return localPlayerPatch.isEpicFightMode();
+	}
+	
+	/**
+	 * Copy from {@link ForgeHooksClient#makeParticleRenderTypeComparator} but prioritize {@link ParticleRenderType#CUSTOM} lowest since it resets GL parameters setup
+	 */
+	public static Comparator<ParticleRenderType> makeCustomLowestParticleRenderTypeComparator(List<ParticleRenderType> renderOrder) {
+		Comparator<ParticleRenderType> vanillaComparator = Comparator.comparingInt(renderOrder::indexOf);
+		
+		return (typeOne, typeTwo) -> {
+			boolean vanillaOne = renderOrder.contains(typeOne);
+			boolean vanillaTwo = renderOrder.contains(typeTwo);
+			
+			if (vanillaOne && vanillaTwo) {
+				return vanillaComparator.compare(typeOne, typeTwo);
+			} else if (!vanillaOne && !vanillaTwo) {
+				return Integer.compare(System.identityHashCode(typeOne), System.identityHashCode(typeTwo));
+			}
+			
+			if (typeOne == ParticleRenderType.CUSTOM) {
+				return 1;
+			} else if (typeTwo == ParticleRenderType.CUSTOM) {
+				return -1;
+			}
+			
+			return vanillaOne ? -1 : 1;
+		};
 	}
 }

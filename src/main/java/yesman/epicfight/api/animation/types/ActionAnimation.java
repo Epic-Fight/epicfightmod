@@ -38,6 +38,9 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightSharedConstants;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.client.CPSyncPlayerAnimationPosition;
+import yesman.epicfight.network.server.SPSyncAnimationPosition;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ActionAnimation extends MainFrameAnimation {
@@ -154,10 +157,18 @@ public class ActionAnimation extends MainFrameAnimation {
 			return;
 		}
 		
-		if (this.getState(EntityState.INACTION, entitypatch, entitypatch.getAnimator().getPlayerFor(this.getAccessor()).getElapsedTime())) {
+		float elapsedTime = entitypatch.getAnimator().getPlayerFor(this.getAccessor()).getElapsedTime();
+		
+		if (this.getState(EntityState.INACTION, entitypatch, elapsedTime)) {
 			LivingEntity livingentity = entitypatch.getOriginal();
 			Vec3 vec3 = this.getCoordVector(entitypatch, animation);
 			livingentity.move(MoverType.SELF, vec3);
+			
+			if (entitypatch.isLogicalClient()) {
+				EpicFightNetworkManager.sendToServer(new CPSyncPlayerAnimationPosition(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1));
+			} else {
+				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPSyncAnimationPosition(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1), livingentity);
+			}
 		}
 	}
 	

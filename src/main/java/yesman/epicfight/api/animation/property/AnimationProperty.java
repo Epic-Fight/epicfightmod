@@ -342,8 +342,11 @@ public abstract class AnimationProperty<T> {
 		void register(Map<AnimationProperty<T>, Object> properties, AnimationProperty<T> key, T object);
 	}
 	
+	/******************************
+	 * Static Animation Properties
+	 ******************************/
 	/**
-	 * Static Animation Property
+	 * elapsedTime contains partial tick
 	 */
 	@FunctionalInterface
 	public interface PoseModifier {

@@ -1,10 +1,10 @@
 package yesman.epicfight.world.capabilities.entitypatch.player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -27,6 +27,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPAddLearnedSkill;
 import yesman.epicfight.network.server.SPAddOrRemoveSkillData;
 import yesman.epicfight.network.server.SPChangeLivingMotion;
@@ -34,6 +35,7 @@ import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPModifyPlayerData;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKey;
@@ -56,18 +58,19 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		super.onJoinWorld(player, event);
 		
 		CapabilitySkill skillCapability = this.getSkillCapability();
-
+		PayloadBundleBuilder payloadBundle = PayloadBundleBuilder.create();
+		
 		for (SkillContainer skill : skillCapability.skillContainers) {
 			if (skill.getSkill() != null && skill.getSkill().getCategory().shouldSynchronize()) {
-				EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(skill.getSlot(), skill.getSkill().toString(), SPChangeSkill.State.ENABLE), this.original);
+				payloadBundle.and(new SPChangeSkill(skill.getSlot(), skill.getSkill().toString(), SPChangeSkill.State.ENABLE));
 			}
 		}
 
-		List<String> learnedSkill = Lists.newArrayList();
+		List<String> learnedSkill = new ArrayList<> ();
 
 		for (SkillCategory category : SkillCategory.ENUM_MANAGER.universalValues()) {
 			if (skillCapability.hasCategory(category)) {
-				learnedSkill.addAll(Lists.newArrayList(skillCapability.getLearnedSkills(category).stream().map((skill) -> skill.toString()).iterator()));
+				learnedSkill.addAll(skillCapability.getLearnedSkills(category).stream().map(Skill::toString).toList());
 			}
 		}
 		
@@ -86,25 +89,32 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			}
 		}, 10);
 		
-		EpicFightNetworkManager.sendToPlayer(new SPAddLearnedSkill(learnedSkill.toArray(new String[0])), this.original);
-		EpicFightNetworkManager.sendToPlayer(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode), this.original);
+		payloadBundle.and(new SPAddLearnedSkill(learnedSkill.toArray(new String[0])));
+		payloadBundle.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
+		payloadBundle.send((start, others) -> {
+			EpicFightNetworkManager.sendToPlayer(start, this.original, others);
+		});
 	}
 	
 	@Override
 	public void onStartTracking(ServerPlayer trackingPlayer) {
+		PayloadBundleBuilder payloadBundleBuilder = PayloadBundleBuilder.create();
 		SPChangeLivingMotion msg = new SPChangeLivingMotion(this.getOriginal().getId());
 		msg.putEntries(this.getAnimator().getLivingAnimations().entrySet());
 		
 		for (SkillContainer container : this.getSkillCapability().skillContainers) {
 			for (SkillDataKey<?> key : container.getDataManager().keySet()) {
 				if (key.syncronizeTrackingPlayers()) {
-					EpicFightNetworkManager.sendToPlayer(new SPAddOrRemoveSkillData(key, container.getSlot().universalOrdinal(), container.getDataManager().getDataValue(key), SPAddOrRemoveSkillData.AddRemove.ADD, this.original.getId()), trackingPlayer);
+					payloadBundleBuilder.and(new SPAddOrRemoveSkillData(key, container.getSlot().universalOrdinal(), container.getDataManager().getDataValue(key), SPAddOrRemoveSkillData.AddRemove.ADD, this.original.getId()));
 				}
 			}
 		}
 		
-		EpicFightNetworkManager.sendToPlayer(msg, trackingPlayer);
-		EpicFightNetworkManager.sendToPlayer(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode), trackingPlayer);
+		payloadBundleBuilder
+			.and(msg)
+			.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
+		
+		payloadBundleBuilder.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, trackingPlayer, others));
 	}
 	
 	@Override

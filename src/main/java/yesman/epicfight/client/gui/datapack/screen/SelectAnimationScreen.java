@@ -148,12 +148,12 @@ public class SelectAnimationScreen extends Screen {
 			return this.x1 - 6;
 		}
 		
-		public void refreshAniamtionList(String keyward) {
+		public void refreshAniamtionList(String keyword) {
 			this.setScrollAmount(0.0D);
 			this.children().clear();
 			
 			AnimationManager.getInstance().getAnimations(SelectAnimationScreen.this.filter).values().stream()
-				.filter((accessor) -> StringUtil.isNullOrEmpty(keyward) ? true : accessor.registryName().toString().contains(keyward))
+				.filter((accessor) -> StringUtil.isNullOrEmpty(keyword) ? true : accessor.registryName().toString().contains(keyword))
 				.map(AnimationEntry::new)
 				.sorted((a1, a2) -> Integer.compare(a1.animation.get().getId(), a2.animation.get().getId()))
 				.forEach(this::addEntry);

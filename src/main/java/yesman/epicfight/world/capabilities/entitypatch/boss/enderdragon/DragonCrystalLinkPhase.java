@@ -31,19 +31,12 @@ public class DragonCrystalLinkPhase extends PatchedDragonPhase {
 	
 	@Override
 	public void begin() {
-		this.dragonpatch.getAnimator().playAnimation(Animations.DRAGON_CRYSTAL_LINK, 0.0F);
-		this.dragon.level().playLocalSound(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ(), EpicFightSounds.ENDER_DRAGON_CRYSTAL_LINK.get(), this.dragon.getSoundSource(), 10.0F, 1.0F, false);
 		BlockPos blockpos = this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.getLocation(new BlockPos(0, 0, 0)));
-		List<EndCrystal> list = this.dragon.level().getEntitiesOfClass(EndCrystal.class, new AABB(blockpos).inflate(200.0D));
+		List<EndCrystal> list = this.dragon.level().getEntitiesOfClass(EndCrystal.class, new AABB(blockpos).inflate(500.0D));
 		EndCrystal nearestCrystal = null;
 		double d0 = Double.MAX_VALUE;
 		
 		for (EndCrystal endcrystal : list) {
-			// Exclude already being absorbed crystal
-			if (endcrystal.isInvulnerable()) {
-				continue;
-			}
-			
 			double d1 = endcrystal.distanceToSqr(this.dragon);
 			
 			if (d1 < d0) {
@@ -52,8 +45,11 @@ public class DragonCrystalLinkPhase extends PatchedDragonPhase {
 			}
 		}
 		
-		if (nearestCrystal != null) {
-			this.absorbingCrystal = nearestCrystal;
+		this.absorbingCrystal = nearestCrystal;
+		
+		if (this.absorbingCrystal != null) {
+			this.dragonpatch.getAnimator().playAnimation(Animations.DRAGON_CRYSTAL_LINK, 0.0F);
+			this.dragon.level().playLocalSound(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ(), EpicFightSounds.ENDER_DRAGON_CRYSTAL_LINK.get(), this.dragon.getSoundSource(), 10.0F, 1.0F, false);
 			this.absorbingCrystal.setInvulnerable(true);
 			this.absorbCount = CHARGING_TICK;
 			
@@ -84,13 +80,14 @@ public class DragonCrystalLinkPhase extends PatchedDragonPhase {
 	
 	@Override
 	public void end() {
-		BlockPos blockpos = this.absorbingCrystal.blockPosition();
-		this.dragon.nearestCrystal = null;
-		this.absorbingCrystal = null;
-		
-		if (!this.dragonpatch.isLogicalClient()) {
+		if (!this.dragonpatch.isLogicalClient() && this.absorbingCrystal != null) {
+			BlockPos blockpos = this.absorbingCrystal.blockPosition();
+			this.absorbingCrystal.setInvulnerable(false);
 			this.dragon.level().explode(null, blockpos.getX(), blockpos.getY(), blockpos.getZ(), 6.0F, Level.ExplosionInteraction.BLOCK);
 		}
+		
+		this.dragon.nearestCrystal = null;
+		this.absorbingCrystal = null;
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
+import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.exception.DatapackException;
 import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
@@ -66,7 +67,7 @@ public class SPDatapackSync {
 			try {
 				switch (msg.getType()) {
 				case MOB -> MobPatchReloadListener.processServerPacket(msg);
-				case SKILL_PARAMS -> {/** Processed on {@link SPDatapackSyncSkill} **/}
+				case SKILL_PARAMS -> SkillManager.processServerPacket(msg);
 				case WEAPON -> ItemCapabilityReloadListener.processServerPacket(msg);
 				case ARMOR -> ItemCapabilityReloadListener.processServerPacket(msg);
 				case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(msg);

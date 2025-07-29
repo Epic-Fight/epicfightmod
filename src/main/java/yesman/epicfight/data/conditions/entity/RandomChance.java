@@ -6,6 +6,7 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -29,7 +30,7 @@ public class RandomChance extends EntityPatchCondition {
 	
 	@Override
 	public RandomChance read(CompoundTag tag) {
-		this.chance = this.assertTag("chance", "decimal", tag, Tag.TAG_FLOAT, CompoundTag::getFloat);
+		this.chance = this.assertTag("chance", "decimal", tag, NumericTag.class, CompoundTag::getFloat);
 		return this;
 	}
 	

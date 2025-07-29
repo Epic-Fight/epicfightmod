@@ -218,8 +218,8 @@ public class WeaponComboScreen extends Screen {
 		this.dashAttackPopupbox.setModel(Armatures.BIPED, Meshes.BIPED);
 		this.airSlashPopupbox.setModel(Armatures.BIPED, Meshes.BIPED);
 		
-		this.dashAttackPopupbox.applyFilter((animation) -> animation instanceof AttackAnimation);
-		this.airSlashPopupbox.applyFilter((animation) -> animation instanceof AttackAnimation);
+		this.dashAttackPopupbox.applyFilter(animation -> animation.checkType(AttackAnimation.class));
+		this.airSlashPopupbox.applyFilter(animation -> animation.checkType(AttackAnimation.class));
 		
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.addComponentCurrentRow(new Static(this, 80, 110, -1, 15, HorizontalSizing.WIDTH_RIGHT, null, "datapack_edit.weapon_type.combos.combo_attacks"));

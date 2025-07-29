@@ -49,7 +49,7 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPCheckAnimationRegistrySync;
+import yesman.epicfight.network.client.CPCheckAnimationRegistryMatches;
 import yesman.epicfight.network.server.SPDatapackSync;
 
 @SuppressWarnings("unchecked")
@@ -285,11 +285,6 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 			}
 		}
 		
-		this.sendAnimationRegistrySyncCheck();
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private void sendAnimationRegistrySyncCheck() {
 		int animationCount = this.animations.size();
 		String[] registryNames = new String[animationCount];
 		
@@ -298,12 +293,12 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 			registryNames[i] = registryName;
 		}
 		
-		CPCheckAnimationRegistrySync packet = new CPCheckAnimationRegistrySync(animationCount, registryNames);
-		EpicFightNetworkManager.sendToServer(packet);
+		CPCheckAnimationRegistryMatches registrySyncPacket = new CPCheckAnimationRegistryMatches(animationCount, registryNames);
+		EpicFightNetworkManager.sendToServer(registrySyncPacket);
 	}
 	
-	public void validateClientAnimationRegistry(CPCheckAnimationRegistrySync msg, ServerGamePacketListenerImpl connection) {
-		StringBuilder builder = new StringBuilder();
+	public void validateClientAnimationRegistry(CPCheckAnimationRegistryMatches msg, ServerGamePacketListenerImpl connection) {
+		StringBuilder messageBuilder = new StringBuilder();
 		int count = 0;
 		
 		Set<String> clientAnimationRegistry = new HashSet<> (Set.of(msg.registryNames));
@@ -312,8 +307,8 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 			if (!clientAnimationRegistry.contains(registryName)) {
 				// Animations that don't exist in client
 				if (count < 10) {
-					builder.append(registryName);
-					builder.append("\n");
+					messageBuilder.append(registryName);
+					messageBuilder.append("\n");
 				}
 				
 				count++;
@@ -329,20 +324,20 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 			}
 			
 			if (count < 10) {
-				builder.append(registryName);
-				builder.append("\n");
+				messageBuilder.append(registryName);
+				messageBuilder.append("\n");
 			}
 			
 			count++;
 		}
 		
 		if (count >= 10) {
-			builder.append(Component.translatable("gui.epicfight.warn.animation_unsync.etc", (count - 9)).getString());
-			builder.append("\n");
+			messageBuilder.append(Component.translatable("gui.epicfight.warn.animation_unsync.etc", (count - 9)).getString());
+			messageBuilder.append("\n");
 		}
 		
-		if (!builder.isEmpty()) {
-			connection.disconnect(Component.translatable("gui.epicfight.warn.animation_unsync", builder.toString()));
+		if (!messageBuilder.isEmpty()) {
+			connection.disconnect(Component.translatable("gui.epicfight.warn.animation_unsync", messageBuilder.toString()));
 		}
 	}
 	

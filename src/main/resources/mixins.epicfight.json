@@ -17,6 +17,7 @@
 		"client.MixinLocalPlayer",
 		"client.MixinMinecraft",
 		"client.MixinMouseHandler",
+		"client.MixinParticleEngine",
 		"client.MixinThrownTridentRenderer",
 		"iris.MixinExtendedShader",
 		"iris.MixinPipelineManager",

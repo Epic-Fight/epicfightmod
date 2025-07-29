@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -34,7 +35,7 @@ public class HealthPoint extends EntityPatchCondition {
 	
 	@Override
 	public HealthPoint read(CompoundTag tag) {
-		this.health = this.assertTag("health", "decimal", tag, Tag.TAG_FLOAT, CompoundTag::getFloat);
+		this.health = this.assertTag("health", "decimal", tag, NumericTag.class, CompoundTag::getFloat);
 		this.comparator = this.assertEnumTag("comparator", Comparator.class, tag);
 		
 		return this;

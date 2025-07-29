@@ -71,6 +71,8 @@ public class JsonAssetLoader {
 	public static final OpenMatrix4f BLENDER_TO_MINECRAFT_COORD = OpenMatrix4f.createRotatorDeg(-90.0F, Vec3f.X_AXIS);
 	public static final OpenMatrix4f MINECRAFT_TO_BLENDER_COORD = OpenMatrix4f.invert(BLENDER_TO_MINECRAFT_COORD, null);
 	public static final String UNGROUPED_NAME = "noGroups";
+	public static final String COORD_BONE = "Coord";
+	public static final String ROOT_BONE = "Root";
 	
 	private JsonObject rootJson;
 	
@@ -456,9 +458,23 @@ public class JsonAssetLoader {
 		JsonObject obj = this.rootJson.getAsJsonObject("armature");
 		JsonObject hierarchy = obj.get("hierarchy").getAsJsonArray().get(0).getAsJsonObject();
 		JsonArray nameAsVertexGroups = obj.getAsJsonArray("joints");
+		Map<String, Integer> jointIds = Maps.newHashMap();
+		
+		int id = 0;
+		
+		for (int i = 0; i < nameAsVertexGroups.size(); i++) {
+			String name = nameAsVertexGroups.get(i).getAsString();
+			
+			if (name.equals(COORD_BONE)) {
+				continue;
+			}
+			
+			jointIds.put(name, id);
+			id++;
+		}
 		
 		Map<String, Joint> jointMap = Maps.newHashMap();
-		Joint joint = getJoint(hierarchy, nameAsVertexGroups, jointMap, true);
+		Joint joint = getJoint(hierarchy, jointIds, jointMap, true);
 		joint.initOriginTransform(new OpenMatrix4f());
 		
 		String armatureName = this.resourceLocation.toString().replaceAll("(animmodels/|\\.json)", "");
@@ -466,35 +482,40 @@ public class JsonAssetLoader {
 		return constructor.invoke(armatureName, jointMap.size(), joint, jointMap);
 	}
 	
-	public static Joint getJoint(JsonObject object, JsonArray nameAsVertexGroups, Map<String, Joint> jointMap, boolean start) {
+	private static Joint getJoint(JsonObject object, Map<String, Integer> jointIdMap, Map<String, Joint> jointMap, boolean root) {
+		String name = object.get("name").getAsString();
+		
+		// Skip Coord bone
+		if (name.equals(COORD_BONE)) {
+			JsonArray coordChildren = object.get("children").getAsJsonArray();
+			
+			if (coordChildren.isEmpty()) {
+				throw new AssetLoadingException("No children for Coord bone");
+			} else if (coordChildren.size() > 1) {
+				throw new AssetLoadingException("Coord bone can't have multiple children");
+			} else {
+				return getJoint(coordChildren.get(0).getAsJsonObject(), jointIdMap, jointMap, false);
+			}
+		}
+		
 		float[] floatArray = ParseUtil.toFloatArrayPrimitive(object.get("transform").getAsJsonArray());
 		OpenMatrix4f localMatrix = OpenMatrix4f.load(null, floatArray);
 		localMatrix.transpose();
 		
-		if (start) {
+		if (root) {
 			localMatrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
 		}
 		
-		String name = object.get("name").getAsString();
-		int index = -1;
-		
-		for (int i = 0; i < nameAsVertexGroups.size(); i++) {
-			if (name.equals(nameAsVertexGroups.get(i).getAsString())) {
-				index = i;
-				break;
-			}
-		}
-		
-		if (index == -1) {
+		if (!jointIdMap.containsKey(name)) {
 			throw new AssetLoadingException("Can't load joint: joint name " + name + " doesn't exist in armature hierarchy.");
 		}
 		
-		Joint joint = new Joint(name, index, localMatrix);
+		Joint joint = new Joint(name, jointIdMap.get(name), localMatrix);
 		jointMap.put(name, joint);
 		
 		if (object.has("children")) {
 			for (JsonElement children : object.get("children").getAsJsonArray()) {
-				joint.addSubJoints(getJoint(children.getAsJsonObject(), nameAsVertexGroups, jointMap, false));
+				joint.addSubJoints(getJoint(children.getAsJsonObject(), jointIdMap, jointMap, false));
 			}
 		}
 		
@@ -526,7 +547,7 @@ public class JsonAssetLoader {
 				}
 			}
 		} else if (action) {
-			allowedJoints.add("Root");
+			allowedJoints.add(ROOT_BONE);
 		}
 		
 		AnimationClip clip = new AnimationClip();
@@ -536,7 +557,7 @@ public class JsonAssetLoader {
 			String name = jObject.get("name").getAsString();
 			
 			if (attack && FMLEnvironment.dist == Dist.DEDICATED_SERVER && !allowedJoints.contains(name)) {
-				if (name.equals("Coord")) {
+				if (name.equals(COORD_BONE)) {
 					root = false;
 				}
 				
@@ -546,7 +567,7 @@ public class JsonAssetLoader {
 			Joint joint = armature.searchJointByName(name);
 			
 			if (joint == null) {
-				if (name.equals("Coord")) {
+				if (name.equals(COORD_BONE)) {
 					TransformSheet sheet = getTransformSheet(jObject, new OpenMatrix4f(), true, format);
 					
 					if (action) {

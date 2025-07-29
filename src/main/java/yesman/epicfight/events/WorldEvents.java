@@ -2,8 +2,6 @@ package yesman.epicfight.events;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.LootTableLoadEvent;
@@ -18,9 +16,8 @@ import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.data.loot.SkillBookLootModifier;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPDatapackSync;
-import yesman.epicfight.network.server.SPDatapackSyncSkill;
-import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -28,6 +25,7 @@ import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
+import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID)
 public class WorldEvents {
@@ -40,9 +38,13 @@ public class WorldEvents {
 	@SubscribeEvent
 	public static void onDatapackSync(final OnDatapackSyncEvent event) {
 		if (event.getPlayer() != null) {
-			EpicFightGameRules.GAME_RULES.values().forEach((gamerule) -> {
-				gamerule.synchronizeTo(event.getPlayer());
+			PayloadBundleBuilder payloadBundleBuilder = PayloadBundleBuilder.create();
+			
+			EpicFightGameRules.GAME_RULES.values().stream().filter(ConfigurableGameRule::shouldSync).forEach(gamerule -> {
+				payloadBundleBuilder.and(gamerule.getSyncPacket(event.getPlayer()));
 			});
+			
+			payloadBundleBuilder.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, event.getPlayer(), others));
 			
 			if (!event.getPlayer().getServer().isSingleplayerOwner(event.getPlayer().getGameProfile())) {
 				synchronizeWorldData(event.getPlayer());
@@ -75,14 +77,7 @@ public class WorldEvents {
 			}
 			
 			List<CompoundTag> skillParams = SkillManager.getSkillParams();
-			SPDatapackSyncSkill skillParamsPacket = new SPDatapackSyncSkill(skillParams.size(), SPDatapackSync.Type.SKILL_PARAMS);
-			
-			for (SkillCategory category : SkillCategory.ENUM_MANAGER.universalValues()) {
-				if (skillCapability.hasCategory(category)) {
-					skillParamsPacket.addLearnedSkill(Lists.newArrayList(skillCapability.getLearnedSkills(category).stream().map((skill) -> skill.toString()).iterator()));
-				}
-			}
-			
+			SPDatapackSync skillParamsPacket = new SPDatapackSync(skillParams.size(), SPDatapackSync.Type.SKILL_PARAMS);
 			skillParams.forEach(skillParamsPacket::write);
 			EpicFightNetworkManager.sendToPlayer(skillParamsPacket, player);
 		});

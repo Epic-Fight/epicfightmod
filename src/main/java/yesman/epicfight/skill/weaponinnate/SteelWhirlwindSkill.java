@@ -10,10 +10,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
+import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
-import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -22,7 +23,6 @@ import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.ChargeableSkill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -31,14 +31,6 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType
 
 public class SteelWhirlwindSkill extends WeaponInnateSkill implements ChargeableSkill {
 	private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac120003");
-	
-	public static int getChargingPower(SkillContainer skillContainer) {
-		if (skillContainer == null) {
-			return 0;
-		}
-		
-		return skillContainer.getDataManager().getDataValue(SkillDataKeys.CHARGING_POWER.get());
-	}
 	
 	private AnimationAccessor<? extends StaticAnimation> chargingAnimation;
 	private AnimationAccessor<? extends AttackAnimation> attackAnimation;
@@ -122,7 +114,9 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 	
 	@Override
 	public void castSkill(ServerPlayerPatch caster, SkillContainer skillContainer, int chargingTicks, SPSkillExecutionFeedback feedbackPacket, boolean onMaxTick) {
-		skillContainer.getDataManager().setDataSync(SkillDataKeys.CHARGING_POWER.get(), chargingTicks, caster.getOriginal());
+		//skillContainer.getDataManager().setDataSync(SkillDataKeys.CHARGING_POWER.get(), chargingTicks, caster.getOriginal());
+		
+		caster.getAnimator().getVariables().put(SynchedAnimationVariableKeys.CHARGING_TICKS.get(), this.attackAnimation, chargingTicks);
 		caster.playAnimationSynchronized(this.attackAnimation, 0.0F);
 		this.cancelOnServer(skillContainer, null);
 	}

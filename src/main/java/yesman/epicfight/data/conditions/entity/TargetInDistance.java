@@ -7,6 +7,7 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,8 +31,8 @@ public class TargetInDistance extends EntityPatchCondition {
 	
 	@Override
 	public TargetInDistance read(CompoundTag tag) {
-		this.min = this.assertTag("min", "decimal", tag, Tag.TAG_DOUBLE, CompoundTag::getDouble);
-		this.max = this.assertTag("max", "decimal", tag, Tag.TAG_DOUBLE, CompoundTag::getDouble);
+		this.min = this.assertTag("min", "decimal", tag, NumericTag.class, CompoundTag::getDouble);
+		this.max = this.assertTag("max", "decimal", tag, NumericTag.class, CompoundTag::getDouble);
 		
 		return this;
 	}

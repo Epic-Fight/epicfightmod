@@ -261,8 +261,6 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	
 	@Override
 	public OpenMatrix4f getModelMatrix(float partialTick) {
-		//Direction direction;
-		
 		if (this.original.isAutoSpinAttack()) {
 			OpenMatrix4f mat = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, 0, 0, partialTick, PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
 			float yRot = MathUtils.lerpBetween(this.original.yRotO, this.original.getYRot(), partialTick);

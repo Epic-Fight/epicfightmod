@@ -75,7 +75,7 @@ public class CombatBehaviorScreen extends Screen {
 			this.rearrangeAttackAnimation();
 		});
 		
-		animationPopupBox.applyFilter((animation) -> animation instanceof AttackAnimation);
+		animationPopupBox.applyFilter(animation -> animation.checkType(AttackAnimation.class));
 		animationPopupBox.setModel(armature, mesh);
 		
 		this.movesetGrid = Grid.builder(this, parentScreen.getMinecraft())

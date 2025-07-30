@@ -14,7 +14,7 @@ public class EpicFightKeyMappings {
 	public static final KeyMapping WEAPON_INNATE_SKILL_TOOLTIP = new KeyMapping("key." + EpicFightMod.MODID + ".show_tooltip", InputConstants.KEY_LSHIFT, "key." + EpicFightMod.MODID + ".gui");
 	public static final KeyMapping SWITCH_MODE = new KeyMapping("key." + EpicFightMod.MODID + ".switch_mode", InputConstants.KEY_R, "key." + EpicFightMod.MODID + ".combat");
 	public static final KeyMapping DODGE = new KeyMapping("key." + EpicFightMod.MODID + ".dodge", InputConstants.KEY_LALT, "key." + EpicFightMod.MODID + ".combat");
-	public static final KeyMapping GUARD = new KeyMapping("key." + EpicFightMod.MODID + ".guard", InputConstants.Type.MOUSE, 1, "key." + EpicFightMod.MODID + ".combat");
+	public static final KeyMapping GUARD = new KeyMapping("key." + EpicFightMod.MODID + ".guard", InputConstants.KEY_C, "key." + EpicFightMod.MODID + ".combat");
 	public static final KeyMapping ATTACK = new  CombatKeyMapping("key." + EpicFightMod.MODID + ".attack", InputConstants.Type.MOUSE, 0, "key." + EpicFightMod.MODID + ".combat");
 	public static final KeyMapping WEAPON_INNATE_SKILL = new CombatKeyMapping("key." + EpicFightMod.MODID + ".weapon_innate_skill", InputConstants.Type.MOUSE, 0, "key." + EpicFightMod.MODID + ".combat");
 	public static final KeyMapping MOVER_SKILL = new  CombatKeyMapping("key." + EpicFightMod.MODID + ".mover_skill", InputConstants.Type.KEYSYM, InputConstants.KEY_SPACE, "key." + EpicFightMod.MODID + ".combat");
@@ -28,7 +28,7 @@ public class EpicFightKeyMappings {
 		event.register(WEAPON_INNATE_SKILL_TOOLTIP);
 		event.register(SWITCH_MODE);
 		event.register(DODGE);
-		/*ClientRegistry.registerKeyBinding(GUARD);*/
+		event.register(GUARD);
 		event.register(ATTACK);
 		event.register(WEAPON_INNATE_SKILL);
 		event.register(MOVER_SKILL);

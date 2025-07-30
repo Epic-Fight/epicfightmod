@@ -7,8 +7,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.modules.HoldableSkill;
 
 public class SPSkillExecutionFeedback {
 	private final int skillSlot;
@@ -29,6 +30,10 @@ public class SPSkillExecutionFeedback {
 	
 	public static SPSkillExecutionFeedback chargingBegin(int slotIndex) {
 		return new SPSkillExecutionFeedback(slotIndex, FeedbackType.CHARGING_BEGIN);
+	}
+
+	public static SPSkillExecutionFeedback held(int slotIndex) {
+		return new SPSkillExecutionFeedback(slotIndex, FeedbackType.HOLDING_START);
 	}
 	
 	private SPSkillExecutionFeedback(int slotIndex, FeedbackType feedbackType) {
@@ -70,22 +75,29 @@ public class SPSkillExecutionFeedback {
 			
 			if (playerpatch != null) {
 				switch(msg.feedbackType) {
-				case EXECUTED -> {
-					SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-					skillContainer.getSkill().executeOnClient(skillContainer, msg.getBuffer());
-				}
-				case CHARGING_BEGIN -> {
-					SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-					
-					if (skillContainer.getSkill() instanceof ChargeableSkill chargeableSkill) {
-						playerpatch.startSkillCharging(chargeableSkill);
-						ClientEngine.getInstance().controllEngine.setChargingKey(skillContainer.getSlot(), chargeableSkill.getKeyMapping());
+					case EXECUTED -> {
+						SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
+						skillContainer.getSkill().executeOnClient(skillContainer, msg.getBuffer());
 					}
-				}
-				case EXPIRED -> {
-					SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-					skillContainer.getSkill().cancelOnClient(skillContainer, msg.getBuffer());
-				}
+					case CHARGING_BEGIN -> {
+						SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
+
+						if (skillContainer.getSkill() instanceof ChargeableSkill chargeableSkill) {
+							playerpatch.startSkillCharging(chargeableSkill);
+							ClientEngine.getInstance().controlEngine.setChargingKey(skillContainer.getSlot(), chargeableSkill.getKeyMapping());
+						}
+					}
+					case HOLDING_START -> {
+						SkillContainer container = playerpatch.getSkill(msg.skillSlot);
+						if (container.getSkill() instanceof HoldableSkill holdableSkill) {
+							playerpatch.startSkillHolding(holdableSkill);
+							ClientEngine.getInstance().controlEngine.setChargingKey(container.getSlot(), holdableSkill.getKeyMapping());
+						}
+					}
+					case EXPIRED -> {
+						SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
+						skillContainer.getSkill().cancelOnClient(skillContainer, msg.getBuffer());
+					}
 				}
 			}
 		});
@@ -93,6 +105,6 @@ public class SPSkillExecutionFeedback {
 	}
 	
 	public enum FeedbackType {
-		EXECUTED, CHARGING_BEGIN, EXPIRED
+		EXECUTED, CHARGING_BEGIN, HOLDING_START, EXPIRED
 	}
 }

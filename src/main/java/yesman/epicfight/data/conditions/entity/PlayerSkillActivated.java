@@ -28,7 +28,7 @@ public class PlayerSkillActivated extends EntityPatchCondition {
 	
 	@Override
 	public PlayerSkillActivated read(CompoundTag tag) {
-		String skillName = this.assertTag("skill", "string", tag, Tag.TAG_STRING, CompoundTag::getString);
+		String skillName = this.assertTag("skill", "string", tag, StringTag.class, CompoundTag::getString);
 		
 		if ((this.skill = SkillManager.getSkill(skillName)) == null) {
 			throw new NoSuchElementException(MessageFormat.format("{} condition error: Skill named {} does not exist", this.getClass().getSimpleName(), skillName));

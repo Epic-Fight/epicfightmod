@@ -167,10 +167,12 @@ public class EpicFightGameRules {
 			}
 		}
 		
-		public void synchronizeTo(ServerPlayer player) {
-			if (this.synchronize) {
-				EpicFightNetworkManager.sendToPlayer(new SPChangeGamerule<> (this, this.getRuleValue(player.level())), player);
-			}
+		public boolean shouldSync() {
+			return this.synchronize;
+		}
+		
+		public SPChangeGamerule<?, ?, ?> getSyncPacket(ServerPlayer player) {
+			return new SPChangeGamerule<> (this, this.getRuleValue(player.level()));
 		}
 		
 		public void defineConfig(ForgeConfigSpec.Builder configBuilder) {

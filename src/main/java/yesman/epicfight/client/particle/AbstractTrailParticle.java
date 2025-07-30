@@ -4,21 +4,15 @@ import java.util.List;
 
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,15 +46,6 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		this.rCol = Math.max(this.trailInfo.rCol(), 0.0F);
 		this.gCol = Math.max(this.trailInfo.gCol(), 0.0F);
 		this.bCol = Math.max(this.trailInfo.bCol(), 0.0F);
-		
-		if (this.trailInfo.texturePath() != null) {
-			TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
-			AbstractTexture abstracttexture = texturemanager.getTexture(this.trailInfo.texturePath());
-		    
-			RenderSystem.bindTexture(abstracttexture.getId());
-			RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		    RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-		}
 	}
 	
 	protected abstract boolean canContinue();
@@ -107,8 +92,6 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		if (this.trailEdges.isEmpty()) {
 			return;
 		}
-		
-		RenderSystem.setShaderTexture(0, this.trailInfo.texturePath());
 		
 		PoseStack poseStack = new PoseStack();
 		int light = this.getLightColor(partialTick);
@@ -167,7 +150,7 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 	
 	@Override
 	public ParticleRenderType getRenderType() {
-		return EpicFightParticleRenderTypes.TRAIL_EFFECT;
+		return EpicFightParticleRenderTypes.TRAIL_EFFECT.apply(this.trailInfo.texturePath());
 	}
 	
 	protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTicks) {

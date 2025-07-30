@@ -67,15 +67,10 @@ public class CPExecuteSkill {
 				SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
 				
 				switch (msg.workType) {
-				case ACTIVATE -> {
-					skillContainer.requestExecute(playerpatch, msg.getBuffer());
-				}
-				case CANCEL -> {
-					skillContainer.requestCancel(playerpatch, msg.getBuffer());
-				}
-				case CHARGING_START -> {
-					skillContainer.requestCharging(playerpatch, msg.getBuffer());
-				}
+					case ACTIVATE -> skillContainer.requestExecute(playerpatch, msg.getBuffer());
+					case CANCEL -> skillContainer.requestCancel(playerpatch, msg.getBuffer());
+					case CHARGING_START -> skillContainer.requestCharging(playerpatch, msg.getBuffer());
+					case HOLD_START -> skillContainer.requestHold(playerpatch, msg.getBuffer());
 				}
 			});
 		});
@@ -84,6 +79,6 @@ public class CPExecuteSkill {
 	}
 	
 	public enum WorkType {
-		ACTIVATE, CANCEL, CHARGING_START
+		ACTIVATE, CANCEL, CHARGING_START, HOLD_START
 	}
 }

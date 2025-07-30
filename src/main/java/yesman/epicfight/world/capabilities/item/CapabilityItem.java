@@ -38,6 +38,7 @@ import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
@@ -240,7 +241,8 @@ public class CapabilityItem {
 		
 		weaponInnateSkillContainer.setDisabled(weaponInnateSkill == null);
 		
-		EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.WEAPON_INNATE, skillName, state), (ServerPlayer)playerpatch.getOriginal());
+		PayloadBundleBuilder payloadBundlebuilder = PayloadBundleBuilder.create();
+		payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_INNATE, skillName, state));
 		
 		Skill skill = this.getPassiveSkill();
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
@@ -248,12 +250,16 @@ public class CapabilityItem {
 		if (skill != null) {
 			if (passiveSkillContainer.getSkill() != skill) {
 				passiveSkillContainer.setSkill(skill);
-				EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, skill.toString(), SPChangeSkill.State.ENABLE), (ServerPlayer)playerpatch.getOriginal());
+				payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, skill.toString(), SPChangeSkill.State.ENABLE));
 			}
 		} else {
 			passiveSkillContainer.setSkill(null);
-			EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, "empty", SPChangeSkill.State.ENABLE), (ServerPlayer)playerpatch.getOriginal());
+			payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, "empty", SPChangeSkill.State.ENABLE));
 		}
+		
+		payloadBundlebuilder.send((first, others) -> {
+			EpicFightNetworkManager.sendToPlayer(first, (ServerPlayer)playerpatch.getOriginal(), others);
+		});
 	}
 	
 	public SoundEvent getSmashingSound() {

@@ -206,10 +206,25 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 			newLivingAnimations.put(entry.getKey(), aniamtion);
 		}
 		
-		for (LivingMotion oldLivingMotion : oldLivingAnimations.keySet()) {
-			if (!newLivingAnimations.containsKey(oldLivingMotion)) {
-				hasChange = true;
-				break;
+		if (this.weaponLivingMotions != null && this.weaponLivingMotions.containsKey(mainhandCap.getWeaponCategory())) {
+			Map<Style, Set<Pair<LivingMotion, AnimationAccessor<? extends StaticAnimation>>>> byStyle = this.weaponLivingMotions.get(mainhandCap.getWeaponCategory());
+			Style style = mainhandCap.getStyle(this);
+			
+			if (byStyle.containsKey(style) || byStyle.containsKey(CapabilityItem.Styles.COMMON)) {
+				Set<Pair<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> animModifierSet = byStyle.getOrDefault(style, byStyle.get(CapabilityItem.Styles.COMMON));
+				
+				for (Pair<LivingMotion, AnimationAccessor<? extends StaticAnimation>> pair : animModifierSet) {
+					newLivingAnimations.put(pair.getFirst(), pair.getSecond());
+				}
+			}
+		}
+		
+		if (!hasChange) {
+			for (LivingMotion oldLivingMotion : oldLivingAnimations.keySet()) {
+				if (!newLivingAnimations.containsKey(oldLivingMotion)) {
+					hasChange = true;
+					break;
+				}
 			}
 		}
 		

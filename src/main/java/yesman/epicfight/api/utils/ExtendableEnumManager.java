@@ -10,18 +10,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.skill.SkillCategory;
 
 public class ExtendableEnumManager<T extends ExtendableEnum> {
 	private final Int2ObjectMap<T> enumMapByOrdinal = new Int2ObjectLinkedOpenHashMap<>();
 	private final Map<String, T> enumMapByName = Maps.newLinkedHashMap();
 	private final Map<String, Class<?>> enums = Maps.newConcurrentMap();
 	private final String enumName;
+	private final List<ResourceLocation> enumIDs = Lists.newArrayList();
 	private int lastOrdinal = 0;
 	
 	public ExtendableEnumManager(String enumName) {
@@ -32,9 +36,8 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 		if (this.enums.containsKey(modid)) {
 			EpicFightMod.LOGGER.error(modid + " is already registered in " + this.enumName);
 		}
-		
+
 		EpicFightMod.LOGGER.debug("Registered Extendable Enum " + cls +" in " + this.enumName);
-		
 		this.enums.put(modid, cls);
 	}
 	

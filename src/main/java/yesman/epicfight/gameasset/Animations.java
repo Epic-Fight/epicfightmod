@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import com.google.common.collect.Lists;
 
@@ -59,6 +60,7 @@ import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.InPeriodEvent;
@@ -120,7 +122,6 @@ import yesman.epicfight.model.armature.types.ToolHolderArmature;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.identity.MeteorSlamSkill;
-import yesman.epicfight.skill.weaponinnate.SteelWhirlwindSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherPatch;
@@ -1017,7 +1018,7 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F));
 		
 		TACHI_AUTO1 = builder.nextAccessor("biped/combat/tachi_auto1", (accessor) ->
-			new BasicAttackAnimation(0.1F, 0.35F, 0.4F, 0.5F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
+			new BasicAttackAnimation(0.1F, 0.35F, 0.4F, 0.55F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F)
 				.addProperty(AttackAnimationProperty.EXTRA_COLLIDERS, 3));
 		TACHI_AUTO2 = builder.nextAccessor("biped/combat/tachi_auto2", (accessor) ->
@@ -1982,16 +1983,8 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
 				.addProperty(AttackAnimationProperty.EXTRA_COLLIDERS, 4)
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, (animation, entitypatch, transformSheet) -> {
-					if (!animation.isLinkAnimation() && entitypatch instanceof PlayerPatch<?> playerpatch) {
-						Optional<SkillContainer> skill = playerpatch.getSkillContainerFor(EpicFightSkills.STEEL_WHIRLWIND);
-						int chargingPower;
-						
-						if (skill.isEmpty()) {
-							chargingPower = 1;
-						} else {
-							chargingPower = SteelWhirlwindSkill.getChargingPower(skill.get());
-						}
-						
+					if (!animation.isLinkAnimation()) {
+						int chargingPower = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.CHARGING_TICKS.get(), animation.getRealAnimation()).orElse(0);
 						transformSheet.readFrom(animation.getCoord().copyAll().extendsZCoord(0.6666F + chargingPower / 5.0F, 0, 2));
 					} else {
 						MoveCoordFunctions.RAW_COORD.set(animation, entitypatch, transformSheet);
@@ -2002,16 +1995,8 @@ public class Animations {
 				.addProperty(StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.COMBO_ATTACK_DIRECTION_MODIFIER)
 				.addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
 					if (elapsedTime < 1.05F) {
-						if (entitypatch instanceof PlayerPatch<?> playerpatch) {
-							Optional<SkillContainer> skill = playerpatch.getSkillContainerFor(EpicFightSkills.STEEL_WHIRLWIND);
-							
-							if (skill.isEmpty()) {
-								return 1.0F;
-							}
-							
-							int chargingPower = SteelWhirlwindSkill.getChargingPower(skill.get());
-							return 0.6666F + chargingPower / 20.0F;
-						}
+						int chargingPower = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.CHARGING_TICKS.get(), self.getRealAnimation()).orElse(0);
+						return 0.6666F + chargingPower / 20.0F;
 					}
 					
 					return 1.0F;
@@ -2387,7 +2372,6 @@ public class Animations {
 			}
 		};
 		
-		@SuppressWarnings("incomplete-switch")
 		public static final AnimationEvent.E0 UPDATE_Y_TO_NEARBY_LADDER = (entitypatch, animation, params) -> {
 			LivingEntity original = entitypatch.getOriginal();
 			BlockState bs = original.getFeetBlockState();
@@ -2500,6 +2484,15 @@ public class Animations {
 			}
 		};
 		
+		public static final AnimationEvent.E0 SYNC_COORD_ROTATION = (entitypatch, animation, params) -> {
+			animation.get().getProperty(ActionAnimationProperty.COORD).ifPresent(coordTransform -> {
+				Quaternionf rotation = coordTransform.getInterpolatedRotation(animation.get().getTotalTime());
+				Vector3f eulerAngles = rotation.getEulerAnglesYXZ(new Vector3f());
+				entitypatch.setYRotO(Mth.wrapDegrees(entitypatch.getYRot() + (float)Math.toDegrees(eulerAngles.y)));
+				entitypatch.setYRot(Mth.wrapDegrees(entitypatch.getYRot() + (float)Math.toDegrees(eulerAngles.y)));
+			});
+		};
+		
 		public static final AnimationProperty.PoseModifier COMBO_ATTACK_DIRECTION_MODIFIER = (self, pose, entitypatch, time, partialTicks) -> {
 			if (!self.isStaticAnimation() || entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isFirstPerson()) {
 				return;
@@ -2575,6 +2568,15 @@ public class Animations {
 			shoulderR.jointLocal(JointTransform.translation(new Vec3f(0.0F, trans, -trans)), OpenMatrix4f::mul);
 			shoulderL.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), OpenMatrix4f::mulAsOriginInverse);
 			shoulderR.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), OpenMatrix4f::mulAsOriginInverse);
+		};
+		
+		public static final AnimationProperty.PoseModifier APPLY_COORD_ROTATION = (self, pose, entitypatch, elapsedTime, partialTicks) -> {
+			if (!entitypatch.getAnimator().getPlayerFor(self.getAccessor()).isEnd()) {
+				self.getProperty(ActionAnimationProperty.COORD).ifPresent(coordTransform -> {
+					Quaternionf rotation = coordTransform.getInterpolatedRotation(elapsedTime);
+					pose.get("Root").parent(JointTransform.rotation(rotation), OpenMatrix4f::mul);
+				});
+			}
 		};
 		
 		public static final AnimationProperty.PlaybackSpeedModifier CONSTANT_ONE = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 1.0F;

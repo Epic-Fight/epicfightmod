@@ -10,10 +10,12 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -26,9 +28,10 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
+import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.gameasset.EpicFightSounds;
@@ -39,6 +42,7 @@ import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKeys;
+import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -51,9 +55,28 @@ import yesman.epicfight.world.damagesource.EpicFightDamageType;
 import yesman.epicfight.world.entity.eventlistener.HurtEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
-public class GuardSkill extends Skill {
+public class GuardSkill extends Skill implements HoldableSkill
+{
 	protected static final UUID EVENT_UUID = UUID.fromString("b422f7a0-f378-11eb-9a03-0242ac130003");
-	
+
+	@Override
+	public void holdTick(SkillContainer container)
+	{
+
+	}
+
+	@Override
+	public void onStopHolding(SkillContainer container, FriendlyByteBuf packet)
+	{
+
+	}
+
+	@Override
+	public KeyMapping getKeyMapping()
+	{
+		return EpicFightKeyMappings.GUARD;
+	}
+
 	public static class Builder extends SkillBuilder<GuardSkill> {
 		protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardMotions = Maps.newHashMap();
 		protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> advancedGuardMotions = Maps.newHashMap();
@@ -92,7 +115,7 @@ public class GuardSkill extends Skill {
 				.addGuardBreakMotion(WeaponCategories.SWORD, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
 				.addGuardBreakMotion(WeaponCategories.TACHI, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
 				.setCategory(SkillCategories.GUARD)
-				.setActivateType(ActivateType.ONE_SHOT)
+				.setActivateType(ActivateType.HELD)
 				.setResource(Resource.STAMINA)
 				;
 	}
@@ -115,48 +138,37 @@ public class GuardSkill extends Skill {
 		super.setParams(parameters);
 		this.penalizer = parameters.getFloat("penalizer");
 	}
-	
+
+	@Override
+	public void executeOnServer(SkillContainer container, FriendlyByteBuf args)
+	{
+		super.executeOnServer(container, args);
+		container.getServerExecutor().updateMotion(true);
+		container.getExecutor().updateEntityState();
+		container.getDataManager().setDataSync(SkillDataKeys.PENALTY_RESTORE_COUNTER.get(), container.getServerExecutor().getOriginal().tickCount, container.getServerExecutor().getOriginal());
+	}
 	@Override
 	public void onInitiate(SkillContainer container) {
-		container.getExecutor().getEventListener().addEventListener(EventType.CLIENT_ITEM_USE_EVENT, EVENT_UUID, (event) -> {
-			CapabilityItem itemCapability = event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND);
-			
-			if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.GUARD) && this.isExecutableState(event.getPlayerPatch())) {
-				event.getPlayerPatch().getOriginal().startUsingItem(InteractionHand.MAIN_HAND);
-			}
-		});
-		
-		container.getExecutor().getEventListener().addEventListener(EventType.SERVER_ITEM_USE_EVENT, EVENT_UUID, (event) -> {
-			CapabilityItem itemCapability = event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND);
-			
-			if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.GUARD) && this.isExecutableState(event.getPlayerPatch())) {
-				event.getPlayerPatch().getOriginal().startUsingItem(InteractionHand.MAIN_HAND);
-			}
-		});
-		
-		container.getExecutor().getEventListener().addEventListener(EventType.SERVER_ITEM_STOP_EVENT, EVENT_UUID, (event) -> {
-			ServerPlayer serverplayer = event.getPlayerPatch().getOriginal();
-			container.getDataManager().setDataSync(SkillDataKeys.PENALTY_RESTORE_COUNTER.get(), serverplayer.tickCount, serverplayer);
-		});
-		
 		container.getExecutor().getEventListener().addEventListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
 			container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), 0.0F, event.getPlayerPatch().getOriginal());
 		});
 		
 		container.getExecutor().getEventListener().addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
-			if (container.getExecutor().getOriginal().isUsingItem() && this.guardMotions.containsKey(container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory())) {
+			if (event.getPlayerPatch().getHoldableSkill() != null && event.getPlayerPatch().getHoldableSkill().asSkill() == this && this.guardMotions.containsKey(container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory())) {
 				LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
 				clientPlayer.setSprinting(false);
 				clientPlayer.sprintTriggerTime = -1;
 				Minecraft mc = Minecraft.getInstance();
-				ControllEngine.setKeyBind(mc.options.keySprint, false);
+				ControlEngine.setKeyBind(mc.options.keySprint, false);
+				event.getMovementInput().forwardImpulse *= 0.5f;
+				event.getMovementInput().leftImpulse *= 0.5f;
 			}
 		});
 		
 		container.getExecutor().getEventListener().addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
 			CapabilityItem itemCapability = event.getPlayerPatch().getHoldingItemCapability(event.getPlayerPatch().getOriginal().getUsedItemHand());
 			
-			if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.GUARD) && event.getPlayerPatch().getOriginal().isUsingItem() && this.isExecutableState(event.getPlayerPatch())) {
+			if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.GUARD) && event.getPlayerPatch().getHoldableSkill() instanceof GuardSkill && this.isExecutableState(event.getPlayerPatch())) {
 				DamageSource damageSource = event.getDamageSource();
 				boolean isFront = false;
 				Vec3 sourceLocation = damageSource.getSourcePosition();
@@ -255,7 +267,7 @@ public class GuardSkill extends Skill {
 		}
 	}
 	
-	protected boolean isHoldingWeaponAvailable(PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
+	public boolean isHoldingWeaponAvailable(PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
 		AnimationAccessor<? extends StaticAnimation> anim = itemCapability.getGuardMotion(this, blockType, playerpatch);
 		
 		if (anim != null) {
@@ -322,8 +334,8 @@ public class GuardSkill extends Skill {
 	}
 	
 	@Override
-	public boolean isExecutableState(PlayerPatch<?> executer) {
-		return executer.isEpicFightMode() && !(executer.isInAir() || executer.getEntityState().hurt()) && executer.getEntityState().canUseSkill() && !executer.isChargingSkill();
+	public boolean isExecutableState(PlayerPatch<?> executor) {
+		return executor.isEpicFightMode() && !(executor.isInAir() || executor.getEntityState().hurt()) && executor.getEntityState().canUseSkill() && !executor.isChargingSkill();
 	}
 	
 	protected boolean isBlockableSource(DamageSource damageSource, boolean advanced) {

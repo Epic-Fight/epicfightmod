@@ -20,7 +20,7 @@ public class PlayerName extends EntityPatchCondition {
 	
 	@Override
 	public PlayerName read(CompoundTag tag) {
-		this.name = this.assertTag("name", "string", tag, Tag.TAG_STRING, CompoundTag::getString);
+		this.name = this.assertTag("name", "string", tag, StringTag.class, CompoundTag::getString);
 		return this;
 	}
 	

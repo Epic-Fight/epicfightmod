@@ -6,32 +6,33 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 
-public class CPCheckAnimationRegistrySync {
+public class CPCheckAnimationRegistryMatches {
 	public final int animationCount;
 	public final String[] registryNames;
 	
-	public CPCheckAnimationRegistrySync() {
+	public CPCheckAnimationRegistryMatches() {
 		this.animationCount = 0;
 		this.registryNames = new String[0];
 	}
 	
-	public CPCheckAnimationRegistrySync(int animationCount, String[] registryNames) {
+	public CPCheckAnimationRegistryMatches(int animationCount, String[] registryNames) {
 		this.animationCount = animationCount;
 		this.registryNames = registryNames;
 	}
 
-	public static CPCheckAnimationRegistrySync fromBytes(FriendlyByteBuf buf) {
+	public static CPCheckAnimationRegistryMatches fromBytes(FriendlyByteBuf buf) {
 		int animationCount = buf.readInt();
+		
 		String[] registryNames = new String[animationCount];
 		
 		for (int i = 0; i < animationCount; i++) {
 			registryNames[i] = buf.readUtf();
 		}
 		
-		return new CPCheckAnimationRegistrySync(animationCount, registryNames);
+		return new CPCheckAnimationRegistryMatches(animationCount, registryNames);
 	}
 
-	public static void toBytes(CPCheckAnimationRegistrySync msg, FriendlyByteBuf buf) {
+	public static void toBytes(CPCheckAnimationRegistryMatches msg, FriendlyByteBuf buf) {
 		buf.writeInt(msg.animationCount);
 		
 		for (String registryName : msg.registryNames) {
@@ -39,7 +40,7 @@ public class CPCheckAnimationRegistrySync {
 		}
 	}
 	
-	public static void handle(CPCheckAnimationRegistrySync msg, Supplier<NetworkEvent.Context> ctx) {
+	public static void handle(CPCheckAnimationRegistryMatches msg, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			AnimationManager.getInstance().validateClientAnimationRegistry(msg, ctx.get().getSender().connection);
 		});

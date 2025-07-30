@@ -545,7 +545,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 			extract.put("renderer", original.get("renderer"));
 			extract.put("faction", original.get("faction"));
 			extract.put("default_livingmotions", original.get("default_livingmotions"));
-			extract.put("attributes", original.get("attributes"));
+			if (original.contains("attributes", Tag.TAG_COMPOUND)) extract.put("attributes", original.get("attributes"));
 		}
 		
 		return extract;

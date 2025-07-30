@@ -29,8 +29,8 @@ import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
 import yesman.epicfight.client.gui.screen.config.PreferredItemsScreen;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
-import yesman.epicfight.epicskins.user.AuthenticationHelper;
-import yesman.epicfight.epicskins.user.AuthenticationHelper.AuthenticationProvider;
+//import yesman.epicfight.epicskins.user.AuthenticationHelper;
+//import yesman.epicfight.epicskins.user.AuthenticationHelper.AuthenticationProvider;
 import yesman.epicfight.main.EpicFightMod;
 
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -94,7 +94,7 @@ public class ClientConfig {
 	
 	public static final ForgeConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
 	public static final ForgeConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
-	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
+//	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
 	
 	public static final ForgeConfigSpec SPEC = BUILDER.build();
 	
@@ -193,7 +193,7 @@ public class ClientConfig {
 			/**
 			 * On the development side, disable this part to avoid loading epic skins classes
 			 */
-			AuthenticationHelper.initialize(ACCESS_TOKEN, REFRESH_TOKNE, PROVIDER);
+//			AuthenticationHelper.initialize(ACCESS_TOKEN, REFRESH_TOKNE, PROVIDER);
 		}
     }
 	

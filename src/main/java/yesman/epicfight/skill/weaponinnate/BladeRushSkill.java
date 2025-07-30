@@ -21,7 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
@@ -73,7 +73,7 @@ public class BladeRushSkill extends WeaponInnateSkill {
 	}
 	
 	@Override
-	public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controllEngine) {
+	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
 		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeBoolean(true);
 		

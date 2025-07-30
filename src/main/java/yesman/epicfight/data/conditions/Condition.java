@@ -13,6 +13,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.Entity;
@@ -32,24 +33,26 @@ public interface Condition<T> {
 	public CompoundTag serializePredicate();
 	public boolean predicate(T target);
 	
-	default <O> O assertTag(String key, String tagFormatMessage, CompoundTag tag, int tagType, BiFunction<CompoundTag, String, O> getter) throws IllegalArgumentException {
-		if (!tag.contains(key)) {
+	default <O> O assertTag(String key, String tagFormatMessage, CompoundTag compound, Class<? extends Tag> tagType, BiFunction<CompoundTag, String, O> getter) throws IllegalArgumentException {
+		if (!compound.contains(key)) {
 			throw new IllegalArgumentException(MessageFormat.format("{0} condition error: {1} not specified!", this.getClass().getSimpleName(), key));
 		}
 		
-		if (!tag.contains(key, tagType)) {
+		Tag tag = compound.get(key);
+		
+		if (!tagType.isAssignableFrom(tag.getClass())) {
 			throw new IllegalArgumentException(MessageFormat.format("{0} condition error: the {1} value must be a {2} format", this.getClass().getSimpleName(), key, tagFormatMessage));
 		}
 		
-		return getter.apply(tag, key);
+		return getter.apply(compound, key);
 	}
 	
-	default <E extends Enum<E>> E assertEnumTag(String key, Class<E> enumCls, CompoundTag tag) throws IllegalArgumentException {
-		if (!tag.contains(key)) {
+	default <E extends Enum<E>> E assertEnumTag(String key, Class<E> enumCls, CompoundTag compound) throws IllegalArgumentException {
+		if (!compound.contains(key)) {
 			throw new IllegalArgumentException(MessageFormat.format("{0} condition error: {1} not specified!", this.getClass().getSimpleName(), key));
 		}
 		
-		String enumString = this.assertTag(key, "string", tag, Tag.TAG_STRING, CompoundTag::getString).toUpperCase(Locale.ROOT);
+		String enumString = this.assertTag(key, "string", compound, StringTag.class, CompoundTag::getString).toUpperCase(Locale.ROOT);
 		
 		try {
 			return Enum.valueOf(enumCls, enumString);
@@ -58,12 +61,12 @@ public interface Condition<T> {
 		}
 	}
 	
-	default <E extends ExtendableEnum> E assertExtendableEnumTag(String key, ExtendableEnumManager<E> extendableEnumManager, CompoundTag tag) throws IllegalArgumentException, NoSuchElementException {
-		if (!tag.contains(key)) {
+	default <E extends ExtendableEnum> E assertExtendableEnumTag(String key, ExtendableEnumManager<E> extendableEnumManager, CompoundTag compound) throws IllegalArgumentException, NoSuchElementException {
+		if (!compound.contains(key)) {
 			throw new IllegalArgumentException(MessageFormat.format("{0} condition error: {1} not specified!", this.getClass().getSimpleName(), key));
 		}
 		
-		String enumString = this.assertTag(key, "string", tag, Tag.TAG_STRING, CompoundTag::getString).toLowerCase(Locale.ROOT);
+		String enumString = this.assertTag(key, "string", compound, StringTag.class, CompoundTag::getString).toLowerCase(Locale.ROOT);
 		
 		try {
 			return extendableEnumManager.getOrThrow(enumString);

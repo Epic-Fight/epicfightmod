@@ -45,7 +45,6 @@ import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -76,6 +75,7 @@ public class AttackAnimation extends ActionAnimation {
 		this.addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
 		this.addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.MODEL_COORD);
 		this.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ATTACK_TARGET_LOCATION);
+		this.addProperty(ActionAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.MOB_ATTACK_TARGET_LOOK);
 		this.addProperty(ActionAnimationProperty.STOP_MOVEMENT, true);
 		
 		this.phases = phases;
@@ -105,6 +105,7 @@ public class AttackAnimation extends ActionAnimation {
 		this.addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
 		this.addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.MODEL_COORD);
 		this.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ATTACK_TARGET_LOCATION);
+		this.addProperty(ActionAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.MOB_ATTACK_TARGET_LOOK);
 		this.addProperty(ActionAnimationProperty.STOP_MOVEMENT, true);
 		
 		this.phases = phases;
@@ -152,22 +153,6 @@ public class AttackAnimation extends ActionAnimation {
 	public void linkTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> linkAnimation) {
 		super.linkTick(entitypatch, linkAnimation);
 		
-		if (!entitypatch.isLogicalClient() && entitypatch instanceof MobPatch<?> mobpatch) {
-			AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
-			float elapsedTime = player.getElapsedTime();
-			EntityState state = linkAnimation.get().getState(entitypatch, elapsedTime);
-			
-			if (state.getLevel() == 1 && !state.turningLocked()) {
-				mobpatch.getOriginal().getNavigation().stop();
-				entitypatch.getOriginal().attackAnim = 2;
-				LivingEntity target = entitypatch.getTarget();
-				
-				if (target != null) {
-					entitypatch.rotateTo(target, entitypatch.getYRotLimit(), false);
-				}
-			}
-		}
-		
 		if (!entitypatch.isLogicalClient()) {
 			this.attackTick(entitypatch, linkAnimation);
 		}
@@ -206,18 +191,6 @@ public class AttackAnimation extends ActionAnimation {
 		EntityState prevState = animation.get().getState(entitypatch, prevElapsedTime);
 		EntityState state = animation.get().getState(entitypatch, elapsedTime);
 		Phase phase = this.getPhaseByTime(animation.get().isLinkAnimation() ? 0.0F : elapsedTime);
-		
-		if (state.getLevel() == 1 && !state.turningLocked()) {
-			if (entitypatch instanceof MobPatch<?> mobpatch) {
-				mobpatch.getOriginal().getNavigation().stop();
-				entitypatch.getOriginal().attackAnim = 2;
-				LivingEntity target = entitypatch.getTarget();
-				
-				if (target != null) {
-					entitypatch.rotateTo(target, entitypatch.getYRotLimit(), false);
-				}
-			}
-		}
 		
 		if (prevState.attacking() || state.attacking() || (prevState.getLevel() <= 2 && state.getLevel() > 2)) {
 			if (!prevState.attacking() || (phase != this.getPhaseByTime(prevElapsedTime) && (state.attacking() || (prevState.getLevel() <= 2 && state.getLevel() > 2)))) {

@@ -17,6 +17,8 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.item.EpicFightItems;
 
+import java.util.Objects;
+
 @OnlyIn(Dist.CLIENT)
 public class RenderKatana extends RenderItemBase {
 	private final ItemStack sheathStack;
@@ -25,7 +27,7 @@ public class RenderKatana extends RenderItemBase {
 		super(jsonElement);
 		
 		if (jsonElement.getAsJsonObject().has("sheath")) {
-			this.sheathStack = new ItemStack(ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(jsonElement.getAsJsonObject().get("sheath").getAsString())));
+			this.sheathStack = new ItemStack(Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(jsonElement.getAsJsonObject().get("sheath").getAsString()))));
 		} else {
 			this.sheathStack = new ItemStack(EpicFightItems.UCHIGATANA_SHEATH.get());
 		}

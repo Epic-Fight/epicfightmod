@@ -5,10 +5,12 @@ import java.util.Set;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.client.CPExecuteSkill;
 import yesman.epicfight.skill.Skill.ActivateType;
+import yesman.epicfight.skill.modules.ChargeableSkill;
+import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -164,7 +166,7 @@ public class SkillContainer {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public SkillExecuteEvent sendExecuteRequest(LocalPlayerPatch executor, ControllEngine controllEngine) {
+	public SkillExecuteEvent sendExecuteRequest(LocalPlayerPatch executor, ControlEngine controlEngine) {
 		SkillExecuteEvent event = new SkillExecuteEvent(executor, this);
 		
 		if (this.containingSkill == null) {
@@ -175,7 +177,7 @@ public class SkillContainer {
 		
 		if (this.containingSkill instanceof ChargeableSkill chargeableSkill && this.containingSkill.getActivateType() == Skill.ActivateType.CHARGING) {
 			if (executor.isChargingSkill(this.containingSkill)) {
-				packet = this.containingSkill.getExecutionPacket(this, this.containingSkill.gatherArguments(this, controllEngine));
+				packet = this.containingSkill.getExecutionPacket(this, this.containingSkill.gatherArguments(this, controlEngine));
 				executor.resetSkillCharging();
 			} else {
 				if (!this.canExecute(executor, event)) {
@@ -184,8 +186,21 @@ public class SkillContainer {
 				}
 				
 				CPExecuteSkill exeSkillPacket = new CPExecuteSkill(this.getSlotId(), CPExecuteSkill.WorkType.CHARGING_START);
-				chargeableSkill.gatherChargingArguemtns(executor, controllEngine, exeSkillPacket.getBuffer());
+				chargeableSkill.gatherChargingArguments(executor, controlEngine, exeSkillPacket.getBuffer());
 				packet = exeSkillPacket;
+			}
+		} else if (this.containingSkill instanceof HoldableSkill && this.containingSkill.getActivateType() == ActivateType.HELD) {
+			if (executor.isHoldingSkill(this.containingSkill)) {
+				packet = this.containingSkill.getExecutionPacket(this, this.containingSkill.gatherArguments(this, controlEngine));
+				executor.resetHolding();
+			} else {
+				if (!this.canExecute(executor, event)) {
+					this.containingSkill.validationFeedback(this);
+					return event;
+				}
+
+
+                packet = new CPExecuteSkill(this.getSlotId(), CPExecuteSkill.WorkType.HOLD_START);
 			}
 		} else {
 			if (!this.canExecute(executor, event)) {
@@ -193,11 +208,11 @@ public class SkillContainer {
 				return event;
 			}
 			
-			packet = this.containingSkill.getExecutionPacket(this, this.containingSkill.gatherArguments(this, controllEngine));
+			packet = this.containingSkill.getExecutionPacket(this, this.containingSkill.gatherArguments(this, controlEngine));
 		}
 		
 		if (packet != null) {
-			controllEngine.addPacketToSend(packet);
+			controlEngine.addPacketToSend(packet);
 		}
 		
 		return event;
@@ -243,6 +258,27 @@ public class SkillContainer {
 		
 		return false;
 	}
+
+	public boolean requestHold(ServerPlayerPatch executor, FriendlyByteBuf buf) {
+		if (this.containingSkill instanceof HoldableSkill holdableSkill) {
+			SkillExecuteEvent event = new SkillExecuteEvent(executor, this);
+
+			if (this.canExecute(executor, event)) {
+				SkillConsumeEvent consumeEvent = new SkillConsumeEvent(executor, this.containingSkill, this.containingSkill.resource);
+				executor.getEventListener().triggerEvents(EventType.SKILL_CONSUME_EVENT, consumeEvent);
+
+				if (!consumeEvent.isCanceled()) {
+					consumeEvent.getResourceType().consumer.consume(this, executor, consumeEvent.getAmount());
+				}
+
+				executor.startSkillHolding(holdableSkill);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
 	
 	public SkillDataManager getDataManager() {
 		return this.skillDataManager;
@@ -266,6 +302,10 @@ public class SkillContainer {
 				} else {
 					return executor.getSkillChargingTicks() >= chargingSkill.getMinChargingTicks();
 				}
+			}
+
+			if (executor.isHoldingSkill(this.containingSkill) && this.containingSkill instanceof HoldableSkill) {
+				return true;
 			}
 			
 			event.setSkillExecutable(this.containingSkill.canExecute(this));

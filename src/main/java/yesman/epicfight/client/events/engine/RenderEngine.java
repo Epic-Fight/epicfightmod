@@ -675,7 +675,7 @@ public class RenderEngine {
 					CapabilityItem cap = EpicFightCapabilities.getItemStackCapabilityOr(event.getItemStack(), null);
 					
 					if (cap != null) {
-						if (ControllEngine.isKeyDown(EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP)) {
+						if (ControlEngine.isKeyDown(EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP)) {
 							Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, event.getItemStack());
 
 							if (weaponInnateSkill != null) {

@@ -6,10 +6,14 @@ import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * An accessor class
+ * @param <O> {@link Object} can be any object
+ */
 public interface AssetAccessor<O> extends Supplier<O> {
-	public O get();
+	O get();
 	
-	public ResourceLocation registryName();
+	ResourceLocation registryName();
 	
 	default boolean isPresent() {
 		return this.get() != null;
@@ -19,7 +23,11 @@ public interface AssetAccessor<O> extends Supplier<O> {
 		return !this.isPresent();
 	}
 	
-	public boolean inRegistry();
+	boolean inRegistry();
+	
+	default boolean checkType(Class<?> cls) {
+		return cls.isAssignableFrom(this.get().getClass());
+	}
 	
 	default O orElse(O whenNull) {
 		return this.isPresent() ? this.get() : whenNull;

@@ -39,7 +39,7 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.network.server.SPDatapackSyncSkill;
+import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
@@ -113,7 +113,7 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public static void processServerPacket(SPDatapackSyncSkill packet) {
+	public static void processServerPacket(SPDatapackSync packet) {
 		IForgeRegistry<Skill> skillRegistry = getSkillRegistry();
 		
 		for (CompoundTag tag : packet.getTags()) {
@@ -129,10 +129,6 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 		
 		if (localplayerpatch != null) {
 			CapabilitySkill skillCapability = localplayerpatch.getSkillCapability();
-			
-			for (String skillName : packet.getLearnedSkills()) {
-				skillCapability.addLearnedSkill(getSkill(skillName));
-			}
 			
 			for (SkillContainer skill : skillCapability.skillContainers) {
 				if (skill.getSkill() != null) {

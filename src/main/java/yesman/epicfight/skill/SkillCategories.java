@@ -1,5 +1,10 @@
 package yesman.epicfight.skill;
 
+import com.google.common.collect.Lists;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
+
 public enum SkillCategories implements SkillCategory {
 	BASIC_ATTACK(false, false, false),
 	AIR_ATTACK(false, false, false),
@@ -15,6 +20,7 @@ public enum SkillCategories implements SkillCategory {
 	boolean shouldSave;
 	boolean shouldSyncronize;
 	boolean modifiable;
+	ResourceLocation registryId;
 	int id;
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable) {
@@ -23,7 +29,13 @@ public enum SkillCategories implements SkillCategory {
 		this.modifiable = modifiable;
 		this.id = SkillCategory.ENUM_MANAGER.assign(this);
 	}
-	
+
+	@Override
+	public List<SkillCategory> getEnums()
+	{
+		return List.of(BASIC_ATTACK, AIR_ATTACK, DODGE, PASSIVE, WEAPON_INNATE, WEAPON_INNATE, GUARD, KNOCKDOWN_WAKEUP, MOVER);
+	}
+
 	public boolean shouldSave() {
 		return this.shouldSave;
 	}

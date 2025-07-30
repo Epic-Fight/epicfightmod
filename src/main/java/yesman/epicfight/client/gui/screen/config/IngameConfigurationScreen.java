@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
-import yesman.epicfight.epicskins.client.screen.AvatarEditScreen;
+//import yesman.epicfight.epicskins.client.screen.AvatarEditScreen;
 import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
@@ -42,7 +42,7 @@ public class IngameConfigurationScreen extends Screen {
 				/**
 				 * On the development side, disable this part to avoid loading epic skins classes
 				 */
-				Minecraft.getInstance().setScreen(new AvatarEditScreen(this));
+				//Minecraft.getInstance().setScreen(new AvatarEditScreen(this));
 			} else {
 				Minecraft.getInstance().setScreen(new MessageScreen<> ("Warning", "You may not open avatar screen while in the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
 			}

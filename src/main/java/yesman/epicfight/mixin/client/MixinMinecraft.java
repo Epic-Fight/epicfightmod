@@ -12,6 +12,6 @@ import yesman.epicfight.client.ClientEngine;
 public class MixinMinecraft {
 	@Inject(at = @At(value = "HEAD"), method = "handleKeybinds()V", cancellable = true)
 	private void epicfight_handleKeybinds(CallbackInfo info) {
-		ClientEngine.getInstance().controllEngine.handleEpicFightKeyMappings();
+		ClientEngine.getInstance().controlEngine.handleEpicFightKeyMappings();
 	}
 }

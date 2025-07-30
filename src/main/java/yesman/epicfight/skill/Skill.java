@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -35,6 +35,8 @@ import yesman.epicfight.network.client.CPExecuteSkill;
 import yesman.epicfight.network.server.SPSetSkillValue;
 import yesman.epicfight.network.server.SPSetSkillValue.Target;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
+import yesman.epicfight.skill.modules.ChargeableSkill;
+import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -112,13 +114,14 @@ public abstract class Skill {
 	 * Check the resource & other restrictions to execute the skill
 	 */
 	public boolean canExecute(SkillContainer container) {
-		return this.checkExecuteCondition(container);
+		return checkExecuteCondition(container);
 	}
 	
 	/**
 	 * This makes the skill icon white in Gui if it returns false
 	 */
 	public boolean checkExecuteCondition(SkillContainer container) {
+
 		return true;
 	}
 	
@@ -139,13 +142,15 @@ public abstract class Skill {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controllEngine) {
+	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
 		return null;
 	}
-	
+
+
 	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
 		ServerPlayerPatch executor = container.getServerExecutor();
+
 		
 		if (executor.isChargingSkill()) {
 			if (this instanceof ChargeableSkill chargingSkill) {
@@ -155,7 +160,13 @@ public abstract class Skill {
 				EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 			}
 		} else {
-			container.activate();
+			if (executor.isHoldingSkill())
+			{
+				if (this instanceof HoldableSkill holdableSkill) {
+					holdableSkill.onStopHolding(container, args);
+					executor.resetHolding();
+				}
+			}
 			EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 		}
 	}
@@ -167,17 +178,13 @@ public abstract class Skill {
 		EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.expired(container.getSlotId()), executor.getOriginal());
 	}
 	
-	public final float getDefaultConsumptionAmount(PlayerPatch<?> executer) {
-		switch (this.resource) {
-		case STAMINA:
-			return executer.getModifiedStaminaConsume(this.consumption);
-		case WEAPON_CHARGE:
-			return 1;
-		case COOLDOWN:
-			return 1;
-		default:
-			return 0.0F;
-		}
+	public final float getDefaultConsumptionAmount(PlayerPatch<?> executor) {
+        return switch (this.resource)
+        {
+            case STAMINA -> executor.getModifiedStaminaConsume(this.consumption);
+            case WEAPON_CHARGE, COOLDOWN -> 1;
+            default -> 0.0F;
+        };
 	}
 	
 	/**
@@ -284,6 +291,17 @@ public abstract class Skill {
 				}
 				
 				container.deactivate();
+			}
+		}
+
+		if (this.activateType == ActivateType.HELD && container.getExecutor().getHoldableSkill() == this)
+		{
+			HoldableSkill holdableSkill = (HoldableSkill) this;
+			holdableSkill.holdTick(container);
+
+			if (!container.getExecutor().isLogicalClient())
+			{
+				container.getExecutor().resetActionTick();
 			}
 		}
 		
@@ -491,7 +509,7 @@ public abstract class Skill {
 	}
 	
 	public enum ActivateType {
-		ONE_SHOT, DURATION, DURATION_INFINITE, TOGGLE, CHARGING
+		ONE_SHOT, DURATION, DURATION_INFINITE, TOGGLE, CHARGING, HELD
 	}
 	
 	public enum Resource {

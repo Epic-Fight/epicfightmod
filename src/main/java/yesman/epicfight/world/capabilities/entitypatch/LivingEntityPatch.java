@@ -451,6 +451,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		} else {
 			yRotO = this.isLogicalClient() ? this.original.yBodyRotO : this.original.getYRot();
 			yRot = this.isLogicalClient() ? this.original.yBodyRot : this.original.getYRot();
+			
 		}
 		
 		return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, yRotO, yRot, partialTicks, scale, scale, scale);
@@ -939,10 +940,21 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	
 	public void setYRot(float yRot) {
 		this.original.setYRot(yRot);
+		
+		if (this.isLogicalClient()) {
+			this.original.yBodyRot = yRot;
+			this.original.yHeadRot = yRot;
+			this.original.lerpYRot = yRot;
+		}
 	}
 	
 	public void setYRotO(float yRot) {
 		this.original.yRotO = yRot;
+		
+		if (this.isLogicalClient()) {
+			this.original.yBodyRotO = yRot;
+			this.original.yHeadRotO = yRot;
+		}
 	}
 	
 	@Override

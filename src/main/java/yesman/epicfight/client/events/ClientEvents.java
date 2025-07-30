@@ -129,7 +129,7 @@ public class ClientEvents {
 	
 	@SubscribeEvent
 	public static void clientLoggingInEvent(ClientPlayerNetworkEvent.LoggingIn event) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(ClientEngine.getInstance().controllEngine::setPlayerPatch);
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(ClientEngine.getInstance().controlEngine::setPlayerPatch);
 		ClientEngine.getInstance().renderEngine.init();
 	}
 	
@@ -163,7 +163,7 @@ public class ClientEvents {
 			((ConfigurableGameRule<Object, ?, ?>)gamerule).setRuleValue(event.getNewPlayer().level(), val);
 		});
 		
-		ClientEngine.getInstance().controllEngine.setPlayerPatch(newCap);
+		ClientEngine.getInstance().controlEngine.setPlayerPatch(newCap);
 		ClientEngine.getInstance().renderEngine.init();
 	}
 	

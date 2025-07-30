@@ -13,7 +13,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -21,7 +21,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -108,9 +108,9 @@ public class DemolitionLeapSkill extends Skill implements ChargeableSkill {
 	}
 	
 	@Override
-	public void gatherChargingArguemtns(LocalPlayerPatch caster, ControllEngine controllEngine, FriendlyByteBuf buffer) {
+	public void gatherChargingArguments(LocalPlayerPatch caster, ControlEngine controlEngine, FriendlyByteBuf buffer) {
 		// Set player charging skill cause it won't be fired on feedback packet cause it jumped
-		controllEngine.setChargingKey(SkillSlots.MOVER, this.getKeyMapping());
+		controlEngine.setChargingKey(SkillSlots.MOVER, this.getKeyMapping());
 		caster.startSkillCharging(this);
 	}
 

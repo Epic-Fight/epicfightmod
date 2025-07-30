@@ -13,6 +13,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
@@ -22,12 +23,14 @@ import yesman.epicfight.api.animation.property.AnimationProperty.DestLocationPro
 import yesman.epicfight.api.animation.property.AnimationProperty.YRotProvider;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.grappling.GrapplingAttackAnimation;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class MoveCoordFunctions {
 	/**
@@ -120,18 +123,31 @@ public class MoveCoordFunctions {
 	/******************************************************
 	 * Action animation properties 
 	 ******************************************************/
+	
+	/**
+	 * No destination
+	 */
 	public static final DestLocationProvider NO_DEST = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		return null;
 	};
 	
+	/**
+	 * Location of the current attack target
+	 */
 	public static final DestLocationProvider ATTACK_TARGET_LOCATION = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		return entitypatch.getTarget() == null ? null : entitypatch.getTarget().position();
 	};
 	
+	/**
+	 * Location set by Animation Variable
+	 */
 	public static final DestLocationProvider SYNCHED_DEST_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		return entitypatch.getAnimator().getVariables().getOrDefault(SynchedAnimationVariableKeys.DESTINATION.get(), self.getRealAnimation());
 	};
 	
+	/**
+	 * Location of current attack target that is provided by animation variable
+	 */
 	public static final DestLocationProvider SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		Optional<Integer> targetEntityId = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.TARGET_ENTITY.get(), self.getRealAnimation());
 		
@@ -146,6 +162,9 @@ public class MoveCoordFunctions {
 		return entitypatch.getOriginal().position();
 	};
 	
+	/**
+	 * Looking direction from an action beginning location to a destination location
+	 */
 	public static final YRotProvider LOOK_DEST = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
 		Vec3 destLocation = self.getRealAnimation().get().getProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER).orElse(NO_DEST).get(self, entitypatch);
 		
@@ -164,6 +183,35 @@ public class MoveCoordFunctions {
 		} else {
 			return entitypatch.getYRot();
 		}
+	};
+	
+	/**
+	 * Rotate an entity toward target for attack animations
+	 */
+	public static final YRotProvider MOB_ATTACK_TARGET_LOOK = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
+		if (!entitypatch.isLogicalClient() && entitypatch instanceof MobPatch<?> mobpatch) {
+			AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(self.getAccessor());
+			float elapsedTime = player.getElapsedTime();
+			EntityState state = self.getState(entitypatch, elapsedTime);
+			
+			if (state.getLevel() == 1 && !state.turningLocked()) {
+				mobpatch.getOriginal().getNavigation().stop();
+				entitypatch.getOriginal().attackAnim = 2;
+				LivingEntity target = entitypatch.getTarget();
+				
+				if (target != null) {
+					Vec3 playerPosition = entitypatch.getOriginal().position();
+					Vec3 targetPosition = target.position();
+					float yRotToTarget = (float)MathUtils.getYRotOfVector(targetPosition.subtract(playerPosition));
+					float yRotCurrent = Mth.wrapDegrees(entitypatch.getOriginal().getYRot());
+					float clampedYRot = Mth.clamp(Mth.wrapDegrees(yRotToTarget - yRotCurrent), -entitypatch.getYRotLimit(), entitypatch.getYRotLimit());
+					
+			        return yRotCurrent + clampedYRot;
+				}
+			}
+		}
+		
+		return entitypatch.getYRot();
 	};
 	
 	/******************************************************

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -31,7 +32,7 @@ import yesman.epicfight.world.entity.eventlistener.HurtEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class ParryingSkill extends GuardSkill {
-	private static final int PARRY_WINDOW = 8;
+	private int PARRY_WINDOW;
 	
 	public static GuardSkill.Builder createActiveGuardBuilder() {
 		return GuardSkill.createGuardBuilder()
@@ -149,7 +150,17 @@ public class ParryingSkill extends GuardSkill {
 		
 		return super.getGuardMotion(container, playerpatch, itemCapability, blockType);
 	}
-	
+
+	@Override
+	public void setParams(CompoundTag parameters)
+	{
+		super.setParams(parameters);
+		PARRY_WINDOW = parameters.getInt("parry_window");
+		if (PARRY_WINDOW <= 0) {
+			PARRY_WINDOW = 8;
+		}
+	}
+
 	@Override
 	public Skill getPriorSkill() {
 		return EpicFightSkills.GUARD;

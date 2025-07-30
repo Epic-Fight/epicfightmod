@@ -162,7 +162,10 @@ public abstract class Skill {
 		} else {
 			if (executor.isHoldingSkill())
 			{
-				executor.resetHolding();
+				if (this instanceof HoldableSkill holdableSkill) {
+					holdableSkill.onStopHolding(container, args);
+					executor.resetHolding();
+				}
 			}
 			EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 		}

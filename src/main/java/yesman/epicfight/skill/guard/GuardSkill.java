@@ -66,6 +66,12 @@ public class GuardSkill extends Skill implements HoldableSkill
 	}
 
 	@Override
+	public void onStopHolding(SkillContainer container, FriendlyByteBuf packet)
+	{
+
+	}
+
+	@Override
 	public KeyMapping getKeyMapping()
 	{
 		return EpicFightKeyMappings.GUARD;

@@ -31,7 +31,7 @@ public abstract class Animator {
 	/**
 	 * Play an animation
 	 * 
-	 * @param nextAnimation
+	 * @param nextAnimation the animation that is meant to be played.
 	 * @param transitionTimeModifier extends the transition time if positive value provided, or starts in time as an amount of time (e.g. -0.1F starts in 0.1F frame time)
 	 */
 	public abstract void playAnimation(AssetAccessor<? extends StaticAnimation> nextAnimation, float transitionTimeModifier);

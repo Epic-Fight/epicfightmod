@@ -38,6 +38,7 @@ import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
@@ -128,17 +129,15 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			if (customLivingMotion != null) {
 				// When item capabilities has custom living motion
 				currentCompositeMotion = customLivingMotion;
-			} else if (this.original.isUsingItem()) {
-				CapabilityItem itemUsingCap = this.original.getUsedItemHand() == InteractionHand.MAIN_HAND ? mainhandItemCap : offhandItemCap;
-				UseAnim useAnim = this.original.getUseItem().getUseAnimation();
-				UseAnim capUseAnim = itemUsingCap.getUseAnimation(this);
-				
-				if (useAnim == UseAnim.BLOCK || capUseAnim == UseAnim.BLOCK)
-					if (itemUsingCap.getWeaponCategory() == WeaponCategories.SHIELD)
-						currentCompositeMotion = LivingMotions.BLOCK_SHIELD;
-					else
-						currentCompositeMotion = LivingMotions.BLOCK;
-				else if (useAnim == UseAnim.CROSSBOW)
+			} else if (this.getHoldableSkill() != null && this.getHoldableSkill() instanceof GuardSkill guardSkill && guardSkill.isHoldingWeaponAvailable(this, mainhandItemCap, GuardSkill.BlockType.GUARD))
+				if (offhandItemCap.getWeaponCategory() == WeaponCategories.SHIELD)
+					currentCompositeMotion = LivingMotions.BLOCK_SHIELD;
+				else
+					currentCompositeMotion = LivingMotions.BLOCK;
+			else if (this.original.isUsingItem()) {
+                    UseAnim useAnim = this.original.getUseItem().getUseAnimation();
+
+				if (useAnim == UseAnim.CROSSBOW)
 					currentCompositeMotion = LivingMotions.RELOAD;
 				else if (useAnim == UseAnim.DRINK)
 					currentCompositeMotion = LivingMotions.DRINK;

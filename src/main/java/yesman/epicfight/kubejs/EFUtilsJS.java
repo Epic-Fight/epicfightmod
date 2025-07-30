@@ -13,6 +13,6 @@ public class EFUtilsJS {
             Requests the server to execute a skill. Called from the client.
             """)
     public static SkillExecuteEvent requestExecuteSkill(Skill skill) {
-        return ClientEngine.getInstance().getPlayerPatch().getSkill(skill).sendExecuteRequest(ClientEngine.getInstance().getPlayerPatch(), ClientEngine.getInstance().controllEngine);
+        return ClientEngine.getInstance().getPlayerPatch().getSkill(skill).sendExecuteRequest(ClientEngine.getInstance().getPlayerPatch(), ClientEngine.getInstance().controlEngine);
     }
 }

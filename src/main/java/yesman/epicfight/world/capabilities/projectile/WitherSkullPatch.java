@@ -34,6 +34,10 @@ public class WitherSkullPatch extends ProjectilePatch<WitherSkull> {
 	
 	@Override
 	public boolean onProjectileImpact(ProjectileImpactEvent event) {
+		if (event.getProjectile().level().isClientSide())
+		{
+			return false;
+		}
 		if (!(event.getRayTraceResult() instanceof EntityHitResult entityHitResult)) {
 			if (event.getProjectile().level() instanceof ServerLevel serverLevel && Math.random() < 0.2D) {
 				Vec3 location = event.getRayTraceResult().getLocation();

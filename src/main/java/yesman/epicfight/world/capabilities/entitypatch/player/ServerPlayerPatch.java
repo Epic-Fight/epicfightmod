@@ -34,12 +34,13 @@ import yesman.epicfight.network.server.SPChangeLivingMotion;
 import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPModifyPlayerData;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.skill.SkillSlots;
+import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
@@ -136,6 +137,11 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			});
 			
 			this.resetSkillCharging();
+		}
+
+		if (this.isHoldingSkill())
+		{
+			this.resetHolding();
 		}
 		
 		CapabilityItem mainHandCap = (hand == InteractionHand.MAIN_HAND) ? toCap : this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
@@ -321,6 +327,16 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			return true;
 		}
 		
+		return false;
+	}
+
+	@Override
+	public boolean startSkillHolding(HoldableSkill chargingSkill) {
+		if (super.startSkillHolding(chargingSkill)) {
+			EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.held(this.getSkillContainerFor(chargingSkill.asSkill()).get().getSlotId()), this.getOriginal());
+			return true;
+		}
+
 		return false;
 	}
 

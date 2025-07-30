@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -35,13 +37,14 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.skill.SkillSlots;
+import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
@@ -84,6 +87,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	protected int lastChargingTick;
 	protected int chargingAmount;
 	protected ChargeableSkill chargingSkill;
+	protected HoldableSkill holdableSkill;
 	
 	// Manage the previous position here because playerpatch#tick called before entity#travel method.
 	protected double xo;
@@ -281,7 +285,15 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		this.yo = this.original.getY();
 		this.zo = this.original.getZ();
 	}
-	
+
+	@Override
+	protected void clientTick(LivingEvent.LivingTickEvent event)
+	{
+		LogUtils.getLogger().debug("Current Held Skill: {}", this.holdableSkill);
+
+		super.clientTick(event);
+	}
+
 	/**
 	 * Use {@link getSkillContainerFor} instead to cherck null
 	 **/
@@ -526,6 +538,18 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		}
 	}
 
+	public boolean startSkillHolding(HoldableSkill holdableSkill) {
+		Optional<SkillContainer> containerOptional = this.getSkillContainerFor(holdableSkill.asSkill());
+
+		if (containerOptional.isEmpty()) {
+			return false;
+		} else {
+			this.lastChargingTick = this.original.tickCount;
+			this.holdableSkill = holdableSkill;
+			return true;
+		}
+	}
+
 	public void resetSkillCharging() {
 		if (this.chargingSkill != null) {
 			this.chargingAmount = 0;
@@ -534,10 +558,27 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		}
 	}
 
+
+
+	public void resetHolding() {
+		if (this.holdableSkill != null) {
+			this.holdableSkill = null;
+		}
+	}
+
 	public boolean isChargingSkill() {
 		return this.chargingSkill != null;
 	}
-	
+
+	public boolean isHoldingSkill() {
+		return this.holdableSkill != null;
+	}
+
+	public boolean isHoldingSkill(Skill holdingSkill) {
+		return this.holdableSkill == holdingSkill;
+	}
+
+
 	public boolean isChargingSkill(Skill chargingSkill) {
 		return this.chargingSkill == chargingSkill;
 	}
@@ -573,7 +614,12 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	public ChargeableSkill getChargingSkill() {
 		return this.chargingSkill;
 	}
-	
+
+	public HoldableSkill getHoldableSkill()
+	{
+		return holdableSkill;
+	}
+
 	public boolean isInAir() {
 		return this.original.isFallFlying() || this.currentLivingMotion == LivingMotions.FALL;
 	}

@@ -46,7 +46,7 @@ public class EpicFightKubeJSPlugin extends KubeJSPlugin {
 
         if (event.getType() == ScriptType.CLIENT && FMLEnvironment.dist.isClient()) {
             event.add("ClientEngine", ClientEngine.getInstance());
-            event.add("ControlEngine", ClientEngine.getInstance().controllEngine);
+            event.add("ControlEngine", ClientEngine.getInstance().controlEngine);
             event.add("LocalPlayerPatch", LocalPlayerPatch.class);
         }
     }

@@ -391,7 +391,9 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		this.animationByName.put(accessor.registryName(), accessor);
 		this.animations.put(accessor, animation);
 	}
-	
+
+
+
 	public interface AnimationAccessor<A extends DynamicAnimation> extends AssetAccessor<A> {
 		int id();
 		

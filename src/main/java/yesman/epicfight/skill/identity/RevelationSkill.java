@@ -113,7 +113,7 @@ public class RevelationSkill extends Skill {
 				if (container.getExecutor().getTarget() != null) {
 					EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
 						if (this.isActivated(container)) {
-							if (container.sendExecuteRequest((LocalPlayerPatch)container.getExecutor(), ClientEngine.getInstance().controllEngine).isExecutable()) {
+							if (container.sendExecuteRequest((LocalPlayerPatch)container.getExecutor(), ClientEngine.getInstance().controlEngine).isExecutable()) {
 								container.setDuration(0);
 								event.setCanceled(true);
 							}

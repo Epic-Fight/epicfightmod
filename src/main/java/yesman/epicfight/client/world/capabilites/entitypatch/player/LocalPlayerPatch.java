@@ -43,7 +43,7 @@ import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
@@ -94,7 +94,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		super.onJoinWorld(player, event);
 		
 		this.eventListeners.addEventListener(EventType.ACTION_EVENT_CLIENT, ACTION_EVENT_UUID, (playerEvent) -> {
-			ClientEngine.getInstance().controllEngine.unlockHotkeys();
+			ClientEngine.getInstance().controlEngine.unlockHotkeys();
 		});
 	}
 	
@@ -358,7 +358,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public boolean shouldBlockMoving() {
-		return ControllEngine.isKeyDown(this.minecraft.options.keyDown);
+		return ControlEngine.isKeyDown(this.minecraft.options.keyDown);
 	}
 	
 	@Override

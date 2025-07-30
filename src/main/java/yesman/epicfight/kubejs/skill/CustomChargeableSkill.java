@@ -5,10 +5,10 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 public class CustomChargeableSkill extends CustomSkill implements ChargeableSkill {
     public record CastSkillContext(Skill getSkill, ServerPlayerPatch getCaster, SkillContainer getSkillContainer, int getChargingTicks, SPSkillExecutionFeedback getFeedbackPacket, boolean onMaxTick) {}
-    public record GatherChargingArgumentsContext(Skill getSkill, LocalPlayerPatch getCaster, ControllEngine getControlEngine, FriendlyByteBuf getBuffer) {}
+    public record GatherChargingArgumentsContext(Skill getSkill, LocalPlayerPatch getCaster, ControlEngine getControlEngine, FriendlyByteBuf getBuffer) {}
 
     private final Consumer<PlayerPatch<?>> startCharging;
     private final Consumer<PlayerPatch<?>> resetCharging;
@@ -81,9 +81,9 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
     }
 
     @Override
-    public void gatherChargingArguemtns(LocalPlayerPatch localPlayerPatch, ControllEngine controllEngine, FriendlyByteBuf friendlyByteBuf) {
+    public void gatherChargingArguments(LocalPlayerPatch localPlayerPatch, ControlEngine controlEngine, FriendlyByteBuf friendlyByteBuf) {
         if (gatherChargingArguments != null) {
-            gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, localPlayerPatch, controllEngine, friendlyByteBuf));
+            gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, localPlayerPatch, controlEngine, friendlyByteBuf));
         }
     }
 

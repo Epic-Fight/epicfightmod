@@ -15,12 +15,12 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.ChargeableSkill;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -52,7 +52,7 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 				clientPlayer.setSprinting(false);
 				clientPlayer.sprintTriggerTime = -1;
 				Minecraft mc = Minecraft.getInstance();
-				ControllEngine.setKeyBind(mc.options.keySprint, false);
+				ControlEngine.setKeyBind(mc.options.keySprint, false);
 				
 				event.getMovementInput().forwardImpulse *= 1.0F - 0.8F * event.getPlayerPatch().getSkillChargingTicks() / 30.0F;
 			}
@@ -127,7 +127,7 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 	}
 	
 	@Override
-	public void gatherChargingArguemtns(LocalPlayerPatch caster, ControllEngine controllEngine, FriendlyByteBuf buffer) {
+	public void gatherChargingArguments(LocalPlayerPatch caster, ControlEngine controlEngine, FriendlyByteBuf buffer) {
 	}
 	
 	@Override

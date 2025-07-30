@@ -78,8 +78,8 @@ public class RenderItemBase {
 		JsonObject jsonObj = jsonElement.getAsJsonObject();
 		
 		this.trailInfo = jsonObj.has("trail") ? TrailInfo.deserialize(jsonObj.get("trail")) : null;
-		this.forceVanillaFirstPerson = jsonObj.has("force_vanilla_first_person") ? GsonHelper.getAsBoolean(jsonObj, "force_vanilla_first_person") : false;
-		this.alwaysInHand = jsonObj.has("alwaysInHand") ? GsonHelper.getAsBoolean(jsonObj, "alwaysInHand") : false;
+		this.forceVanillaFirstPerson = jsonObj.has("force_vanilla_first_person") && GsonHelper.getAsBoolean(jsonObj, "force_vanilla_first_person");
+		this.alwaysInHand = jsonObj.has("alwaysInHand") && GsonHelper.getAsBoolean(jsonObj, "alwaysInHand");
 		
 		if (!jsonObj.has("transforms")) {
 			// Set a global transformation

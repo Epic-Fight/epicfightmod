@@ -8,7 +8,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -29,7 +28,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.entity.eventlistener.HurtEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class ParryingSkill extends GuardSkill {
 	private int PARRY_WINDOW;
@@ -94,8 +92,9 @@ public class ParryingSkill extends GuardSkill {
 				if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
 					knockback += EnchantmentHelper.getKnockbackBonus(livingentity) * 0.1F;
 				}
-				
-				event.getPlayerPatch().knockBackEntity(damageSource.getDirectEntity().position(), knockback);
+
+                assert damageSource.getDirectEntity() != null;
+                event.getPlayerPatch().knockBackEntity(damageSource.getDirectEntity().position(), knockback);
 				float consumeAmount = penalty * impact;
 				boolean canAfford = event.getPlayerPatch().consumeForSkill(this, Skill.Resource.STAMINA, consumeAmount);
 				

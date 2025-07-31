@@ -52,6 +52,7 @@ body:
       description: "These are the versions we're supporting now"
       options:
         - 1.20.1
+        - 1.21.1
     validations:
       required: true
   - type: textarea

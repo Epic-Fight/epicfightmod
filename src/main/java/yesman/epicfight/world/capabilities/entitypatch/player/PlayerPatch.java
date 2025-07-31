@@ -1,12 +1,7 @@
 package yesman.epicfight.world.capabilities.entitypatch.player;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -71,7 +66,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public static void createSyncedEntityData(LivingEntity livingentity) {
-		livingentity.getEntityData().define(STAMINA, Float.valueOf(0.0F));
+		livingentity.getEntityData().define(STAMINA, 0.0F);
 	}
 	
 	protected static final UUID PLAYER_EVENT_UUID = UUID.fromString("e6beeac4-77d2-11eb-9439-0242ac130002");
@@ -113,9 +108,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		this.tickSinceLastAction = 0;
 		
-		this.eventListeners.addEventListener(EventType.ACTION_EVENT_SERVER, PLAYER_EVENT_UUID, (playerEvent) -> {
-			this.resetActionTick();
-		});
+		this.eventListeners.addEventListener(EventType.ACTION_EVENT_SERVER, PLAYER_EVENT_UUID, (playerEvent) -> this.resetActionTick());
 	}
 	
 	@Override
@@ -289,13 +282,11 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	@Override
 	protected void clientTick(LivingEvent.LivingTickEvent event)
 	{
-		LogUtils.getLogger().debug("Current Held Skill: {}", this.holdableSkill);
-
 		super.clientTick(event);
 	}
 
 	/**
-	 * Use {@link getSkillContainerFor} instead to cherck null
+	 * Use {@link PlayerPatch#getSkillContainerFor} instead to check null
 	 **/
 	public SkillContainer getSkill(Skill skill) {
 		if (skill == null) {
@@ -369,10 +360,10 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		Set<AttributeModifier> itemModifiers = Set.copyOf(CapabilityItem.getAttributeModifiers(attribute, EquipmentSlot.MAINHAND, itemstack, this));
 		Set<AttributeModifier> mainhandModifiers = Set.copyOf(CapabilityItem.getAttributeModifiers(attribute, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this));
 		
-		double baseValue = this.original.getAttribute(attribute) == null ? attribute.getDefaultValue() : this.original.getAttribute(attribute).getBaseValue();
+		double baseValue = this.original.getAttribute(attribute) == null ? attribute.getDefaultValue() : Objects.requireNonNull(this.original.getAttribute(attribute)).getBaseValue();
 		attrInstance.setBaseValue(baseValue);
 		
-		for (AttributeModifier modifier : this.original.getAttribute(attribute).getModifiers()) {
+		for (AttributeModifier modifier : Objects.requireNonNull(this.original.getAttribute(attribute)).getModifiers()) {
 			if (!itemModifiers.contains(modifier) && !mainhandModifiers.contains(modifier)) {
 				attrInstance.addTransientModifier(modifier);
 			}
@@ -449,7 +440,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public float getStamina() {
-		return this.getMaxStamina() <= 0.0F ? 0.0F : this.original.getEntityData().hasItem(STAMINA) ? this.original.getEntityData().get(STAMINA).floatValue() : 0.0F;
+		return this.getMaxStamina() <= 0.0F ? 0.0F : this.original.getEntityData().hasItem(STAMINA) ? this.original.getEntityData().get(STAMINA) : 0.0F;
 	}
 	
 	public float getModifiedStaminaConsume(float amount) {
@@ -481,7 +472,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	/**
 	 * Client : Checks if a player has enough resource
 	 * Server : Checks and consumes the resource if it meets the condition
-	 * @param amount
+	 * @param amount how much resource should it consume
 	 * @return check result
 	 * Use this 
 	 */
@@ -544,6 +535,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		if (containerOptional.isEmpty()) {
 			return false;
 		} else {
+			holdableSkill.startHolding(containerOptional.get());
 			this.lastChargingTick = this.original.tickCount;
 			this.holdableSkill = holdableSkill;
 			return true;
@@ -643,23 +635,15 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	public void toggleMode() {
 		switch (this.playerMode) {
-		case VANILLA -> {
-			this.toEpicFightMode(true);
-		}
-		case EPICFIGHT -> {
-			this.toVanillaMode(true);
-		}
+		case VANILLA -> this.toEpicFightMode(true);
+		case EPICFIGHT -> this.toVanillaMode(true);
 		}
 	}
 	
 	public void toMode(PlayerMode playerMode, boolean synchronize) {
 		switch (playerMode) {
-		case VANILLA -> {
-			this.toVanillaMode(synchronize);
-		}
-		case EPICFIGHT -> {
-			this.toEpicFightMode(synchronize);
-		}
+		case VANILLA -> this.toVanillaMode(synchronize);
+		case EPICFIGHT -> this.toEpicFightMode(synchronize);
 		}
 	}
 	

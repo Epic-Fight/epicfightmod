@@ -111,8 +111,12 @@ public class PlayerEventListener {
 		public static final EventType<DodgeSuccessEvent> DODGE_SUCCESS_EVENT = new EventType<>(LogicalSide.SERVER);
 		
 		LogicalSide side;
-		
-		EventType(LogicalSide side) {
+
+		/**
+		 * Changes - Made EventType's Constructor Public to allow addons to add their own custom events.
+		 * @param side whether its client or server-sided.
+		 */
+		public EventType(LogicalSide side) {
 			this.side = side;
 		}
 		

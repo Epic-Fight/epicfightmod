@@ -49,24 +49,22 @@ public class ParryingSkill extends GuardSkill {
 	public ParryingSkill(GuardSkill.Builder builder) {
 		super(builder);
 	}
-	
+
+	@Override
+	public void startHolding(SkillContainer container)
+	{
+		super.startHolding(container);
+		if (container.getExecutor().isLogicalClient())
+			return;
+        int lastActive = container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get());
+		if (container.getServerExecutor().getOriginal().tickCount - lastActive > PARRY_WINDOW * 2) {
+			container.getDataManager().setDataSync(SkillDataKeys.LAST_ACTIVE.get(), container.getServerExecutor().getOriginal().tickCount, container.getServerExecutor().getOriginal());
+		}
+	}
+
 	@Override
 	public void onInitiate(SkillContainer container) {
 		super.onInitiate(container);
-		
-		container.getExecutor().getEventListener().addEventListener(EventType.SERVER_ITEM_USE_EVENT, EVENT_UUID, (event) -> {
-			CapabilityItem itemCapability = event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND);
-			
-			if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.GUARD) && this.isExecutableState(event.getPlayerPatch())) {
-				event.getPlayerPatch().getOriginal().startUsingItem(InteractionHand.MAIN_HAND);
-			}
-			
-			int lastActive = container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get());
-			
-			if (event.getPlayerPatch().getOriginal().tickCount - lastActive > PARRY_WINDOW * 2) {
-				container.getDataManager().setData(SkillDataKeys.LAST_ACTIVE.get(), event.getPlayerPatch().getOriginal().tickCount);
-			}
-		});
 	}
 	
 	@Override
@@ -75,11 +73,11 @@ public class ParryingSkill extends GuardSkill {
 			DamageSource damageSource = event.getDamageSource();
 			
 			if (this.isBlockableSource(damageSource, true)) {
-				ServerPlayer playerentity = event.getPlayerPatch().getOriginal();
-				boolean successParrying = playerentity.tickCount - container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get()) < PARRY_WINDOW;
+				ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
+				boolean successParrying = serverPlayer.tickCount - container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get()) < PARRY_WINDOW;
 				float penalty = container.getDataManager().getDataValue(SkillDataKeys.PENALTY.get());
 				event.getPlayerPatch().playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
-				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(((ServerLevel)playerentity.level()), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, playerentity, damageSource.getDirectEntity());
+				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(((ServerLevel)serverPlayer.level()), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, damageSource.getDirectEntity());
 				
 				if (successParrying) {
 					event.setParried(true);
@@ -90,7 +88,7 @@ public class ParryingSkill extends GuardSkill {
 					container.getDataManager().setData(SkillDataKeys.LAST_ACTIVE.get(), 0);
 				} else {
 					penalty += this.getPenalizer(itemCapability);
-					container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), penalty, playerentity);
+					container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), penalty, serverPlayer);
 				}
 				
 				if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {

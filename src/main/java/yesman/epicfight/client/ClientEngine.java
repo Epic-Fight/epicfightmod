@@ -10,6 +10,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -25,6 +26,11 @@ public class ClientEngine {
 	public Minecraft minecraft;
 	public RenderEngine renderEngine;
 	public ControlEngine controlEngine;
+	/**
+	 * Kept until 20.12
+	 */
+	@Deprecated(forRemoval = true)
+	public ControlEngine controllEngine;
 	private boolean vanillaModelDebuggingMode = false;
 	
 	public ClientEngine() {
@@ -32,6 +38,7 @@ public class ClientEngine {
 		this.minecraft = Minecraft.getInstance();
 		this.renderEngine = new RenderEngine();
 		this.controlEngine = new ControlEngine();
+		this.controllEngine = controlEngine;
 	}
 	
 	public boolean switchVanillaModelDebuggingMode() {

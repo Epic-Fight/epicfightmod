@@ -13,6 +13,12 @@ import yesman.epicfight.skill.SkillContainer;
 public interface HoldableSkill
 {
     /**
+     * Some beginning logic when the skill starts to get held.
+     * @param container Class: {@link SkillContainer} - The SkillContainer that holds the skill, used often to do stuff on the executor.
+     */
+    default void startHolding(SkillContainer container) {}
+
+    /**
      * Called every tick, used common-sided. If needed for handling Client or Server, use an if-else statement with the condition (container.getExecutor.isLogicalClient();)
      * @param container Class: {@link SkillContainer} - The SkillContainer that holds the skill, used often to do stuff on the executor.
      */
@@ -22,7 +28,7 @@ public interface HoldableSkill
      * A method that is called on the server-side to perform stuff on the player when they stop holding the key that is being held.
      * @param container Class: {@link SkillContainer} - The SkillContainer that holds the skill, used often to do stuff on the executor, note this is server-sided.
      */
-    void onStopHolding(SkillContainer container, FriendlyByteBuf packet);
+    default void onStopHolding(SkillContainer container, FriendlyByteBuf packet) {}
 
     /**
      * Gives the normal skill object of this {@link HoldableSkill} object.

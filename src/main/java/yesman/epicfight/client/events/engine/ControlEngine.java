@@ -2,6 +2,7 @@ package yesman.epicfight.client.events.engine;
 
 import java.util.Set;
 
+import net.minecraft.world.item.UseAnim;
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.Sets;
@@ -207,7 +208,10 @@ public class ControlEngine
 		
 		while (isKeyPressed(EpicFightKeyMappings.GUARD, true)) {
 			if (this.playerPatch.isEpicFightMode() && this.currentChargingKey != EpicFightKeyMappings.GUARD) {
-					if (this.playerPatch.getSkill(SkillSlots.GUARD).sendExecuteRequest(this.playerPatch, this).shouldReserverKey()) {
+				if (!(EpicFightKeyMappings.GUARD.getKey().equals(this.options.keyUse.getKey()) && playerPatch.getOriginal().getMainHandItem().getUseAnimation() != UseAnim.NONE))
+				{
+					if (this.playerPatch.getSkill(SkillSlots.GUARD).sendExecuteRequest(this.playerPatch, this).shouldReserverKey())
+					{
 						if (!this.player.isSpectator())
 						{
 							this.reserveKey(SkillSlots.GUARD, EpicFightKeyMappings.GUARD);
@@ -216,8 +220,8 @@ public class ControlEngine
 					{
 						this.lockHotkeys();
 					}
+				}
 			}
-
 		}
 		
 		while (isKeyPressed(EpicFightKeyMappings.WEAPON_INNATE_SKILL, true)) {

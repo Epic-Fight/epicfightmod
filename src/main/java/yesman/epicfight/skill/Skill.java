@@ -26,6 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -140,7 +141,13 @@ public abstract class Skill {
 	public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
 		return new CPExecuteSkill(container.getSlotId(), CPExecuteSkill.WorkType.ACTIVATE, args);
 	}
-	
+
+	@OnlyIn(Dist.CLIENT)
+	@Deprecated(forRemoval = true)
+	public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controlEngine) {
+		return null;
+	}
+
 	@OnlyIn(Dist.CLIENT)
 	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
 		return null;

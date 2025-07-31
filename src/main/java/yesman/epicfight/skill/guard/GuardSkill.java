@@ -59,19 +59,10 @@ public class GuardSkill extends Skill implements HoldableSkill
 {
 	protected static final UUID EVENT_UUID = UUID.fromString("b422f7a0-f378-11eb-9a03-0242ac130003");
 
-	@Override
-	public void holdTick(SkillContainer container)
-	{
+    @Override
+	public void holdTick(SkillContainer container) {}
 
-	}
-
-	@Override
-	public void onStopHolding(SkillContainer container, FriendlyByteBuf packet)
-	{
-
-	}
-
-	@Override
+    @Override
 	public KeyMapping getKeyMapping()
 	{
 		return EpicFightKeyMappings.GUARD;

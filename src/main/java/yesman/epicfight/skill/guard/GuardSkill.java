@@ -64,24 +64,6 @@ public class GuardSkill extends Skill implements HoldableSkill
 	public void holdTick(SkillContainer container) {}
 
 	@Override
-	public void startHolding(SkillContainer container)
-	{
-		if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getOffhandItem().getUseAnimation() == UseAnim.BLOCK && container.getExecutor().getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SHIELD)
-		{
-			container.getExecutor().getOriginal().startUsingItem(InteractionHand.OFF_HAND);
-		}
-		HoldableSkill.super.startHolding(container);
-	}
-
-	@Override
-	public void onStopHolding(SkillContainer container, FriendlyByteBuf packet)
-	{
-		HoldableSkill.super.onStopHolding(container, packet);
-		if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getOffhandItem().getUseAnimation() == UseAnim.BLOCK && container.getExecutor().getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SHIELD)
-			container.getExecutor().getOriginal().stopUsingItem();
-	}
-
-	@Override
 	public KeyMapping getKeyMapping()
 	{
 		return EpicFightKeyMappings.GUARD;

@@ -29,9 +29,9 @@ import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
 import yesman.epicfight.client.gui.screen.config.PreferredItemsScreen;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
-//import yesman.epicfight.epicskins.user.AuthenticationHelper;
-//import yesman.epicfight.epicskins.user.AuthenticationHelper.AuthenticationProvider;
+import yesman.epicfight.main.AuthenticationHelper.AuthenticationProvider;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
@@ -94,7 +94,8 @@ public class ClientConfig {
 	
 	public static final ForgeConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
 	public static final ForgeConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
-//	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
+	
+	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
 	
 	public static final ForgeConfigSpec SPEC = BUILDER.build();
 	
@@ -187,13 +188,16 @@ public class ClientConfig {
 		chargingBarBaseX = CHARGING_BAR_BASE_X.get();
 		chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
 		
-		EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString());
+		if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
+    		try {
+    			// Try loading epic skins code dynamically
+    			Class.forName("yesman.epicfight.epicskins.user.AuthenticationHelperImpl");
+    		} catch (ClassNotFoundException e) {
+    		}
+		}
 		
-		if (EpicFightServerConnectionHelper.supported()) {
-			/**
-			 * On the development side, disable this part to avoid loading epic skins classes
-			 */
-//			AuthenticationHelper.initialize(ACCESS_TOKEN, REFRESH_TOKNE, PROVIDER);
+		if (EpicFightServerConnectionHelper.supported() && EpicFightSharedConstants.AUTH_HELPER.valid()) {
+			EpicFightSharedConstants.AUTH_HELPER.initialize(ACCESS_TOKEN, REFRESH_TOKNE, PROVIDER);
 		}
     }
 	

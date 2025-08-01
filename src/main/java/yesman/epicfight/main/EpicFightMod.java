@@ -352,7 +352,10 @@ public class EpicFightMod {
     	event.enqueueWork(Style.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(WeaponCategory.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(Faction.ENUM_MANAGER::loadEnum);
+    	
     	event.enqueueWork(() -> {
+    		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
+    		
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();
     		ModLoader.get().postEvent(animationregistryevent);
     		animationregistryevent.getBuilders().stream().sorted((b1, b2) -> b1.namespace().compareTo(b2.namespace())).forEach((builder) -> builder.task().accept(builder));

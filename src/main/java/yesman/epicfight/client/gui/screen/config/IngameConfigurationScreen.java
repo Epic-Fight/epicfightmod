@@ -11,8 +11,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
-//import yesman.epicfight.epicskins.client.screen.AvatarEditScreen;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 @OnlyIn(Dist.CLIENT)
 public class IngameConfigurationScreen extends Screen {
@@ -37,19 +37,18 @@ public class IngameConfigurationScreen extends Screen {
 			Minecraft.getInstance().setScreen(new DatapackEditScreen(this));
 		}).pos(this.width / 2 - 165, 68).size(160, 20).build());
 		
-		Button skinConfigScreen = Button.builder(Component.translatable("gui." + EpicFightMod.EPICSKINS_MODID + ".button.skin_configuration"), (button) -> {
-			if (Minecraft.getInstance().level == null) {
-				/**
-				 * On the development side, disable this part to avoid loading epic skins classes
-				 */
-				//Minecraft.getInstance().setScreen(new AvatarEditScreen(this));
-			} else {
-				Minecraft.getInstance().setScreen(new MessageScreen<> ("Warning", "You may not open avatar screen while in the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
-			}
-		}).pos(this.width / 2 + 5, 68).size(160, 20).build();
-		
-		skinConfigScreen.active = EpicFightServerConnectionHelper.supported();
-		this.addRenderableWidget(skinConfigScreen);
+		if (EpicFightSharedConstants.AUTH_HELPER.valid()) {
+			Button skinConfigScreen = Button.builder(Component.translatable("gui." + EpicFightMod.EPICSKINS_MODID + ".button.skin_configuration"), (button) -> {
+				if (Minecraft.getInstance().level == null) {
+					Minecraft.getInstance().setScreen(EpicFightSharedConstants.AUTH_HELPER.getAvatarEditorScreen(this));
+				} else {
+					Minecraft.getInstance().setScreen(new MessageScreen<> ("Warning", "You may not open avatar screen while in the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
+				}
+			}).pos(this.width / 2 + 5, 68).size(160, 20).build();
+			
+			skinConfigScreen.active = EpicFightServerConnectionHelper.supported();
+			this.addRenderableWidget(skinConfigScreen);
+		}
 		
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
 			this.minecraft.setScreen(this.parentScreen);

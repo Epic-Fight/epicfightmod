@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -62,7 +63,25 @@ public class GuardSkill extends Skill implements HoldableSkill
     @Override
 	public void holdTick(SkillContainer container) {}
 
-    @Override
+	@Override
+	public void startHolding(SkillContainer container)
+	{
+		if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getOffhandItem().getUseAnimation() == UseAnim.BLOCK && container.getExecutor().getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SHIELD)
+		{
+			container.getExecutor().getOriginal().startUsingItem(InteractionHand.OFF_HAND);
+		}
+		HoldableSkill.super.startHolding(container);
+	}
+
+	@Override
+	public void onStopHolding(SkillContainer container, FriendlyByteBuf packet)
+	{
+		HoldableSkill.super.onStopHolding(container, packet);
+		if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getOffhandItem().getUseAnimation() == UseAnim.BLOCK && container.getExecutor().getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SHIELD)
+			container.getExecutor().getOriginal().stopUsingItem();
+	}
+
+	@Override
 	public KeyMapping getKeyMapping()
 	{
 		return EpicFightKeyMappings.GUARD;

@@ -10,8 +10,7 @@ public interface SkillCategory extends ExtendableEnum {
 	ExtendableEnumManager<SkillCategory> ENUM_MANAGER = new ExtendableEnumManager<> ("skill_category");
 	
 	boolean shouldSave();
-	List<SkillCategory> getEnums();
-	
+
 	boolean shouldSynchronize();
 	
 	boolean learnable();

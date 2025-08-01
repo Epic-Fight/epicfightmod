@@ -30,12 +30,6 @@ public enum SkillCategories implements SkillCategory {
 		this.id = SkillCategory.ENUM_MANAGER.assign(this);
 	}
 
-	@Override
-	public List<SkillCategory> getEnums()
-	{
-		return List.of(BASIC_ATTACK, AIR_ATTACK, DODGE, PASSIVE, WEAPON_INNATE, WEAPON_INNATE, GUARD, KNOCKDOWN_WAKEUP, MOVER);
-	}
-
 	public boolean shouldSave() {
 		return this.shouldSave;
 	}

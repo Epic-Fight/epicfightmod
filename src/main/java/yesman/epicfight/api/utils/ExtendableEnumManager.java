@@ -25,7 +25,6 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 	private final Map<String, T> enumMapByName = Maps.newLinkedHashMap();
 	private final Map<String, Class<?>> enums = Maps.newConcurrentMap();
 	private final String enumName;
-	private final List<ResourceLocation> enumIDs = Lists.newArrayList();
 	private int lastOrdinal = 0;
 	
 	public ExtendableEnumManager(String enumName) {

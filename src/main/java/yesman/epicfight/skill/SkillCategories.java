@@ -20,7 +20,6 @@ public enum SkillCategories implements SkillCategory {
 	boolean shouldSave;
 	boolean shouldSyncronize;
 	boolean modifiable;
-	ResourceLocation registryId;
 	int id;
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable) {

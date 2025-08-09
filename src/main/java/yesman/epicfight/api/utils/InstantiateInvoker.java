@@ -35,7 +35,7 @@ public class InstantiateInvoker {
 		registerPrimitive("C", char.class, (s) -> s.charAt(0));
 		registerPrimitive("D", double.class, Double::parseDouble);
 		registerPrimitive("F", float.class, Float::parseFloat);
-		registerPrimitive("I", int.class, Integer::parseInt);
+		registerPrimitive("IMeshRenderBoost", int.class, Integer::parseInt);
 		registerPrimitive("J", long.class, Long::parseLong);
 		registerPrimitive("S", short.class, Short::parseShort);
 		registerPrimitive("Z", boolean.class, Boolean::parseBoolean);

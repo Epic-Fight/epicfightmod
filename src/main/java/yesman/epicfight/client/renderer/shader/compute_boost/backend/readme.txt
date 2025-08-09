@@ -1,0 +1,1 @@
+copied from https://github.com/Argon4W/AcceleratedRendering

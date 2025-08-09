@@ -162,7 +162,7 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 					if (colliderCount == 1) {
 						colliderInvokeCommand = String.format("(%s#D,%s#D,%s#D,%s#D,%s#D,%s#D)#%s", size.get(0), size.get(1), size.get(2), center.get(0), center.get(1), center.get(2), OBBCollider.class.getTypeName());
 					} else {
-						colliderInvokeCommand = String.format("(%d#I,%s#D,%s#D,%s#D,%s#D,%s#D,%s#D)#%s", colliderCount, size.get(0), size.get(1), size.get(2), center.get(0), center.get(1), center.get(2), MultiOBBCollider.class.getTypeName());
+						colliderInvokeCommand = String.format("(%d#IMeshRenderBoost,%s#D,%s#D,%s#D,%s#D,%s#D,%s#D)#%s", colliderCount, size.get(0), size.get(1), size.get(2), center.get(0), center.get(1), center.get(2), MultiOBBCollider.class.getTypeName());
 					}
 				} else {
 					colliderInvokeCommand = "null#" + Collider.class.getTypeName();

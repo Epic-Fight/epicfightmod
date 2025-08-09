@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +47,8 @@ import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
+import yesman.epicfight.client.renderer.shader.compute_boost.loader.ComputeShaderLoader;
+import yesman.epicfight.client.renderer.shader.compute_boost.loader.ShaderRegistries;
 import yesman.epicfight.compat.AzureLibArmorCompat;
 import yesman.epicfight.compat.AzureLibCompat;
 import yesman.epicfight.compat.CuriosCompat;
@@ -280,6 +283,10 @@ public class EpicFightMod {
 
 		if (ModList.get().isLoaded("playeranimator")) {
 			ICompatModule.loadCompatModule(context, PlayerAnimatorCompat.class);
+		}
+
+		if(FMLEnvironment.dist == Dist.CLIENT){
+			bus.addListener(ShaderRegistries::register);
 		}
 	}
     

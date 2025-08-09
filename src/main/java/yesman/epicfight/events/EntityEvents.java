@@ -454,7 +454,8 @@ public class EntityEvents {
 		}
 	}
 	
-	@SubscribeEvent
+	@SuppressWarnings("removal")
+    @SubscribeEvent
 	public static void sizingEvent(EntityEvent.Size event) {
 		if (event.getEntity() instanceof EnderDragon) {
 			event.setNewSize(EntityDimensions.scalable(5.0F, 3.0F));

@@ -1,0 +1,63 @@
+#version 460 core
+
+layout(local_size_x = 128) in;
+
+layout(std430, binding = 0) readonly buffer PoseBuffer {
+    mat4 poses[];
+};
+
+layout(std430, binding = 1) readonly buffer VertexBuffer {
+    struct {
+        vec3 position;
+        vec3 normal;
+        ivec2 joints; // 骨骼&权重在池子中的范围
+        //ivec2 weights; //  from weights[w.x] to weights[w.y]
+    } vertices[];
+};
+
+layout(std430, binding = 2) readonly buffer JointsPool {
+    int joints[];
+};
+
+layout(std430, binding = 3) readonly buffer WeightsPool {
+    float weights[];
+};
+
+layout(std430, binding = 4) writeonly buffer OutputPositionBuffer {
+    vec3 out_vertex[];
+};
+
+layout(std430, binding = 5) writeonly buffer OutputNormalBuffer {
+    vec3 out_normal[];
+};
+
+
+
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= vertices.length()) return; // 边界检查
+
+    vec3 pos = vertices[idx].position;
+    vec3 norm = vertices[idx].normal;
+    ivec2 joints = vertices[idx].joints;
+
+    vec4 finalPos = vec4(0);
+    vec3 finalNormal = vec3(0);
+
+    for (int i = joints.x; i < joints.y; ++i) {
+        if (weights[i] > 0.0) {
+
+            // 坐标
+            mat4 boneMat = poses[joints[i]];
+            finalPos += weights[i] * (boneMat * vec4(pos, 1.0));
+
+            // 法线
+            mat3 normalMat = transpose(inverse(mat3(boneMat)));
+            finalNormal += weights[i] * (normalMat * norm);
+        }
+    }
+
+    out_vertex[idx] = finalPos.xyz;
+    out_normal[idx] = normalize(finalNormal);
+}

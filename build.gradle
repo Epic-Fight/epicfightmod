@@ -123,7 +123,10 @@ dependencies {
     compileOnly fg.deobf("curse.maven:azurelib-817423:5500355")
     compileOnly fg.deobf("curse.maven:azurelib-armor-912767:5500370")
     compileOnly fg.deobf("curse.maven:geckolib-388172:5675221")
-    
+
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
     compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
     compileOnly fg.deobf("curse.maven:oculus-581495:5299671")
     

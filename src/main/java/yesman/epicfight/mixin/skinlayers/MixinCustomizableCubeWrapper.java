@@ -13,9 +13,9 @@ public abstract class MixinCustomizableCubeWrapper extends CustomizableCube {
 		super(u, v, x, y, z, sizeX, sizeY, sizeZ, extraX, extraY, extraZ, mirror, textureWidth, textureHeight, hide, hideCorners);
 	}
 	
-	@Mixin(value = CustomizableCube.class)
+	@Mixin(value = CustomizableCube.class, remap = false)
 	public interface SkinLayer3DMixinCustomModelCube {
-		@Accessor
-		public abstract CustomizableCube.Polygon[] getPolygons();
+		@Accessor("polygons")
+		CustomizableCube.Polygon[] getPolygons();
 	}
 }

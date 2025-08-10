@@ -38,7 +38,7 @@ public class DynamicSSBO<T> implements Closeable {
     }
 
     public void updateAll(){
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(src.length * helper.length);
+        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).asFloatBuffer();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
 
         for (T s : src) {
@@ -55,7 +55,7 @@ public class DynamicSSBO<T> implements Closeable {
     }
 
     public void updateFromTo(int from, int to){
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(src.length * helper.length);
+        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).asFloatBuffer();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
 
         for (int i = from; i < to; i++) {

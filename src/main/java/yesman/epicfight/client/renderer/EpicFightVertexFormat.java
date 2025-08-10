@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL46.*;
 
 @OnlyIn(Dist.CLIENT)
@@ -46,41 +45,48 @@ public class EpicFightVertexFormat {
         glEnableVertexAttribArray(0);
      */
 
-    public static void setupAttrPointer(int vaao, int size, int binding_pos, int gl_type){
+    public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type){
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, 0, 0);
         glEnableVertexAttribArray(binding_pos);
     }
 
-    public static void setupAttrPointer(int vaao, int size, int binding_pos, int gl_type, int stride){
+    public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type, int stride){
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, stride, 0);
         glEnableVertexAttribArray(binding_pos);
     }
 
-    public static void setupBufferState(VertexFormat vertexFormat, int pos, int nor, int col, int uv, int layout, int light){
+    public static void bindBufferFormat(VertexFormat vertexFormat, int pos, int nor, int col, int uv, int layout, int light){
         var elems = vertexFormat.getElements();
         for(int i = 0; i < elems.size(); ++i) {
             var elem = elems.get(i);
 
             if(elem == DefaultVertexFormat.ELEMENT_POSITION){
-                setupAttrPointer(pos, 3, i, GL_FLOAT);
+                bindAttrPointer(pos, 3, i, GL_FLOAT);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_UV){
-                setupAttrPointer(uv, 2, i, GL_FLOAT);
+                bindAttrPointer(uv, 2, i, GL_FLOAT);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_COLOR){
-                setupAttrPointer(col, 4, i, GL_FLOAT);
+                bindAttrPointer(col, 4, i, GL_FLOAT);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_NORMAL){
-                setupAttrPointer(nor, 3, i, GL_BYTE, 1);
+                bindAttrPointer(nor, 3, i, GL_BYTE, 1);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_UV1){
-                setupAttrPointer(layout, 2, i, GL_SHORT);
+                bindAttrPointer(layout, 2, i, GL_SHORT);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_UV2){
-                setupAttrPointer(light, 2, i, GL_SHORT);
+                bindAttrPointer(light, 2, i, GL_SHORT);
             }
+        }
+    }
+
+    public static void setupBufferState(VertexFormat vertexFormat){
+        var elems = vertexFormat.getElements();
+        for(int i = 0; i < elems.size(); ++i) {
+            glEnableVertexAttribArray(i);
         }
     }
 

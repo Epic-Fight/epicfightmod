@@ -28,7 +28,6 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.opengl.GL46C;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -38,7 +37,6 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.EpicFightVertexFormat;
-import yesman.epicfight.client.renderer.EpicFightVertexFormatElement;
 import yesman.epicfight.client.renderer.shader.compute_boost.backend.GLUtils;
 import yesman.epicfight.client.renderer.shader.compute_boost.backend.gl_object.OutputSSBO;
 import yesman.epicfight.client.renderer.shader.compute_boost.backend.gl_object.DynamicSSBO;
@@ -106,6 +104,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		List<Float> uvList = Lists.newArrayList();
 		List<Byte> normalList = Lists.newArrayList();
 
+		this.arrayObjectId = GlStateManager._glGenVertexArrays();
+		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
+		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
+		GlStateManager._glBindVertexArray(this.arrayObjectId);
 
 		for (SkinnedMeshPart part : this.parts.values()) {
 			part.createVbo(vertexBuilderMap, this.positions, this.uvs, this.normals, this.weights,
@@ -159,8 +161,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		poseBO = new DynamicSSBO<>(FINAL_POSES,
 				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
 				(v, b) -> {
-					var ojangMat = OpenMatrix4f.exportToMojangMatrix(v);
-					ojangMat.set(b);
+					v.store(b);
 				});
 
 		out_pos = new OutputSSBO((short) 3, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
@@ -170,14 +171,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_uv1 = new OutputSSBO((short) 1, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
 		out_uv2 = new OutputSSBO((short) 1, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
 
-		this.arrayObjectId = GlStateManager._glGenVertexArrays();
-		/*int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-
 
 		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);*/
+		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
 	}
 
 	//protected Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
@@ -393,10 +389,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		Matrix4f matrix4f = poseStack.last().pose();
 		Matrix3f matrix3f = poseStack.last().normal();
 
+
 		for (SkinnedMeshPart part : this.parts.values()) {
 			if (!part.isHidden()) {
 				OpenMatrix4f transform = part.getVanillaPartTransform();
-
 				for (int i = 0; i < poses.length; i++) {
 					FINAL_POSES[i].load(poses[i]);
 					
@@ -443,7 +439,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
 			this.drawWithShader(poseStack, ef_renderType, packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
-			this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
+			this.drawPosed(poseStack,
+					bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)),
+					drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 		}
 	}
 
@@ -471,9 +469,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
 	}
 
-	public void applyComputeShader(int poseSize, float r, float g, float b, float a, int overlay, int light){
+	public void applyComputeShader(PoseStack poseStack, int poseSize, float r, float g, float b, float a, int overlay, int light){
 		// pose upload
-		poseBO.updateFromTo(0, last_size);
+		poseBO.updateFromTo(0, poseSize);
 		// shader setup
 		var shader = ShaderRegistries.mesh_compute;
 		shader.useProgram();
@@ -481,6 +479,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		shader.getUniform("colorIn").uploadVec4(r,g,b,a);
 		shader.getUniform("uv1In").uploadUnsignedInt(overlay);
 		shader.getUniform("uv2In").uploadUnsignedInt(light);
+		shader.getUniform("modelView").uploadMatrix4f(poseStack.last().pose());
 
 		poseBO.bindBufferBase(0);
 		vObjBO.bindBufferBase(1);
@@ -616,13 +615,20 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				}
 			}
 			// computeVertex
-			applyComputeShader(maxJointCount, r,g,b,a,overlay,light);
+			applyComputeShader(poseStack, poses.length, r,g,b,a,overlay,light);
 
 			// ====================Init State==================
-			renderType.setupRenderState();
 			var mode	= renderType.mode();
 			ShaderInstance shader	= RenderSystem.getShader();
 			var format = shader.getVertexFormat();
+
+			renderType.setupRenderState();
+
+			GlStateManager._glBindVertexArray(vao);
+			EpicFightVertexFormat.bindBufferFormat(format,
+					out_pos.glSSBO, out_normal.glSSBO, out_color.glSSBO,
+					uvsBO.glSSBO, out_uv1.glSSBO, out_uv2.glSSBO
+			);  //shader.getVertexFormat().setupBufferState();
 
 			GLUtils.SetShaderDefaultUniforms(shader,
 					mode,
@@ -630,37 +636,24 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 					RenderSystem			.getProjectionMatrix(),
 					Minecraft.getInstance()	.getWindow			()
 			);
+			// ================================================
 			shader.apply();
 
 			GlStateManager._glBindVertexArray(vao);
-			EpicFightVertexFormat.setupBufferState(format,
-				out_pos.glSSBO, out_normal.glSSBO, out_color.glSSBO,
-					uvsBO.glSSBO, out_uv1.glSSBO, out_uv2.glSSBO
-			);  //shader.getVertexFormat().setupBufferState();
-
-			// ================================================
-
-			/*
-			boolean hasCustomColor = this.renderProperties != null && this.renderProperties.customColor() != null;
-			if (hasCustomColor) {
-				animationShaderInstance.getColorUniform()
-						.set(this.renderProperties.customColor().x,
-								this.renderProperties.customColor().y,
-								this.renderProperties.customColor().z,
-								1.0F);
-			}
-			*/
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, this.indexBufferId);
-			RenderSystem.drawElements(VertexFormat.Mode.TRIANGLES.asGLMode,
+			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+			RenderSystem.drawElements(mode.asGLMode,
 					this.getVertices().size(), VertexFormat.IndexType.INT.asGLType);
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
-			/*if (hasCustomColor) {
-				animationShaderInstance.getColorUniform().set(r, g, b, a);
-			}*/
+
+			shader.clear();
 
 			// ==================Return State==================
-			EpicFightVertexFormat.clearBufferState(format); //shader.getVertexFormat().clearBufferState();
+
 			renderType.clearRenderState();
+			EpicFightVertexFormat.clearBufferState(format);
+			GlStateManager._glBindVertexArray(0);
+
+			//EpicFightVertexFormat.clearBufferState(format); //shader.getVertexFormat().clearBufferState();
+
 			// ================================================
 		}
 		

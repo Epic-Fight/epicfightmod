@@ -12,7 +12,7 @@ layout(std430, binding = 1) readonly buffer VertexBuffer {
     struct {
         vec3 position;
         vec3 normal;
-        ivec2 joints; // 骨骼&权重在池子中的范围
+        ivec2 jt; // 骨骼&权重在池子中的范围
         //ivec2 weights; //  from weights[w.x] to weights[w.y]
     } vertices[];
 };
@@ -50,6 +50,7 @@ layout(std430, binding = 8) writeonly buffer OutputUV2Buffer {
 layout(location=0) uniform vec4 colorIn;
 layout(location=1) uniform uint uv1In;
 layout(location=2) uniform uint uv2In;
+layout(location=3) uniform mat4 modelView;
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
@@ -57,23 +58,25 @@ void main() {
 
     vec3 pos = vertices[idx].position;
     vec3 norm = vertices[idx].normal;
-    ivec2 joints = vertices[idx].joints;
+    ivec2 jt = vertices[idx].jt;
 
     vec4 finalPos = vec4(0);
     vec3 finalNormal = vec3(0);
 
-    for (int i = joints.x; i < joints.y; ++i) {
+    for (int i = jt.x; i < jt.y; ++i) {
         if (weights[i] > 0.0) {
-
             // 坐标
             mat4 boneMat = poses[joints[i]];
-            finalPos += weights[i] * (boneMat * vec4(pos, 1.0));
+            finalPos += (boneMat * vec4(pos, 1.0)) * weights[i];
 
             // 法线
-            mat3 normalMat = transpose(inverse(mat3(boneMat)));
-            finalNormal += weights[i] * (normalMat * norm);
+            vec4 poseNormal = boneMat * vec4(finalNormal, 0.0);
+            finalNormal += vec3(poseNormal.xyz) * weights[i];
         }
     }
+
+    //finalPos = modelView * finalPos;
+    //finalNormal = mat3(modelView) * finalNormal;
 
     out_pos[idx] = finalPos.xyz;
     out_normal[idx] = packSnorm4x8(vec4(normalize(finalNormal), 0.0));

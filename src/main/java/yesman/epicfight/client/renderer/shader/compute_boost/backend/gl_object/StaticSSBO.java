@@ -26,7 +26,7 @@ public class StaticSSBO<T> implements Closeable {
                 (long) data.size() * data_size * 4, DynamicSSBO.DataMode.STATIC.asInt);
 
 
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.size() * data_size);
+        FloatBuffer buffer = BufferUtils.createByteBuffer(data.size() * data_size * 4).asFloatBuffer();
         for (T d : data) {
             uploader.accept(d, buffer);
         }

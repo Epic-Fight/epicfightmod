@@ -492,6 +492,10 @@ public class MathUtils {
 		result.z = b;
 		result.w = a;
 	}
+
+	public static byte normalIntValue(float pNum) {
+		return (byte)((int)(Mth.clamp(pNum, -1.0F, 1.0F) * 127.0F) & 255);
+	}
 	
 	private MathUtils() {}
 }

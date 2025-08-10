@@ -1,21 +1,17 @@
 package yesman.epicfight.client.renderer;
 
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.model.SkinnedMesh;
+
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL46.*;
 
 @OnlyIn(Dist.CLIENT)
 public class EpicFightVertexFormat {
-	public static final VertexFormatElement ELEMENT_POSITION = new EpicFightVertexFormatElement(0, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.POSITION, 3, SkinnedMesh::pointPositionsBuffer);
+	/*public static final VertexFormatElement ELEMENT_POSITION = new EpicFightVertexFormatElement(0, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.POSITION, 3, SkinnedMesh::pointPositionsBuffer);
 	public static final VertexFormatElement ELEMENT_UV0 = new EpicFightVertexFormatElement(0, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.UV, 2, SkinnedMesh::uvPositionsBuffer);
 	public static final VertexFormatElement ELEMENT_NORMAL = new EpicFightVertexFormatElement(0, VertexFormatElement.Type.BYTE, VertexFormatElement.Usage.NORMAL, 3, SkinnedMesh::normalPositionsBuffer);
 	public static final VertexFormatElement ELEMENT_JOINTS = new EpicFightVertexFormatElement(0, VertexFormatElement.Type.SHORT, VertexFormatElement.Usage.GENERIC, 3, SkinnedMesh::jointPositionsBuffer);
@@ -42,5 +38,57 @@ public class EpicFightVertexFormat {
 		public AnimationVertexFormat(ImmutableMap<String, VertexFormatElement> attributesMap) {
 			super(attributesMap);
 		}
-	}
+	}*/
+
+    /*
+    glBindBuffer(GL_ARRAY_BUFFER, positionOutputSSBO);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glEnableVertexAttribArray(0);
+     */
+
+    public static void setupAttrPointer(int vaao, int size, int binding_pos, int gl_type){
+        glBindBuffer(GL_ARRAY_BUFFER, vaao);
+        glVertexAttribPointer(binding_pos, size, gl_type, false, 0, 0);
+        glEnableVertexAttribArray(binding_pos);
+    }
+
+    public static void setupAttrPointer(int vaao, int size, int binding_pos, int gl_type, int stride){
+        glBindBuffer(GL_ARRAY_BUFFER, vaao);
+        glVertexAttribPointer(binding_pos, size, gl_type, false, stride, 0);
+        glEnableVertexAttribArray(binding_pos);
+    }
+
+    public static void setupBufferState(VertexFormat vertexFormat, int pos, int nor, int col, int uv, int layout, int light){
+        var elems = vertexFormat.getElements();
+        for(int i = 0; i < elems.size(); ++i) {
+            var elem = elems.get(i);
+
+            if(elem == DefaultVertexFormat.ELEMENT_POSITION){
+                setupAttrPointer(pos, 3, i, GL_FLOAT);
+            }
+            else if(elem == DefaultVertexFormat.ELEMENT_UV){
+                setupAttrPointer(uv, 2, i, GL_FLOAT);
+            }
+            else if(elem == DefaultVertexFormat.ELEMENT_COLOR){
+                setupAttrPointer(col, 4, i, GL_FLOAT);
+            }
+            else if(elem == DefaultVertexFormat.ELEMENT_NORMAL){
+                setupAttrPointer(nor, 3, i, GL_BYTE, 1);
+            }
+            else if(elem == DefaultVertexFormat.ELEMENT_UV1){
+                setupAttrPointer(layout, 2, i, GL_SHORT);
+            }
+            else if(elem == DefaultVertexFormat.ELEMENT_UV2){
+                setupAttrPointer(light, 2, i, GL_SHORT);
+            }
+        }
+    }
+
+    public static void clearBufferState(VertexFormat vertexFormat){
+        var elems = vertexFormat.getElements();
+        for(int i = 0; i < elems.size(); ++i) {
+            glDisableVertexAttribArray(i);
+        }
+    }
+
 }

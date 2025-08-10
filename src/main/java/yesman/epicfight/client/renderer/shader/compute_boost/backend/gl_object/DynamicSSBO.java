@@ -4,71 +4,68 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 
 import javax.annotation.Nullable;
+import java.io.Closeable;
 import java.nio.FloatBuffer;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public class SSBO<T> implements AutoCloseable {
+public class DynamicSSBO<T> implements Closeable {
     public final T[] src;
     public final short src_size;
     public final int glSSBO;
     public final DataMode mode;
-    public final BiConsumer<T, float[]> uploader;
-    public final BiConsumer<T, FloatBuffer> uploader2;
+    public final BiConsumer<T, FloatBuffer> uploader;
 
     final float[] helper;
 
-    public SSBO(T[] src, short src_size, DataMode DataMode,
-                @NotNull BiConsumer<T, float[]> uploader,
-                @Nullable BiConsumer<T, FloatBuffer> uploader2
+    public DynamicSSBO(T[] src, short src_size, DataMode DataMode,
+                       @Nullable BiConsumer<T, FloatBuffer> uploader
     ) {
         this.src = src;
         this.mode = DataMode;
         this.src_size = src_size;
         this.uploader = uploader;
-        this.uploader2 = uploader2;
 
         glSSBO = glGenBuffers();
 
-        helper = new float[src_size / 4];
+        helper = new float[src_size];
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
-                (long) src.length * src_size, mode.asInt);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
-
-
-    public void updateDataAt(int pos){
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
-        uploader.accept(src[pos], helper);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER,
-                (long)pos * src_size, helper
-                );
+                (long) src.length * src_size * 4, mode.asInt);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     public void updateAll(){
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(src.length * src_size);
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(src.length * helper.length);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
 
-        if(uploader2 == null){
-            for (T s : src) {
-                uploader.accept(s, helper);
-                buffer.put(helper);
-            }
+        for (T s : src) {
+            uploader.accept(s, buffer);
         }
-        else {
-            for (T s : src) {
-                uploader2.accept(s, buffer);
-            }
-        }
+
+        buffer.flip();
 
         glBufferSubData(GL_SHADER_STORAGE_BUFFER,
                 0, buffer
+        );
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+
+    public void updateFromTo(int from, int to){
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(src.length * helper.length);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
+
+        for (int i = from; i < to; i++) {
+            uploader.accept(src[i], buffer);
+        }
+
+        buffer.flip();
+
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+                (long) src_size * 4 * from, buffer
         );
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -85,12 +82,8 @@ public class SSBO<T> implements AutoCloseable {
         if(lastBinding >= 0) glBindBufferBase(GL_SHADER_STORAGE_BUFFER, lastBinding, 0);
     }
 
-
-
-
-
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (glSSBO != 0) glDeleteBuffers(glSSBO);
     }
 

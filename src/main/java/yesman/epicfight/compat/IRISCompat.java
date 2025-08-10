@@ -39,9 +39,9 @@ public class IRISCompat implements ICompatModule {
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void onModEventBusClient(IEventBus eventBus) {
-		EpicFightRenderTypes.registerShaderTransformer((shaderInstance) -> (shaderInstance instanceof net.irisshaders.iris.pipeline.programs.ExtendedShader), (shaderInstance) -> {
+		/*EpicFightRenderTypes.registerShaderTransformer((shaderInstance) -> (shaderInstance instanceof net.irisshaders.iris.pipeline.programs.ExtendedShader), (shaderInstance) -> {
 			return IRIS_SHADER_PROVIDERS.get(shaderInstance.getName()).get();
-		});
+		});*/
 	}
 	
 	@OnlyIn(Dist.CLIENT)

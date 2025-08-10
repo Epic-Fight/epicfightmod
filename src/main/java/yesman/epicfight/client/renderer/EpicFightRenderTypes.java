@@ -43,7 +43,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import yesman.epicfight.api.exception.ShaderParsingException;
-import yesman.epicfight.client.renderer.EpicFightVertexFormat.AnimationVertexFormat;
+//import yesman.epicfight.client.renderer.EpicFightVertexFormat.AnimationVertexFormat;
 import yesman.epicfight.client.renderer.shader.AnimationShaderInstance;
 import yesman.epicfight.client.renderer.shader.ShaderParser;
 import yesman.epicfight.client.renderer.shader.VanillaAnimationShader;
@@ -605,9 +605,9 @@ public abstract class EpicFightRenderTypes extends RenderType {
 	 *         Animation shader part         *
 	 *****************************************/
 	private static Map<ResourceLocation, Resource> SHADER_LIBS;
-	private static final List<ShaderTransformer> ANIMATION_SHADERS_TRANSFORMERS = Lists.newArrayList();
+	//private static final List<ShaderTransformer> ANIMATION_SHADERS_TRANSFORMERS = Lists.newArrayList();
 	private static final Map<String, AnimationShaderInstance> ANIMATION_SHADERS = Maps.newConcurrentMap();
-	private static final Function<VertexFormat, VertexFormat> ANIMATION_VERTEX_FORMATS = Util.memoize((vertexFormat) -> {
+	/*private static final Function<VertexFormat, VertexFormat> ANIMATION_VERTEX_FORMATS = Util.memoize((vertexFormat) -> {
 		if (vertexFormat instanceof AnimationVertexFormat) {
 			return vertexFormat;
 		}
@@ -625,8 +625,8 @@ public abstract class EpicFightRenderTypes extends RenderType {
 		
 		return animationVertexFormat;
 	});
-	
-	public static AnimationShaderInstance getAnimationShader(ShaderInstance shaderInstance) {
+	*/
+	/*public static AnimationShaderInstance getAnimationShader(ShaderInstance shaderInstance) {
 		if (shaderInstance instanceof AnimationShaderInstance animationShaderInstance) {
 			return animationShaderInstance;
 		}
@@ -682,11 +682,11 @@ public abstract class EpicFightRenderTypes extends RenderType {
 		}
 		
 		return ANIMATION_VERTEX_FORMATS.apply(vertexFormat);
-	}
+	}*/
 	
-	public static void registerShaderTransformer(Predicate<ShaderInstance> predicate, Function<ShaderInstance, AnimationShaderInstance> transformer) {
+	/*public static void registerShaderTransformer(Predicate<ShaderInstance> predicate, Function<ShaderInstance, AnimationShaderInstance> transformer) {
 		ANIMATION_SHADERS_TRANSFORMERS.add(new ShaderTransformer(predicate, transformer));
-	}
+	}*/
 	
 	@SubscribeEvent
 	public static void registerShadersEvent(RegisterShadersEvent event) throws IOException {
@@ -712,7 +712,7 @@ public abstract class EpicFightRenderTypes extends RenderType {
 		ANIMATION_SHADERS.remove(shaderName);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
+	/*@OnlyIn(Dist.CLIENT)
 	private record ShaderTransformer(Predicate<ShaderInstance> predicate, Function<ShaderInstance, AnimationShaderInstance> transformer) {
 		public static final ShaderTransformer VANILLA_TRANSFORMER = new ShaderTransformer((shaderInstance) -> true, (shaderInstance) -> {
 			ShaderParser shaderParser = null;
@@ -805,7 +805,7 @@ public abstract class EpicFightRenderTypes extends RenderType {
 				throw new RuntimeException("Can't create animation shader", e);
 			}
 		});
-	}
+	}*/
 	
 	//Util class
 	private EpicFightRenderTypes() {

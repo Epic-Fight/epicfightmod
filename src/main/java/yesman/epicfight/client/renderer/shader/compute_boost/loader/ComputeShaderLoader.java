@@ -13,8 +13,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class ComputeShaderLoader {
 
 
-    public static ComputeProgram LoadComputeShader(ResourceProvider resourceManager, ResourceLocation resourceLocation,
-                                                   BarrierFlags... barrierFlags
+    public static ComputeProgram LoadComputeShaderProgram(ResourceProvider resourceManager, ResourceLocation resourceLocation,
+                                                          BarrierFlags... barrierFlags
     ){
         var resource = resourceManager.getResource(resourceLocation);
 

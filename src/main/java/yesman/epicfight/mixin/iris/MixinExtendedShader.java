@@ -40,7 +40,7 @@ import yesman.epicfight.main.EpicFightMod;
 
 @Mixin(value = net.irisshaders.iris.pipeline.programs.ExtendedShader.class)
 public abstract class MixinExtendedShader {
-	@Inject(at = @At(value = "TAIL"), method = "<init>", cancellable = true)
+	/*@Inject(at = @At(value = "TAIL"), method = "<init>", cancellable = true)
 	private void epicfight_constructor(ResourceProvider resourceFactory, String name, VertexFormat vertexFormat, boolean usesTessellation, GlFramebuffer writingToBeforeTranslucent, GlFramebuffer writingToAfterTranslucent,
 			BlendModeOverride blendModeOverride, AlphaTest alphaTest, Consumer<DynamicLocationalUniformHolder> uniformCreator, BiConsumer<SamplerHolder, ImageHolder> samplerCreator, boolean isIntensity, IrisRenderingPipeline parent,
 			@Nullable List<BufferBlendOverride> bufferBlendOverrides, CustomUniforms customUniforms, CallbackInfo info)
@@ -144,5 +144,5 @@ public abstract class MixinExtendedShader {
 				}
 			});
 		}
-	}
+	}*/
 }

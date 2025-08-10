@@ -1,18 +1,21 @@
 package yesman.epicfight.client.renderer.shader.compute_boost.backend.gl_object;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import static org.lwjgl.opengl.GL46C.*;
 
-public class OutputSSBO {
+public class OutputSSBO implements Closeable {
 
     public final short src_size;
     public final int glSSBO;
 
-    public OutputSSBO(short srcSize, int len, SSBO.DataMode mode) {
+    public OutputSSBO(short srcSize, int len, DynamicSSBO.DataMode mode) {
         src_size = srcSize;
         glSSBO = glGenBuffers();
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, (long) srcSize * len, mode.asInt);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, (long) srcSize * len * 4, mode.asInt);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
@@ -28,4 +31,8 @@ public class OutputSSBO {
     }
 
 
+    @Override
+    public void close() {
+        if (glSSBO != 0) glDeleteBuffers(glSSBO);
+    }
 }

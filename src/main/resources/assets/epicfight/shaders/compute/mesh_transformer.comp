@@ -2,10 +2,12 @@
 
 layout(local_size_x = 128) in;
 
+// Dynamic Input Buffer
 layout(std430, binding = 0) readonly buffer PoseBuffer {
     mat4 poses[];
 };
 
+// Static Buffer
 layout(std430, binding = 1) readonly buffer VertexBuffer {
     struct {
         vec3 position;
@@ -23,16 +25,31 @@ layout(std430, binding = 3) readonly buffer WeightsPool {
     float weights[];
 };
 
+
+// Output Buffer
 layout(std430, binding = 4) writeonly buffer OutputPositionBuffer {
-    vec3 out_vertex[];
+    vec3 out_pos[];
 };
 
 layout(std430, binding = 5) writeonly buffer OutputNormalBuffer {
-    vec3 out_normal[];
+    uint out_normal[];
 };
 
+layout(std430, binding = 6) writeonly buffer OutputColorBuffer {
+    vec4 out_color[];
+};
 
+layout(std430, binding = 7) writeonly buffer OutputUV1Buffer {
+    uint out_uv1[];
+};
 
+layout(std430, binding = 8) writeonly buffer OutputUV2Buffer {
+    uint out_uv2[];
+};
+
+layout(location=0) uniform vec4 colorIn;
+layout(location=1) uniform uint uv1In;
+layout(location=2) uniform uint uv2In;
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
@@ -58,6 +75,9 @@ void main() {
         }
     }
 
-    out_vertex[idx] = finalPos.xyz;
-    out_normal[idx] = normalize(finalNormal);
+    out_pos[idx] = finalPos.xyz;
+    out_normal[idx] = packSnorm4x8(vec4(normalize(finalNormal), 0.0));
+    out_color[idx] = colorIn;
+    out_uv1[idx] = uv1In;
+    out_uv2[idx] = uv2In;
 }

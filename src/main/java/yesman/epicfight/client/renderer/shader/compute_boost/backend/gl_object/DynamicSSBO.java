@@ -5,6 +5,7 @@ import org.lwjgl.BufferUtils;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.function.BiConsumer;
 
@@ -38,7 +39,7 @@ public class DynamicSSBO<T> implements Closeable {
     }
 
     public void updateAll(){
-        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).asFloatBuffer();
+        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
 
         for (T s : src) {
@@ -55,7 +56,7 @@ public class DynamicSSBO<T> implements Closeable {
     }
 
     public void updateFromTo(int from, int to){
-        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).asFloatBuffer();
+        FloatBuffer buffer = BufferUtils.createByteBuffer(src.length * helper.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
 
         for (int i = from; i < to; i++) {

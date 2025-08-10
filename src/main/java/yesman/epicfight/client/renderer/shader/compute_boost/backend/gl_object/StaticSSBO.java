@@ -5,6 +5,7 @@ import org.lwjgl.BufferUtils;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -26,7 +27,7 @@ public class StaticSSBO<T> implements Closeable {
                 (long) data.size() * data_size * 4, DynamicSSBO.DataMode.STATIC.asInt);
 
 
-        FloatBuffer buffer = BufferUtils.createByteBuffer(data.size() * data_size * 4).asFloatBuffer();
+        FloatBuffer buffer = BufferUtils.createByteBuffer(data.size() * data_size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for (T d : data) {
             uploader.accept(d, buffer);
         }

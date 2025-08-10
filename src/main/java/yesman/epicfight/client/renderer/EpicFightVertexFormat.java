@@ -46,15 +46,15 @@ public class EpicFightVertexFormat {
      */
 
     public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type){
+        glEnableVertexAttribArray(binding_pos);
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, 0, 0);
-        glEnableVertexAttribArray(binding_pos);
     }
 
     public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type, int stride){
+        glEnableVertexAttribArray(binding_pos);
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, stride, 0);
-        glEnableVertexAttribArray(binding_pos);
     }
 
     public static void bindBufferFormat(VertexFormat vertexFormat, int pos, int nor, int col, int uv, int layout, int light){

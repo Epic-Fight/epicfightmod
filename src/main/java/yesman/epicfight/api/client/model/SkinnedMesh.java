@@ -624,12 +624,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 			renderType.setupRenderState();
 
-			GlStateManager._glBindVertexArray(vao);
-			EpicFightVertexFormat.bindBufferFormat(format,
-					out_pos.glSSBO, out_normal.glSSBO, out_color.glSSBO,
-					uvsBO.glSSBO, out_uv1.glSSBO, out_uv2.glSSBO
-			);  //shader.getVertexFormat().setupBufferState();
-
 			GLUtils.SetShaderDefaultUniforms(shader,
 					mode,
 					poseStack.last().pose(),
@@ -640,6 +634,11 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			shader.apply();
 
 			GlStateManager._glBindVertexArray(vao);
+			EpicFightVertexFormat.bindBufferFormat(format,
+					out_pos.glSSBO, out_normal.glSSBO, out_color.glSSBO,
+					uvsBO.glSSBO, out_uv1.glSSBO, out_uv2.glSSBO
+			);  //shader.getVertexFormat().setupBufferState();
+
 			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
 			RenderSystem.drawElements(mode.asGLMode,
 					this.getVertices().size(), VertexFormat.IndexType.INT.asGLType);

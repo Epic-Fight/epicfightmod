@@ -27,14 +27,12 @@ public class StaticSSBO<T> implements Closeable {
                 (long) data.size() * data_size * 4, DynamicSSBO.DataMode.STATIC.asInt);
 
 
-        FloatBuffer buffer = BufferUtils.createByteBuffer(data.size() * data_size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.size() * data_size);
         for (T d : data) {
             uploader.accept(d, buffer);
         }
         buffer.flip();
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, buffer);
-
-
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 

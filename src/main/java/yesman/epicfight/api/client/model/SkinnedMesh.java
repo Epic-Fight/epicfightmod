@@ -70,12 +70,19 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	 * Compute Boost
 	 */
 
-	private record VertexObj(float[] pos, float[] nor, int[] joint){
+	private record VertexObj(float px, float py, float pz,
+			float nx, float ny, float nz, int jts, int jte){
 		public void store(FloatBuffer floatBuffer){
-			floatBuffer.put(pos);
-			floatBuffer.put(nor);
-			floatBuffer.put(Float.intBitsToFloat(joint[0]));
-			floatBuffer.put(Float.intBitsToFloat(joint[1]));
+			floatBuffer.put(px);
+			floatBuffer.put(py);
+			floatBuffer.put(pz);
+
+			floatBuffer.put(nx);
+			floatBuffer.put(ny);
+			floatBuffer.put(nz);
+
+			floatBuffer.put(Float.intBitsToFloat(jts));
+			floatBuffer.put(Float.intBitsToFloat(jte));
 		}
 	}
 
@@ -131,10 +138,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				weightList.add(weight);
 			}
 
-			vertexObjs[idx] = new VertexObj(
-					new float[]{ positions[vb.position * 3], positions[vb.position * 3 + 1], positions[vb.position * 3 + 2] },
-					new float[]{ normals[vb.normal * 3], normals[vb.normal * 3 + 1], normals[vb.normal * 3 + 2] },
-					new int[]{ start_pos, start_pos + affectingJointCounts[vb.position] }
+			vertexObjs[idx] = new VertexObj(positions[vb.position * 3], positions[vb.position * 3 + 1], positions[vb.position * 3 + 2],
+					normals[vb.normal * 3], normals[vb.normal * 3 + 1], normals[vb.normal * 3 + 2],
+					start_pos, start_pos + affectingJointCounts[vb.position]
 			);
 		});
 
@@ -161,7 +167,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		poseBO = new DynamicSSBO<>(FINAL_POSES,
 				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
 				(v, b) -> {
-					v.store(b);
+					OpenMatrix4f.exportToMojangMatrix(v).get(b);
 				});
 
 		out_pos = new OutputSSBO((short) 3, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
@@ -436,8 +442,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	@Override
 	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
 		if (ClientConfig.activateAnimationShader) {
-			var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
-			this.drawWithShader(poseStack, ef_renderType, packedLight, r, g, b, a, overlay, armature, poses);
+			//var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
+			this.drawWithShader(poseStack, renderType, packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
 			this.drawPosed(poseStack,
 					bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)),
@@ -604,7 +610,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			OpenMatrix4f transform = this.getVanillaPartTransform();
 
 			for (int i = 0; i < poses.length; i++) {
-				FINAL_POSES[i].load(poses[i]);
+				//FINAL_POSES[i].load(poses[i]);
+				FINAL_POSES[i].setIdentity();
 				
 				if (armature != null) {
 					FINAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());

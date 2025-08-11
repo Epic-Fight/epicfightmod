@@ -36,11 +36,13 @@ minecraft {
                 }
             }
     	}
-    	
+
         client {
             workingDirectory project.file('run')
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '-Dorg.lwjgl.opengl.libname=nvoglv64.dll'
+            //jvmArgs '-Dorg.lwjgl.opengl.libname=\'C:\\Program Files\\RenderDoc\\renderdoc.dll\''
+            //args '-Dorg.lwjgl.opengl.libname=renderdoc.dll'
+
         }
 
         server {

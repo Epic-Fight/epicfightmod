@@ -46,23 +46,25 @@ public class EpicFightVertexFormat {
      */
 
     public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type){
-        glEnableVertexAttribArray(binding_pos);
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, 0, 0);
+        glEnableVertexAttribArray(binding_pos);
     }
 
     public static void bindAttrPointer(int vaao, int size, int binding_pos, int gl_type, int stride){
-        glEnableVertexAttribArray(binding_pos);
         glBindBuffer(GL_ARRAY_BUFFER, vaao);
         glVertexAttribPointer(binding_pos, size, gl_type, false, stride, 0);
+        glEnableVertexAttribArray(binding_pos);
     }
+
 
     public static void bindBufferFormat(VertexFormat vertexFormat, int pos, int nor, int col, int uv, int layout, int light){
         var elems = vertexFormat.getElements();
+
+        vertexFormat.setupBufferState();
+
         for(int i = 0; i < elems.size(); ++i) {
             var elem = elems.get(i);
-
-            vertexFormat.setupBufferState();
 
             if(elem == DefaultVertexFormat.ELEMENT_POSITION){
                 bindAttrPointer(pos, 3, i, GL_FLOAT);
@@ -71,10 +73,16 @@ public class EpicFightVertexFormat {
                 bindAttrPointer(uv, 2, i, GL_FLOAT);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_COLOR){
-                bindAttrPointer(col, 4, i, GL_FLOAT);
+                //bindAttrPointer(col, 4, i, GL_FLOAT);
+                glBindBuffer(GL_ARRAY_BUFFER, col);
+                glVertexAttribPointer(i, 4, GL_FLOAT, true, 0, 0);
+                glEnableVertexAttribArray(i);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_NORMAL){
-                bindAttrPointer(nor, 3, i, GL_BYTE, 1);
+                glBindBuffer(GL_ARRAY_BUFFER, nor);
+                glVertexAttribPointer(i, 3, GL_BYTE, true, 1, 0);
+                glEnableVertexAttribArray(i);
+                //bindAttrPointer(nor, 3, i, GL_BYTE, 1);
             }
             else if(elem == DefaultVertexFormat.ELEMENT_UV1){
                 bindAttrPointer(layout, 2, i, GL_SHORT);
@@ -93,10 +101,7 @@ public class EpicFightVertexFormat {
     }
 
     public static void clearBufferState(VertexFormat vertexFormat){
-        var elems = vertexFormat.getElements();
-        for(int i = 0; i < elems.size(); ++i) {
-            glDisableVertexAttribArray(i);
-        }
+        vertexFormat.clearBufferState();
     }
 
 }

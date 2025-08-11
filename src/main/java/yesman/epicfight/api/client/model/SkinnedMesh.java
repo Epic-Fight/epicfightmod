@@ -107,6 +107,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	private OutputSSBO out_uv1;
 	private OutputSSBO out_uv2;
 
+	/*private OutputSSBO out_vert;*/
+
 	private void init_boost(){
 		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
 
@@ -184,6 +186,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_color = new OutputSSBO((short) 4, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
 		out_uv1 = new OutputSSBO((short) 1, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
 		out_uv2 = new OutputSSBO((short) 1, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
+
+		/*out_vert = new OutputSSBO((short)
+		DefaultVertexFormat.NEW_ENTITY.getVertexSize()
+		, vertexObjs.length, DynamicSSBO.DataMode.STREAM);*/
 
 
 		GlStateManager._glBindVertexArray(currentBoundVao);
@@ -388,7 +394,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		}
 	}
 
-	protected static final int last_size = 0;
+	//protected static final int last_size = 0;
 	protected static final Vector4f POSITION = new Vector4f();
 	protected static final Vector3f NORMAL = new Vector3f();
 
@@ -402,7 +408,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 						  @Nullable Armature armature, OpenMatrix4f[] poses) {
 		Matrix4f matrix4f = poseStack.last().pose();
 		Matrix3f matrix3f = poseStack.last().normal();
-
 
 		for (SkinnedMeshPart part : this.parts.values()) {
 			if (!part.isHidden()) {
@@ -449,8 +454,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	@Override
 	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
-		if (ClientConfig.activateAnimationShader) {
-			var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
+		if (ClientConfig.activateAnimationShader && renderType.format == DefaultVertexFormat.NEW_ENTITY) {
 			this.drawWithShader(poseStack, renderType, packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
 			this.drawPosed(poseStack,
@@ -506,6 +510,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_uv1.bindBufferBase(7);
 		out_uv2.bindBufferBase(8);
 
+		/*uvsBO.bindBufferBase(9);
+		out_vert.bindBufferBase(10);*/
+
 		int workGroupSize = 128;
 		int workGroupCount = (vcount + workGroupSize - 1) / workGroupSize;
 
@@ -531,7 +538,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	@OnlyIn(Dist.CLIENT)
 	public class SkinnedMeshPart extends MeshPart {
 		private int indexBufferId;
-		
+
 		public SkinnedMeshPart(List<VertexBuilder> animatedMeshPartList, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
 			super(animatedMeshPartList, renderProperties, vanillaPartTracer);
 		}

@@ -45,6 +45,20 @@ layout(std430, binding = 8) writeonly buffer OutputUV2Buffer {
     uint out_uv2[];
 };
 
+/**layout(std430, binding = 9) readonly buffer UVBuffer {
+    float uv[];
+};
+
+layout(std430, binding = 10) writeonly buffer OutputVertBuffer {
+    struct {
+        float x, y, z;
+        float r,g,b,a;
+        float u,v;
+        uint uv1, uv2;
+        int nor;
+    } out_vert[];
+};*/
+
 layout(location=0) uniform vec4 colorIn;
 layout(location=1) uniform uint uv1In;
 layout(location=2) uniform uint uv2In;
@@ -80,4 +94,21 @@ void main() {
     out_color[idx] = colorIn;
     out_uv1[idx] = uv1In;
     out_uv2[idx] = uv2In;
+
+   /** out_vert[idx].x = finalPos.x;
+    out_vert[idx].y = finalPos.y;
+    out_vert[idx].z = finalPos.z;
+
+    out_vert[idx].r = colorIn.r;
+    out_vert[idx].g = colorIn.g;
+    out_vert[idx].b = colorIn.b;
+    out_vert[idx].a = colorIn.a;
+
+    out_vert[idx].u = uv[idx*2];
+    out_vert[idx].v = uv[idx*2+1];
+
+    out_vert[idx].uv1 = uv1In;
+    out_vert[idx].uv2 = uv2In;
+
+    out_vert[idx].nor = packSnorm4x8(vec4(normalize(finalNormal.xyz), 0.0));*/
 }

@@ -40,6 +40,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.enabledGameTestNamespaces', mod_id
+            args '-Dorg.lwjgl.opengl.libname=nvoglv64.dll'
         }
 
         server {

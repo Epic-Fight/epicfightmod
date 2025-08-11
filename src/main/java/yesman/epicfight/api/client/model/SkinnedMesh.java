@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.lwjgl.opengl.GL46;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -63,7 +64,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	//private VertexBuffer<Short> jointsBuffer;
 	//private VertexBuffer<Float> weightsBuffer;
 
-	protected static final OpenMatrix4f[] FINAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+	protected final OpenMatrix4f[] FINAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
 	protected static final OpenMatrix4f[] NORMAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
 
 	/*
@@ -88,6 +89,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	//StaticSSBO<Float> positionBO;
 	//StaticSSBO<Float> normalBO;
+
+	int vcount;
 	StaticSSBO<Float> uvsBO;
 	StaticSSBO<VertexObj> vObjBO;
 	StaticSSBO<Integer> jointBO;
@@ -109,7 +112,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 		List<Float> positionList = Lists.newArrayList();
 		List<Float> uvList = Lists.newArrayList();
-		List<Byte> normalList = Lists.newArrayList();
+		//List<Byte> normalList = Lists.newArrayList();
 
 		this.arrayObjectId = GlStateManager._glGenVertexArrays();
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
@@ -119,10 +122,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		for (SkinnedMeshPart part : this.parts.values()) {
 			part.createVbo(vertexBuilderMap, this.positions, this.uvs, this.normals, this.weights,
 					this.affectingJointCounts, this.affectingJointIndices, this.affectingWeightIndices,
-					positionList, uvList, normalList);
+					positionList, uvList);
 		}
 
-		var vertexObjs = new VertexObj[vertexBuilderMap.keySet().size()];
+		var vertexObjs = new VertexObj[vertexBuilderMap.size()];
 
 		List<Integer> jointList = Lists.newArrayList();
 		List<Float> weightList = Lists.newArrayList();
@@ -138,11 +141,16 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				weightList.add(weight);
 			}
 
-			vertexObjs[idx] = new VertexObj(positions[vb.position * 3], positions[vb.position * 3 + 1], positions[vb.position * 3 + 2],
+			vertexObjs[idx] = new VertexObj(
+					positions[vb.position * 3], positions[vb.position * 3 + 1], positions[vb.position * 3 + 2],
 					normals[vb.normal * 3], normals[vb.normal * 3 + 1], normals[vb.normal * 3 + 2],
 					start_pos, start_pos + affectingJointCounts[vb.position]
 			);
 		});
+
+		vcount = vertexObjs.length;
+
+		//System.out.println("model: " + "    vcount: " + vcount + "    vertex Count: " + vertexCount);
 
 		uvsBO  = new StaticSSBO<>(uvList,
 				1,
@@ -442,7 +450,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	@Override
 	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
 		if (ClientConfig.activateAnimationShader) {
-			//var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
+			var ef_renderType = EpicFightRenderTypes.getTriangulated(renderType);
 			this.drawWithShader(poseStack, renderType, packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
 			this.drawPosed(poseStack,
@@ -499,7 +507,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_uv2.bindBufferBase(8);
 
 		int workGroupSize = 128;
-		int workGroupCount = (vertexCount + workGroupSize - 1) / workGroupSize;
+		int workGroupCount = (vcount + workGroupSize - 1) / workGroupSize;
 
 		shader.dispatch(workGroupCount, 1, 1);
 		shader.waitBarriers();
@@ -539,7 +547,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			, int[][] affectingWeightsIndices
 			, List<Float> position
 			, List<Float> uv
-			, List<Byte> normal
+			//, List<Byte> normal
 			//, List<Short> joint
 			//, List<Float> weight
 		) {
@@ -559,9 +567,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 					position.add(positions[vb.position * 3 + 2]);
 					uv.add(uvs[vb.uv * 2]);
 					uv.add(uvs[vb.uv * 2 + 1]);
-					normal.add(packNormal(normals[vb.normal * 3]));
+					/*normal.add(packNormal(normals[vb.normal * 3]));
 					normal.add(packNormal(normals[vb.normal * 3 + 1]));
-					normal.add(packNormal(normals[vb.normal * 3 + 2]));
+					normal.add(packNormal(normals[vb.normal * 3 + 2]));*/
 
 /*					joint.add(affectingJointCounts[vb.position] > 0 ? (short)affectingJointIndices[vb.position][0] : -1);
 					joint.add(affectingJointCounts[vb.position] > 1 ? (short)affectingJointIndices[vb.position][1] : -1);
@@ -610,8 +618,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			OpenMatrix4f transform = this.getVanillaPartTransform();
 
 			for (int i = 0; i < poses.length; i++) {
-				//FINAL_POSES[i].load(poses[i]);
-				FINAL_POSES[i].setIdentity();
+				FINAL_POSES[i].load(poses[i]);
+				//FINAL_POSES[i].setIdentity();
 				
 				if (armature != null) {
 					FINAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
@@ -640,15 +648,17 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			// ================================================
 			shader.apply();
 
-			GlStateManager._glBindVertexArray(vao);
+			GL46.glBindVertexArray(vao);
 			EpicFightVertexFormat.bindBufferFormat(format,
 					out_pos.glSSBO, out_normal.glSSBO, out_color.glSSBO,
 					uvsBO.glSSBO, out_uv1.glSSBO, out_uv2.glSSBO
 			);  //shader.getVertexFormat().setupBufferState();
 
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
-			RenderSystem.drawElements(mode.asGLMode,
-					this.getVertices().size(), VertexFormat.IndexType.INT.asGLType);
+			GL46.glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+
+			GL46.glDrawElements(VertexFormat.Mode.TRIANGLES.asGLMode,
+					this.getVertices().size(),
+					VertexFormat.IndexType.INT.asGLType, 0);
 
 			shader.clear();
 
@@ -656,7 +666,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 			renderType.clearRenderState();
 			EpicFightVertexFormat.clearBufferState(format);
-			GlStateManager._glBindVertexArray(0);
+			GL46.glBindVertexArray(0);
 
 			//EpicFightVertexFormat.clearBufferState(format); //shader.getVertexFormat().clearBufferState();
 

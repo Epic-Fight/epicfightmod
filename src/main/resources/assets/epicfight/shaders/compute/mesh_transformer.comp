@@ -12,7 +12,6 @@ layout(std430, binding = 1) readonly buffer VertexBuffer {
     struct {
         float px,py,pz,nx,ny,nz;
         int jts,jte; // 骨骼&权重在池子中的范围
-        //ivec2 weights; //  from weights[w.x] to weights[w.y]
     } vertices[];
 };
 

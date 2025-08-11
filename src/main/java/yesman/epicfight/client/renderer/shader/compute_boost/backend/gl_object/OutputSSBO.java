@@ -3,7 +3,7 @@ package yesman.epicfight.client.renderer.shader.compute_boost.backend.gl_object;
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.lwjgl.opengl.GL46C.*;
+import static org.lwjgl.opengl.GL46.*;
 
 public class OutputSSBO implements Closeable {
 

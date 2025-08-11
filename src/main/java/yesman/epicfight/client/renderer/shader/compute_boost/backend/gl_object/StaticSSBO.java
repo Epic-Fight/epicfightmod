@@ -21,19 +21,18 @@ public class StaticSSBO<T> implements Closeable {
 
     public StaticSSBO(List<T> data, int data_size,
                       @NotNull BiConsumer<T, FloatBuffer> uploader){
-        glSSBO = glGenBuffers();
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,
-                (long) data.size() * data_size * 4, DynamicSSBO.DataMode.STATIC.asInt);
-
 
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data.size() * data_size);
         for (T d : data) {
             uploader.accept(d, buffer);
         }
+
         buffer.flip();
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, buffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        glSSBO = glGenBuffers();
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,
+                buffer, DynamicSSBO.DataMode.STATIC.asInt);
     }
 
 

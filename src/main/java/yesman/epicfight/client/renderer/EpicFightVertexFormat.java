@@ -62,6 +62,8 @@ public class EpicFightVertexFormat {
         for(int i = 0; i < elems.size(); ++i) {
             var elem = elems.get(i);
 
+            vertexFormat.setupBufferState();
+
             if(elem == DefaultVertexFormat.ELEMENT_POSITION){
                 bindAttrPointer(pos, 3, i, GL_FLOAT);
             }

@@ -16,6 +16,7 @@ import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
+import yesman.epicfight.client.renderer.shader.compute_boost.loader.ShaderRegistries;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 
@@ -122,7 +123,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			button.setMessage(Component.translatable("gui." + modid + ".use_animation_shader." + (ClientConfig.activateAnimationShader ? "on" : "off")));
 		}).pos(this.width / 2 + 5, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable("gui." + modid + ".use_animation_shader.tooltip"))).build();
 		
-		if (ClientConfig.animationShaderLockedByException) {
+		if (!ShaderRegistries.isComputeShaderSupport()) {
 			useAnimationShaderButton.active = false;
 			useAnimationShaderButton.setTooltip(Tooltip.create(Component.translatable("gui." + EpicFightMod.MODID + ".use_animation_shader.locked.tooltip")));
 		}

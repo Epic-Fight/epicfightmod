@@ -115,7 +115,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	/*private OutputSSBO out_vert;*/
 
 	private void init_boost_vanilla(){
-		System.out.println("VANILLA");
+		//System.out.println("VANILLA");
 		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
 
 		//List<Float> positionList = Lists.newArrayList();
@@ -201,7 +201,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	private OutputSSBO out_tangent;
 
 	private void init_boost_iris(){
-		System.out.println("IRIS");
+		//System.out.println("IRIS");
 		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
 		List<Integer> elements = Lists.newArrayList();
 
@@ -215,6 +215,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		for (SkinnedMeshPart part : this.parts.values()) {
 			part.createSSBO_Iris(vertexBuilderMap, uvs, uvList, elements);
 		}
+
+		//PrintNumberList(elements);
 
 		var vertexObjs = new VertexObj[vertexBuilderMap.size()];
 
@@ -239,11 +241,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			);
 		});
 
-
 		List<Float> midUVList = Lists.newArrayList();
 		float[] midUVs = new float[(elements.size()/3)*2];
 
-		if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3.");
+		//if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3.");
 
 		for (int i = 0; i < elements.size(); i++) {
 			int vert_pool_idx = elements.get(i);
@@ -270,7 +271,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 		elementsBO = new StaticSSBO<>(elements,
 				1,
-				(v, b) -> b.put(v)
+				(v, b) -> b.put(Float.intBitsToFloat(v))
 		);
 
 		uvsBO  = new StaticSSBO<>(uvList,
@@ -743,7 +744,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_entity_id.bindBufferBase(12);		out_tangent.bindBufferBase(13);
 
 		int batch_size = end - start;
-		if(batch_size % 3 != 0) System.err.println("BatchSize not divided by 3. size=" + batch_size);
+		//if(batch_size % 3 != 0) System.err.println("BatchSize not divided by 3. size=" + batch_size);
 
 		int workGroupCount = ((batch_size / 3) + workGroupSize - 1) / workGroupSize;
 
@@ -855,7 +856,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			GlStateManager._glBufferData(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GLConstants.GL_STATIC_DRAW);
 			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-			if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3. total=" + elements.size());
+			//if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3. total=" + elements.size());
 		}
 		
 		@Override

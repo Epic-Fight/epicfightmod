@@ -2,6 +2,8 @@ package yesman.epicfight.client.renderer.shader.compute_boost.loader;
 
 import lombok.Getter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import org.lwjgl.opengl.GL33C;
 import yesman.epicfight.client.renderer.shader.compute_boost.backend.program.BarrierFlags;
@@ -10,6 +12,7 @@ import yesman.epicfight.main.EpicFightMod;
 
 import java.util.function.Supplier;
 
+@OnlyIn(Dist.CLIENT)
 public class ShaderRegistries {
 
     public static ComputeProgram mesh_compute;

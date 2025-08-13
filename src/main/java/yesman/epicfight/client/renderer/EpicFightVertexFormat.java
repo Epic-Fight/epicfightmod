@@ -109,6 +109,7 @@ public class EpicFightVertexFormat {
                 bindIntAttrPointer(buffers[5], 2, i, GL_UNSIGNED_SHORT, 0);
             }
         }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     public static void clearBufferState(VertexFormat vertexFormat){

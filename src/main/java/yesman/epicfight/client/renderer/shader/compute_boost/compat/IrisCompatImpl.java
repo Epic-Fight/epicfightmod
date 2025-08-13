@@ -84,5 +84,6 @@ public class IrisCompatImpl implements IIrisCompatContext{
                 glEnableVertexAttribArray(i);
             }
         }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }

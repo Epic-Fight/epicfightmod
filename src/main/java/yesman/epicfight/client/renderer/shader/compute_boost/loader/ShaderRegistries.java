@@ -34,7 +34,7 @@ public class ShaderRegistries {
         int major = GL33C.glGetInteger(GL33C.GL_MAJOR_VERSION);
         int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
 
-        ComputeShaderSupport = (major > 4) || (major == 4 && minor >= 6);
+        ComputeShaderSupport = (major > 4) || (major == 4 && minor >= 3);
 
         EpicFightMod.LOGGER.warn("[Mesh Render Accelerate] OpenGL Version: " + GL_VERSION);
         EpicFightMod.LOGGER.warn("[Mesh Render Accelerate] Accelerate " +

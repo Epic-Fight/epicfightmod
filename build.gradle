@@ -130,8 +130,8 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
-    compileOnly fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation fg.deobf("curse.maven:embeddium-908741:5556138")
+    implementation fg.deobf("curse.maven:oculus-581495:5299671")
     
     compileOnly fg.deobf("curse.maven:werewolves-become-a-beast-417851:5406832")
     compileOnly fg.deobf("curse.maven:vampirism-become-a-vampire-233029:5743414")

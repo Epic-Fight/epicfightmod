@@ -65,9 +65,12 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	//private VertexBuffer<Short> jointsBuffer;
 	//private VertexBuffer<Float> weightsBuffer;
 
-	protected final OpenMatrix4f[] FINAL_POSES;
-	protected static final OpenMatrix4f[] NORMAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+	protected static final OpenMatrix4f[] FINAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+	protected static final OpenMatrix4f[]
+			NORMAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
 
+
+	protected static DynamicSSBO<OpenMatrix4f> poseBO;
 	/*
 	 * Compute Boost
 	 */
@@ -97,8 +100,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	private StaticSSBO<Integer> jointBO;
 	private	StaticSSBO<Float> weightBO;
 
-	private DynamicSSBO<OpenMatrix4f> poseBO;
-
 	//StaticSSBO<Float> colorBO;
 
 	private OutputSSBO out_pos;
@@ -115,6 +116,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	/*private OutputSSBO out_vert;*/
 
 	private void init_boost_vanilla(){
+		if(poseBO == null) poseBO = new DynamicSSBO<>(FINAL_POSES,
+				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
+				OpenMatrix4f::store);
 		//System.out.println("VANILLA");
 		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
 
@@ -178,9 +182,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				(v, b) -> b.put(v)
 		);
 
-		poseBO = new DynamicSSBO<>(FINAL_POSES,
+	/*	poseBO = new DynamicSSBO<>(FINAL_POSES,
 				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
-                OpenMatrix4f::store);
+                OpenMatrix4f::store);*/
 
 		out_pos = new OutputSSBO((short) 3, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
 		out_normal = new OutputSSBO((short) 1, vertexObjs.length, DynamicSSBO.DataMode.STREAM);
@@ -202,6 +206,10 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	private void init_boost_iris(){
 		//System.out.println("IRIS");
+		if(poseBO == null) poseBO = new DynamicSSBO<>(FINAL_POSES,
+				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
+				OpenMatrix4f::store);
+
 		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
 		List<Integer> elements = Lists.newArrayList();
 
@@ -299,9 +307,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				(v, b) -> b.put(v)
 		);
 
-		poseBO = new DynamicSSBO<>(FINAL_POSES,
+		/*poseBO = new DynamicSSBO<>(FINAL_POSES,
 				(short) 16, DynamicSSBO.DataMode.DYNAMIC,
-				OpenMatrix4f::store);
+				OpenMatrix4f::store);*/
 
 		out_pos = new OutputSSBO((short) 3, elements.size(), DynamicSSBO.DataMode.STREAM);
 		out_normal = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
@@ -414,7 +422,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		
 		this.maxJointCount = maxJointId;
 
-		FINAL_POSES = OpenMatrix4f.allocateMatrixArray(maxJointCount + 2);
+		//FINAL_POSES = OpenMatrix4f.allocateMatrixArray(maxJointCount + 2);
 		
 		if (RenderSystem.isOnRenderThread()) {
 			this.initBuffers();
@@ -435,7 +443,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 		out_normal.close();
 		out_pos.close();
-		poseBO.close();
 
 		out_color.close();
 		out_uv1.close();
@@ -611,15 +618,14 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		}
 
 		// pose setup and upload
-		int jt_len = Math.min(poses.length, maxJointCount);
-		for (int i = 0; i < jt_len; i++) {
+		for (int i = 0; i < poses.length; i++) {
 			FINAL_POSES[i].load(poses[i]);
 			if (armature != null) {
 				FINAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
 			}
 		}
 
-		poseBO.updateAll();
+		poseBO.updateFromTo(0, poses.length);
 
 		// state trace
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
@@ -966,7 +972,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		}
 		
 		public void destroy() {
-			RenderSystem.glDeleteBuffers(this.vertexBufferIds);
+			RenderglDeleteBuffers(this.vertexBufferIds);
 			this.vertexBufferIds = -1;
 		}
 	}*/

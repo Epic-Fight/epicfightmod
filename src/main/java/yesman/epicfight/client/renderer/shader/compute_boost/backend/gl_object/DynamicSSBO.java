@@ -19,7 +19,6 @@ public class DynamicSSBO<T> implements Closeable {
     public final BiConsumer<T, FloatBuffer> uploader;
 
     final FloatBuffer buffer;
-    final float[] helper;
 
     public DynamicSSBO(T[] src, short src_size, DataMode DataMode,
                        @Nullable BiConsumer<T, FloatBuffer> uploader
@@ -31,14 +30,15 @@ public class DynamicSSBO<T> implements Closeable {
 
         glSSBO = glGenBuffers();
 
-        helper = new float[src_size];
+        //helper = new float[src_size];
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, glSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
                 (long) src.length * src_size * 4, mode.asInt);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-        buffer = BufferUtils.createFloatBuffer(src.length * helper.length);
+        buffer = BufferUtils.createByteBuffer(src.length * src_size * 4)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
     }
 
     public void updateAll(){
@@ -48,7 +48,7 @@ public class DynamicSSBO<T> implements Closeable {
             uploader.accept(s, buffer);
         }
 
-        buffer.flip();
+        buffer.position(0);
 
         glBufferSubData(GL_SHADER_STORAGE_BUFFER,
                 0, buffer
@@ -64,7 +64,7 @@ public class DynamicSSBO<T> implements Closeable {
             uploader.accept(src[i], buffer);
         }
 
-        buffer.flip();
+        buffer.position(0);
 
         glBufferSubData(GL_SHADER_STORAGE_BUFFER,
                 (long) src_size * 4 * from, buffer

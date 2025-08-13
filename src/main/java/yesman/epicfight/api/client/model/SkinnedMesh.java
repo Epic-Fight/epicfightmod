@@ -598,7 +598,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	@Override
 	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
-		if (ClientConfig.activateAnimationShader && ShaderRegistries.isComputeShaderSupport() && renderType.format == DefaultVertexFormat.NEW_ENTITY) {
+		if (ClientConfig.activateAnimationShader && ShaderRegistries.isComputeShaderSupport()) {
 			//var ef_rt = EpicFightRenderTypes.getTriangulated(renderType);
 
 			this.drawWithShader(poseStack, renderType, packedLight, r, g, b, a, overlay, armature, poses);

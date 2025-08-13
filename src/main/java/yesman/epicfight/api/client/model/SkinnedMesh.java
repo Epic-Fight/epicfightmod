@@ -555,8 +555,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		for (SkinnedMeshPart part : this.parts.values()) {
 			if (!part.isHidden()) {
 				OpenMatrix4f transform = part.getVanillaPartTransform();
-				int jt_len = Math.min(poses.length, maxJointCount);
-				for (int i = 0; i < jt_len; i++) {
+				
+				for (int i = 0; i < poses.length; i++) {
 					FINAL_POSES[i].load(poses[i]);
 					
 					if (armature != null) {

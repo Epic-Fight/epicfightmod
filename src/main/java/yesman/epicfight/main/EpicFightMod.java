@@ -47,6 +47,7 @@ import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
+import yesman.epicfight.client.renderer.shader.compute_boost.compat.IrisCompatImpl;
 import yesman.epicfight.client.renderer.shader.compute_boost.loader.ComputeShaderLoader;
 import yesman.epicfight.client.renderer.shader.compute_boost.loader.ShaderRegistries;
 import yesman.epicfight.compat.AzureLibArmorCompat;
@@ -262,6 +263,8 @@ public class EpicFightMod {
 		}
 		
 		if (ModList.get().isLoaded("oculus")) {
+			ShaderRegistries.IrisLoaded = true;
+			IrisCompatImpl.init();
 			ICompatModule.loadCompatModule(context, IRISCompat.class);
 		}
 		

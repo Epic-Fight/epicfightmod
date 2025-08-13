@@ -1,0 +1,162 @@
+#version 460 core
+
+layout(local_size_x = 128) in;
+
+// Dynamic Input Buffer
+layout(std430, binding = 0) readonly buffer PoseBuffer {
+    mat4 poses[];
+};
+
+// Static Buffer
+layout(std430, binding = 1) readonly buffer ElementsPool {
+    int elem_map_to_pool[];
+};
+
+layout(std430, binding = 2) readonly buffer VertexBuffer {
+    struct {
+        float px,py,pz,nx,ny,nz;
+        int jts,jte;
+    } vertices[];
+};
+
+layout(std430, binding = 3) readonly buffer JointsPool {
+    int joints[];
+};
+
+layout(std430, binding = 4) readonly buffer WeightsPool {
+    float weights[];
+};
+
+layout(std430, binding = 5) readonly buffer UVsPool {
+    float uvs[];
+};
+
+// Output Buffer
+layout(std430, binding = 6) writeonly buffer OutputPositionBuffer {
+    float out_pos[];
+};
+
+layout(std430, binding = 7) writeonly buffer OutputNormalBuffer {
+    uint out_normal[];
+};
+
+layout(std430, binding = 8) writeonly buffer OutputColorBuffer {
+    vec4 out_color[];
+};
+
+layout(std430, binding = 9) writeonly buffer OutputUV0Buffer {
+    float out_uv0[];
+};
+
+layout(std430, binding = 10) writeonly buffer OutputUV1Buffer {
+    uint out_uv1[];
+};
+
+layout(std430, binding = 11) writeonly buffer OutputUV2Buffer {
+    uint out_uv2[];
+};
+
+layout(std430, binding = 12) writeonly buffer OutputEntityIdBuffer {
+    uint out_entity_id[];
+};
+
+layout(std430, binding = 13) writeonly buffer OutputTangentBuffer {
+    uint out_tangent[];
+};
+
+layout(location=0) uniform vec4 colorIn;
+layout(location=1) uniform uint uv1In;
+layout(location=2) uniform uint uv2In;
+layout(location=3) uniform mat4 partTransform;
+layout(location=4) uniform uint entity_id_0;
+layout(location=5) uniform uint entity_id_1;
+layout(location=6) uniform uint face_start;
+layout(location=7) uniform uint face_end;
+
+// copied form AR
+uint computeTangentSmooth(vec3 pos1, vec3 pos2, vec3 pos3, vec2 uv1, vec2 uv2, vec2 uv3, vec3 normal);
+
+void main() {
+    uint fstart = face_start + gl_GlobalInvocationID.x * 3;
+    if(fstart > face_end) return; // check
+
+    vec4 finalPos[3];
+    vec4 finalNor[3];
+    vec2 finalUV[3];
+
+    for(int i = 0; i < 3; ++i){
+        uint v_out_idx = fstart + i;
+        int v_pool_idx = elem_map_to_pool[v_out_idx];
+
+        vec4 pos = vec4(vertices[v_pool_idx].px,
+                        vertices[v_pool_idx].py,
+                        vertices[v_pool_idx].pz, 1.0);
+        vec4 norm = vec4(
+            normalize(vec3(vertices[v_pool_idx].nx,
+                           vertices[v_pool_idx].ny,
+                           vertices[v_pool_idx].nz)),
+            0.0);
+
+        finalPos[i] = vec4(0);
+        finalNor[i] = vec4(0);
+        finalUV[i] = vec2(uvs[v_pool_idx*2], uvs[v_pool_idx*2+1]);
+
+        for (int j = vertices[v_pool_idx].jts; j < vertices[v_pool_idx].jte; ++i) {
+            if (weights[j] > 0.0) {
+                mat4 boneMat = poses[joints[j]] * partTransform;
+
+                finalPos[j] += (boneMat * pos) * weights[j];
+                finalNor[j] += boneMat * norm * weights[j];
+            }
+        }
+
+        out_pos[v_out_idx * 3] = finalPos[i].x;
+        out_pos[v_out_idx * 3 + 1] = finalPos[i].y;
+        out_pos[v_out_idx * 3 + 2] = finalPos[i].z;
+
+        out_normal[v_out_idx] = packSnorm4x8(vec4(normalize(finalNor[i].xyz), 0.0));
+
+        out_color[v_out_idx] = colorIn;
+        out_uv1[v_out_idx] = uv1In;
+        out_uv2[v_out_idx] = uv2In;
+
+        out_uv0[v_out_idx*2] = finalUV[i].x;
+        out_uv0[v_out_idx*2+1] = finalUV[i].y;
+
+        out_entity_id[v_out_idx * 2] = entity_id_0;
+        out_entity_id[v_out_idx * 2 + 1] = entity_id_1;
+    }
+
+    out_tangent[fstart  ] = computeTangentSmooth(finalPos[0].xyz, finalPos[1].xyz, finalPos[2].xyz,
+                                              finalUV[0], finalUV[1], finalUV[2], finalNor[0].xyz);
+    out_tangent[fstart+1] = computeTangentSmooth(finalPos[0].xyz, finalPos[1].xyz, finalPos[2].xyz,
+                                              finalUV[0], finalUV[1], finalUV[2], finalNor[1].xyz);
+    out_tangent[fstart+2] = computeTangentSmooth(finalPos[0].xyz, finalPos[1].xyz, finalPos[2].xyz,
+                                              finalUV[0], finalUV[1], finalUV[2], finalNor[2].xyz);
+}
+
+uint computeTangentSmooth(vec3 pos1, vec3 pos2, vec3 pos3, vec2 uv1, vec2 uv2, vec2 uv3, vec3 normal) {
+    float dot1          =   dot(pos1, normal);
+    float dot2          =   dot(pos2, normal);
+    float dot3          =   dot(pos3, normal);
+
+    pos1                -=  dot1 * normal;
+    pos2                -=  dot2 * normal;
+    pos3                -=  dot3 * normal;
+
+    vec3 edge1          =   pos2 - pos1;
+    vec3 edge2          =   pos3 - pos1;
+
+    vec2 dUV1           =   uv2 - uv1;
+    vec2 dUV2           =   uv3 - uv1;
+
+    float fdenom        =   dUV1.x * dUV2.y - dUV2.x * dUV1.y;
+    float f             =   fdenom == 0.0 ? 1.0 : 1.0 / fdenom;
+
+    vec3 tangent        =   normalize   (f * (dUV2.y * edge1 - dUV1.y * edge2));
+    vec3 aBitangent     =   normalize   (f * (-dUV2.x * edge1 + dUV1.x * edge2));
+    vec3 pBitangent     =   cross       (tangent, normal);
+    vec4 tangent4       =   vec4        (tangent, dot(aBitangent, pBitangent) < 0.0 ? -1.0 : 1.0);
+
+    return packSnorm4x8(tangent4);
+}

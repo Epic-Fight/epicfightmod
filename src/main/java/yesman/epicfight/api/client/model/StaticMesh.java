@@ -40,7 +40,9 @@ public abstract class StaticMesh<P extends MeshPart> implements Mesh, SoftBodyTr
 	 * @param parent Null if arrayMap and parts are not null
 	 * @param renderProperties
 	 */
-	public StaticMesh(@Nullable Map<String, Number[]> arrayMap, @Nullable Map<MeshPartDefinition, List<VertexBuilder>> partBuilders, @Nullable StaticMesh<P> parent, Mesh.RenderProperties renderProperties) {
+	public StaticMesh(@Nullable Map<String, Number[]> arrayMap,
+					  @Nullable Map<MeshPartDefinition, List<VertexBuilder>> partBuilders,
+					  @Nullable StaticMesh<P> parent, Mesh.RenderProperties renderProperties) {
 		this.positions = (parent == null) ? ParseUtil.unwrapFloatWrapperArray(arrayMap.get("positions")) : parent.positions;
 		this.normals = (parent == null) ? ParseUtil.unwrapFloatWrapperArray(arrayMap.get("normals")) : parent.normals;
 		this.uvs = (parent == null) ? ParseUtil.unwrapFloatWrapperArray(arrayMap.get("uvs")) : parent.uvs;

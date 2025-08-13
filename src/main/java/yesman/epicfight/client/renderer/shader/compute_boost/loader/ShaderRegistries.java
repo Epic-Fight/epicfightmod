@@ -8,12 +8,22 @@ import yesman.epicfight.client.renderer.shader.compute_boost.backend.program.Bar
 import yesman.epicfight.client.renderer.shader.compute_boost.backend.program.ComputeProgram;
 import yesman.epicfight.main.EpicFightMod;
 
+import java.util.function.Supplier;
+
 public class ShaderRegistries {
 
     public static ComputeProgram mesh_compute;
+    public static ComputeProgram mesh_compute_iris;
+
+    public static Supplier<Boolean> isShaderPackOn = () -> false;
 
     @Getter
     private static boolean ComputeShaderSupport = false;
+    public static boolean IrisLoaded;
+
+    public static boolean IrisEnabled(){
+        return IrisLoaded && isShaderPackOn.get();
+    }
 
     public static void register(RegisterShadersEvent event){
         var GL_VERSION = GL33C.glGetString(GL33C.GL_VERSION);
@@ -30,14 +40,20 @@ public class ShaderRegistries {
         if(!ComputeShaderSupport) return;
 
         clear();
-        try {
-            mesh_compute = ComputeShaderLoader.LoadComputeShaderProgram(event.getResourceProvider(),
-                    ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/test.comp"),
-                    BarrierFlags.SHADER_STORAGE
-            );
-        } catch (Exception e) {
+        /*try {*/
+        mesh_compute = ComputeShaderLoader.LoadComputeShaderProgram(event.getResourceProvider(),
+                ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/mesh_transformer.comp"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        mesh_compute_iris = ComputeShaderLoader.LoadComputeShaderProgram(event.getResourceProvider(),
+                ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID,
+                        "shaders/compute/iris_mesh_transformer.comp"),
+                BarrierFlags.SHADER_STORAGE
+        );
+        /*} catch (Exception e) {
             e.printStackTrace(System.err);
-        }
+        }*/
 
         if(mesh_compute == null){
             EpicFightMod.LOGGER.error("FUUUUCK");
@@ -50,6 +66,7 @@ public class ShaderRegistries {
 
     public static void clear(){
         if(mesh_compute != null) mesh_compute.delete();
+        if(mesh_compute_iris != null) mesh_compute_iris.delete();
     }
 
 }

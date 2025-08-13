@@ -117,7 +117,7 @@ public class MeteorSlamSkill extends Skill {
 		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
 			if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && container.getDataManager().getDataValue(SkillDataKeys.PROTECT_NEXT_FALL.get())) {
 				float stamina = container.getExecutor().getStamina();
-				float damage = event.getBaseDamage();
+				float damage = event.getDamage();
 				event.attachValueModifier(ValueModifier.adder(-stamina));
 				container.getExecutor().setStamina(stamina - damage);
 				container.getDataManager().setData(SkillDataKeys.PROTECT_NEXT_FALL.get(), false);

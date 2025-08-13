@@ -92,6 +92,7 @@ public class PlayerEventListener {
 		public static final EventType<DealDamageEvent.Damage> DEAL_DAMAGE_EVENT_DAMAGE = new EventType<>(LogicalSide.SERVER);
 		public static final EventType<TakeDamageEvent.Attack> TAKE_DAMAGE_EVENT_ATTACK = new EventType<>(LogicalSide.SERVER);
 		public static final EventType<TakeDamageEvent.Hurt> TAKE_DAMAGE_EVENT_HURT = new EventType<>(LogicalSide.SERVER);
+		public static final EventType<TakeDamageEvent.Damage> TAKE_DAMAGE_EVENT_DAMAGE = new EventType<>(LogicalSide.SERVER);
 		public static final EventType<AnimationBeginEvent> ANIMATION_BEGIN_EVENT = new EventType<>(null);
 		public static final EventType<AnimationEndEvent> ANIMATION_END_EVENT = new EventType<>(null);
 		public static final EventType<AttackEndEvent> ATTACK_ANIMATION_END_EVENT = new EventType<>(LogicalSide.SERVER);

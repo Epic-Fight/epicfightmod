@@ -20,6 +20,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -110,6 +111,7 @@ public class PhantomAscentSkill extends Skill {
 						container.getExecutor().getOriginal().setDeltaMovement(deltaMove.x + jumpDir.x, this.jumpPower + container.getExecutor().getOriginal().getJumpBoostPower(), deltaMove.z + jumpDir.z);
 						event.getPlayerPatch().setModelYRot(container.getExecutor().getOriginal().getYRot() + degree, true);
 						event.getPlayerPatch().playAnimationInClientSide(this.animations.get(vertic < 0 ? 1 : 0), 0.0F);
+						ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
 					};
 				} else {
 					container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 1);
@@ -121,7 +123,7 @@ public class PhantomAscentSkill extends Skill {
 		
 		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
 			if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && container.getDataManager().getDataValue(SkillDataKeys.PROTECT_NEXT_FALL.get())) { // This is not synced
-				float damage = event.getBaseDamage();
+				float damage = event.getDamage();
 				
 				if (damage < 2.5F) {
 					event.attachValueModifier(ValueModifier.setter(0.0F));

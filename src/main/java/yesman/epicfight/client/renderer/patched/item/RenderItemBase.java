@@ -73,6 +73,7 @@ public class RenderItemBase {
 	private final TrailInfo trailInfo;
 	private final boolean alwaysInHand;
 	private final boolean forceVanillaFirstPerson;
+	private final boolean appearedInAfterimage;
 	
 	public RenderItemBase(JsonElement jsonElement) {
 		JsonObject jsonObj = jsonElement.getAsJsonObject();
@@ -80,6 +81,7 @@ public class RenderItemBase {
 		this.trailInfo = jsonObj.has("trail") ? TrailInfo.deserialize(jsonObj.get("trail")) : null;
 		this.forceVanillaFirstPerson = jsonObj.has("force_vanilla_first_person") && GsonHelper.getAsBoolean(jsonObj, "force_vanilla_first_person");
 		this.alwaysInHand = jsonObj.has("alwaysInHand") && GsonHelper.getAsBoolean(jsonObj, "alwaysInHand");
+		this.appearedInAfterimage = jsonObj.has("appeared_in_afterimage") ? GsonHelper.getAsBoolean(jsonObj, "appeared_in_afterimage") : true;
 		
 		if (!jsonObj.has("transforms")) {
 			// Set a global transformation
@@ -200,5 +202,9 @@ public class RenderItemBase {
 	
 	public boolean forceVanillaFirstPerson() {
 		return this.forceVanillaFirstPerson;
+	}
+	
+	public boolean appearedInAfterimage() {
+		return this.appearedInAfterimage;
 	}
 }

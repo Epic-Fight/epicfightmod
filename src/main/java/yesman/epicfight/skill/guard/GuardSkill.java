@@ -253,7 +253,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	public void dealEvent(PlayerPatch<?> playerpatch, TakeDamageEvent.Attack event, boolean advanced) {
 		event.setCanceled(true);
 		event.setResult(AttackResult.ResultType.BLOCKED);
-		playerpatch.countHurtTime(event.getBaseDamage());
+		playerpatch.countHurtTime(event.getDamage());
 		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class)
 			.ifPresent(attackerpatch -> attackerpatch.setLastAttackEntity(playerpatch.getOriginal()));

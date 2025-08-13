@@ -3,6 +3,7 @@ package yesman.epicfight.api.utils;
 import java.util.List;
 import java.util.function.Function;
 
+import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 
 import com.google.common.collect.ImmutableList;
@@ -45,10 +46,12 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.PatchedCapeLayer;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
@@ -83,9 +86,20 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public EntitySnapshot(T entitypatch) {
 		LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> vanillarenderer = (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>)Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entitypatch.getOriginal());
-		PatchedLivingEntityRenderer patchedrenderer = (PatchedLivingEntityRenderer)ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
-		AssetAccessor<SkinnedMesh> assetAccessor = patchedrenderer.getMeshProvider(entitypatch);
-		this.entityFigure = new RenderableFigure(assetAccessor.get(), vanillarenderer.getTextureLocation(entitypatch.getOriginal()));
+		PatchedEntityRenderer patchedrenderer = (PatchedEntityRenderer)ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
+		AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(entitypatch);
+		
+		ResourceLocation textureLocation = vanillarenderer.getTextureLocation(entitypatch.getOriginal());
+		
+		if (textureLocation == null) {
+			EpicFightMod.logAndStacktraceIfDevSide(Logger::warn, "No texture for " + entitypatch.getOriginal(), NullPointerException::new, "No texture is provided by vanilla renderer " + vanillarenderer.getClass().getSimpleName());
+		}
+		
+		if (meshAccessor == null || meshAccessor.isEmpty()) {
+			EpicFightMod.logAndStacktraceIfDevSide(Logger::warn, "No mesh for " + entitypatch.getOriginal(), NullPointerException::new, "No mesh is provided by patched renderer " + patchedrenderer.getClass().getSimpleName());
+		}
+		
+		this.entityFigure = new RenderableFigure(meshAccessor.get(), textureLocation);
 		
 		Pose pose = entitypatch.getAnimator().getPose(1.0F);
 		patchedrenderer.setJointTransforms(entitypatch, entitypatch.getArmature(), pose, 1.0F);
@@ -127,6 +141,10 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	}
 	
 	public void render(PoseStack poseStack, MultiBufferSource buffers, RenderType rendertype, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a) {
+		if (this.entityFigure.mesh == null || this.entityFigure.texture == null) {
+			return;
+		}
+		
 		this.entityFigure.mesh.initialize();
 		this.entityFigure.mesh.draw(poseStack, buffers, rendertype, drawingFunction, packedLight, r, g, b, a, OverlayTexture.NO_OVERLAY, this.entitypatch.getArmature(), this.poseMatrices);
 		
@@ -137,6 +155,10 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	}
 	
 	public void renderTextured(PoseStack poseStack, MultiBufferSource buffers, Function<ResourceLocation, RenderType> rendertypeFunction, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a) {
+		if (this.entityFigure.mesh == null || this.entityFigure.texture == null) {
+			return;
+		}
+		
 		this.entityFigure.mesh.initialize();
 		this.entityFigure.mesh.draw(poseStack, buffers, rendertypeFunction.apply(this.entityFigure.texture), drawingFunction, packedLight, r, g, b, a, OverlayTexture.NO_OVERLAY, this.entitypatch.getArmature(), this.poseMatrices);
 		
@@ -148,19 +170,23 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	
 	public void renderItems(PoseStack poseStack, MultiBufferSource buffers, RenderType rendertype, Mesh.DrawingFunction drawingFunction, int packedLight, float alpha) {
 		for (Pair<InteractionHand, ItemStack> items : this.handItems) {
-			poseStack.pushPose();
-			BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(items.getSecond(), this.entitypatch.getOriginal().level(), this.entitypatch.getOriginal(), this.entitypatch.getOriginal().getId() + ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+			ItemStack itemstack = items.getSecond();
 			
-			if (!bakedmodel.isCustomRenderer()) {
-				MathUtils.mulStack(poseStack, ClientEngine.getInstance().renderEngine.getItemRenderer(items.getSecond()).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
-				bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, items.getFirst() == InteractionHand.OFF_HAND);
-				poseStack.translate(-0.5F, -0.5F, -0.5F);
+			if (ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).appearedInAfterimage()) {
+				poseStack.pushPose();
+				BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(itemstack, this.entitypatch.getOriginal().level(), this.entitypatch.getOriginal(), this.entitypatch.getOriginal().getId() + ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
 				
-				for (var model : bakedmodel.getRenderPasses(items.getSecond(), true)) {
-					renderModelLists(model, items.getSecond(), packedLight, OverlayTexture.NO_OVERLAY, alpha, poseStack, buffers.getBuffer(rendertype), drawingFunction);
+				if (!bakedmodel.isCustomRenderer()) {
+					MathUtils.mulStack(poseStack, ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
+					bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, items.getFirst() == InteractionHand.OFF_HAND);
+					poseStack.translate(-0.5F, -0.5F, -0.5F);
+					
+					for (var model : bakedmodel.getRenderPasses(itemstack, true)) {
+						renderModelLists(model, itemstack, packedLight, OverlayTexture.NO_OVERLAY, alpha, poseStack, buffers.getBuffer(rendertype), drawingFunction);
+					}
 				}
+				poseStack.popPose();
 			}
-			poseStack.popPose();
 		}
 	}
 	

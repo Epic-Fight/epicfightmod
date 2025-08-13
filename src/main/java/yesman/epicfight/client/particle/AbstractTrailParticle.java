@@ -53,6 +53,21 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		this.bCol = Math.max(this.trailInfo.bCol(), 0.0F);
 	}
 	
+	/**
+	 * For datapack editor
+	 */
+	@Deprecated
+	protected AbstractTrailParticle(T entitypatch, TrailInfo trailInfo) {
+		super(null, 0, 0, 0);
+		
+		this.owner = entitypatch;
+		this.trailEdges = Lists.newLinkedList();
+		this.trailInfo = trailInfo;
+		this.rCol = Math.max(this.trailInfo.rCol(), 0.0F);
+		this.gCol = Math.max(this.trailInfo.gCol(), 0.0F);
+		this.bCol = Math.max(this.trailInfo.bCol(), 0.0F);
+	}
+	
 	protected abstract boolean canContinue();
 	
 	protected boolean canCreateNextCurve() {

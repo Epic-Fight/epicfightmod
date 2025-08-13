@@ -153,6 +153,15 @@ import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
  *  Fixed the crash when hit by arrows from other mods (#2047)
  *  Fixed the bug that players can't disarm guard after attacking while guarding
  *  
+ *  ***************************************************************
+ *  20.12.3
+ *  
+ *  Fixed the Vex crashing game when the target is dead before attacking
+ *  Fixed the laser particle transform issue
+ *  Fixed the crash when Wither afterimage is created
+ *  Fixed the Wither swirl animation when Wither armor is activated
+ *  Fixed the crash when trail particle is loaded in datapack editor (#2053)
+ *  
  *  --- TO DO ---
  *  
  *  Update language files (always)

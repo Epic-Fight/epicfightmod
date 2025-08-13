@@ -59,7 +59,7 @@ public class ImpactGuardSkill extends GuardSkill {
 		boolean canUse = this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapapbility, BlockType.ADVANCED_GUARD);
 		
 		if (event.getDamageSource().is(DamageTypeTags.IS_EXPLOSION)) {
-			impact = event.getBaseDamage();
+			impact = event.getDamage();
 		}
 		
 		super.guard(container, itemCapapbility, event, knockback, impact, canUse);
@@ -81,11 +81,11 @@ public class ImpactGuardSkill extends GuardSkill {
 			efsource.addRuntimeTag(EpicFightDamageTypeTags.UNBLOCKALBE);
 			efsource.addRuntimeTag(EpicFightDamageTypeTags.NO_STUN);
 			
-			playerpatch.getOriginal().hurt(efsource, event.getBaseDamage() * this.damageReducer);
+			playerpatch.getOriginal().hurt(efsource, event.getDamage() * this.damageReducer);
 		}
 		
 		event.setResult(isSpecialSource ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.BLOCKED);
-		playerpatch.countHurtTime(event.getBaseDamage());
+		playerpatch.countHurtTime(event.getDamage());
 		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class).ifPresent(attackerpatch -> {
 			attackerpatch.setLastAttackEntity(playerpatch.getOriginal());

@@ -463,7 +463,7 @@ public class ControlEngine {
 		this.reserveCounter = 8;
 	}
 	
-	private void releaseAllServedKeys() {
+	public void releaseAllServedKeys() {
 		this.holdingFinished = true;
 		this.currentHoldingKey = null;
 		this.reservedOrChargingSkillSlot = null;

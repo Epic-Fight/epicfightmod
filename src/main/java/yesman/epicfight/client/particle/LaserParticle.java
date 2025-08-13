@@ -1,7 +1,6 @@
 package yesman.epicfight.client.particle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -17,8 +16,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.ClassicMesh;
+import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 
 @OnlyIn(Dist.CLIENT)
@@ -40,7 +39,7 @@ public class LaserParticle extends CustomModelParticle<ClassicMesh> {
 		double zLength = hitResult.getLocation().z - z;
 		double horizontalDistance = (float)Math.sqrt(xLength * xLength + zLength * zLength);
 		this.length = (float)Math.sqrt(xLength * xLength + yLength * yLength + zLength * zLength);
-		this.yRot = (float)(-Math.atan2(zLength, xLength) * (180D / Math.PI)) - 90.0F;
+		this.yRot = (float)(Math.atan2(zLength, xLength) * (180D / Math.PI)) + 90.0F + 180.0F;
 		this.xRot = (float)(Math.atan2(yLength, horizontalDistance) * (180D / Math.PI));
 		int smokeCount = (int)this.length * 4;
 		
@@ -52,23 +51,21 @@ public class LaserParticle extends CustomModelParticle<ClassicMesh> {
 	}
 	
 	@Override
-	public void prepareDraw(PoseStack poseStack, float partialTicks) {
-		poseStack.mulPose(QuaternionUtils.YP.rotationDegrees(this.yRot));
+	protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTick) {
+		poseStack.pushPose();
+		Vec3 cameraPosition = camera.getPosition();
+		float x = (float)(Mth.lerp(partialTick, this.xo, this.x) - cameraPosition.x());
+		float y = (float)(Mth.lerp(partialTick, this.yo, this.y) - cameraPosition.y());
+		float z = (float)(Mth.lerp(partialTick, this.zo, this.z) - cameraPosition.z());
+		poseStack.translate(x, y, z);
+		poseStack.mulPose(QuaternionUtils.YP.rotationDegrees(180.0F - this.yRot));
 		poseStack.mulPose(QuaternionUtils.XP.rotationDegrees(this.xRot));
-		float progression = (this.age + partialTicks) / (this.lifetime + 1);
+		
+		float progression = (this.age + partialTick) / (this.lifetime + 1);
 		float scale = Mth.sin(progression * (float)Math.PI);
 		float zScale = progression > 0.5F ? 1.0F : Mth.sin(progression * (float)Math.PI);
-		poseStack.scale(scale, scale, zScale * this.length);
-	}
-	
-	@Override
-	public void render(VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
-		super.render(vertexConsumer, camera, partialTicks);
 		
-		PoseStack poseStack = new PoseStack();
-		this.setupPoseStack(poseStack, camera, partialTicks);
-		this.prepareDraw(poseStack, partialTicks);
-		poseStack.scale(1.1F, 1.1F, 1.1F);
+		poseStack.scale(scale, scale, zScale * this.length);
 	}
 	
 	@Override

@@ -13,7 +13,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -73,7 +72,6 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
 import yesman.epicfight.world.entity.EpicFightEntities;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 import yesman.epicfight.world.entity.eventlistener.PlayerKilledEvent;
@@ -285,15 +283,15 @@ public class EntityEvents {
 	
 	@SubscribeEvent
 	public static void damageEvent(LivingDamageEvent event) {
-		Entity attacker = event.getSource().getEntity();
-		
-		if (attacker != null) {
-			ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(attacker, ServerPlayerPatch.class);
-			
-			if (playerpatch != null && event.getSource() instanceof EpicFightDamageSource epicFightDamageSource) {
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getSource().getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
+			if (event.getSource() instanceof EpicFightDamageSource epicFightDamageSource) {
 				playerpatch.getEventListener().triggerEvents(EventType.DEAL_DAMAGE_EVENT_DAMAGE, new DealDamageEvent.Damage(playerpatch, event.getEntity(), epicFightDamageSource, event));
 			}
-		}
+		});
+		
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
+			playerpatch.getEventListener().triggerEvents(EventType.TAKE_DAMAGE_EVENT_DAMAGE, new TakeDamageEvent.Damage(playerpatch, event.getSource(), event.getAmount()));
+		});
 	}
 	
 	@SubscribeEvent

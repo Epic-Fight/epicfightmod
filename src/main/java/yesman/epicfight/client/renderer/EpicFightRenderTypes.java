@@ -53,16 +53,28 @@ import yesman.epicfight.main.EpicFightMod;
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public abstract class EpicFightRenderTypes extends RenderType {
-	private static final Map<String, Map<ResourceLocation, RenderType>> TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE = new HashMap<> ();
-	
-	private static final Function<RenderType, RenderType> TRIANGULATED_RENDER_TYPES = Util.memoize(renderType$1 -> {
-		if (renderType$1.mode() == VertexFormat.Mode.TRIANGLES) {
-			return renderType$1;
+	public static RenderType makeTriangulated(RenderType renderType) {
+		if (renderType.mode() == VertexFormat.Mode.TRIANGLES) {
+			return renderType;
 		}
 		
-		if (renderType$1 instanceof CompositeRenderType compositeRenderType) {
-			if (TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.containsKey(renderType$1.name)) {
-				Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.get(renderType$1.name);
+		if (renderType instanceof CompositeRenderType compositeRenderType) {
+			return new CompositeRenderType(renderType.name, renderType.format, VertexFormat.Mode.TRIANGLES, renderType.bufferSize(), renderType.affectsCrumbling(), renderType.sortOnUpload, compositeRenderType.state);
+		} else {
+			return renderType;
+		}
+	}
+	
+	private static final Map<String, Map<ResourceLocation, RenderType>> TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE = new HashMap<> ();
+	
+	private static final Function<RenderType, RenderType> TRIANGULATED_RENDER_TYPES = Util.memoize(renderType -> {
+		if (renderType.mode() == VertexFormat.Mode.TRIANGLES) {
+			return renderType;
+		}
+		
+		if (renderType instanceof CompositeRenderType compositeRenderType) {
+			if (TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.containsKey(renderType.name)) {
+				Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.get(renderType.name);
 				
 				if (compositeRenderType.state.textureState instanceof TextureStateShard texStateShard) {
 					ResourceLocation texLocation = texStateShard.texture.orElse(null);
@@ -77,8 +89,9 @@ public abstract class EpicFightRenderTypes extends RenderType {
 					VertexFormat.Mode.TRIANGLES, renderType$1.bufferSize(),
 					renderType$1.affectsCrumbling(), renderType$1.sortOnUpload,
 					compositeRenderType.state);
+
 		} else {
-			return renderType$1;
+			return renderType;
 		}
 	});
 	

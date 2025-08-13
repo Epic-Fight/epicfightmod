@@ -13,9 +13,11 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.WitherMesh;
+import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherPatch;
 
@@ -28,11 +30,9 @@ public class PatchedWitherArmorLayer extends ModelRenderLayer<WitherBoss, Wither
 	}
 	
 	@Override
-	protected void renderLayer(WitherPatch entitypatch, WitherBoss entityliving, WitherArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight,
-			OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
-		
+	protected void renderLayer(WitherPatch entitypatch, WitherBoss entityliving, WitherArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffers, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTick) {
 		if (entitypatch.isArmorActivated()) {
-			float progress = (float)entityliving.tickCount + partialTicks;
+			float progress = (float)entityliving.tickCount + partialTick;
 			poseStack.pushPose();
 			poseStack.translate(0.0D, -0.1D, 0.0D);
 			poseStack.scale(1.05F, 1.05F, 1.05F);
@@ -43,20 +43,20 @@ public class PatchedWitherArmorLayer extends ModelRenderLayer<WitherBoss, Wither
 				transparency = entitypatch.isGhost() ? 0.0F : 1.0F;
 				AnimationPlayer animationPlayer = entitypatch.getAnimator().getPlayerFor(null);
 				
-				if (animationPlayer.getAnimation() == Animations.WITHER_SPELL_ARMOR) {
-					transparency = (animationPlayer.getPrevElapsedTime() + (animationPlayer.getElapsedTime() - animationPlayer.getPrevElapsedTime()) * partialTicks) / (Animations.WITHER_SPELL_ARMOR.get().getTotalTime() - 0.5F);
+				if (animationPlayer.getAnimation().get() == Animations.WITHER_SPELL_ARMOR) {
+					transparency = (animationPlayer.getPrevElapsedTime() + (animationPlayer.getElapsedTime() - animationPlayer.getPrevElapsedTime()) * partialTick) / (Animations.WITHER_SPELL_ARMOR.get().getTotalTime() - 0.5F);
 				}
 			} else {
 				if (transparencyCount < 0) {
-					transparency = 1.0F - (Math.abs(transparencyCount) + partialTicks) / 41.0F;
+					transparency = 1.0F - (Math.abs(transparencyCount) + partialTick) / 41.0F;
 				} else if (transparencyCount > 0) {
-					transparency = (Math.abs(transparencyCount) + partialTicks) / 41.0F;
+					transparency = (Math.abs(transparencyCount) + partialTick) / 41.0F;
 				}
 			}
 			
-			RenderType renderType = RenderType.energySwirl(WITHER_ARMOR_LOCATION, Mth.cos(progress * 0.02F) * 3.0F % 1.0F, progress * 0.01F % 1.0F);
+			RenderType renderType = EpicFightRenderTypes.makeTriangulated(RenderType.energySwirl(WITHER_ARMOR_LOCATION, Mth.cos(progress * 0.02F) * 3.0F % 1.0F, progress * 0.01F % 1.0F));
+			this.mesh.get().drawPosed(poseStack, buffers.getBuffer(renderType), Mesh.DrawingFunction.NEW_ENTITY, packedLight, 0.5F * transparency, 0.5F * transparency, 0.5F * transparency, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), poses);
 			
-			this.mesh.get().draw(poseStack, buffer, renderType, packedLight, transparency * 0.5F, transparency * 0.5F, transparency * 0.5F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), poses);
 			poseStack.popPose();
 		}
 	}

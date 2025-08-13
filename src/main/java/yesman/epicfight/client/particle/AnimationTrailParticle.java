@@ -112,7 +112,7 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 	
 	@Deprecated /** This constructor is only for {@link ModelPreviewer} **/
 	protected AnimationTrailParticle(Armature armature, LivingEntityPatch<?> owner, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {
-		super(null, owner, trailInfo);
+		super(owner, trailInfo);
 		
 		this.joint = joint;
 		this.animation = animation;

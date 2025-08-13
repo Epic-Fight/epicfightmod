@@ -19,7 +19,12 @@ public abstract class TakeDamageEvent extends AbstractPlayerEvent<ServerPlayerPa
 		return this.damageSource;
 	}
 	
-	public float getBaseDamage() {
+	/**
+	 * For Attack and Hurt, it's base damage
+	 * For Damage, it's modified damage
+	 * @return
+	 */
+	public float getDamage() {
 		return this.baseDamage;
 	}
 	
@@ -62,6 +67,12 @@ public abstract class TakeDamageEvent extends AbstractPlayerEvent<ServerPlayerPa
 		
 		public void attachValueModifier(ValueModifier valueModifier) {
 			this.calculator.attach(valueModifier);
+		}
+	}
+	
+	public static class Damage extends TakeDamageEvent {
+		public Damage(ServerPlayerPatch playerpatch, DamageSource damageSource, float totalDamage) {
+			super(playerpatch, damageSource, totalDamage, false);
 		}
 	}
 }

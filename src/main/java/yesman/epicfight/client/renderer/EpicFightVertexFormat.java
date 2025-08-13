@@ -74,13 +74,12 @@ public class EpicFightVertexFormat {
 
     /***
      * @param vertexFormat
-     * @param buffers :  0 pos, 1 nor, 2 col, 3 uv, 4 layout, 5 light,
-     *                6 iris_
+     * @param buffers :  0 pos, 1 nor, 2 col, 3 uv, 4 layout, 5 light
      */
     public static void bindBufferFormat(VertexFormat vertexFormat, int... buffers){
         var elems = vertexFormat.getElements();
 
-        vertexFormat.setupBufferState();
+        //vertexFormat.setupBufferState();
 
         for(int i = 0; i < elems.size(); ++i) {
             var elem = elems.get(i);

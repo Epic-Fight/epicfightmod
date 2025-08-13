@@ -43,7 +43,7 @@ public class IrisCompatImpl implements IIrisCompatContext{
     public static void bindBufferFormat(VertexFormat vertexFormat, int... buffers){
         var elems = vertexFormat.getElements();
 
-        vertexFormat.setupBufferState();
+        //vertexFormat.setupBufferState();
 
         for(int i = 0; i < elems.size(); ++i) {
             var elem = elems.get(i);

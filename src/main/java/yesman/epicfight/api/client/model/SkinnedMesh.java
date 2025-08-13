@@ -128,7 +128,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
 
 		for (SkinnedMeshPart part : this.parts.values()) {
-			part.createSSBO_Vanilla(vertexBuilderMap, this.positions, this.uvs, /*this.normals, this.weights,
+			part.createSSBO_Vanilla(vertexBuilderMap, /*this.positions,*/ this.uvs, /*this.normals, this.weights,
 					this.affectingJointCounts, this.affectingJointIndices, this.affectingWeightIndices,*/
 					/*positionList,*/ uvList);
 		}
@@ -210,13 +210,13 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
 
+		List<Float> uvList = Lists.newArrayList();
+
 		for (SkinnedMeshPart part : this.parts.values()) {
-			part.createSSBO_Iris(vertexBuilderMap, elements);
+			part.createSSBO_Iris(vertexBuilderMap, uvs, uvList, elements);
 		}
 
 		var vertexObjs = new VertexObj[vertexBuilderMap.size()];
-		float[] uvArr = new float[ vertexBuilderMap.size() * 2];
-		float[] midUVArr = new float[elements.size() * 2];
 
 		List<Integer> jointList = Lists.newArrayList();
 		List<Float> weightList = Lists.newArrayList();
@@ -237,38 +237,48 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 					normals[vb.normal * 3], normals[vb.normal * 3 + 1], normals[vb.normal * 3 + 2],
 					start_pos, start_pos + affectingJointCounts[vb.position]
 			);
-
-			uvArr[idx*2] = uvs[vb.uv * 2];
-			uvArr[idx*2+1] = uvs[vb.uv * 2+1];
 		});
 
-		System.out.println(elements.size());
-		for (int i = 0; i < elements.size(); i++) {
-			int pool_int = elements.get(i);
 
+		List<Float> midUVList = Lists.newArrayList();
+		float[] midUVs = new float[(elements.size()/3)*2];
+
+		if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3.");
+
+		for (int i = 0; i < elements.size(); i++) {
+			int vert_pool_idx = elements.get(i);
+
+			float u = uvList.get(vert_pool_idx*2);
+			float v = uvList.get(vert_pool_idx*2+1);
+
+			int face_idx = i / 3;
 			if(i % 3 == 0){
-				midUVArr[i*2] = uvArr[pool_int*2] / 3.f;
-				midUVArr[i*2+1] = uvArr[pool_int*2+1] / 3.f;
+				midUVs[face_idx * 2] = u / 3;
+				midUVs[face_idx * 2 + 1] = v / 3;
 			}
 			else {
-				midUVArr[i*2] += uvArr[pool_int*2] / 3.f;
-				midUVArr[i*2+1] += uvArr[pool_int*2+1] / 3.f;
+				midUVs[face_idx * 2] += u / 3;
+				midUVs[face_idx * 2 + 1] += v / 3;
 			}
 		}
 
-		vcount = elements.size();
+		for (int i = 0; i < elements.size(); i++) {
+			int face_idx = i / 3;
+			midUVList.add(midUVs[face_idx*2]);
+			midUVList.add(midUVs[face_idx*2+1]);
+		}
 
 		elementsBO = new StaticSSBO<>(elements,
 				1,
 				(v, b) -> b.put(v)
 		);
 
-		List<Float> uvsBOL = Lists.newArrayList();
-		for (int i = 0; i < uvArr.length; i++) {
-			uvsBOL.add(uvArr[i]);
-		}
+		uvsBO  = new StaticSSBO<>(uvList,
+				1,
+				(v, b) -> b.put(v)
+		);
 
-		uvsBO  = new StaticSSBO<>(uvsBOL,
+		midUVBO = new StaticSSBO<>(midUVList,
 				1,
 				(v, b) -> b.put(v)
 		);
@@ -300,14 +310,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_uv1 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
 		out_uv2 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
 
-		List<Float> midUVBOL = Lists.newArrayList();
-		for (int i = 0; i < midUVArr.length; i++) {
-			midUVBOL.add(midUVArr[i]);
-		}
-		midUVBO = new StaticSSBO<>(midUVBOL,
-				1,
-				(v, b) -> b.put(v)
-		);
 		out_entity_id = new OutputSSBO((short) 2, elements.size(), DynamicSSBO.DataMode.STREAM);
 		out_tangent = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
 
@@ -437,6 +439,13 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_color.close();
 		out_uv1.close();
 		out_uv2.close();
+
+		if(out_tangent != null){
+			out_tangent.close();
+			out_uv0.close();
+			out_entity_id.close();
+			midUVBO.close();
+		}
 
 		parts.values().forEach(part -> RenderSystem.glDeleteBuffers(part.indexBufferId));
         
@@ -701,10 +710,15 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		GL46.glUseProgram(0);
 	}
 
-	public void applyComputeShader_Iris(int start, int batch_size, OpenMatrix4f partTransform, float r, float g, float b, float a, int overlay, int light){
+	static final int workGroupSize = 128;
+	public void applyComputeShader_Iris(int start, int end, OpenMatrix4f partTransform, float r, float g, float b, float a, int overlay, int light){
 		// shader setup
 		var shader = ShaderRegistries.mesh_compute_iris;
 		shader.useProgram();
+
+		short entity = IIrisCompatContext.CTX.INSTANCE.getEntity();
+		short block = IIrisCompatContext.CTX.INSTANCE.getBlock();
+		short item = IIrisCompatContext.CTX.INSTANCE.getItem();
 
 		shader.getUniform("colorIn").uploadVec4(r,g,b,a);
 		shader.getUniform("uv1In").uploadUnsignedInt(overlay);
@@ -712,12 +726,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		shader.getUniform("partTransform")
 				.uploadMatrix4f(OpenMatrix4f.exportToMojangMatrix(partTransform));
 
-		shader.getUniform("face_start").uploadUnsignedInt(start);
-		shader.getUniform("face_end").uploadUnsignedInt(start+batch_size);
-
-		short entity = IIrisCompatContext.CTX.INSTANCE.getEntity();
-		short block = IIrisCompatContext.CTX.INSTANCE.getBlock();
-		short item = IIrisCompatContext.CTX.INSTANCE.getItem();
+		shader.getUniform("elem_start").uploadUnsignedInt(start);
+		shader.getUniform("elem_end").uploadUnsignedInt(end);
 
 		shader.getUniform("entity_id_0").uploadUnsignedInt(
 				((entity << 16) & 0xFFFF0000) | (block & 0xFFFF));
@@ -732,7 +742,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		out_uv1.bindBufferBase(10);		out_uv2.bindBufferBase(11);
 		out_entity_id.bindBufferBase(12);		out_tangent.bindBufferBase(13);
 
-		int workGroupSize = 128;
+		int batch_size = end - start;
+		if(batch_size % 3 != 0) System.err.println("BatchSize not divided by 3. size=" + batch_size);
+
 		int workGroupCount = ((batch_size / 3) + workGroupSize - 1) / workGroupSize;
 
 		shader.dispatch(workGroupCount, 1, 1);
@@ -767,7 +779,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		
 		private void createSSBO_Vanilla(
 			  Map<VertexBuilder, Integer> vertexBuilderMap
-			, float[] positions
+			//, float[] positions
 			, float[] uvs
 			/*, float[] normals
 			, float[] weights
@@ -791,21 +803,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 					int next = vertexBuilderMap.size();
 					indicesBuffer.putInt(next);
 					vertexBuilderMap.put(vb, next);
-					/*position.add(positions[vb.position * 3]);
-					position.add(positions[vb.position * 3 + 1]);
-					position.add(positions[vb.position * 3 + 2]);*/
+
 					uv.add(uvs[vb.uv * 2]);
 					uv.add(uvs[vb.uv * 2 + 1]);
-					/*normal.add(packNormal(normals[vb.normal * 3]));
-					normal.add(packNormal(normals[vb.normal * 3 + 1]));
-					normal.add(packNormal(normals[vb.normal * 3 + 2]));*/
-
-/*					joint.add(affectingJointCounts[vb.position] > 0 ? (short)affectingJointIndices[vb.position][0] : -1);
-					joint.add(affectingJointCounts[vb.position] > 1 ? (short)affectingJointIndices[vb.position][1] : -1);
-					joint.add(affectingJointCounts[vb.position] > 2 ? (short)affectingJointIndices[vb.position][2] : -1);
-					weight.add(affectingJointCounts[vb.position] > 0 ? weights[affectingWeightsIndices[vb.position][0]] : 0.0F);
-					weight.add(affectingJointCounts[vb.position] > 1 ? weights[affectingWeightsIndices[vb.position][1]] : 0.0F);
-					weight.add(affectingJointCounts[vb.position] > 2 ? weights[affectingWeightsIndices[vb.position][2]] : 0.0F);*/
 				}
 			}
 			
@@ -817,28 +817,36 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
-		private int face_start;
+		private int elem_start, elem_end;
 		private void createSSBO_Iris(
 				Map<VertexBuilder, Integer> vertexBuilderMap,
+				float[] uvs,
+				List<Float> uvList,
 				List<Integer> elements
 		) {
 			ByteBuffer indicesBuffer = ByteBuffer
 					.allocateDirect(this.getVertices().size() * 4)
 					.order(ByteOrder.nativeOrder());
 
-			face_start = elements.size();
+			elem_start = elements.size();
 
 			for (VertexBuilder vb : this.getVertices()) {
 				if (!vertexBuilderMap.containsKey(vb)) {
 					int next = vertexBuilderMap.size();
 					vertexBuilderMap.put(vb, next);
+
+					uvList.add(uvs[vb.uv * 2]);
+					uvList.add(uvs[vb.uv * 2 + 1]);
 				}
 
-				int pool_idx = vertexBuilderMap.get(vb);
-				int elem_idx = elements.size();
-				elements.add(pool_idx);
-				indicesBuffer.putInt(elem_idx);
+				int vertex_pool_index = vertexBuilderMap.get(vb);
+				int vertex_in_eb = elements.size();
+
+				elements.add(vertex_pool_index);
+				indicesBuffer.putInt(vertex_in_eb);
 			}
+
+			elem_end = elements.size();
 
 			indicesBuffer.flip();
 
@@ -846,6 +854,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, this.indexBufferId);
 			GlStateManager._glBufferData(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GLConstants.GL_STATIC_DRAW);
 			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			if(elements.size() % 3 != 0) System.err.println("Face count not divided by 3. total=" + elements.size());
 		}
 		
 		@Override
@@ -880,7 +890,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			if(transform == null) transform = OpenMatrix4f.IDENTITY;
 
 			if(ShaderRegistries.IrisLoaded){
-				applyComputeShader_Iris(face_start, getVertices().size(), transform, r,g,b,a,overlay,light);
+				applyComputeShader_Iris(elem_start, elem_end, transform, r,g,b,a,overlay,light);
 			}
 			else {
 				applyComputeShader_Vanilla(transform, r,g,b,a,overlay,light);

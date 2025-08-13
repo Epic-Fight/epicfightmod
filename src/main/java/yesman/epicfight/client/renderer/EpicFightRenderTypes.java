@@ -85,9 +85,9 @@ public abstract class EpicFightRenderTypes extends RenderType {
 				}
 			}
 			
-			return new CompositeRenderType(renderType$1.name, renderType$1.format,
-					VertexFormat.Mode.TRIANGLES, renderType$1.bufferSize(),
-					renderType$1.affectsCrumbling(), renderType$1.sortOnUpload,
+			return new CompositeRenderType(renderType.name, renderType.format,
+					VertexFormat.Mode.TRIANGLES, renderType.bufferSize(),
+					renderType.affectsCrumbling(), renderType.sortOnUpload,
 					compositeRenderType.state);
 
 		} else {

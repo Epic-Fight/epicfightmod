@@ -7,9 +7,14 @@ layout(std430, binding = 0) readonly buffer PoseBuffer {
     mat4 poses[];
 };
 
+struct ElemInfo{
+    int pool_idx;
+    int part_idx;
+};
+
 // Static Buffer
 layout(std430, binding = 1) readonly buffer ElementsPool {
-    int elements[];
+    ElemInfo elements[];
 };
 
 layout(std430, binding = 2) readonly buffer VertexBuffer {
@@ -67,14 +72,17 @@ layout(std430, binding = 13) writeonly buffer OutputTangentBuffer {
     uint out_tangent[];
 };
 
+// HelpInfo Buffer
+layout(std430, binding = 14) readonly buffer PartHiddenFlagBuffer {
+    int part_hidden[];
+};
+
 layout(location=0) uniform vec4 colorIn;
 layout(location=1) uniform uint uv1In;
 layout(location=2) uniform uint uv2In;
-layout(location=3) uniform mat4 partTransform;
-layout(location=4) uniform uint entity_id_0;
-layout(location=5) uniform uint entity_id_1;
-layout(location=6) uniform uint elem_start;
-layout(location=7) uniform uint elem_end;
+layout(location=3) uniform uint entity_id_0;
+layout(location=4) uniform uint entity_id_1;
+layout(location=5) uniform uint part_offset;
 
 // copied form AR
 uint computeTangentSmooth(vec3 pos1, vec3 pos2, vec3 pos3, vec2 uv1, vec2 uv2, vec2 uv3, vec3 normal);
@@ -114,15 +122,43 @@ void storeElem(uint elem_idx, VertInfo vertInfo, uint tangent){
     out_tangent[elem_idx] = tangent;
 }
 
+void storeElemEmpty(uint elem_idx){
+    out_pos[elem_idx * 3] = 0;
+    out_pos[elem_idx * 3 + 1] = 0;
+    out_pos[elem_idx * 3 + 2] = 0;
 
-VertInfo getFinalVertInfo(int pool_index){
-    vec4 pos = getPosInPool(pool_index);
-    vec4 norm = getNormInPool(pool_index);
+    out_normal[elem_idx] = 0;
+
+    out_color[elem_idx] = vec4(0);
+
+    out_uv1[elem_idx] = uv1In;
+    out_uv2[elem_idx] = uv2In;
+
+    out_uv0[elem_idx*2] = 0;
+    out_uv0[elem_idx*2+1] = 0;
+
+    // for iris
+    out_entity_id[elem_idx*2] = entity_id_0;
+    out_entity_id[elem_idx*2+1] = entity_id_1;
+
+    out_tangent[elem_idx] = 0;
+}
+
+bool isPartHidden(ElemInfo elem){
+    int flags = part_hidden[elem.part_idx / 32];
+    int off = elem.part_idx % 32;
+    return ((flags >> off) & 1) == 1;
+}
+
+VertInfo getFinalVertInfo(ElemInfo elem){
+    mat4 partTransform = poses[part_offset + elem.part_idx];
+    vec4 pos = getPosInPool(elem.pool_idx);
+    vec4 norm = getNormInPool(elem.pool_idx);
 
     vec4 fpos = vec4(0);
     vec4 fnorm = vec4(0);
 
-    for (int i = vertices[pool_index].jts; i < vertices[pool_index].jte; ++i) {
+    for (int i = vertices[elem.pool_idx].jts; i < vertices[elem.pool_idx].jte; ++i) {
         if (weights[i] > 0.0) {
             mat4 boneMat = poses[joints[i]] * partTransform;
             fpos += (boneMat * pos) * weights[i];
@@ -133,13 +169,20 @@ VertInfo getFinalVertInfo(int pool_index){
     VertInfo result;
     result.pos = fpos.xyz;
     result.nor = normalize(fnorm.xyz);
-    result.uv = vec2(uvs[pool_index*2], uvs[pool_index*2+1]);
+    result.uv = vec2(uvs[elem.pool_idx*2], uvs[elem.pool_idx*2+1]);
     return result;
 }
 
 void main() {
-    uint face_start = elem_start + gl_GlobalInvocationID.x * 3;
-    if(face_start >= elem_end) return; // check
+    uint face_start = gl_GlobalInvocationID.x * 3;
+    if(face_start >= elements.length()) return; // check
+
+    if(isPartHidden(elements[face_start])){
+        storeElemEmpty(face_start);
+        storeElemEmpty(face_start+1);
+        storeElemEmpty(face_start+2);
+        return;
+    }
 
     VertInfo v1 = getFinalVertInfo(elements[face_start]);
     VertInfo v2 = getFinalVertInfo(elements[face_start+1]);

@@ -1,5 +1,7 @@
 package yesman.epicfight.client.renderer.shader.compute.loader;
 
+import java.nio.FloatBuffer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.lwjgl.opengl.GL33C;
@@ -9,8 +11,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.VanillaComputeShaderSetup;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
@@ -22,6 +28,7 @@ public class ComputeShaderProvider {
     public static ComputeProgram meshComputeIris;
     
     private static boolean supportComputeShader = false;
+    private static boolean supportPersistentBuffer = false;
     private static boolean irisLoaded = false;
     private static Function<SkinnedMesh, ComputeShaderSetup> computeShaderProvider = VanillaComputeShaderSetup::new;
     
@@ -44,10 +51,14 @@ public class ComputeShaderProvider {
         int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
 
         supportComputeShader = (major > 4) || (major == 4 && minor >= 3);
+        supportPersistentBuffer = (major > 4) || (major == 4 && minor >= 5);
         
-        EpicFightMod.LOGGER.warn("[Computer Shader] OpenGL Version: " + glVersion);
-        EpicFightMod.LOGGER.warn("[Computer Shader] Compute Shader Acceleration: " + (supportComputeShader ? "Supported" : "Unsupported"));
-        
+        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
+        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
+        if(supportComputeShader) EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Persistent Buffer: " +
+                (supportPersistentBuffer ? "Supported" : "Unsupported"));
+
+
         if (!supportComputeShader) return;
         
         clear();
@@ -68,5 +79,11 @@ public class ComputeShaderProvider {
     
     public static ComputeShaderSetup getComputeShaderSetup(SkinnedMesh mesh) {
     	return computeShaderProvider.apply(mesh);
+    }
+
+    public static <T> IArrayBufferProxy createDynamicBuffer(T[] src, int srcSize, BiConsumer<T, FloatBuffer> uploader){
+        // use new feature of OpenGL, persistent mapped buffer would make data upload faster
+        if (supportPersistentBuffer) return new MappedSSBO<>(src, (short) srcSize, uploader);
+        else return new DynamicSSBO<>(src, (short) srcSize, DynamicSSBO.DataMode.DYNAMIC, uploader);
     }
 }

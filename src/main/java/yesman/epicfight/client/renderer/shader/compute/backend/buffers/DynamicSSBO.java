@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DynamicSSBO<T> implements Closeable {
+public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
     public final T[] src;
     public final short srcSize;
     public final int glSSBO;
@@ -37,7 +37,7 @@ public class DynamicSSBO<T> implements Closeable {
         
         this.buffer = BufferUtils.createByteBuffer(src.length * srcSize * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     }
-    
+    @Override
     public void updateAll() {
     	GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
@@ -50,7 +50,7 @@ public class DynamicSSBO<T> implements Closeable {
 		GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, 0, this.buffer);
         GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
     }
-    
+    @Override
     public void updateFromTo(int from, int to) {
     	GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
@@ -63,13 +63,13 @@ public class DynamicSSBO<T> implements Closeable {
 		GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, (long) srcSize * 4 * from, this.buffer);
         GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
     }
-    
+    @Override
 	public void bindBufferBase(int binding) {
     	this.unbind();
         this.lastBinding = binding;
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, binding, this.glSSBO);
     }
-	
+    @Override
 	public void unbind() {
         if (this.lastBinding >= 0) {
         	GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, this.lastBinding, 0);

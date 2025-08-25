@@ -38,6 +38,7 @@ import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.OutputSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
@@ -63,7 +64,7 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 	private final OutputSSBO outEntityId;
 	private final OutputSSBO outTangent;
 	
-	private final DynamicSSBO<Integer> hiddenFlagsBO;
+	private final IArrayBufferProxy hiddenFlagsBO;
 	private final Integer[] hiddenFlags;
 	
 	private final int arrayObjectId;
@@ -80,7 +81,7 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		
 		List<Float> uvList = Lists.newArrayList();
 		this.hiddenFlags = new Integer[(skinnedMesh.getAllParts().size() + 31) / 32];
-		this.hiddenFlagsBO = new DynamicSSBO<>(this.hiddenFlags, (short) 1, DynamicSSBO.DataMode.DYNAMIC, (v, b) -> b.put(Float.intBitsToFloat(v)));
+		this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
 		
 		MutableInt partIdx = new MutableInt(0);
 		

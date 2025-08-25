@@ -1,6 +1,7 @@
 package yesman.epicfight.client.renderer.shader.compute;
 
 import java.nio.FloatBuffer;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
@@ -20,15 +21,24 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedSSBO;
+import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 @OnlyIn(Dist.CLIENT)
 public interface ComputeShaderSetup {
 	static final OpenMatrix4f[] TOTAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
 	static final OpenMatrix4f[] TOTAL_NORMALS = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-	static final DynamicSSBO<OpenMatrix4f> POSE_BO = new DynamicSSBO<> (TOTAL_POSES, (short) 16, DynamicSSBO.DataMode.DYNAMIC, OpenMatrix4f::store);
-	
+
+
+    static final IArrayBufferProxy POSE_BO = ComputeShaderProvider.createDynamicBuffer
+            (TOTAL_POSES, 16, OpenMatrix4f::store);
+
+/*
+	static final DynamicSSBO<OpenMatrix4f> POSE_BO = new DynamicSSBO<>
+            (TOTAL_POSES, (short) 16, DynamicSSBO.DataMode.DYNAMIC, OpenMatrix4f::store);*/
+
 	static void setShaderDefaultUniforms(ShaderInstance shader, VertexFormat.Mode mode, Matrix4f frustumMatrix, Matrix4f projectionMatrix, Window window) {
         for (int i = 0; i < 12; i++) {
             int j = RenderSystem.getShaderTexture(i);

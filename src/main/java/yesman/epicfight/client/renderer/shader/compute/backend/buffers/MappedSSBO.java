@@ -43,8 +43,7 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
         ByteBuffer persistentMapping = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, size,
                 GL_MAP_WRITE_BIT |
                         GL_MAP_PERSISTENT_BIT |
-                        GL_MAP_COHERENT_BIT |
-                        GL_MAP_INVALIDATE_BUFFER_BIT);
+                        GL_MAP_COHERENT_BIT);
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -52,7 +51,7 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
     }
     @Override
     public void updateAll() {
-        waitForFence();
+        //waitForFence();
     	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
         for (T s : this.src) {
@@ -60,18 +59,18 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
         }
         
         this.buffer.position(0);
-        insertFence();
+        //insertFence();
     }
 
     @Override
     public void updateFromTo(int from, int to) {
-        waitForFence();
+        //waitForFence();
     	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.glSSBO);
         for (int i = from; i < to; i++) {
         	this.uploader.accept(this.src[i], this.buffer);
         }
         this.buffer.position(0);
-        insertFence();
+        //insertFence();
     }
     @Override
 	public void bindBufferBase(int binding) {

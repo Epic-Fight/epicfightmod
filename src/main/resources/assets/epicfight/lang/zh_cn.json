@@ -180,7 +180,7 @@
 	"gui.epicfight.auto_switching_items.tooltip": "编辑自动切换战斗/采矿模式的物品列表",
 	"gui.epicfight.export_custom_armor.tooltip": "以资源包格式导出自定义盔甲模型",
 	"gui.epicfight.use_compute_shader.tooltip": "使用计算着色器加速骨架模型渲染。",
-	"gui.epicfight.use_compute_shader.locked.tooltip": "哥们你的清朝显卡不支持OpenGL 4.3+，这个功能开不了一点。换张现代点儿的显卡吧。",
+	"gui.epicfight.use_compute_shader.locked.tooltip": "很遗憾，你的设备不支持OpenGL 4.3+，这个功能开不了一点。\n可能的原因：\n1. 你在使用清朝电脑或清朝显卡。\n2. 水果电脑不支持现代OpenGL，因为果子要推销自家的图形API。所以洗洗睡吧。",
 	"gui.epicfight.replace": "以下技能将被删除： %s",
 	"gui.epicfight.require_learning": "你必须先学习\"%s\"技能！",
 	"gui.epicfight.learn": "学习",

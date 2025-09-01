@@ -1,0 +1,182 @@
+#version 460 core
+
+layout(local_size_x = 128) in;
+
+struct VertexData {
+    float px,py,pz,nx,ny,nz;
+    int jts,jte;
+};
+
+// Dynamic Input Buffer
+layout(std430, binding = 0) readonly buffer PoseBuffer {
+    mat4 poses[];
+};
+
+struct ElemInfo{
+    int pool_idx;
+    int part_idx;
+};
+
+// Static Buffer
+layout(std430, binding = 1) readonly buffer ElementsPool {
+    ElemInfo elements[];
+};
+
+layout(std430, binding = 2) readonly buffer VertexBuffer {
+    VertexData vertices[];
+};
+
+layout(std430, binding = 3) readonly buffer JointsPool {
+    int joints[];
+};
+
+layout(std430, binding = 4) readonly buffer WeightsPool {
+    float weights[];
+};
+
+layout(std430, binding = 5) readonly buffer UVsPool {
+    float uvs[];
+};
+
+// Output Buffer
+// need calculate
+layout(std430, binding = 6) writeonly buffer OutputPositionBuffer {
+    float out_pos[];
+};
+// need calculate
+layout(std430, binding = 7) writeonly buffer OutputNormalBuffer {
+    uint out_normal[];
+};
+// need calculate
+layout(std430, binding = 8) writeonly buffer OutputColorBuffer {
+    vec4 out_color[];
+};
+
+// need store
+layout(std430, binding = 9) writeonly buffer OutputUV0Buffer {
+    float out_uv0[];
+};
+
+layout(std430, binding = 10) writeonly buffer OutputUV1Buffer {
+    uint out_uv1[];
+};
+
+layout(std430, binding = 11) writeonly buffer OutputUV2Buffer {
+    uint out_uv2[];
+};
+
+// HelpInfo Buffer
+layout(std430, binding = 14) readonly buffer PartHiddenFlagBuffer {
+    int part_hidden[];
+};
+
+layout(location=0) uniform vec4 colorIn;
+layout(location=1) uniform uint uv1In;
+layout(location=2) uniform uint uv2In;
+layout(location=5) uniform uint part_offset;
+
+vec4 getPosInPool(int pool_index){
+    return vec4(vertices[pool_index].px, vertices[pool_index].py, vertices[pool_index].pz, 1.0);
+}
+
+vec4 getNormInPool(int pool_index){
+    return vec4(normalize(vec3(vertices[pool_index].nx, vertices[pool_index].ny, vertices[pool_index].nz)), 0.0);
+}
+
+struct VertInfo{
+    vec3 pos, nor;
+    vec2 uv;
+};
+
+void storeElem(uint elem_idx, VertInfo vertInfo){
+    out_pos[elem_idx * 3] = vertInfo.pos.x;
+    out_pos[elem_idx * 3 + 1] = vertInfo.pos.y;
+    out_pos[elem_idx * 3 + 2] = vertInfo.pos.z;
+
+    out_normal[elem_idx] = packSnorm4x8(vec4(normalize(vertInfo.nor), 0.0));
+
+    out_color[elem_idx] = colorIn;
+
+    out_uv1[elem_idx] = uv1In;
+    out_uv2[elem_idx] = uv2In;
+
+    out_uv0[elem_idx*2] = vertInfo.uv.x;
+    out_uv0[elem_idx*2+1] = vertInfo.uv.y;
+}
+
+void storeElemEmpty(uint elem_idx){
+    out_pos[elem_idx * 3] = 0;
+    out_pos[elem_idx * 3 + 1] = 0;
+    out_pos[elem_idx * 3 + 2] = 0;
+
+    out_normal[elem_idx] = 0;
+
+    out_color[elem_idx] = vec4(0);
+
+    out_uv1[elem_idx] = uv1In;
+    out_uv2[elem_idx] = uv2In;
+
+    out_uv0[elem_idx*2] = 0;
+    out_uv0[elem_idx*2+1] = 0;
+}
+
+bool isPartHidden(ElemInfo elem){
+    int flags = part_hidden[elem.part_idx / 32];
+    int off = elem.part_idx % 32;
+    return ((flags >> off) & 1) == 1;
+}
+
+VertInfo getFinalVertInfo(ElemInfo elem){
+    mat4 partTransform = poses[part_offset + elem.part_idx];
+    vec4 pos = getPosInPool(elem.pool_idx);
+    vec4 norm = getNormInPool(elem.pool_idx);
+
+    vec4 fpos = vec4(0);
+    vec4 fnorm = vec4(0);
+
+    for (int i = vertices[elem.pool_idx].jts; i < vertices[elem.pool_idx].jte; ++i) {
+        if (weights[i] > 0.0) {
+            mat4 boneMat = poses[joints[i]] * partTransform;
+            fpos += (boneMat * pos) * weights[i];
+            fnorm += (boneMat * norm) * weights[i];
+        }
+    }
+
+    VertInfo result;
+    result.pos = fpos.xyz;
+    result.nor = normalize(fnorm.xyz);
+    result.uv = vec2(uvs[elem.pool_idx*2], uvs[elem.pool_idx*2+1]);
+    return result;
+}
+
+void main() {
+    /**
+    uint face_start = gl_GlobalInvocationID.x * 3;
+    if(face_start >= elements.length()) return; // check
+
+    if(isPartHidden(elements[face_start])){
+        storeElemEmpty(face_start);
+        storeElemEmpty(face_start+1);
+        storeElemEmpty(face_start+2);
+        return;
+    }
+
+    VertInfo v1 = getFinalVertInfo(elements[face_start]);
+    VertInfo v2 = getFinalVertInfo(elements[face_start+1]);
+    VertInfo v3 = getFinalVertInfo(elements[face_start+2]);
+
+    storeElem(face_start, v1);
+    storeElem(face_start+1, v2);
+    storeElem(face_start+2, v3);
+*/
+
+    uint vertex_id = gl_GlobalInvocationID.x;
+    if(vertex_id >= elements.length()) return;
+    if(isPartHidden(elements[vertex_id])){
+        storeElemEmpty(vertex_id);
+        return;
+    }
+
+    VertInfo v1 = getFinalVertInfo(elements[vertex_id]);
+    storeElem(vertex_id, v1);
+}

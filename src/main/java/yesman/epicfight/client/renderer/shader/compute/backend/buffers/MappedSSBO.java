@@ -10,9 +10,11 @@ import java.util.function.BiConsumer;
 
 import static org.lwjgl.opengl.GL45C.*;
 
+// todo
+
 @OnlyIn(Dist.CLIENT)
-public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
-    public final T[] src;
+public class MappedSSBO<T> /*implements Closeable, IArrayBufferProxy*/ {
+   /* public final T[] src;
     public final short srcSize;
     public final int glSSBO;
     //public final DynamicSSBO.DataMode mode;
@@ -51,7 +53,6 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
     }
     @Override
     public void updateAll() {
-        //waitForFence();
     	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
         for (T s : this.src) {
@@ -59,18 +60,19 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
         }
         
         this.buffer.position(0);
-        //insertFence();
+        insertFence();
+        waitForFence();
     }
 
     @Override
     public void updateFromTo(int from, int to) {
-        //waitForFence();
     	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.glSSBO);
         for (int i = from; i < to; i++) {
         	this.uploader.accept(this.src[i], this.buffer);
         }
         this.buffer.position(0);
-        //insertFence();
+        insertFence();
+        waitForFence();
     }
     @Override
 	public void bindBufferBase(int binding) {
@@ -95,12 +97,12 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
         }
     }
 
-    private void insertFence() {
+    public void insertFence() {
         fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         fenceInserted = true;
     }
 
-    private void waitForFence() {
+    public void waitForFence() {
         if (fenceInserted) {
             int result;
             do {
@@ -110,5 +112,5 @@ public class MappedSSBO<T> implements Closeable, IArrayBufferProxy {
             glDeleteSync(fence);
             fenceInserted = false;
         }
-    }
+    }*/
 }

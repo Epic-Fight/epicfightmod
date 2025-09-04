@@ -213,6 +213,7 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
 		shader.getUniform("entity_id_0").uploadUnsignedInt(((this.getEntity() << 16) & 0xFFFF0000) | (this.getBlock() & 0xFFFF));
 		shader.getUniform("entity_id_1").uploadUnsignedInt(this.getItem() << 16);
+		shader.getUniform("normalTransform").uploadMatrix3f(poseStack.last().normal());
 
 		ComputeShaderSetup.POSE_BO.bindBufferBase(0);
 		

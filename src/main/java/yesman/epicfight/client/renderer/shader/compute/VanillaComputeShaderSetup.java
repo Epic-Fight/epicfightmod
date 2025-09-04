@@ -164,6 +164,7 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 		shader.getUniform("uv1In").uploadUnsignedInt(overlay);
 		shader.getUniform("uv2In").uploadUnsignedInt(light);
 		shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
+		shader.getUniform("normalTransform").uploadMatrix3f(poseStack.last().normal());
 
 		ComputeShaderSetup.POSE_BO.bindBufferBase(0);
 

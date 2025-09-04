@@ -74,6 +74,7 @@ layout(location=0) uniform vec4 colorIn;
 layout(location=1) uniform uint uv1In;
 layout(location=2) uniform uint uv2In;
 layout(location=5) uniform uint part_offset;
+layout(location=3) uniform mat3 normalTransform;
 
 vec4 getPosInPool(int pool_index){
     return vec4(vertices[pool_index].px, vertices[pool_index].py, vertices[pool_index].pz, 1.0);
@@ -144,7 +145,7 @@ VertInfo getFinalVertInfo(ElemInfo elem){
 
     VertInfo result;
     result.pos = fpos.xyz;
-    result.nor = normalize(fnorm.xyz);
+    result.nor = normalize(normalTransform * fnorm.xyz);
     result.uv = vec2(uvs[elem.pool_idx*2], uvs[elem.pool_idx*2+1]);
     return result;
 }

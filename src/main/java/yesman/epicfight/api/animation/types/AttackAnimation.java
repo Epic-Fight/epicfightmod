@@ -276,7 +276,7 @@ public class AttackAnimation extends ActionAnimation {
 	
 	protected int getMaxStrikes(LivingEntityPatch<?> entitypatch, Phase phase) {
 		return phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER)
-					.map(valueModifier -> (int)ValueModifier.calculator().getResult(entitypatch.getMaxStrikes(phase.hand)))
+					.map(valueModifier -> (int)ValueModifier.calculator().attach(valueModifier).getResult(entitypatch.getMaxStrikes(phase.hand)))
 					.orElse(entitypatch.getMaxStrikes(phase.hand));
 	}
 	

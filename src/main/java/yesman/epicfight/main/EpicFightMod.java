@@ -175,6 +175,14 @@ import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
  *  Internal changes
  *  - ChareableSkill now inherits HoldableSkill. Since their work quite similar all if-else branch for ChareableSkill and HoldableSkill are merged.
  *  
+ *  ***************************************************************
+ *  20.12.6
+ *  
+ *  Fixed the afterimage having a wrong main hand item transform when holding any offhand item
+ *  
+ *  
+ *  ***************************************************************
+ *  
  *  --- TO DO ---
  *  
  *  Update language files (always)

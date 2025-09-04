@@ -180,7 +180,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 				
 				if (!bakedmodel.isCustomRenderer()) {
 					MathUtils.mulStack(poseStack, ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
-					bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, items.getFirst() == InteractionHand.OFF_HAND);
+					bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false);
 					poseStack.translate(-0.5F, -0.5F, -0.5F);
 					
 					for (var model : bakedmodel.getRenderPasses(itemstack, true)) {

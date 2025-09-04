@@ -567,7 +567,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	public void resetHolding() {
 		if (this.holdingSkill != null) {
-			if (holdingSkill instanceof ChargeableSkill) {
+			if (this.holdingSkill instanceof ChargeableSkill) {
 				this.chargingAmount = 0;
 			}
 			

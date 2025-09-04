@@ -299,7 +299,9 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	}
 
 	@Override
-	public void resetHolding(SkillContainer container) {}
+	public void resetHolding(SkillContainer container) {
+		container.deactivate();
+	}
 
 	@Override
 	public void gatherHoldArguments(SkillContainer container, ControlEngine controlEngine, FriendlyByteBuf buffer) {

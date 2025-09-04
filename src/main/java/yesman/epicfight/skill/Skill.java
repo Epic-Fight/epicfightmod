@@ -158,13 +158,12 @@ public abstract class Skill {
 				executor.getHoldingSkill().onStopHolding(container, feedbackPacket);
 			}
 			
-			feedbackPacket.getBuffer().writeInt(executor.getAccumulatedChargeAmount());
 			executor.resetHolding();
-			EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 		} else {
 			container.activate();
-			EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 		}
+		
+		EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 	}
 	
 	public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
@@ -401,7 +400,7 @@ public abstract class Skill {
 		return String.format("skill.%s.%s", this.getRegistryName().getNamespace(), this.getRegistryName().getPath());
 	}
 	
-	public float getCooldownRegenPerSecond(PlayerPatch<?> player) {
+	public float getCooldownRegenPerSecond(PlayerPatch<?> playerpatch) {
 		return 1.0F;
 	}
 	

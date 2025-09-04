@@ -633,6 +633,15 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		}
 	}
 	
+	@Override
+	public void resetHolding() {
+		if (this.holdingSkill != null) {
+			ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
+		}
+		
+		super.resetHolding();
+	}
+	
 	@OnlyIn(Dist.CLIENT)
 	public class FirstPersonLayer extends Layer {
 		private TransformSheet linkCameraTransform = new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.empty()), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));

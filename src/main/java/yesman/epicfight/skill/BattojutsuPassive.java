@@ -41,8 +41,9 @@ public class BattojutsuPassive extends Skill {
 			if (container.getDataManager().getDataValue(SkillDataKeys.SHEATH.get())) {
 				container.getDataManager().setDataSync(SkillDataKeys.SHEATH.get(), false);
 				container.getServerExecutor().modifyLivingMotionByCurrentItem(false);
-				container.getSkill().setConsumptionSynchronize(container, 0);
 			}
+			
+			container.getSkill().setConsumptionSynchronize(container, 0);
 		}
 	}
 	
@@ -65,7 +66,7 @@ public class BattojutsuPassive extends Skill {
 	}
 	
 	@Override
-	public float getCooldownRegenPerSecond(PlayerPatch<?> player) {
-		return player.getOriginal().isUsingItem() ? 0.0F : 1.0F;
+	public float getCooldownRegenPerSecond(PlayerPatch<?> playerpatch) {
+		return (playerpatch.getEntityState().inaction() || playerpatch.isHoldingAny()) ? 0.0F : 1.0F;
 	}
 }

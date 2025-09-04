@@ -255,6 +255,7 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 		this.applyComputeShader(poseStack, null, r, g, b, a, overlay, packedLight, poses.length);
 
 		// draw call
+
 		GL46.glUseProgram(RenderSystem.getShader().getId());
 		GL46.glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, vcount);
 

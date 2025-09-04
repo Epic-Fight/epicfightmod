@@ -39,7 +39,8 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 	protected float alphaO;
 
 	public EntityAfterimageParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, EntitySnapshot<?> entitySnapshot, Consumer<EntityAfterimageParticle> ticktask) {
-		super(level, x, y, z, xd, yd, zd, (AssetAccessor<SkinnedMesh>) null);
+		super(level, x, y, z, xd, yd, zd, (AssetAccessor<SkinnedMesh>)null);
+		
 		this.entitySnapshot = entitySnapshot;
 		this.ticktask = ticktask;
 		this.rCol = 1.0F;
@@ -134,7 +135,7 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 			float alpha = Mth.lerp(partialTicks, this.alphaO, this.alpha);
 			int lightColor = this.getLightColor(partialTicks);
 			PoseStack poseStack = new PoseStack();
-			setupPoseStack(poseStack, camera, partialTicks);
+			this.setupPoseStack(poseStack, camera, partialTicks);
 			MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
 			this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageStencil, Mesh.DrawingFunction.POSITION_TEX, 0, 0.0F, 0.0F, 0.0F, 1.0F);
 			this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageStencil(), Mesh.DrawingFunction.POSITION_TEX, lightColor, 1.0F);
@@ -143,7 +144,7 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 			this.entitySnapshot.render(poseStack, buffers, EpicFightRenderTypes.entityAfterimageWhite(), Mesh.DrawingFunction.POSITION_TEX_COLOR_LIGHTMAP, lightColor, this.rCol, this.gCol, this.bCol, alpha);
 			this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageWhite(), Mesh.DrawingFunction.POSITION_TEX_COLOR_LIGHTMAP, lightColor, alpha);
 			buffers.endLastBatch();
-			revert(poseStack);
+			this.revert(poseStack);
 		}
 	}
 
@@ -151,10 +152,11 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 	public static class AdrenalineParticleProvider implements ParticleProvider<SimpleParticleType> {
 		public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 			Entity entity = level.getEntity((int) Double.doubleToLongBits(xSpeed));
-			LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity,
-					LivingEntityPatch.class);
+			LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+			
 			if (entitypatch != null) {
 				EntitySnapshot<?> entitySnapshot = entitypatch.captureEntitySnapshot();
+				
 				if (entitySnapshot != null) {
 					EntityAfterimageParticle adrenalineparticle = new EntityAfterimageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, entitySnapshot,
 						particle -> {
@@ -169,6 +171,7 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 					return adrenalineparticle;
 				}
 			}
+			
 			return null;
 		}
 	}
@@ -192,6 +195,7 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 					return afterimage;
 				}
 			}
+			
 			return null;
 		}
 	}

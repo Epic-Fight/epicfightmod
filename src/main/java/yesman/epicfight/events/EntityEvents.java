@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -46,6 +47,7 @@ import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.forgeevent.EntityStunEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
@@ -203,6 +205,12 @@ public class EntityEvents {
 					if (stunType == StunType.SHORT || stunType == StunType.LONG) {
 						stunType = StunType.NONE;
 					}
+				}
+				
+				EntityStunEvent entityStunEvent = new EntityStunEvent(epicfightDamageSource, hitentitypatch, stunType);
+				
+				if (MinecraftForge.EVENT_BUS.post(entityStunEvent)) {
+					return;
 				}
 				
 				hitentitypatch.setStunShield(stunShield - impact);

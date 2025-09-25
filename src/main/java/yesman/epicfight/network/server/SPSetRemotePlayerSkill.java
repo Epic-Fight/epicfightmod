@@ -1,42 +1,25 @@
 package yesman.epicfight.network.server;
 
-import java.util.function.Supplier;
-
 import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.RegistryManager;
-import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import net.minecraft.core.Holder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import yesman.epicfight.api.utils.ByteBufCodecsExtends;
+import yesman.epicfight.network.ManagedCustomPacketPayload;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillSlot;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-public record SPSetRemotePlayerSkill(int entityId, SkillSlot slot, @Nullable Skill skill) {
-	public static SPSetRemotePlayerSkill fromBytes(FriendlyByteBuf buf) {
-		return new SPSetRemotePlayerSkill(buf.readInt(), SkillSlot.ENUM_MANAGER.get(buf.readInt()), buf.isReadable() ? buf.readRegistryId() : null);
-	}
-
-	public static void toBytes(SPSetRemotePlayerSkill msg, FriendlyByteBuf buf) {
-		buf.writeInt(msg.entityId());
-		buf.writeInt(msg.slot().universalOrdinal());
-		
-		if (msg.skill() != null) {
-			buf.writeRegistryId(RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill);
-		}
-	}
-	
-	public static void handle(SPSetRemotePlayerSkill msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
-			
-			EpicFightCapabilities.getUnparameterizedEntityPatch(entity, AbstractClientPlayerPatch.class).ifPresent(playerpatch -> {
-				playerpatch.getSkill(msg.slot()).setSkillRemote(msg.skill());
-			});
-		});
-		ctx.get().setPacketHandled(true);
-	}
+public record SPSetRemotePlayerSkill(SkillSlot skillSlot, int entityId, @Nullable Holder<Skill> skill) implements ManagedCustomPacketPayload {
+	public static final StreamCodec<RegistryFriendlyByteBuf, SPSetRemotePlayerSkill> STREAM_CODEC =
+		StreamCodec.composite(
+			ByteBufCodecsExtends.extendableEnumCodec(SkillSlot.ENUM_MANAGER),
+			SPSetRemotePlayerSkill::skillSlot,
+			ByteBufCodecs.INT,
+			SPSetRemotePlayerSkill::entityId,
+			ByteBufCodecsExtends.ofNullable(Skill.STREAM_CODEC),
+			SPSetRemotePlayerSkill::skill,
+			SPSetRemotePlayerSkill::new
+	    );
 }

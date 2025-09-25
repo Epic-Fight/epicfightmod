@@ -2,27 +2,26 @@ package yesman.epicfight.compat;
 
 import java.lang.reflect.Constructor;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingException;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingException;
+import net.neoforged.neoforge.common.NeoForge;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 public interface ICompatModule {
-	public static void loadCompatModule(FMLJavaModLoadingContext context, Class<? extends ICompatModule> compatModule) {
+	public static void loadCompatModule(IEventBus modEventBus, Class<? extends ICompatModule> compatModule) {
 		try {
 			Constructor<? extends ICompatModule> constructor = compatModule.getConstructor();
 			ICompatModule compatModuleInstance = constructor.newInstance();
-			compatModuleInstance.onModEventBus(context.getModEventBus());
-			compatModuleInstance.onForgeEventBus(MinecraftForge.EVENT_BUS);
+			compatModuleInstance.onModEventBus(modEventBus);
+			compatModuleInstance.onGameEventBus(NeoForge.EVENT_BUS);
 			
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-				compatModuleInstance.onModEventBusClient(context.getModEventBus());
-				compatModuleInstance.onForgeEventBusClient(MinecraftForge.EVENT_BUS);
-			});
+			if (EpicFightSharedConstants.isPhysicalClient()) {
+				compatModuleInstance.onModEventBusClient(modEventBus);
+				compatModuleInstance.onGameEventBusClient(NeoForge.EVENT_BUS);
+			}
 			
 			EpicFightMod.LOGGER.info("Loaded mod compat: " + compatModule.getSimpleName());
 		} catch (ModLoadingException e) {
@@ -35,10 +34,10 @@ public interface ICompatModule {
 	
 	void onModEventBus(IEventBus eventBus);
 	
-	void onForgeEventBus(IEventBus eventBus);
+	void onGameEventBus(IEventBus eventBus);
 	
 	@OnlyIn(Dist.CLIENT)
 	void onModEventBusClient(IEventBus eventBus);
 	@OnlyIn(Dist.CLIENT)
-	void onForgeEventBusClient(IEventBus eventBus);
+	void onGameEventBusClient(IEventBus eventBus);
 }

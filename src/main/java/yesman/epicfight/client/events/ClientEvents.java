@@ -9,37 +9,37 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.api.neoevent.playerpatch.StartActionEvent;
+import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
-import yesman.epicfight.world.capabilities.provider.EntityPatchProvider;
-import yesman.epicfight.world.capabilities.provider.ItemCapabilityProvider;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.RightClickItemEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
-public class ClientEvents {
+@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+public final class ClientEvents {
+	private ClientEvents() {}
+	
 	private static final Pair<ResourceLocation, ResourceLocation> OFFHAND_TEXTURE = Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
 	private static final Minecraft MINECRAFT = Minecraft.getInstance();
 	
 	@SubscribeEvent
-	public static void mouseClickEvent(ScreenEvent.MouseButtonPressed.Pre event) {
+	public static void epicfight$mouseButtonPressedInScreenPre(ScreenEvent.MouseButtonPressed.Pre event) {
 		if (event.getScreen() instanceof AbstractContainerScreen) {
 			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
 			
@@ -56,7 +56,7 @@ public class ClientEvents {
 	}
 	
 	@SubscribeEvent
-	public static void mouseReleaseEvent(ScreenEvent.MouseButtonReleased.Pre event) {
+	public static void epicfight$mouseButtonReleasedInScreenPre(ScreenEvent.MouseButtonReleased.Pre event) {
 		if (event.getScreen() instanceof AbstractContainerScreen) {
 			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
 			
@@ -73,7 +73,7 @@ public class ClientEvents {
 	}
 	
 	@SubscribeEvent
-	public static void presssKeyInGui(ScreenEvent.KeyPressed.Pre event) {
+	public static void epicfight$keyPressedInScreenPre(ScreenEvent.KeyPressed.Pre event) {
 		CapabilityItem itemCapability = CapabilityItem.EMPTY;
 		
 		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.getKey().getValue()) {
@@ -104,7 +104,7 @@ public class ClientEvents {
 	}
 	
 	@SubscribeEvent
-	public static void rightClickItemClient(PlayerInteractEvent.RightClickItem event) {
+	public static void epicfight$rightClickItem(PlayerInteractEvent.RightClickItem event) {
 		/**
 		 * Server item use event is fired in {@link PlayerEvents#rightClickItemServerEvent}
 		 */
@@ -116,7 +116,7 @@ public class ClientEvents {
 			if (!playerpatch.getEntityState().canUseItem()) {
 				event.setCanceled(true);
 			} else if (playerpatch.getOriginal().getOffhandItem().getUseAnimation() == UseAnim.NONE) {
-				boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.CLIENT_ITEM_USE_EVENT, new RightClickItemEvent<>(playerpatch));
+				boolean canceled = playerpatch.getPlayerSkills().fireSkillEvents(EpicFightMod.MODID, event).isCanceled();
 				
 				if (playerpatch.getEntityState().movementLocked()) {
 					canceled = true;
@@ -128,9 +128,11 @@ public class ClientEvents {
 	}
 	
 	@SubscribeEvent
-	public static void clientLoggingInEvent(ClientPlayerNetworkEvent.LoggingIn event) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(ClientEngine.getInstance().controlEngine::setPlayerPatch);
-		ClientEngine.getInstance().renderEngine.initHUD();
+	public static void epicfight$loggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(entitypatch -> {
+			ControlEngine.getInstance().reloadPlayerPatch(entitypatch);
+			RenderEngine.getInstance().initHUD(entitypatch);
+		});
 	}
 	
 	/**
@@ -141,7 +143,7 @@ public class ClientEvents {
 	
 	@SuppressWarnings("unchecked")
 	@SubscribeEvent
-	public static void clientRespawnEvent(ClientPlayerNetworkEvent.Clone event) {
+	public static void epicfight$clonePlayer(ClientPlayerNetworkEvent.Clone event) {
 		LocalPlayerPatch oldCap = EpicFightCapabilities.getEntityPatch(event.getOldPlayer(), LocalPlayerPatch.class);
 		LocalPlayerPatch newCap = EpicFightCapabilities.getEntityPatch(event.getNewPlayer(), LocalPlayerPatch.class);
 		
@@ -151,7 +153,7 @@ public class ClientEvents {
 		if (oldCap != null && newCap != null) {
 			if (packet != null && packet.shouldKeep((byte)3)) {
 				event.getNewPlayer().tickCount = event.getOldPlayer().tickCount;
-				newCap.copySkillsFrom(oldCap, false);
+				newCap.copyOldData(oldCap, false);
 			}
 			
 			packet = null;
@@ -164,19 +166,26 @@ public class ClientEvents {
 			((ConfigurableGameRule<Object, ?, ?>)gamerule).setRuleValue(event.getNewPlayer().level(), val);
 		});
 		
-		ClientEngine.getInstance().controlEngine.setPlayerPatch(newCap);
-		ClientEngine.getInstance().renderEngine.initHUD();
+		ControlEngine.getInstance().reloadPlayerPatch(newCap);
+		RenderEngine.getInstance().initHUD(newCap);
 	}
 	
 	@SubscribeEvent
-	public static void clientLogoutEvent(ClientPlayerNetworkEvent.LoggingOut event) {
+	public static void epicfight$loggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
 		if (event.getPlayer() != null) {
 			ItemCapabilityReloadListener.reset();
-			ItemCapabilityProvider.clear();
-			EntityPatchProvider.clear();
+			EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.clear();
+			EpicFightCapabilities.ENTITY_PATCH_PROVIDER.clearDatapackEntities();
 			WeaponTypeReloadListener.clear();
-			ClientEngine.getInstance().renderEngine.clear();
+			RenderEngine.getInstance().clear();
 			FractureBlockState.reset();
 		}
+	}
+	
+	@SubscribeEvent
+	public static void epicfight$startActionEvent(StartActionEvent event) {
+		event.runOnLocalClient(playerpatch -> {
+			ControlEngine.getInstance().unlockHotkeys();
+		});
 	}
 }

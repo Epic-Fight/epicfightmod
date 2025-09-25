@@ -52,8 +52,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
@@ -97,7 +97,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelPreviewer extends AbstractWidget implements ResizableComponent {
+public class ModelPreviewer extends AbstractWidget implements ResizableComponent, TickableComponent {
 	private final ModelRenderTarget modelRenderTarget;
 	private final List<AssetAccessor<? extends StaticAnimation>> animationsToPlay = Lists.newArrayList();
 	private final List<CustomTrailParticle> trailParticles = Lists.newArrayList();
@@ -404,16 +404,20 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 	}
 	
 	@Override
-	public boolean mouseScrolled(double x, double y, double amount) {
+	public boolean mouseScrolled(double x, double y, double xScroll, double yScroll) {
 		if (this.zoomingCameraEnabled) {
-			this.zoom = Mth.clamp(this.zoom + amount * 0.5D, -20.0D, -0.5D);
+			this.zoom = Mth.clamp(this.zoom + yScroll * 0.5D, -20.0D, -0.5D);
 			return true;
 		}
 		
 		return false;
 	}
 	
-	protected void renderFigure(GuiGraphics guiGraphics, Tesselator tesselator, BufferBuilder bufferbuilder, float partialTicks) {
+	protected void renderFigure(GuiGraphics guiGraphics, Tesselator tesselator, float partialTicks) {
+		BufferBuilder bufferbuilder = null;
+		
+		RenderSystem.enableDepthTest();
+		
 		if (this.mesh != null && this.mesh.get() != null) {
 			if (this.animator != null) {
 				Pose pose = this.animator.getPose(partialTicks);
@@ -421,17 +425,17 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 				OpenMatrix4f[] poseMatrices = this.entitypatch.getArmature().getPoseAsTransformMatrix(pose, false);
 				
 				if (this.figureTexture != null) {
-					RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+					RenderSystem.setShader(GameRenderer::getRendertypeCloudsShader);
 					RenderSystem.setShaderTexture(0, this.figureTexture);
-					bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+					bufferbuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 					this.mesh.get().drawPosed(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, -1, 0.9411F, 0.9411F, 0.9411F, 1.0F, -1, this.entitypatch.getArmature(), poseMatrices);
 				} else {
 					RenderSystem.setShader(EpicFightShaders::getPositionColorNormalShader);
-					bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+					bufferbuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 					this.mesh.get().drawPosed(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_COLOR_NORMAL, -1, 0.9411F, 0.9411F, 0.9411F, 1.0F, -1, this.entitypatch.getArmature(), poseMatrices);
 				}
 				
-				BufferUploader.drawWithShader(bufferbuilder.end());
+				BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 				
 				if (this.item != null && this.showItemCheckbox._getValue()) {
 					BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -467,15 +471,14 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					
 					for (CustomTrailParticle trail : this.trailParticles) {
 						ParticleRenderType particleRendertype = trail.getRenderType();
-						particleRendertype.begin(bufferbuilder, Minecraft.getInstance().textureManager);
+						particleRendertype.begin(tesselator, Minecraft.getInstance().getTextureManager());
 						trail.render(bufferbuilder, null, partialTicks);
-						particleRendertype.end(tesselator);
 					}
 				}
 				
 				if (this.collider != null && this.showColliderCheckbox._getValue()) {
 					RenderType renderType = this.collider.getRenderType();
-					bufferbuilder.begin(renderType.mode(), renderType.format);
+					bufferbuilder = tesselator.begin(renderType.mode(), renderType.format);
 					RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
 					
 					AnimationPlayer player = this.animator.getPlayerFor(null);
@@ -502,7 +505,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					
 					RenderSystem.lineWidth(3.0F);
 					RenderSystem.disableCull();
-					BufferUploader.drawWithShader(bufferbuilder.end());
+					BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 					RenderSystem.lineWidth(1.0F);
 					RenderSystem.enableCull();
 				}
@@ -511,22 +514,22 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 				this.mesh.get().initialize();
 				
 				if (this.figureTexture != null) {
-					RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+					RenderSystem.setShader(GameRenderer::getRendertypeCloudsShader);
 					RenderSystem.setShaderTexture(0, this.figureTexture);
-					bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+					bufferbuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 					this.mesh.get().draw(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, -1, 0.9411F, 0.9411F, 0.9411F, 1.0F, OverlayTexture.NO_OVERLAY);
 				} else {
 					RenderSystem.setShader(EpicFightShaders::getPositionColorNormalShader);
-					bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+					bufferbuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 					this.mesh.get().draw(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_COLOR_NORMAL, -1, 0.9411F, 0.9411F, 0.9411F, 1.0F, OverlayTexture.NO_OVERLAY);
 				}
 				
-				BufferUploader.drawWithShader(bufferbuilder.end());
+				BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 			}
 		}
 		
 		if (this.cloakMesh != null && this.cloakTexture != null) {
-			TextureManager textureManager = Minecraft.getInstance().textureManager;
+			TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 			AbstractTexture texture = textureManager.getTexture(this.cloakTexture);
 			
 			if (texture != MissingTextureAtlasSprite.getTexture()) {
@@ -544,26 +547,28 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			            this.entitypatch.getArmature().setPose(pose);
 			            
 						clothObj.tick(this.entitypatch, partialColliderTransformProvider, partialTicks, this.entitypatch.getArmature(), this.entitypatch.getArmature().getPoseMatrices());
-						RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+						RenderSystem.setShader(GameRenderer::getRendertypeCloudsShader);
 						RenderSystem.setShaderTexture(0, this.cloakTexture);
-						bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+						BufferBuilder bufferbuilder$2 = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 						
 						guiGraphics.pose().pushPose();
 						guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(this.entitypatch.getYRot() - 180.0F));
-						clothObj.drawPosed(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, -1, this.cloakColor.x, this.cloakColor.y, this.cloakColor.z, 1.0F, OverlayTexture.NO_OVERLAY, this.entitypatch.getArmature(), this.entitypatch.getArmature().getPoseMatrices());
+						clothObj.drawPosed(guiGraphics.pose(), bufferbuilder$2, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, -1, this.cloakColor.x, this.cloakColor.y, this.cloakColor.z, 1.0F, OverlayTexture.NO_OVERLAY, this.entitypatch.getArmature(), this.entitypatch.getArmature().getPoseMatrices());
 						guiGraphics.pose().popPose();
 						
-						BufferUploader.drawWithShader(bufferbuilder.end());
+						BufferUploader.drawWithShader(bufferbuilder$2.buildOrThrow());
 					});
 				} else {
-					RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-					bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+					RenderSystem.setShader(GameRenderer::getRendertypeCloudsShader);
+					bufferbuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 					RenderSystem.setShaderTexture(0, this.cloakTexture);
 					((Mesh)this.cloakMesh).draw(guiGraphics.pose(), bufferbuilder, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, -1, this.cloakColor.x, this.cloakColor.y, this.cloakColor.z, 1.0F, OverlayTexture.NO_OVERLAY);
-					BufferUploader.drawWithShader(bufferbuilder.end());
+					BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 				}
 			}
 		}
+		
+		RenderSystem.disableDepthTest();
 	}
 	
 	@Override
@@ -590,15 +595,13 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 		
 		Tesselator tesselator = RenderSystem.renderThreadTesselator();
-		BufferBuilder bufferbuilder = tesselator.getBuilder();
-		
 		Matrix4f oldProjection = RenderSystem.getProjectionMatrix();
 		Matrix4f perspective = new Matrix4f().setPerspective((float)Math.toRadians(50.0F), (float)this.width / (float)this.height, 0.05F, 100.0F);
 		
 		ShaderInstance prevShader = RenderSystem.getShader();
 		RenderSystem.setProjectionMatrix(perspective, VertexSorting.DISTANCE_TO_ORIGIN);
-		RenderSystem.getModelViewStack().pushPose();
-		RenderSystem.getModelViewStack().setIdentity();
+		RenderSystem.getModelViewStack().pushMatrix();
+		RenderSystem.getModelViewStack().identity();
 		RenderSystem.applyModelViewMatrix();
 		
 		guiGraphics.pose().pushPose();
@@ -606,12 +609,12 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(this.xRot));
 		guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(this.yRot));
 		
-		this.renderFigure(guiGraphics, tesselator, bufferbuilder, minecraft.getFrameTime());
+		this.renderFigure(guiGraphics, tesselator, partialTicks);
 		
 		guiGraphics.pose().popPose();
 		
 		RenderSystem.setProjectionMatrix(oldProjection, VertexSorting.ORTHOGRAPHIC_Z);
-		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.getModelViewStack().popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.setShader(() -> prevShader);
 		
@@ -685,6 +688,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 	@OnlyIn(Dist.CLIENT)
 	public class FakeEntityPatch extends LivingEntityPatch<LivingEntity> implements SimulatableObject, ClothSimulatable {
 		public FakeEntityPatch(Armature armature) {
+			super(null);
 			this.armature = armature.deepCopy();
 		}
 		
@@ -717,7 +721,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 		
 		@Override
-		public float getAttackDirectionPitch() {
+		public float getAttackDirectionPitch(float partialTick) {
 			return 0.0F;
 		}
 		
@@ -802,6 +806,11 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		@Override
 		public Faction getFaction() {
 			return null;
+		}
+		
+		@Override
+		public boolean isFakeEntity() {
+			return true;
 		}
 	}
 	
@@ -1145,16 +1154,14 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			
 			guiGraphics.pose().pushPose();
 			
-			Matrix4f matrix4f = guiGraphics.pose().last().pose();
-			
+			PoseStack.Pose lastPose = guiGraphics.pose().last();
 			Tesselator tesselator = Tesselator.getInstance();
-			BufferBuilder bufferbuilder = tesselator.getBuilder();
-			bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-			bufferbuilder.vertex(matrix4f, left, bottom, 0.0F).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
-			bufferbuilder.vertex(matrix4f, right, bottom, 0.0F).uv(u, 0.0F).color(255, 255, 255, 255).endVertex();
-			bufferbuilder.vertex(matrix4f, right, top, 0.0F).uv(u, v).color(255, 255, 255, 255).endVertex();
-			bufferbuilder.vertex(matrix4f, left, top, 0.0F).uv(0.0F, v).color(255, 255, 255, 255).endVertex();
-			BufferUploader.drawWithShader(bufferbuilder.end());
+			BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+			bufferbuilder.addVertex(lastPose, left, bottom, 0.0F).setUv(0.0F, 0.0F).setColor(255, 255, 255, 255);
+			bufferbuilder.addVertex(lastPose, right, bottom, 0.0F).setUv(u, 0.0F).setColor(255, 255, 255, 255);
+			bufferbuilder.addVertex(lastPose, right, top, 0.0F).setUv(u, v).setColor(255, 255, 255, 255);
+			bufferbuilder.addVertex(lastPose, left, top, 0.0F).setUv(0.0F, v).setColor(255, 255, 255, 255);
+			BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 			
 			guiGraphics.pose().popPose();
 		}
@@ -1315,10 +1322,10 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 				float alphaFrom = Mth.clamp(from, 0.0F, 1.0F);
 				float alphaTo = Mth.clamp(to, 0.0F, 1.0F);
 				
-				vertexConsumer.vertex(pos1.x(), pos1.y(), pos1.z()).uv(from, 1.0F).color(this.rCol, this.gCol, this.bCol, this.alpha * alphaFrom * fading).uv2(0).endVertex();
-				vertexConsumer.vertex(pos2.x(), pos2.y(), pos2.z()).uv(from, 0.0F).color(this.rCol, this.gCol, this.bCol, this.alpha * alphaFrom * fading).uv2(0).endVertex();
-				vertexConsumer.vertex(pos3.x(), pos3.y(), pos3.z()).uv(to, 0.0F).color(this.rCol, this.gCol, this.bCol, this.alpha * alphaTo * fading).uv2(0).endVertex();
-				vertexConsumer.vertex(pos4.x(), pos4.y(), pos4.z()).uv(to, 1.0F).color(this.rCol, this.gCol, this.bCol, this.alpha * alphaTo * fading).uv2(0).endVertex();
+				vertexConsumer.addVertex(pos1.x(), pos1.y(), pos1.z()).setUv(from, 1.0F).setColor(this.rCol, this.gCol, this.bCol, this.alpha * alphaFrom * fading).setLight(0);
+				vertexConsumer.addVertex(pos2.x(), pos2.y(), pos2.z()).setUv(from, 0.0F).setColor(this.rCol, this.gCol, this.bCol, this.alpha * alphaFrom * fading).setLight(0);
+				vertexConsumer.addVertex(pos3.x(), pos3.y(), pos3.z()).setUv(to, 0.0F).setColor(this.rCol, this.gCol, this.bCol, this.alpha * alphaTo * fading).setLight(0);
+				vertexConsumer.addVertex(pos4.x(), pos4.y(), pos4.z()).setUv(to, 1.0F).setColor(this.rCol, this.gCol, this.bCol, this.alpha * alphaTo * fading).setLight(0);
 				
 				from += interval;
 				to += interval;

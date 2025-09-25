@@ -10,10 +10,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
@@ -34,7 +34,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 		
 		String modid = EpicFightMod.MODID;
 		
-		this.optionsList = new EpicFightOptionList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+		this.optionsList = new EpicFightOptionList(this.minecraft, this.width, this.height - 64, 32, 25);
 		
 		int buttonHeight = -32;
 		
@@ -166,7 +166,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		ClientEngine.getInstance().renderEngine.versionNotifier.render(guiGraphics, false);
+		RenderEngine.getInstance().versionNotifier.render(guiGraphics, false);
 		this.basicListRender(guiGraphics, this.optionsList, mouseX, mouseY, partialTicks);
 	}
 }

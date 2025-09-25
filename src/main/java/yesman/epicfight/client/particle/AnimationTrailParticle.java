@@ -19,8 +19,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -36,7 +36,7 @@ import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -303,7 +303,7 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 			
 			if (result.hand() != null) {
 				ItemStack stack = entitypatch.getOriginal().getItemInHand(result.hand());
-				RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
+				RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
 				
 				if (renderItemBase != null && renderItemBase.trailInfo() != null) {
 					result = renderItemBase.trailInfo().overwrite(result);

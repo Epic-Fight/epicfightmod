@@ -1,0 +1,412 @@
+package yesman.epicfight.registry.entries;
+
+import java.util.Set;
+
+import net.minecraft.tags.DamageTypeTags;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
+import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.Skill.ActivateType;
+import yesman.epicfight.skill.Skill.Resource;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.common.AirSlash;
+import yesman.epicfight.skill.common.ComboAttacks;
+import yesman.epicfight.skill.dodge.DodgeSkill;
+import yesman.epicfight.skill.dodge.KnockdownWakeupSkill;
+import yesman.epicfight.skill.guard.GuardSkill;
+import yesman.epicfight.skill.guard.ImpactGuardSkill;
+import yesman.epicfight.skill.guard.ParryingSkill;
+import yesman.epicfight.skill.identity.MeteorSlamSkill;
+import yesman.epicfight.skill.identity.RevelationSkill;
+import yesman.epicfight.skill.mover.DemolitionLeapSkill;
+import yesman.epicfight.skill.mover.PhantomAscentSkill;
+import yesman.epicfight.skill.passive.AdaptiveSkinSkill;
+import yesman.epicfight.skill.passive.AdrenalineFiendSkill;
+import yesman.epicfight.skill.passive.BerserkerSkill;
+import yesman.epicfight.skill.passive.BonebreakerSkill;
+import yesman.epicfight.skill.passive.CatharsisSkill;
+import yesman.epicfight.skill.passive.DeathHarvestSkill;
+import yesman.epicfight.skill.passive.EmergencyEscapeSkill;
+import yesman.epicfight.skill.passive.EnduranceSkill;
+import yesman.epicfight.skill.passive.ForbiddenStrengthSkill;
+import yesman.epicfight.skill.passive.HyperVitalitySkill;
+import yesman.epicfight.skill.passive.PassiveSkill;
+import yesman.epicfight.skill.passive.StaminaPillagerSkill;
+import yesman.epicfight.skill.passive.SwordmasterSkill;
+import yesman.epicfight.skill.passive.TechnicianSkill;
+import yesman.epicfight.skill.passive.VengeanceSkill;
+import yesman.epicfight.skill.weapon_passive.BattojutsuPassive;
+import yesman.epicfight.skill.weaponinnate.BattojutsuSkill;
+import yesman.epicfight.skill.weaponinnate.BladeRushSkill;
+import yesman.epicfight.skill.weaponinnate.ConditionalWeaponInnateSkill;
+import yesman.epicfight.skill.weaponinnate.EverlastingAllegiance;
+import yesman.epicfight.skill.weaponinnate.EviscerateSkill;
+import yesman.epicfight.skill.weaponinnate.GraspingSpireSkill;
+import yesman.epicfight.skill.weaponinnate.GuillotineAxeSkill;
+import yesman.epicfight.skill.weaponinnate.LiechtenauerSkill;
+import yesman.epicfight.skill.weaponinnate.RushingTempoSkill;
+import yesman.epicfight.skill.weaponinnate.SimpleWeaponInnateSkill;
+import yesman.epicfight.skill.weaponinnate.SteelWhirlwindSkill;
+import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+import yesman.epicfight.skill.weaponinnate.WrathfulLightingSkill;
+import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+import yesman.epicfight.world.damagesource.ExtraDamageInstance;
+import yesman.epicfight.world.damagesource.StunType;
+
+public final class EpicFightSkills {
+	private EpicFightSkills() {}
+	
+	public static final DeferredRegister<Skill> REGISTRY = DeferredRegister.create(EpicFightRegistries.Keys.SKILL, EpicFightMod.MODID);
+	
+	public static final DeferredHolder<Skill, Skill> EMPTY = REGISTRY.register("empty", key -> 
+		Skill.EMPTY
+	);
+	
+	public static final DeferredHolder<Skill, ComboAttacks> COMBO_ATTACKS = REGISTRY.register("combo_attacks", key -> 
+		ComboAttacks.createComboAttackBuilder().build(key, ComboAttacks.class)
+	);
+	
+	public static final DeferredHolder<Skill, AirSlash> AIR_SLASH = REGISTRY.register("air_slash", key -> 
+		AirSlash.createAirSlashBuilder().build(key, AirSlash.class)
+	);
+	
+	public static final DeferredHolder<Skill, DodgeSkill> ROLL = REGISTRY.register("roll", key -> 
+		DodgeSkill.createDodgeBuilder(DodgeSkill::new)
+			.setAnimations(Animations.BIPED_ROLL_FORWARD, Animations.BIPED_ROLL_BACKWARD)
+			.build(key, DodgeSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, DodgeSkill> STEP = REGISTRY.register("step", key -> 
+		DodgeSkill.createDodgeBuilder(DodgeSkill::new)
+			.setAnimations(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_LEFT, Animations.BIPED_STEP_RIGHT)
+			.build(key, DodgeSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, KnockdownWakeupSkill> KNOCKDOWN_WAKEUP = REGISTRY.register("knockdown_wakeup", key -> 
+		DodgeSkill.createDodgeBuilder(KnockdownWakeupSkill::new)
+			.setAnimations(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT)
+			.setCategory(SkillCategories.KNOCKDOWN_WAKEUP)
+			.build(key, KnockdownWakeupSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, GuardSkill> GUARD = REGISTRY.register("guard", key -> 
+		GuardSkill.createGuardBuilder(GuardSkill::new).build(key, GuardSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, ImpactGuardSkill> IMPACT_GUARD = REGISTRY.register("impact_guard", key -> 
+		ImpactGuardSkill.createImpactGuardBuilder().build(key, ImpactGuardSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, ParryingSkill> PARRYING = REGISTRY.register("parrying", key -> 
+		ParryingSkill.createActiveGuardBuilder().build(key, ParryingSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, AdaptiveSkinSkill> ADAPTIVE_SKIN = REGISTRY.register("adaptive_skin", key -> 
+		AdaptiveSkinSkill.createAdaptiveSkinBuilder().build(key, AdaptiveSkinSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, AdrenalineFiendSkill> ADRENALINE_FIEND = REGISTRY.register("adrenaline_fiend", key -> 
+		PassiveSkill.createPassiveBuilder(AdrenalineFiendSkill::new).build(key, AdrenalineFiendSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, BerserkerSkill> BERSERKER = REGISTRY.register("berserker", key -> 
+		PassiveSkill.createPassiveBuilder(BerserkerSkill::new).build(key, BerserkerSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, BonebreakerSkill> BONEBREAKER = REGISTRY.register("bonebreaker", key -> 
+		PassiveSkill.createPassiveBuilder(BonebreakerSkill::new).build(key, BonebreakerSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, CatharsisSkill> CATHARSIS = REGISTRY.register("catharsis", key -> 
+		PassiveSkill.createPassiveBuilder(CatharsisSkill::new).build(key, CatharsisSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, DeathHarvestSkill> DEATH_HARVEST = REGISTRY.register("death_harvest", key -> 
+		PassiveSkill.createPassiveBuilder(DeathHarvestSkill::new).build(key, DeathHarvestSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, EmergencyEscapeSkill> EMERGENCY_ESCAPE = REGISTRY.register("emergency_escape", key -> 
+		EmergencyEscapeSkill.createEmergencyEscapeBuilder()
+			.addAvailableWeaponCategory(WeaponCategories.SWORD, WeaponCategories.UCHIGATANA, WeaponCategories.DAGGER)
+			.build(key, EmergencyEscapeSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, EnduranceSkill> ENDURANCE = REGISTRY.register("endurance", key -> 
+		PassiveSkill.createPassiveBuilder(EnduranceSkill::new)
+			.setResource(Resource.COOLDOWN)
+			.setActivateType(ActivateType.DURATION)
+			.build(key, EnduranceSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, ForbiddenStrengthSkill> FORBIDDEN_STRENGTH = REGISTRY.register("forbidden_strength", key -> 
+		PassiveSkill.createPassiveBuilder(ForbiddenStrengthSkill::new).build(key, ForbiddenStrengthSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, HyperVitalitySkill> HYPERVITALITY = REGISTRY.register("hypervitality", key -> 
+		PassiveSkill.createPassiveBuilder(HyperVitalitySkill::new)
+			.setResource(Resource.COOLDOWN)
+			.setActivateType(ActivateType.TOGGLE)
+			.build(key, HyperVitalitySkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, StaminaPillagerSkill> STAMINA_PILLAGER = REGISTRY.register("stamina_pillager", key -> 
+		PassiveSkill.createPassiveBuilder(StaminaPillagerSkill::new).build(key, StaminaPillagerSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SwordmasterSkill> SWORD_MASTER = REGISTRY.register("swordmaster", key -> 
+		SwordmasterSkill.createSwordMasterBuilder().build(key, SwordmasterSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, TechnicianSkill> TECHNICIAN = REGISTRY.register("technician", key -> 
+		PassiveSkill.createPassiveBuilder(TechnicianSkill::new).build(key, TechnicianSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, VengeanceSkill> VENGEANCE = REGISTRY.register("vengeance", key -> 
+		PassiveSkill.createPassiveBuilder(VengeanceSkill::new).build(key, VengeanceSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, MeteorSlamSkill> METEOR_SLAM = REGISTRY.register("meteor_slam", key -> 
+		MeteorSlamSkill.createMeteorSlamBuilder().build(key, MeteorSlamSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, RevelationSkill> REVELATION = REGISTRY.register("revelation", key -> 
+		RevelationSkill.createRevelationSkillBuilder().build(key, RevelationSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, DemolitionLeapSkill> DEMOLITION_LEAP = REGISTRY.register("demolition_leap", key -> 
+		Skill.createMoverBuilder(DemolitionLeapSkill::new)
+			.setActivateType(ActivateType.HELD)
+			.build(key, DemolitionLeapSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, PhantomAscentSkill> PHANTOM_ASCENT = REGISTRY.register("phantom_ascent", key -> 
+		Skill.createMoverBuilder(PhantomAscentSkill::new)
+			.setResource(Resource.COOLDOWN)
+			.build(key, PhantomAscentSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SimpleWeaponInnateSkill> SWEEPING_EDGE = REGISTRY.register("sweeping_edge", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder()
+			.setAnimations(Animations.SWEEPING_EDGE)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20.0F))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.6F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, SimpleWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SimpleWeaponInnateSkill> DANCING_EDGE = REGISTRY.register("dancing_edge", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder()
+			.setAnimations(Animations.DANCING_EDGE)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, SimpleWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, GuillotineAxeSkill> THE_GUILLOTINE = REGISTRY.register("the_guillotine", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder(GuillotineAxeSkill::new)
+			.setAnimations(Animations.THE_GUILLOTINE)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.5F))
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20.0F))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, GuillotineAxeSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, GraspingSpireSkill> GRASPING_SPIRE = REGISTRY.register("grasping_spire", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(GraspingSpireSkill::new)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(3))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(4.0F))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(4))
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.build(key, GraspingSpireSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SimpleWeaponInnateSkill> HEARTPIERCER = REGISTRY.register("heartpiercer", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder()
+			.setAnimations(Animations.HEARTPIERCER)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(10.0F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, SimpleWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SteelWhirlwindSkill> STEEL_WHIRLWIND = REGISTRY.register("steel_whirlwind", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(SteelWhirlwindSkill::new)
+			.setActivateType(ActivateType.HELD)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.4F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, SteelWhirlwindSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, BattojutsuSkill> BATTOJUTSU = REGISTRY.register("battojutsu", key -> 
+		ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder(BattojutsuSkill::new)
+			.setSelector(executer -> executer.getOriginal().isSprinting() ? 1 : 0)
+			.setAnimations(Animations.BATTOJUTSU, Animations.BATTOJUTSU_DASH)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(50.0F))
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(6))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, BattojutsuSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, RushingTempoSkill> RUSHING_TEMPO = REGISTRY.register("rushing_tempo", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(RushingTempoSkill::new)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(50.0F))
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(2))
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.7F))
+				.addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+			.build(key, RushingTempoSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SimpleWeaponInnateSkill> RELENTLESS_COMBO = REGISTRY.register("relentless_combo", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder()
+			.setAnimations(Animations.RELENTLESS_COMBO)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.6F))
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+				.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, SimpleWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, SimpleWeaponInnateSkill> SHARP_STAB = REGISTRY.register("sharp_stab", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder()
+			.setAnimations(Animations.SHARP_STAB)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.4F))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(0.5F))
+				.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE, EpicFightDamageTypeTags.GUARD_PUNCTURE))
+			.build(key, SimpleWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, LiechtenauerSkill> LIECHTENAUER = REGISTRY.register("liechtenauer", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(LiechtenauerSkill::new)
+			.setActivateType(ActivateType.DURATION)
+			.build(key, LiechtenauerSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, EviscerateSkill> EVISCERATE = REGISTRY.register("eviscerate", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(EviscerateSkill::new)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(2.0F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create(), ExtraDamageInstance.EVISCERATE_LOST_HEALTH.create(0.1F)))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(50.0F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+			.build(key, EviscerateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, BladeRushSkill> BLADE_RUSH = REGISTRY.register("blade_rush", key -> 
+		BladeRushSkill.createBladeRushBuilder()
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.WEAPON_INNATE, DamageTypeTags.BYPASSES_ARMOR))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NONE)
+				.addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+				.build(key, BladeRushSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, WrathfulLightingSkill> WRATHFUL_LIGHTING = REGISTRY.register("wrathful_lighting", key -> 
+		SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder(WrathfulLightingSkill::new)
+			.setAnimations(Animations.WRATHFUL_LIGHTING)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+			.newProperty()
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(8.0F))
+				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(3))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(100.0F))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+			.build(key, WrathfulLightingSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, ConditionalWeaponInnateSkill> TSUNAMI = REGISTRY.register("tsunami", key -> 
+		ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder()
+			.setSelector(executer -> executer.getOriginal().isInWaterOrRain() ? 1 : 0)
+			.setAnimations(Animations.TSUNAMI, Animations.TSUNAMI_REINFORCED)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(100.0F))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+			.build(key, ConditionalWeaponInnateSkill.class)
+	);
+	
+	public static final DeferredHolder<Skill, EverlastingAllegiance> EVERLASTING_ALLEGIANCE = REGISTRY.register("everlasting_allegiance", key -> 
+		WeaponInnateSkill.createWeaponInnateBuilder(EverlastingAllegiance::new)
+			.newProperty()
+				.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(30.0F))
+				.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.4F))
+				.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+			.build(key, EverlastingAllegiance.class)
+	);
+	
+	public static final DeferredHolder<Skill, BattojutsuPassive> BATTOJUTSU_PASSIVE = REGISTRY.register("battojutsu_passive", key -> 
+		Skill.createBuilder(BattojutsuPassive::new)
+			.setCategory(SkillCategories.WEAPON_PASSIVE)
+			.setActivateType(ActivateType.ONE_SHOT)
+			.setResource(Resource.COOLDOWN)
+			.build(key, BattojutsuPassive.class)
+	);
+}

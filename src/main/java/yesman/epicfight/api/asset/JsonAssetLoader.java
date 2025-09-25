@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +31,12 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.fml.loading.FMLEnvironment;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
@@ -101,27 +104,36 @@ public class JsonAssetLoader {
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			} catch (NoSuchElementException e) {
 				// In this case, reads the animation data from mod.jar (Especially in a server)
-				Class<?> modClass = ModList.get().getModObjectById(resourceLocation.getNamespace()).orElseThrow(() -> new AssetLoadingException("No modid " + resourceLocation)).getClass();
-				InputStream inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
+				ModContainer modContainer = ModList.get().getModContainerById(resourceLocation.getNamespace()).orElseThrow(() -> new AssetLoadingException("No mod Id: " + resourceLocation));
+				InputStream inputstream = null;
 				
-				if (inputStream == null) {
-					modClass = ModList.get().getModObjectById(EpicFightMod.MODID).get().getClass();
-					inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
+				if (modContainer instanceof FMLModContainer fmlModContainer) {
+					Field modClassesField = FMLModContainer.class.getDeclaredField("modClasses");
+					modClassesField.setAccessible(true);
+					@SuppressWarnings("unchecked")
+					List<Class<?>> modClasses = (List<Class<?>>) modClassesField.get(fmlModContainer);
+					
+					for (Class<?> modClass : modClasses) {
+						inputstream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
+						
+						if (inputstream != null) {
+							break;
+						}
+					}
 				}
 				
-				//Still null, throws exception.
-				if (inputStream == null) {
-					throw new AssetLoadingException("Can't find resource file: " + resourceLocation);
+				if (inputstream == null) {
+					throw new NoSuchElementException("No file named " + resourceLocation.toString());
 				}
 				
-				BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+				BufferedInputStream bufferedInputStream = new BufferedInputStream(inputstream);
 				InputStreamReader reader = new InputStreamReader(bufferedInputStream, StandardCharsets.UTF_8);
 				
 				jsonReader = new JsonReader(reader);
 				jsonReader.setLenient(true);
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new AssetLoadingException("Can't read " + resourceLocation.toString() + " because of " + e);
 		} finally {
 			if (jsonReader != null) {

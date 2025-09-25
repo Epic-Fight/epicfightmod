@@ -12,7 +12,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.network.common.AnimatorControlPacket;
+import yesman.epicfight.network.common.AbstractAnimatorControl;
 import yesman.epicfight.server.commands.arguments.AnimationArgument;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -91,7 +91,7 @@ public class AnimatorCommand {
 			
 			if (entitypatch != null) {
 				successEntityNum++;
-				entitypatch.pauseAnimator(AnimatorControlPacket.Action.SOFT_PAUSE, paused);
+				entitypatch.pauseAnimator(AbstractAnimatorControl.Action.SOFT_PAUSE, paused);
 			}
 		}
 		
@@ -106,7 +106,7 @@ public class AnimatorCommand {
 			
 			if (entitypatch != null) {
 				successEntityNum++;
-				entitypatch.pauseAnimator(AnimatorControlPacket.Action.HARD_PAUSE, paused);
+				entitypatch.pauseAnimator(AbstractAnimatorControl.Action.HARD_PAUSE, paused);
 			}
 		}
 		

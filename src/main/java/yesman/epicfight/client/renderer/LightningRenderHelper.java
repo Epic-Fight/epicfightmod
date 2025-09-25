@@ -2,14 +2,15 @@ package yesman.epicfight.client.renderer;
 
 import java.util.Random;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 
 @OnlyIn(Dist.CLIENT)
@@ -17,22 +18,22 @@ public class LightningRenderHelper {
 	private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0D) / 2.0D);
 	
 	private static void vertex01(VertexConsumer vertexConsumer, Matrix4f matrix4f, int alpha) {
-		vertexConsumer.vertex(matrix4f, 0.0F, 0.0F, 0.0F).color(255, 255, 255, alpha).endVertex();
+		vertexConsumer.addVertex(matrix4f, 0.0F, 0.0F, 0.0F).setColor(255, 255, 255, alpha);
 	}
 	
 	private static void vertex2(VertexConsumer vertexConsumer, Matrix4f matrix4f, float height, float width, int rCol, int gCol, int bCol) {
-		vertexConsumer.vertex(matrix4f, -HALF_SQRT_3 * width, height, -0.5F * width).color(rCol, gCol, bCol, 0).endVertex();
+		vertexConsumer.addVertex(matrix4f, -HALF_SQRT_3 * width, height, -0.5F * width).setColor(rCol, gCol, bCol, 0);
 	}
 	
 	private static void vertex3(VertexConsumer vertexConsumer, Matrix4f matrix4f, float height, float width, int rCol, int gCol, int bCol) {
-		vertexConsumer.vertex(matrix4f, HALF_SQRT_3 * width, height, -0.5F * width).color(rCol, gCol, bCol, 0).endVertex();
+		vertexConsumer.addVertex(matrix4f, HALF_SQRT_3 * width, height, -0.5F * width).setColor(rCol, gCol, bCol, 0);
 	}
 	
 	private static void vertex4(VertexConsumer vertexConsumer, Matrix4f matrix4f, float width, float height, int rCol, int gCol, int bCol) {
-		vertexConsumer.vertex(matrix4f, 0.0F, width, height).color(rCol, gCol, bCol, 0).endVertex();
+		vertexConsumer.addVertex(matrix4f, 0.0F, width, height).setColor(rCol, gCol, bCol, 0);
 	}
 	
-	public static void renderCyclingLight(VertexConsumer vertexConsumer, PoseStack poseStack, int rCol, int gCol, int bCol, int density, float size, float progression, float repeater) {
+	public static void renderCirclingLight(VertexConsumer vertexConsumer, PoseStack poseStack, int rCol, int gCol, int bCol, int density, float size, float progression, float repeater) {
 		Matrix4f matrix4f = poseStack.last().pose();
 		Random random = new Random(123);
 		

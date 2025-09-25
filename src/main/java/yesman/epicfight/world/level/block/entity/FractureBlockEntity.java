@@ -13,8 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.registry.entries.EpicFightBlockEntities;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
 public class FractureBlockEntity extends BlockEntity {
@@ -65,7 +66,7 @@ public class FractureBlockEntity extends BlockEntity {
 	
 	@OnlyIn(Dist.CLIENT)
 	public static void lifeTimeTick(Level level, BlockPos blockPos, BlockState blockState, FractureBlockEntity fractureBlockEntity) {
-		if (fractureBlockEntity.originalBlockState.shouldSpawnParticlesOnBreak() && fractureBlockEntity.maxLifeTime - fractureBlockEntity.lifeTime < 10) {
+		if (fractureBlockEntity.originalBlockState.shouldSpawnTerrainParticles() && fractureBlockEntity.maxLifeTime - fractureBlockEntity.lifeTime < 10) {
 			Particle blockParticle = new TerrainParticle((ClientLevel)level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0, 0, fractureBlockEntity.originalBlockState, blockPos);
 			blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
 			blockParticle.setLifetime(10 + new Random().nextInt(60));

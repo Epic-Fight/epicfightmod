@@ -3,8 +3,8 @@ package yesman.epicfight.client.gui.datapack.widgets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ResizableButton extends Button implements ResizableComponent {
@@ -216,9 +216,5 @@ public class ResizableButton extends Button implements ResizableComponent {
 		public ResizableButton build() {
 			return new ResizableButton(this);
 		}
-	}
-	
-	@Override
-	public void _tick() {
 	}
 }

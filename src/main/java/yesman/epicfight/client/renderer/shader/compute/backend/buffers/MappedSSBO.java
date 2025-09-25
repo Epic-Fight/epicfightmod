@@ -1,14 +1,7 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.buffers;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.io.Closeable;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.function.BiConsumer;
-
-import static org.lwjgl.opengl.GL45C.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 // todo
 

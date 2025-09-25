@@ -10,22 +10,22 @@ public class ComputeShader {
     }
 
     public void setShaderSource(String source) {
-        glShaderSource(shaderHandle, source);
+        glShaderSource(this.shaderHandle, source);
     }
 
     public void compileShader() {
-        glCompileShader(shaderHandle);
+        glCompileShader(this.shaderHandle);
     }
 
     public boolean isCompiled() {
-        return glGetShaderi(shaderHandle, GL_COMPILE_STATUS) == GL_TRUE;
+        return glGetShaderi(this.shaderHandle, GL_COMPILE_STATUS) == GL_TRUE;
     }
 
     public String getInfoLog() {
-        return glGetShaderInfoLog(shaderHandle);
+        return glGetShaderInfoLog(this.shaderHandle);
     }
 
     public void delete() {
-        glDeleteShader(shaderHandle);
+        glDeleteShader(this.shaderHandle);
     }
 }

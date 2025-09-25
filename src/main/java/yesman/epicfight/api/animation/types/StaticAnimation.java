@@ -17,14 +17,15 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationVariables;
-import yesman.epicfight.api.animation.AnimationVariables.IndependentAnimationVariableKey;
+import yesman.epicfight.api.animation.AnimationVariables.IndependentVariableKey;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.Pose;
@@ -46,15 +47,18 @@ import yesman.epicfight.api.client.animation.property.JointMaskEntry;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.exception.AssetLoadingException;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.neoevent.playerpatch.AnimationBeginEvent;
+import yesman.epicfight.api.neoevent.playerpatch.AnimationEndEvent;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.physics.ik.InverseKinematicsProvider;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulatable;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.BakedInverseKinematicsDefinition;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.InverseKinematicsObject;
-import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
+import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.RenderingTool;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
@@ -63,12 +67,9 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.AnimationBeginEvent;
-import yesman.epicfight.world.entity.eventlistener.AnimationEndEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class StaticAnimation extends DynamicAnimation implements InverseKinematicsProvider {
-	public static final IndependentAnimationVariableKey<Boolean> HAD_NO_PHYSICS = AnimationVariables.independent((animator) -> false, true);
+	public static final IndependentVariableKey<Boolean> NO_PHYSICS = AnimationVariables.unsyncIndependent(animator -> false, true);
 	
 	public static String getFileHash(ResourceLocation rl) {
 		String fileHash;
@@ -251,7 +252,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 		// Please fix this implementation when minecraft supports any mixinable method that returns noPhysics variable 
 		this.getProperty(StaticAnimationProperty.NO_PHYSICS).ifPresent(val -> {
 			if (val) {
-				entitypatch.getAnimator().getVariables().put(HAD_NO_PHYSICS, this.getAccessor(), entitypatch.getOriginal().noPhysics);
+				entitypatch.getAnimator().getVariables().put(NO_PHYSICS, this.getAccessor(), entitypatch.getOriginal().noPhysics);
 				entitypatch.getOriginal().noPhysics = true;
 			}
 		});
@@ -267,7 +268,8 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 					double index = Double.longBitsToDouble((long)idx++);
 					
 					if (trailInfo.hand() != null) {
-						RenderItemBase renderitembase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getAdvancedHoldingItemStack(trailInfo.hand()));
+						ItemStack stack = entitypatch.getAdvancedHoldingItemStack(trailInfo.hand());
+						RenderItemBase renderitembase = RenderEngine.getInstance().getItemRenderer(stack);
 						
 						if (renderitembase != null && renderitembase.trailInfo() != null) {
 							trailInfo = renderitembase.trailInfo().overwrite(trailInfo);
@@ -290,27 +292,23 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 		});
 		
 		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
-			playerpatch.getEventListener().triggerEvents(EventType.ANIMATION_BEGIN_EVENT, new AnimationBeginEvent(playerpatch, this));
+			PlayerPatchEvent.postAndFireSkillListeners(new AnimationBeginEvent(playerpatch, this));
 		}
 	}
 	
 	@Override
 	public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
-		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
-			playerpatch.getEventListener().triggerEvents(EventType.ANIMATION_END_EVENT, new AnimationEndEvent(playerpatch, this, isEnd));
-		}
+		this.getProperty(StaticAnimationProperty.NO_PHYSICS).ifPresent((val) -> {
+			if (val) entitypatch.getOriginal().noPhysics = entitypatch.getAnimator().getVariables().getOrDefault(NO_PHYSICS, this.getAccessor());
+		});
 		
 		this.getProperty(StaticAnimationProperty.ON_END_EVENTS).ifPresent((events) -> {
-			for (SimpleEvent<?> event : events) {
-				event.executeWithNewParams(entitypatch, this.getAccessor(), this.getTotalTime(), this.getTotalTime(), event.getParameters() == null ? AnimationParameters.of(isEnd) : AnimationParameters.addParameter(event.getParameters(), isEnd));
-			}
+			events.forEach(event -> event.executeWithNewParams(entitypatch, this.getAccessor(), this.getTotalTime(), this.getTotalTime(), event.getParameters() == null ? AnimationParameters.of(isEnd) : AnimationParameters.addParameter(event.getParameters(), isEnd)));
 		});
 		
-		this.getProperty(StaticAnimationProperty.NO_PHYSICS).ifPresent((val) -> {
-			if (val) {
-				entitypatch.getOriginal().noPhysics = entitypatch.getAnimator().getVariables().getOrDefault(HAD_NO_PHYSICS, this.getAccessor());
-			}
-		});
+		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
+			PlayerPatchEvent.postAndFireSkillListeners(new AnimationEndEvent(playerpatch, this, isEnd));
+		}
 		
 		entitypatch.getAnimator().getVariables().removeAll(this.getAccessor());
 	}
@@ -341,7 +339,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	}
 	
 	@Override
-	public TypeFlexibleHashMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
+	public ParameterizedHashMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
 		return this.stateSpectrum.getStateMap(entitypatch, time);
 	}
 	

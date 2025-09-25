@@ -56,7 +56,7 @@ public class AirSlashAnimation extends AttackAnimation {
 	}
 	
 	@Override
-	public boolean isBasicAttackAnimation() {
+	public boolean isComboAttackAnimation() {
 		return true;
 	}
 }

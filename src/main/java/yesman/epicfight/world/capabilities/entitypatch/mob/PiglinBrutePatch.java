@@ -8,27 +8,27 @@ import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
 import yesman.epicfight.world.entity.ai.brain.BrainRecomposer;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 
 public class PiglinBrutePatch extends HumanoidMobPatch<PiglinBrute> {
-	public PiglinBrutePatch() {
-		super(Factions.PIGLINS);
+	public PiglinBrutePatch(PiglinBrute original) {
+		super(original, Factions.PIGLINS);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.PIGLIN_BRUTE, EpicFightAttributes.STUN_ARMOR.get(), 8.0D);
-		event.add(EntityType.PIGLIN_BRUTE, EpicFightAttributes.IMPACT.get(), 3.0D);
+		event.add(EntityType.PIGLIN_BRUTE, EpicFightAttributes.STUN_ARMOR, 8.0D);
+		event.add(EntityType.PIGLIN_BRUTE, EpicFightAttributes.IMPACT, 3.0D);
 	}
 	
 	@Override

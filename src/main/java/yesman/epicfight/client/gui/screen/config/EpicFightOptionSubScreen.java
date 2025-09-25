@@ -5,8 +5,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
 import yesman.epicfight.config.ClientConfig;
 
@@ -38,9 +38,8 @@ public class EpicFightOptionSubScreen extends Screen {
 	}
 	
 	protected void basicListRender(GuiGraphics guiGraphics, EpicFightOptionList optionList, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics);
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 		optionList.render(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 }

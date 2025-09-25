@@ -1,10 +1,10 @@
 package yesman.epicfight.api.animation;
 
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
-public interface LivingMotion extends ExtendableEnum {
-	ExtendableEnumManager<LivingMotion> ENUM_MANAGER = new ExtendableEnumManager<> ("living_motion");
+public interface LivingMotion extends ExtensibleEnum {
+	ExtensibleEnumManager<LivingMotion> ENUM_MANAGER = new ExtensibleEnumManager<> ("living_motion");
 	
 	default boolean isSame(LivingMotion livingMotion) {
 		if (this == LivingMotions.IDLE && livingMotion == LivingMotions.INACTION) {

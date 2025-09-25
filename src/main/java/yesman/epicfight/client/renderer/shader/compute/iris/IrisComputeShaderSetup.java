@@ -16,11 +16,11 @@ import org.lwjgl.opengl.GL20C;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
+import net.irisshaders.iris.layer.BufferSourceWrapper;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.client.Minecraft;
@@ -28,8 +28,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.client.model.VertexBuilder;
@@ -169,21 +169,21 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
 			
-			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
+			if (elem == VertexFormatElement.POSITION) {
 				ComputeShaderSetup.bindAttrPointer(buffers[0], 3, i, GL11C.GL_FLOAT);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
+			} else if (elem == VertexFormatElement.UV0) {
 				ComputeShaderSetup.bindAttrPointer(buffers[3], 2, i, GL11C.GL_FLOAT);
-			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
+			} else if (elem == VertexFormatElement.COLOR) {
 				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[2]);
 				GL20C.glVertexAttribPointer(i, 4, GL11C.GL_FLOAT, true, 0, 0);
 				GL20C.glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
+			} else if (elem == VertexFormatElement.NORMAL) {
 				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[1]);
 				GL20C.glVertexAttribPointer(i, 3, GL11C.GL_BYTE, true, 4, 0);
 				GL20C.glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
+			} else if (elem == VertexFormatElement.UV1) {
 				ComputeShaderSetup.bindIntAttrPointer(buffers[4], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
+			} else if (elem == VertexFormatElement.UV2) {
 				ComputeShaderSetup.bindIntAttrPointer(buffers[5], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
 			}
 			// iris part
@@ -318,34 +318,36 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		RenderSystem.getShader().clear();
 		renderType.clearRenderState();
 		
-		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
-			renderType.outline().ifPresent(outlineRendertype -> {
-				outlineRendertype.setupRenderState();
-				
-				var outlinemode = outlineRendertype.mode();
-				ShaderInstance outlineshader = RenderSystem.getShader();
-				var outlineformat = outlineshader.getVertexFormat();
-				
-				this.bindBufferFormat(
-					outlineformat,
-					this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO,
-					this.outUv0.glSSBO, this.outUv1.glSSBO, this.outUv2.glSSBO,
-					this.outEntityId.glSSBO, this.midUVBO.glSSBO, this.outTangent.glSSBO
-				);
-				
-				ComputeShaderSetup.setShaderDefaultUniforms(outlineshader, outlinemode, Minecraft.getInstance().getWindow());
-				outlineshader.apply();
-				this.applyComputeShader(poseStack, null, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
-				
-				// draw call
-				GL20C.glUseProgram(RenderSystem.getShader().getId());
-				GL11C.glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, this.vcount);
-				
-				// state restore
-				RenderSystem.getShader().clear();
-				
-				outlineRendertype.clearRenderState();
-			});
+		if (buffers instanceof BufferSourceWrapper bufferwrapper) {
+			if (bufferwrapper.getOriginal() instanceof OutlineBufferSource outlineBufferSource) {
+				renderType.outline().ifPresent(outlineRendertype -> {
+					outlineRendertype.setupRenderState();
+					
+					var outlinemode = outlineRendertype.mode();
+					ShaderInstance outlineshader = RenderSystem.getShader();
+					var outlineformat = outlineshader.getVertexFormat();
+					
+					this.bindBufferFormat(
+						outlineformat,
+						this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO,
+						this.outUv0.glSSBO, this.outUv1.glSSBO, this.outUv2.glSSBO,
+						this.outEntityId.glSSBO, this.midUVBO.glSSBO, this.outTangent.glSSBO
+					);
+					
+					ComputeShaderSetup.setShaderDefaultUniforms(outlineshader, outlinemode, Minecraft.getInstance().getWindow());
+					outlineshader.apply();
+					this.applyComputeShader(poseStack, null, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+					
+					// draw call
+					GL20C.glUseProgram(RenderSystem.getShader().getId());
+					GL11C.glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, this.vcount);
+					
+					// state restore
+					RenderSystem.getShader().clear();
+					
+					outlineRendertype.clearRenderState();
+				});
+			}
 		}
 		
 		format.clearBufferState();

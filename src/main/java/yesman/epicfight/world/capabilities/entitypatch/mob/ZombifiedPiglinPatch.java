@@ -13,8 +13,8 @@ import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class ZombifiedPiglinPatch extends HumanoidMobPatch<ZombifiedPiglin> {
-	public ZombifiedPiglinPatch() {
-		super(Factions.ZOMBIFIED_PIGLIN);
+	public ZombifiedPiglinPatch(ZombifiedPiglin original) {
+		super(original, Factions.ZOMBIFIED_PIGLIN);
 	}
 	
 	@Override

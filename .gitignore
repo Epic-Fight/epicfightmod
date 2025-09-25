@@ -21,8 +21,10 @@ build
 eclipse
 run
 run-data
+src/generated
 epicskins
 ServerCommunicationHelper
 
-# Files from Forge MDK
-forge*changelog.txt
+repo
+
+*.jar

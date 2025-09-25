@@ -1,14 +1,15 @@
 package yesman.epicfight.client.gui.datapack.widgets;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -22,6 +23,8 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -29,10 +32,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
@@ -41,7 +42,7 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
 import yesman.epicfight.client.gui.datapack.screen.SelectAnimationScreen;
@@ -50,9 +51,9 @@ import yesman.epicfight.client.gui.datapack.screen.SelectModelScreen;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
-import yesman.epicfight.world.capabilities.provider.EntityPatchProvider;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class PopupBox<T> extends AbstractWidget implements DataBindingComponent<T, Pair<String, T>> {
@@ -122,7 +123,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 	}
 	
 	@Override
-	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		int outlineColor = this.isFocused() ? -1 : this.isActive() ? -6250336 : -12566463;
 		
 		guiGraphics.fill(this._getX() - 1, this._getY() - 1, this._getX() + this.width + 1, this._getY() + this.height + 1, outlineColor);
@@ -137,7 +138,8 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 			RenderSystem.setShaderColor(0.3F, 0.3F, 0.3F, 1.0F);
 		}
 		
-		this.renderTexture(guiGraphics, POPUP_ICON, this._getX() + this.width - this.height, this._getY(), 0, 0, 0, this.height, this.height, this.height, this.height);
+		guiGraphics.blit(POPUP_ICON, this._getX() + this.width - this.height, this._getY(), 0, 0.0F, 0.0F, this.height, this.height, this.height, this.height);
+		
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.disableBlend();
 	}
@@ -155,14 +157,14 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 	
 	@OnlyIn(Dist.CLIENT)
 	public static class RegistryPopupBox<T> extends PopupBox<T> {
-		protected final IForgeRegistry<T> registry;
+		protected final Registry<T> registry;
 		protected final Consumer<T> onPressRow;
 		
-		public RegistryPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, IForgeRegistry<T> registry, Consumer<Pair<String, T>> responder) {
+		public RegistryPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Registry<T> registry, Consumer<Pair<String, T>> responder) {
 			this(owner, font, x1, x2, y1, y2, horizontal, vertical, title, registry, (item) -> {}, responder);
 		}
 		
-		public RegistryPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, IForgeRegistry<T> registry, Consumer<T> onPressRow, Consumer<Pair<String, T>> responder) {
+		public RegistryPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Registry<T> registry, Consumer<T> onPressRow, Consumer<Pair<String, T>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (item) -> registry.containsValue(item) ? registry.getKey(item).toString() : ParseUtil.nullParam(item), responder);
 			
 			this.registry = registry;
@@ -180,7 +182,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 	@OnlyIn(Dist.CLIENT)
 	public static class SoundPopupBox extends RegistryPopupBox<SoundEvent> {
 		public SoundPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, SoundEvent>> responder) {
-			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, ForgeRegistries.SOUND_EVENTS, (soundevent) -> {
+			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, BuiltInRegistries.SOUND_EVENT, (soundevent) -> {
 				Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(soundevent, 1.0F));
 			}, responder);
 		}
@@ -227,10 +229,10 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public static class WeaponTypePopupBox extends PopupBox<Function<Item, CapabilityItem.Builder>> {
-		public WeaponTypePopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, Function<Item, CapabilityItem.Builder>>> responder) {
+	public static class WeaponTypePopupBox extends PopupBox<Function<Item, CapabilityItem.Builder<?>>> {
+		public WeaponTypePopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, Function<Item, CapabilityItem.Builder<?>>>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (builder) -> {
-				Map<Function<Item, CapabilityItem.Builder>, ResourceLocation> map = Maps.newHashMap();
+				Map<Function<Item, ? extends CapabilityItem.Builder<?>>, ResourceLocation> map = new HashMap<> ();
 				
 				WeaponTypeReloadListener.entries().forEach((entry) -> map.put(entry.getValue(), entry.getKey()));
 				DatapackEditScreen.getSerializableWeaponTypes().forEach((entry) -> map.put(entry.getValue(), entry.getKey()));
@@ -242,29 +244,47 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				Set<Map.Entry<ResourceLocation, Function<Item, CapabilityItem.Builder>>> weaponTypeEntry = Sets.newHashSet();
+				Set<Map.Entry<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>>> weaponTypeEntry = Sets.newHashSet();
 				weaponTypeEntry.addAll(WeaponTypeReloadListener.entries());
 				weaponTypeEntry.addAll(DatapackEditScreen.getSerializableWeaponTypes());
 				
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(weaponTypeEntry), "Weapon Type", (name, item) -> {
-					var responder = this.responder;
-					
-					this._setResponder(null);
-					this._setValue(item);
-					responder.accept(Pair.of(name, item));
-					this._setResponder(responder);
-					
-					this.setDisplayText(name);
-				}, (name, item) -> {
-					var responder = this.responder;
-					
-					this._setResponder(null);
-					this._setValue(item);
-					responder.accept(Pair.of(name, item));
-					this._setResponder(responder);
-					
-					this.setDisplayText(name);
-				}, (c) -> {}, this.getFilter()));
+				Set<Pair<ResourceLocation, Function<Item, CapabilityItem.Builder<?>>>> castedPairs =
+					ParseUtil.mapEntryToPair(weaponTypeEntry).stream()
+						.map(pair -> {
+							@SuppressWarnings("unchecked")
+							Function<Item, CapabilityItem.Builder<?>> func = (Function<Item, CapabilityItem.Builder<?>>)pair.getSecond();
+							return Pair.of(pair.getFirst(), func);
+						}).collect(Collectors.toSet());
+				
+				this.owner.getMinecraft().setScreen(
+					new SelectFromRegistryScreen<> (
+						this.owner,
+						castedPairs,
+						"Weapon Type",
+						(name, item) -> {
+							var responder = this.responder;
+							
+							this._setResponder(null);
+							this._setValue(item);
+							responder.accept(Pair.of(name, item));
+							this._setResponder(responder);
+							
+							this.setDisplayText(name);
+						},
+						(name, item) -> {
+							var responder = this.responder;
+							
+							this._setResponder(null);
+							this._setValue(item);
+							responder.accept(Pair.of(name, item));
+							this._setResponder(responder);
+							
+							this.setDisplayText(name);
+						},
+						(c) -> {},
+						this.getFilter()
+					)
+				);
 			}
 		}
 	}
@@ -293,7 +313,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
 				Set<Pair<ResourceLocation, EntityType<?>>> set = Sets.newHashSet();
-				EntityPatchProvider.getPatchedEntities().forEach((entityType) -> set.add(Pair.of(EntityType.getKey(entityType), entityType)));
+				EpicFightCapabilities.ENTITY_PATCH_PROVIDER.getPatchedEntities().forEach(entityType -> set.add(Pair.of(EntityType.getKey(entityType), entityType)));
 				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Preset", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
 		}
@@ -353,7 +373,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
 				Set<Pair<ResourceLocation, ResourceLocation>> set = Sets.newHashSet();
-				ClientEngine.getInstance().renderEngine.getRendererEntries().forEach((rl) -> set.add(Pair.of(rl, rl)));
+				RenderEngine.getInstance().getRendererEntries().forEach((rl) -> set.add(Pair.of(rl, rl)));
 				
 				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Renderer", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
@@ -471,10 +491,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		this.itemDisplayName = "";
 	}
 	
-	@Override
-	public void _tick() {
-	}
-
 	@Override
 	public int _getX() {
 		return this.getX();

@@ -6,8 +6,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ResizableEditBox extends EditBox implements DataBindingComponent<String, String> {
@@ -139,11 +139,6 @@ public class ResizableEditBox extends EditBox implements DataBindingComponent<St
 	@Override
 	public Component _getMessage() {
 		return this.getMessage();
-	}
-	
-	@Override
-	public void _tick() {
-		this.tick();
 	}
 	
 	@Override

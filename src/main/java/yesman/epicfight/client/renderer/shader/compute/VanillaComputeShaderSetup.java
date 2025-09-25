@@ -16,7 +16,6 @@ import org.lwjgl.opengl.GL20C;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -26,8 +25,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.client.model.VertexBuilder;
@@ -136,21 +135,21 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
 			
-			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
+			if (elem == VertexFormatElement.POSITION) {
 				ComputeShaderSetup.bindAttrPointer(buffers[0], 3, i, GL11C.GL_FLOAT);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
+			} else if (elem == VertexFormatElement.UV0) {
 				ComputeShaderSetup.bindAttrPointer(buffers[3], 2, i, GL11C.GL_FLOAT);
-			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
+			} else if (elem == VertexFormatElement.COLOR) {
 				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[2]);
 				GL20C.glVertexAttribPointer(i, 4, GL11C.GL_FLOAT, true, 0, 0);
 				GL20C.glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
+			} else if (elem == VertexFormatElement.NORMAL) {
 				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[1]);
 				GL20C.glVertexAttribPointer(i, 3, GL11C.GL_BYTE, true, 4, 0);
 				GL20C.glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
+			} else if (elem == VertexFormatElement.UV1) {
 				ComputeShaderSetup.bindIntAttrPointer(buffers[4], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
+			} else if (elem == VertexFormatElement.UV2) {
 				ComputeShaderSetup.bindIntAttrPointer(buffers[5], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
 			}
 		}

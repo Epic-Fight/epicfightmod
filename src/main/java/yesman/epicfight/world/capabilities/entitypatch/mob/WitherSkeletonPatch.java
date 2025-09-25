@@ -7,24 +7,24 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class WitherSkeletonPatch<T extends PathfinderMob> extends SkeletonPatch<T> {
-	public WitherSkeletonPatch() {
-		super(Factions.WITHER);
+	public WitherSkeletonPatch(T original) {
+		super(original, Factions.WITHER);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.WITHER_SKELETON, EpicFightAttributes.STUN_ARMOR.get(), 6.0D);
+		event.add(EntityType.WITHER_SKELETON, EpicFightAttributes.STUN_ARMOR, 6.0D);
 	}
 	
 	@Override

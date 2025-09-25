@@ -1,0 +1,35 @@
+package yesman.epicfight.api.client.neoevent;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+
+@OnlyIn(Dist.CLIENT)
+public class RenderEpicFightPlayerEvent extends Event {
+	private final PlayerPatch<?> playerpatch;
+	private final boolean shouldRenderOriginal;
+	private boolean shouldRender;
+	
+	public RenderEpicFightPlayerEvent(PlayerPatch<?> playerpatch, boolean shouldRenderOriginal) {
+		this.playerpatch = playerpatch;
+		this.shouldRenderOriginal = shouldRenderOriginal;
+		this.shouldRender = shouldRenderOriginal;
+	}
+	
+	public boolean getShouldRenderOriginal() {
+		return this.shouldRenderOriginal;
+	}
+	
+	public boolean shouldRender() {
+		return this.shouldRender;
+	}
+	
+	public void setShouldRender(boolean shouldRender) {
+		this.shouldRender = shouldRender;
+	}
+	
+	public PlayerPatch<?> getPlayerPatch() {
+		return this.playerpatch;
+	}
+}

@@ -10,8 +10,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.model.Armature;
@@ -153,7 +153,7 @@ public class LineCollider extends Collider {
         float endX = (float)(this.modelCenter.x + this.modelVec.x);
         float endY = (float)(this.modelCenter.y + this.modelVec.y);
         float endZ = (float)(this.modelCenter.z + this.modelVec.z);
-        vertexConsumer.vertex(matrix, startX, startY, startZ).color(color).endVertex();
-        vertexConsumer.vertex(matrix, endX, endY, endZ).color(color).endVertex();
+        vertexConsumer.addVertex(matrix, startX, startY, startZ).setColor(color);
+        vertexConsumer.addVertex(matrix, endX, endY, endZ).setColor(color);
 	}
 }

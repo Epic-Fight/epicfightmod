@@ -1,11 +1,12 @@
 package yesman.epicfight.kubejs;
 
 import dev.latvian.mods.kubejs.typings.Info;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
 public class EFUtilsJS {
     @OnlyIn(Dist.CLIENT)
@@ -13,6 +14,6 @@ public class EFUtilsJS {
             Requests the server to execute a skill. Called from the client.
             """)
     public static SkillCastEvent requestExecuteSkill(Skill skill) {
-        return ClientEngine.getInstance().getPlayerPatch().getSkill(skill).sendCastRequest(ClientEngine.getInstance().getPlayerPatch(), ClientEngine.getInstance().controlEngine);
+        return ClientEngine.getInstance().getPlayerPatch().getSkill(skill).sendCastRequest(ClientEngine.getInstance().getPlayerPatch(), ControlEngine.getInstance());
     }
 }

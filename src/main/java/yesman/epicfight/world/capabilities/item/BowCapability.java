@@ -7,7 +7,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class BowCapability extends RangedWeaponCapability {
-	protected BowCapability(CapabilityItem.Builder builder) {
+	protected BowCapability(RangedWeaponCapability.Builder builder) {
 		super(builder);
 	}
 	

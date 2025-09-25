@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -22,28 +21,30 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPSetAttackTarget;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
 	protected final Faction mobFaction;
 	
-	public MobPatch() {
+	public MobPatch(T entity) {
+		super(entity);
 		this.mobFaction = Factions.NEUTRAL;
 	}
 	
-	public MobPatch(Faction faction) {
+	public MobPatch(T entity, Faction faction) {
+		super(entity);
 		this.mobFaction = faction;
 	}
 	
@@ -138,14 +139,14 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
 	}
 	
 	@Override
-	public void updateArmor(CapabilityItem fromCap, CapabilityItem toCap, EquipmentSlot slotType) {
-		if (this.original.getAttributes().hasAttribute(EpicFightAttributes.STUN_ARMOR.get())) {
+	public void updateArmor(ArmorCapability fromCap, ArmorCapability toCap, EquipmentSlot slotType) {
+		if (this.original.getAttributes().hasAttribute(EpicFightAttributes.STUN_ARMOR)) {
 			if (fromCap != null) {
-				this.original.getAttributes().removeAttributeModifiers(fromCap.getAttributeModifiers(slotType, this));
+				this.original.getAttributes().removeAttributeModifiers(fromCap.getAttributeModifiersForArmor());
 			}
 			
 			if (toCap != null) {
-				this.original.getAttributes().addTransientAttributeModifiers(toCap.getAttributeModifiers(slotType, this));
+				this.original.getAttributes().addTransientAttributeModifiers(toCap.getAttributeModifiersForArmor());
 			}
 		}
 	}
@@ -170,8 +171,8 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
 		boolean offhandValid = this.isOffhandItemValid();
 		ItemStack mainHandItem = this.getOriginal().getMainHandItem();
 		ItemStack offHandItem = this.getOriginal().getOffhandItem();
-		Collection<AttributeModifier> mainHandAttributes = CapabilityItem.getAttributeModifiers(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this);
-		Collection<AttributeModifier> offHandAttributes = this.isOffhandItemValid() ? CapabilityItem.getAttributeModifiers(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getOffhandItem(), this) : Set.of();
+		Collection<AttributeModifier> mainHandAttributes = CapabilityItem.getAttributeModifiersAsWeapon(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this);
+		Collection<AttributeModifier> offHandAttributes = this.isOffhandItemValid() ? CapabilityItem.getAttributeModifiersAsWeapon(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getOffhandItem(), this) : Set.of();
 		
 		this.epicFightDamageSource = damageSource;
 		this.setOffhandDamage(hand, mainHandItem, offHandItem, offhandValid, mainHandAttributes, offHandAttributes);
@@ -195,20 +196,19 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
 	}
 	
 	@Override
-	public float getAttackDirectionPitch() {
+	public float getAttackDirectionPitch(float partialTick) {
 		Entity attackTarget = this.getTarget();
 		
 		if (attackTarget != null) {
-			float partialTicks = EpicFightSharedConstants.isPhysicalClient() ? Minecraft.getInstance().getFrameTime() : 1.0F;
-			Vec3 target = attackTarget.getEyePosition(partialTicks);
-			Vec3 vector3d = this.original.getEyePosition(partialTicks);
+			Vec3 target = attackTarget.getEyePosition(partialTick);
+			Vec3 vector3d = this.original.getEyePosition(partialTick);
 			double d0 = target.x - vector3d.x;
 			double d1 = target.y - vector3d.y;
 			double d2 = target.z - vector3d.z;
 			double d3 = Math.sqrt(d0 * d0 + d2 * d2);
 			return Mth.clamp(Mth.wrapDegrees((float) ((Mth.atan2(d1, d3) * (double) (180F / (float) Math.PI)))), -30.0F, 30.0F);
 		} else {
-			return super.getAttackDirectionPitch();
+			return super.getAttackDirectionPitch(partialTick);
 		}
 	}
 	

@@ -6,26 +6,26 @@ import java.util.function.Consumer;
 import dev.latvian.mods.kubejs.typings.Info;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.network.server.SPSkillExecutionFeedback;
+import yesman.epicfight.network.server.SPSkillFeedback;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class CustomChargeableSkill extends CustomSkill implements ChargeableSkill {
-    public record CastSkillContext(Skill getSkill, SkillContainer getSkillContainer, SPSkillExecutionFeedback getFeedbackPacket) {}
-    public record GatherChargingArgumentsContext(Skill getSkill, LocalPlayerPatch getCaster, ControlEngine getControlEngine, FriendlyByteBuf getBuffer) {}
+    public record StopHoldingContext(SkillContainer getSkillContainer, SPSkillFeedback getFeedbackPacket) {}
+    public record GatherChargingArgumentsContext(Skill getSkill, LocalPlayerPatch getCaster, ControlEngine getControlEngine, CompoundTag arguments) {}
 
     private final Consumer<PlayerPatch<?>> startCharging;
     private final Consumer<SkillContainer> resetCharging;
     private final int allowedMaxChargingTicks;
     private final int maxChargingTicks;
     private final int minChargingTicks;
-    private final Consumer<CastSkillContext> castSkill;
+    private final Consumer<StopHoldingContext> castSkill;
     private final Consumer<GatherChargingArgumentsContext> gatherChargingArguments;
     private final Consumer<PlayerPatch<?>> chargingTick;
     private final String keyMapping;
@@ -37,7 +37,7 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
         this.allowedMaxChargingTicks = builder.allowedMaxChargingTicks;
         this.maxChargingTicks = builder.maxChargingTicks;
         this.minChargingTicks = builder.minChargingTicks;
-        this.castSkill = builder.castSkill;
+        this.castSkill = builder.stopHolding;
         this.gatherChargingArguments = builder.gatherChargingArguments;
         this.chargingTick = builder.chargingTick;
         this.keyMapping = builder.keyMapping;
@@ -77,19 +77,18 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
     }
 
     @Override
-    public void onStopHolding(SkillContainer skillContainer, SPSkillExecutionFeedback spSkillExecutionFeedback) {
+    public void onStopHolding(SkillContainer skillContainer, SPSkillFeedback spSkillExecutionFeedback) {
         if (castSkill != null) {
-            castSkill.accept(new CastSkillContext(this, skillContainer, spSkillExecutionFeedback));
+            castSkill.accept(new StopHoldingContext(skillContainer, spSkillExecutionFeedback));
         }
     }
-
+    
     @Override
-    public void gatherHoldArguments(SkillContainer container, ControlEngine controlEngine, FriendlyByteBuf buffer)
-    {
-        if (gatherChargingArguments != null) {
-            gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, container.getClientExecutor(), controlEngine, buffer));
-        }
-    }
+	public void gatherHoldArguments(SkillContainer container, ControlEngine controlEngine, CompoundTag arguments) {
+		if (gatherChargingArguments != null) {
+			gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, container.getClientExecutor(), controlEngine, arguments));
+		}
+	}
 
     @Override
     public void holdTick(SkillContainer container)
@@ -118,7 +117,7 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
         private int allowedMaxChargingTicks;
         private int maxChargingTicks;
         private int minChargingTicks;
-        private Consumer<CastSkillContext> castSkill;
+        private Consumer<StopHoldingContext> stopHolding;
         private Consumer<GatherChargingArgumentsContext> gatherChargingArguments;
         private Consumer<PlayerPatch<?>> chargingTick;
         private String keyMapping;
@@ -170,8 +169,8 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
         @Info("""
                 Called when the skill is done charging and the key is released.
                 """)
-        public CustomChargeableSkillBuilder onCastSkill(Consumer<CastSkillContext> castSkill) {
-            this.castSkill = castSkill;
+        public CustomChargeableSkillBuilder onCastSkill(Consumer<StopHoldingContext> stopHolding) {
+            this.stopHolding = stopHolding;
             return this;
         }
 

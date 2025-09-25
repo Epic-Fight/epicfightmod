@@ -17,7 +17,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.GameRules;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -54,7 +54,7 @@ public class PlayerStaminaCommand {
 			double stamina = serverplayerpatch.getStamina();
 			
 			command.sendSuccess(() -> {
-				return Component.translatable("commands.epicfight.stamina.value.get.success", serverplayer.getName(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(stamina));
+				return Component.translatable("commands.epicfight.stamina.value.get.success", serverplayer.getName(), ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(stamina));
 			}, false);
 			
 			return (int)stamina;
@@ -82,7 +82,7 @@ public class PlayerStaminaCommand {
 			ERROR_MODIFYING_FAILED.create();
 		} else {
 			if (i == 1) {
-				command.getSource().sendSuccess(wrap(Component.translatable("commands.epicfight.stamina.success.self", players.iterator().next().getDisplayName(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(returnVal))), true);
+				command.getSource().sendSuccess(wrap(Component.translatable("commands.epicfight.stamina.success.self", players.iterator().next().getDisplayName(), ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(returnVal))), true);
 			} else {
 				for (ServerPlayer serverplayer : players) {
 					if (command.getSource().getLevel().getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {

@@ -1,9 +1,9 @@
 {
+	"type": "epicfight:skillbook_loot_table_modifier",
 	"conditions": [
 		{
 			"condition": "minecraft:killed_by_player"
 		}
 	],
-	"addition": "epicfight:skillbook",
-	"type": "epicfight:skillbook_loot_table_modifier"
+	"addition": "epicfight:skillbook"
 }

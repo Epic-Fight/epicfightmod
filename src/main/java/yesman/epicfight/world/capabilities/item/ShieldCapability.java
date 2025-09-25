@@ -14,7 +14,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ShieldCapability extends CapabilityItem {
-	protected ShieldCapability(CapabilityItem.Builder builder) {
+	protected ShieldCapability(CapabilityItem.Builder<?> builder) {
 		super(builder);
 	}
 	

@@ -10,12 +10,13 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSkills;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -29,11 +30,10 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 public class ImpactGuardSkill extends GuardSkill {
-	public static GuardSkill.Builder createEnergizingGuardBuilder() {
-		return GuardSkill.createGuardBuilder()
+	public static GuardSkill.Builder createImpactGuardBuilder() {
+		return GuardSkill.createGuardBuilder(ImpactGuardSkill::new)
 				.addAdvancedGuardMotion(WeaponCategories.LONGSWORD, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
 				.addAdvancedGuardMotion(WeaponCategories.SPEAR, (item, player) -> item.getStyle(player) == Styles.TWO_HAND ? Animations.SPEAR_GUARD_HIT : null)
 				.addAdvancedGuardMotion(WeaponCategories.TACHI, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
@@ -48,14 +48,15 @@ public class ImpactGuardSkill extends GuardSkill {
 	}
 	
 	@Override
-	public void setParams(CompoundTag parameters) {
-		super.setParams(parameters);
+	public void loadDatapackParameters(CompoundTag parameters) {
+		super.loadDatapackParameters(parameters);
+		
 		this.superiorPenalizer = parameters.getFloat("superior_penalizer");
 		this.damageReducer = parameters.getFloat("damage_reducer");
 	}
 	
 	@Override
-	public void guard(SkillContainer container, CapabilityItem itemCapapbility, TakeDamageEvent.Attack event, float knockback, float impact, boolean advanced) {
+	public void guard(SkillContainer container, CapabilityItem itemCapapbility, TakeDamageEvent.Income event, float knockback, float impact, boolean advanced) {
 		boolean canUse = this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapapbility, BlockType.ADVANCED_GUARD);
 		
 		if (event.getDamageSource().is(DamageTypeTags.IS_EXPLOSION)) {
@@ -66,7 +67,7 @@ public class ImpactGuardSkill extends GuardSkill {
 	}
 	
 	@Override
-	public void dealEvent(PlayerPatch<?> playerpatch, TakeDamageEvent.Attack event, boolean advanced) {
+	public void dealEvent(PlayerPatch<?> playerpatch, TakeDamageEvent.Income event, boolean advanced) {
 		boolean isSpecialSource = isAdvancedBlockableDamageSource(event.getDamageSource());
 		
 		if (isSpecialSource) {
@@ -135,7 +136,7 @@ public class ImpactGuardSkill extends GuardSkill {
 	
 	@Override
 	public Skill getPriorSkill() {
-		return EpicFightSkills.GUARD;
+		return EpicFightSkills.GUARD.get();
 	}
 	
 	@Override

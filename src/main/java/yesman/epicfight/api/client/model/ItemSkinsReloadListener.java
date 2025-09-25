@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.ClientEngine;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.client.events.engine.RenderEngine;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemSkinsReloadListener extends SimpleJsonResourceReloadListener {
@@ -23,6 +23,6 @@ public class ItemSkinsReloadListener extends SimpleJsonResourceReloadListener {
 	
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profileFiller) {
-		ClientEngine.getInstance().renderEngine.reloadItemRenderers(objectIn);
+		RenderEngine.getInstance().reloadItemRenderers(objectIn);
 	}
 }

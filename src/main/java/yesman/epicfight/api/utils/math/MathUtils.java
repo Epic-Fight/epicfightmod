@@ -272,7 +272,7 @@ public class MathUtils {
 	
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
 		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER);
-		poseStack.mulPoseMatrix(BUFFER);
+		poseStack.mulPose(BUFFER);
 	}
 	
 	public static double getAngleBetween(Vec3f a, Vec3f b) {

@@ -8,17 +8,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.common.AnimatorControlPacket;
+import yesman.epicfight.network.common.AbstractAnimatorControl;
 import yesman.epicfight.network.server.SPAbsorption;
 import yesman.epicfight.network.server.SPAnimatorControl;
 import yesman.epicfight.skill.SkillContainer;
@@ -27,20 +28,19 @@ import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.entity.eventlistener.ItemUseEndEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.RightClickItemEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
-@Mod.EventBusSubscriber(modid = EpicFightMod.MODID)
-public class PlayerEvents {
+@EventBusSubscriber(modid = EpicFightMod.MODID)
+public final class PlayerEvents {
+	private PlayerEvents() {}
+	
 	@SubscribeEvent
 	public static void arrowLoose(ArrowLooseEvent event) {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), PlayerPatch.class).ifPresent(playerpatch -> {
 			if (playerpatch.isLogicalClient()) {
 				playerpatch.getAnimator().playShootingAnimation();
 			} else {
-				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPAnimatorControl(AnimatorControlPacket.Action.SHOT, -1, event.getEntity().getId(), 0.0F, false), event.getEntity());
+				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPAnimatorControl(AbstractAnimatorControl.Action.SHOT, Animations.EMPTY_ANIMATION, event.getEntity().getId(), 0.0F, false), event.getEntity());
 			}
 		});
 	}
@@ -66,33 +66,31 @@ public class PlayerEvents {
 		});
 	}
 	
+	public static final PlayerPatch.PlayerMode[] PLAYER_MODE_ENUM = PlayerPatch.PlayerMode.values();
+	
 	@SubscribeEvent
 	public static void playerLoadEvent(PlayerEvent.LoadFromFile event) {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
 			File file = new File(event.getPlayerDirectory(), event.getPlayerUUID() + ".dat");
 			
 			if (!file.exists()) {
-				int initialMode = Math.min(EpicFightGameRules.INITIAL_PLAYER_MODE.getRuleValue(event.getEntity().level()), PlayerPatch.PlayerMode.values().length - 1);
-				playerpatch.toMode(PlayerPatch.PlayerMode.values()[initialMode], true);
+				int initialMode = Math.min(EpicFightGameRules.INITIAL_PLAYER_MODE.getRuleValue(event.getEntity().level()), PLAYER_MODE_ENUM.length - 1);
+				playerpatch.toMode(PLAYER_MODE_ENUM[initialMode], true);
 			}
 		});
 	}
 	
 	@SubscribeEvent
 	public static void cloneEvent(PlayerEvent.Clone event) {
-		event.getOriginal().reviveCaps();
-		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getOriginal(), ServerPlayerPatch.class).ifPresent(oldCap -> {
 			EpicFightCapabilities.<ServerPlayer, ServerPlayerPatch>getParameterizedEntityPatch(event.getEntity(), ServerPlayer.class, ServerPlayerPatch.class).ifPresent(newCap -> {
 				if ((!event.isWasDeath() || EpicFightGameRules.KEEP_SKILLS.getRuleValue(event.getOriginal().level()))) {
-					newCap.copySkillsFrom(oldCap, event.isWasDeath());
+					newCap.copyOldData(oldCap, event.isWasDeath());
 				}
 				
 				newCap.toMode(oldCap.getPlayerMode(), false);
 			});
 		});
-		
-		event.getOriginal().invalidateCaps();
 	}
 	
 	@SubscribeEvent
@@ -103,7 +101,7 @@ public class PlayerEvents {
 			
 			EpicFightNetworkManager.PayloadBundleBuilder packetBundleBuilder = EpicFightNetworkManager.PayloadBundleBuilder.create();
 			
-			playerpatch.getSkillCapability().listSkillContainers().filter(SkillContainer::hasSkill).forEach(skillContainer -> {
+			playerpatch.getPlayerSkills().listSkillContainers().filter(SkillContainer::hasSkill).forEach(skillContainer -> {
 				skillContainer.getSkill().onTracked(skillContainer, packetBundleBuilder);
 			});
 			
@@ -114,7 +112,7 @@ public class PlayerEvents {
 	}
 	
 	@SubscribeEvent
-	public static void rightClickItemServerEvent(RightClickItem event) {
+	public static void rightClickItemServerEvent(RightClickItem.RightClickItem event) {
 		/**
 		 * Client item use event is fired in {@link ClientEvents#rightClickItemClient}
 		 */
@@ -128,7 +126,7 @@ public class PlayerEvents {
 			if (!playerpatch.getEntityState().canUseItem()) {
 				event.setCanceled(true);
 			} else if (itemstack.getUseAnimation() == UseAnim.NONE || !playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(playerpatch).canUseOffhand()) {
-				boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.SERVER_ITEM_USE_EVENT, new RightClickItemEvent<>(playerpatch));
+				boolean canceled = playerpatch.getPlayerSkills().fireSkillEvents(EpicFightMod.MODID, event).isCanceled();
 				
 				if (playerpatch.getEntityState().movementLocked()) {
 					canceled = true;
@@ -160,7 +158,7 @@ public class PlayerEvents {
 	@SubscribeEvent
 	public static void itemUseStopEvent(LivingEntityUseItemEvent.Stop event) {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
-			boolean canceled = playerpatch.getEventListener().triggerEvents(EventType.SERVER_ITEM_STOP_EVENT, new ItemUseEndEvent(playerpatch, event));
+			boolean canceled = playerpatch.getPlayerSkills().fireSkillEvents(EpicFightMod.MODID, event).isCanceled();
 			event.setCanceled(canceled);
 		});
 	}

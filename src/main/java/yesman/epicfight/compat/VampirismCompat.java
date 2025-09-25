@@ -11,11 +11,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.client.model.Meshes;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
@@ -31,7 +31,7 @@ public class VampirismCompat implements ICompatModule {
 	}
 
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 		
 	}
 	
@@ -47,7 +47,7 @@ public class VampirismCompat implements ICompatModule {
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
+	public void onGameEventBusClient(IEventBus eventBus) {
 		
 	}
 	

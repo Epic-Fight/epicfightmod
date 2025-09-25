@@ -11,16 +11,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.weaponinnate.EverlastingAllegiance;
@@ -44,12 +44,16 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 	public float renderYRot;
 	public float renderYRotO;
 	
+	public ThrownTridentPatch(ThrownTrident original) {
+		super(original);
+	}
+	
 	@Override
 	public void onStartTracking(ServerPlayer trackingPlayer) {
 		if (this.innateActivated) {
 			SPEntityPairingPacket packet = new SPEntityPairingPacket(this.original.getId(), EntityPairingPacketTypes.TRIDENT_THROWN);
-			packet.getBuffer().writeInt(this.returnTick);
-			packet.getBuffer().writeInt(this.original.tickCount);
+			packet.buffer().writeInt(this.returnTick);
+			packet.buffer().writeInt(this.original.tickCount);
 			
 			EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
 		}
@@ -60,10 +64,10 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.getPairingPacketType() == EntityPairingPacketTypes.TRIDENT_THROWN) {
+		if (packet.pairingPacketType() == EntityPairingPacketTypes.TRIDENT_THROWN) {
 			this.innateActivated = true;
-			this.returnTick = packet.getBuffer().readInt();
-			this.original.tickCount = packet.getBuffer().readInt();
+			this.returnTick = packet.buffer().readInt();
+			this.original.tickCount = packet.buffer().readInt();
 		}
 	}
 	
@@ -122,7 +126,7 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 					float f = 8.0F;
 					
 					if (entity instanceof LivingEntity livingentity) {
-						f += EnchantmentHelper.getDamageBonus(this.original.tridentItem, livingentity.getMobType());
+						f = EnchantmentHelper.modifyDamage((ServerLevel)this.original.level(), this.original.getPickupItemStackOrigin(), livingentity, source, f);
 						
 						if (entity.hurt(source, f)) {
 							entity.playSound(EpicFightSounds.BLADE_HIT.get(), 1.0F, 1.0F);

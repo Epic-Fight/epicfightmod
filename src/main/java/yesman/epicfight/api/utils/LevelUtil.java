@@ -15,6 +15,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
@@ -23,6 +24,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -31,15 +33,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.server.SPFracture;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.network.server.SPCreateTerrainFracture;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -166,7 +168,7 @@ public class LevelUtil {
 				
 				level.setBlock(bp, fractureBlockState, 0);
 				
-				if (bs.shouldSpawnParticlesOnBreak()) {
+				if (bs.shouldSpawnTerrainParticles()) {
 					createParticle(level, bp, bs);
 				}
 			} else {
@@ -235,7 +237,7 @@ public class LevelUtil {
 		radius = Math.max(0.5F, radius);
 		
 		if (!level.isClientSide) {
-			EpicFightNetworkManager.sendToAllPlayerTrackingThisChunkWithSelf(new SPFracture(center, radius, noSound, noParticle), level.getChunkAt(blockPos));
+			EpicFightNetworkManager.sendToAllPlayerTrackingThisChunkWithSelf(new SPCreateTerrainFracture(center, radius, noSound, noParticle), (ServerLevel)level, new ChunkPos(blockPos));
 		}
 		
 		int xFrom = (int)Math.floor(center.x - radius);

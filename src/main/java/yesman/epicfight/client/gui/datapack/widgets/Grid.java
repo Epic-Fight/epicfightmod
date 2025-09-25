@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -26,11 +27,11 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.PopupBoxProvider;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.RegistryPopupBox;
@@ -41,7 +42,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	private final Map<String, Column<?, ?>> columns = Maps.newLinkedHashMap();
 	private final List<ResizableButton> rowEditButtons = Lists.newArrayList();
 	private final BiConsumer<Integer, Map<String, Object>> onRowpositionChanged;
-	private final boolean transparentBackground;
 	private final int columnSizeSum;
 	
 	private ResizableComponent editingWidget;
@@ -52,11 +52,10 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	private int rowposition = -1;
 	
 	public Grid(GridBuilder gb) {
-		super(gb.minecraft, gb.x2, gb.y2, gb.y1, gb.y1 + gb.y2, gb.rowHeight);
+		super(gb.minecraft, gb.x2, gb.y2, gb.y1, gb.rowHeight);
 		
 		this.owner = gb.owner;
 		this.onRowpositionChanged = gb.onRowpositionChanged;
-		this.transparentBackground = gb.transparentBackground;
 		this.horizontalSizingOption = gb.horizontalSizing;
 		this.verticalSizingOption = gb.verticalSizing;
 		
@@ -68,9 +67,8 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		this.columnSizeSum = gb.columnSizeTotal;
 		gb.columns.forEach(this.columns::put);
 		
-		this.resize(gb.minecraft.screen.getRectangle());
-		this.setLeftPos(gb.x1);
-		this.setRenderTopAndBottom(false);
+		this.resize(gb.parentScreenRectangleProvider.get());
+		this.setX(gb.x1);
 		
 		if (gb.rowEditButtons.add) {
 			this.rowEditButtons.add(ResizableButton.builder(Component.literal("+"), (button) -> gb.onAddPress.accept(this, button)).pos(0, 0).size(12, 12).build());
@@ -245,8 +243,18 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 			this.editingWidget = null;
 		} else {
 			if (this.editingColumn.editable) {
-				this.editingWidget = this.editingColumn.createEditWidget(this.owner, this.owner.getMinecraft().font, this.x0 + startX + 2, this.getRowTop(rowposition) + 2, this.itemHeight - 3, rowposition,
-																			this.getSelected(), columnName, this.getSelected().getValue(columnName));
+				this.editingWidget =
+					this.editingColumn.createEditWidget(
+						  this.owner
+						, this.owner.getMinecraft().font
+						, this.getX() + startX + 2
+						, this.getRowTop(rowposition) + 2
+						, this.itemHeight - 3
+						, rowposition
+						, this.getSelected()
+						, columnName
+						, this.getSelected().getValue(columnName)
+					);
 				
 				if (this.editingWidget != null) {
 					this.editingWidget.setFocused(true);
@@ -264,8 +272,8 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	}
 	
 	private void relocateButtons() {
-		int x = this.x1 - 12;
-		int y = this.y0 - 12;
+		int x = this.getRight() - 12;
+		int y = this.getY() - 12;
 		
 		for (Button rowEditButton : Lists.reverse(this.rowEditButtons)) {
 			rowEditButton.setPosition(x, y);
@@ -284,7 +292,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 		
 		this.relocateButtons();
-		
 		this.resizeColumnWidth();
 	}
 	
@@ -320,28 +327,14 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	}
 	
 	@Override
-	public void updateSize(int width, int height, int y0, int y1) {
-		this.width = width;
-		this.height = height;
-		this.y0 = y0;
-		this.y1 = y1;
-		this.x0 = 0;
-		this.x1 = width;
-		
-		this.relocateButtons();
-	}
-	
-	@Override
-	public void setLeftPos(int x) {
-		this.x0 = x;
-		this.x1 = x + this.width;
-		
+	public void setX(int x) {
+		super.setX(x);
 		this.relocateButtons();
 	}
 
 	@Override
 	public int getRowLeft() {
-		return this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
+		return this.getX() + this.width / 2 - this.getRowWidth() / 2 + 2;
 	}
 	
 	@Override
@@ -351,7 +344,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	protected int getRowTop(int p_93512_) {
-		return this.y0 - (int) this.getScrollAmount() + p_93512_ * this.itemHeight + this.headerHeight;
+		return this.getY() - (int) this.getScrollAmount() + p_93512_ * this.itemHeight + this.headerHeight;
 	}
 	
 	@Override
@@ -374,12 +367,20 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	public int getMaxScroll() {
-		return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 1));
+		return Math.max(0, this.getMaxPosition() - (this.height - 1));
 	}
 	
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.rowEditButtons.forEach((button) -> button.render(guiGraphics, mouseX, mouseY, partialTicks));
+    protected void renderListBackground(GuiGraphics guiGraphics) {
+    }
+
+    @Override
+    protected void renderListSeparators(GuiGraphics guiGraphics) {
+    }
+	
+    @Override
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		this.rowEditButtons.forEach((button) -> button.render(guiGraphics, mouseX, mouseY, partialTick));
 		
 		int color = this.isFocused() ? -1 : this.isActive() ? -6250336 : -12566463;
 		GL11.glEnable(GL11.GL_STENCIL_TEST);
@@ -390,10 +391,11 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		// Clear doesn't work if stencil mask is set to 0
 		RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, true);
 		
-		guiGraphics.fill(this.x0, this.y0, this.x1, this.y1, color);
+		guiGraphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), color);
 		RenderSystem.stencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 		RenderSystem.stencilMask(0x00);
-		this.renderList(guiGraphics, mouseX, mouseY, partialTicks);
+		
+		this.renderListItems(guiGraphics, mouseX, mouseY, partialTick);
 		
 		GL11.glDisable(GL11.GL_STENCIL_TEST);
 		
@@ -401,41 +403,35 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 			int rowTop = this.getRowTop(this.rowposition);
 			int rowBottom = this.getRowTop(this.rowposition) + this.itemHeight;
 			
-			if (rowBottom >= this.y0 && rowTop <= this.y1) {
+			if (rowBottom >= this.getY() && rowTop <= this.getBottom()) {
 				guiGraphics.pose().pushPose();
 				guiGraphics.pose().translate(0, 0, 1);
 				this.editingWidget._setY(this.getRowTop(this.rowposition) + 2);
-				this.editingWidget.asWidget().render(guiGraphics, mouseX, mouseY, partialTicks);
+				this.editingWidget.asWidget().render(guiGraphics, mouseX, mouseY, partialTick);
 				guiGraphics.pose().popPose();
 			}
 		}
 	}
 	
 	@Override
-	protected void renderList(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderListItems(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int rowLeft = this.getRowLeft() - 1;
 		int rowWidth = this.getRowWidth();
 		int itemHeight = this.itemHeight;
 		int itemCount = this.getItemCount();
-		int rowBottom = this.y0;
+		int rowBottom = this.getY();
 		
 		for (int rowIndex = 0; rowIndex < itemCount; ++rowIndex) {
 			int rowTop = this.getRowTop(rowIndex);
 			rowBottom = this.getRowTop(rowIndex) + this.itemHeight;
 			
-			if (rowBottom >= this.y0 && rowTop <= this.y1) {
+			if (rowBottom >= this.getY() && rowTop <= this.getBottom()) {
 				this.renderItem(guiGraphics, mouseX, mouseY, partialTicks, rowIndex, rowLeft, rowTop, rowWidth, itemHeight);
 			}
 		}
 		
-		if (rowBottom + 1 < this.y1 - 1) {
-			if (this.transparentBackground) {
-				guiGraphics.setColor(0.12F, 0.12F, 0.12F, 1.0F);
-				guiGraphics.blit(Screen.BACKGROUND_LOCATION, rowLeft, rowBottom + 1, rowLeft + rowWidth - 2, this.y1 - 1, rowWidth - 2, this.y1 - rowBottom - 2, 32, 32);
-				guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-			} else {
-				guiGraphics.fill(rowLeft, rowBottom + 1, rowLeft + rowWidth - 2, this.y1 - 1, -16777216);
-			}
+		if (rowBottom + 1 < this.getBottom() - 1) {
+			guiGraphics.fill(rowLeft, rowBottom + 1, rowLeft + rowWidth - 2, this.getBottom() - 1, -16777216);
 		}
 		
 		guiGraphics.pose().pushPose();
@@ -446,15 +442,15 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		int i2 = this.getMaxScroll();
 		
 		if (i2 > 0) {
-			int j2 = (int) ((float) ((this.y1 - this.y0) * (this.y1 - this.y0)) / (float) this.getMaxPosition());
-			j2 = Mth.clamp(j2, 32, this.y1 - this.y0 - 8);
-			int k1 = (int) this.getScrollAmount() * (this.y1 - this.y0 - j2) / i2 + this.y0;
+			int j2 = (int) ((float) (this.height * this.height) / (float) this.getMaxPosition());
+			j2 = Mth.clamp(j2, 32, this.height - 8);
+			int k1 = (int) this.getScrollAmount() * (this.height - j2) / i2 + this.getY();
 			
-			if (k1 < this.y0) {
-				k1 = this.y0;
+			if (k1 < this.getY()) {
+				k1 = this.getY();
 			}
 			
-			guiGraphics.fill(i, this.y0, j, this.y1, -16777216);
+			guiGraphics.fill(i, this.getY(), j, this.getBottom(), -16777216);
 			guiGraphics.fill(i, k1, j, k1 + j2, -8355712);
 			guiGraphics.fill(i, k1, j - 1, k1 + j2 - 1, -4144960);
 		}
@@ -479,13 +475,13 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	protected void renderSelection(GuiGraphics guiGraphics, int rowTop, int rowRight, int itemHeight, int color, int color2) {
-		guiGraphics.fill(this.x0, rowTop, this.x1, rowTop + itemHeight + 1, -1);
+		guiGraphics.fill(this.getX(), rowTop, this.getRight(), rowTop + itemHeight + 1, -1);
 	}
 	
 	@Override
 	public boolean isMouseOver(double x, double y) {
-		double y0 = this.rowEditButtons.size() > 0 ? this.y0 - 12 : this.y0;
-		return (this.editingWidget != null && this.editingWidget.isMouseOver(x, y)) || y >= y0 && y <= (double)this.y1 && x >= (double)this.x0 && x <= (double)this.x1;
+		double y0 = this.rowEditButtons.size() > 0 ? this.getY() - 12 : this.getY();
+		return (this.editingWidget != null && this.editingWidget.isMouseOver(x, y)) || y >= y0 && y <= (double)this.getBottom() && x >= (double)this.getX() && x <= (double)this.getRight();
 	}
 	
 	@Override
@@ -518,20 +514,20 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	}
 	
 	@Override
-	public boolean mouseScrolled(double x, double y, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (this.editingWidget != null) {
-			if (this.editingWidget.isMouseOver(x, y) && this.editingWidget.mouseScrolled(x, y, amount)) {
+			if (this.editingWidget.isMouseOver(mouseX, mouseY) && this.editingWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
 				return true;
 			}
 		}
 		
 		if (this.isFocused() && this.getMaxScroll() > 0) {
-			this.setScrollAmount(this.getScrollAmount() - amount * (double) this.itemHeight / 2.0D);
+			this.setScrollAmount(this.getScrollAmount() - scrollY * (double) this.itemHeight / 2.0D);
 			return true;
 		}
 		
 		return false;
-	}
+    }
 	
 	@Override
 	public boolean keyPressed(int keycode, int p_100876_, int p_100877_) {
@@ -559,12 +555,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		return super.charTyped(c, i);
 	}
 
-	public void _tick() {
-		if (this.editingWidget instanceof EditBox editBox) {
-			editBox.tick();
-		}
-	}
-	
 	@Override
 	public boolean isActive() {
 		return this.active;
@@ -577,7 +567,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	protected int getScrollbarPosition() {
-		return this.x1 - 6;
+		return this.getRight() - 6;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -626,7 +616,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		
 		@Override
 		public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
-			int startX = Grid.this.x0;
+			int startX = Grid.this.getX();
 			int start = this.rowHighlight() ? 2 : 1;
 			int size = this.values.size();
 			int idx = 0;
@@ -635,17 +625,9 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 				Column<?, ?> column = Grid.this.columns.get(entry.getKey());
 				boolean first = idx == 0;
 				boolean last = idx == (size - 1);
-				
-				if (Grid.this.transparentBackground) {
-					int end = this.rowHighlight() ? 3 : 1;
-			        guiGraphics.setColor(0.12F, 0.12F, 0.12F, 1.0F);
-					guiGraphics.blit(Screen.BACKGROUND_LOCATION, startX + start, top + start, startX + column.width, top + height, column.width - end, height - end, 32, 32);
-					guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-				} else {
-					int end = this.rowHighlight() ? 1 : 0;
-					guiGraphics.fill(startX + (first ? start : 1), top + start, startX + column.width - (last ? end : 0), top + height - end, -16777216);
-				}
-				
+				int end = this.rowHighlight() ? 1 : 0;
+				guiGraphics.fill(startX + (first ? start : 1), top + start, startX + column.width - (last ? end : 0), top + height - end, -16777216);
+			
 				String displayText = column.toDisplayText(entry.getValue());
 				String correctedString = Grid.this.minecraft.font.plainSubstrByWidth(displayText, column.width - 1);
 				guiGraphics.drawString(Grid.this.minecraft.font, correctedString, startX + 3, top + Grid.this.itemHeight / 2 - 4, 16777215, false);
@@ -680,7 +662,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 		
 		public Column<?, ?> getColumn(double mouseX) {
-			double x = Grid.this.x0;
+			double x = Grid.this.getX();
 			
 			for (Column<?, ?> entry : Grid.this.columns.values()) {
 				x += entry.width;
@@ -694,7 +676,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 		
 		public String getColumnName(double mouseX) {
-			double x = Grid.this.x0;
+			double x = Grid.this.getX();
 			
 			for (Map.Entry<String, Column<?, ?>> entry : Grid.this.columns.entrySet()) {
 				x += entry.getValue().width;
@@ -724,7 +706,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		return new ComboBoxColumnBuilder<>(string, selectionList);
 	}
 	
-	public static <T> RegistryPopupColumnBuilder<T> registryPopup(String string, IForgeRegistry<T> registry) {
+	public static <T> RegistryPopupColumnBuilder<T> registryPopup(String string, Registry<T> registry) {
 		return new RegistryPopupColumnBuilder<>(string, registry);
 	}
 	
@@ -748,7 +730,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		private int y2;
 		private int rowHeight;
 		private int columnSizeTotal;
-		private boolean transparentBackground;
+		private Supplier<ScreenRectangle> parentScreenRectangleProvider;
 		private BiConsumer<Grid, Button> onAddPress;
 		private BiConsumer<Grid, Button> onRemovePress;
 		private BiConsumer<Integer, Map<String, Object>> onRowpositionChanged;
@@ -763,6 +745,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		private GridBuilder(Screen owner, Minecraft minecraft) {
 			this.owner = owner;
 			this.minecraft = minecraft;
+			this.parentScreenRectangleProvider = owner::getRectangle;
 		}
 		
 		public <T, C extends Column<T, W>, W extends AbstractWidget> GridBuilder addColumn(ColumnBuilder<T, C, W> builder) {
@@ -789,13 +772,13 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 			return this;
 		}
 		
-		public GridBuilder transparentBackground(boolean transparentBackground) {
-			this.transparentBackground = transparentBackground;
+		public GridBuilder rowEditable(RowEditButton rowEditButtons) {
+			this.rowEditButtons = rowEditButtons;
 			return this;
 		}
 		
-		public GridBuilder rowEditable(RowEditButton rowEditButtons) {
-			this.rowEditButtons = rowEditButtons;
+		public GridBuilder screenRectangleProvider(Supplier<ScreenRectangle> parentScreenRectangleProvider) {
+			this.parentScreenRectangleProvider = parentScreenRectangleProvider;
 			return this;
 		}
 		
@@ -915,10 +898,10 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@OnlyIn(Dist.CLIENT)
 	private static class RegistryPopupColumn<T> extends Column<T, PopupBox.RegistryPopupBox<T>> {
-		final IForgeRegistry<T> registry;
+		final Registry<T> registry;
 		final Predicate<T> filter;
 		
-		private RegistryPopupColumn(Function<T, String> toDisplayText, Consumer<ValueChangeEvent<T>> onValueChanged, Consumer<PopupBox.RegistryPopupBox<T>> onEditWidgetCreate, T defaultVal, IForgeRegistry<T> registry, Predicate<T> filter, boolean editable, int size) {
+		private RegistryPopupColumn(Function<T, String> toDisplayText, Consumer<ValueChangeEvent<T>> onValueChanged, Consumer<PopupBox.RegistryPopupBox<T>> onEditWidgetCreate, T defaultVal, Registry<T> registry, Predicate<T> filter, boolean editable, int size) {
 			super(toDisplayText, onValueChanged, onEditWidgetCreate, defaultVal, editable, size);
 			
 			this.registry = registry;
@@ -1083,10 +1066,10 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@OnlyIn(Dist.CLIENT)
 	public static class RegistryPopupColumnBuilder<T> extends ColumnBuilder<T, RegistryPopupColumn<T>, RegistryPopupBox<T>> {
-		final IForgeRegistry<T> registry;
+		final Registry<T> registry;
 		Predicate<T> filter = (item) -> true;
 		
-		protected RegistryPopupColumnBuilder(String name, IForgeRegistry<T> registry) {
+		protected RegistryPopupColumnBuilder(String name, Registry<T> registry) {
 			super(name);
 			
 			this.registry = registry;
@@ -1208,9 +1191,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	public Grid relocateX(ScreenRectangle screenrect, int x) {
-		this.x0 = x;
-		this.x1 = x + this.width;
-		
+		this.setX(x);
 		this.relocateButtons();
 		
 		return this;
@@ -1218,9 +1199,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	public Grid relocateY(ScreenRectangle screenrect, int y) {
-		this.y0 = y;
-		this.y1 = y + this.height;
-		
+		this.setY(y);
 		this.relocateButtons();
 		
 		return this;
@@ -1228,44 +1207,36 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	public void _setX(int x) {
-		this.x0 = x;
-		this.x1 = this.x0 + width;
-		
+		this.setX(x);
 		this.relocateButtons();
 	}
 	
 	@Override
 	public void _setY(int y) {
-		this.y0 = y;
-		this.y1 = this.y0 + height;
-		
+		this.setY(y);
 		this.relocateButtons();
 	}
 	
 	@Override
 	public void _setWidth(int width) {
-		this.x1 = this.x0 + width;
 		this.width = width;
-		
 		this.relocateButtons();
 	}
 	
 	@Override
 	public void _setHeight(int height) {
-		this.y1 = this.y0 + height;
 		this.height = height;
-		
 		this.relocateButtons();
 	}
 	
 	@Override
 	public int _getX() {
-		return this.x0;
+		return this.getX();
 	}
 	
 	@Override
 	public int _getY() {
-		return this.y0;
+		return this.getY();
 	}
 	
 	@Override

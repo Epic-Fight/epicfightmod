@@ -1,11 +1,11 @@
 package yesman.epicfight.client.renderer.patched.layer;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,19 +19,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.client.forgeevent.RegisterResourceLayersEvent;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.neoevent.RegisterResourceLayersEvent;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
-import yesman.epicfight.data.conditions.EpicFightConditions;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
+import yesman.epicfight.registry.entries.EpicFightConditions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
@@ -42,13 +42,13 @@ public class LayerUtil {
 	}
 	
 	public static <E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> void addLayer(LayerRenderer<E, T, M> renderer, EntityType<?> entityType, List<Pair<ResourceLocation, JsonElement>> layers) {
-		Map<ResourceLocation, LayerProvider<E, T, M, R, AM>> layersbyid = Maps.newHashMap();
+		Map<ResourceLocation, LayerProvider<E, T, M, R, AM>> layersbyid = new HashMap<> ();
 		
 		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "invisible"), LayerUtil::getInvisibleLayer);
 		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "eyes"), LayerUtil::getEyesLayer);
 		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "model_original"), LayerUtil::getOriginalModelLayer);
 		
-		MinecraftForge.EVENT_BUS.post(new RegisterResourceLayersEvent<> (layersbyid));
+		NeoForge.EVENT_BUS.post(new RegisterResourceLayersEvent<> (layersbyid));
 		
 		for (Pair<ResourceLocation, JsonElement> entry : layers) {
 			try {

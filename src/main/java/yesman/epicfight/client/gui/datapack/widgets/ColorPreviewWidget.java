@@ -4,8 +4,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ColorPreviewWidget extends AbstractWidget implements ResizableComponent {
@@ -102,10 +102,6 @@ public class ColorPreviewWidget extends AbstractWidget implements ResizableCompo
 		this.active = active;
 	}
 	
-	@Override
-	public void _tick() {
-	}
-
 	@Override
 	public int _getX() {
 		return this.getX();

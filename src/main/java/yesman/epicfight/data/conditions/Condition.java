@@ -18,10 +18,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public interface Condition<T> {
@@ -61,7 +61,7 @@ public interface Condition<T> {
 		}
 	}
 	
-	default <E extends ExtendableEnum> E assertExtendableEnumTag(String key, ExtendableEnumManager<E> extendableEnumManager, CompoundTag compound) throws IllegalArgumentException, NoSuchElementException {
+	default <E extends ExtensibleEnum> E assertExtensibleEnumTag(String key, ExtensibleEnumManager<E> extendableEnumManager, CompoundTag compound) throws IllegalArgumentException, NoSuchElementException {
 		if (!compound.contains(key)) {
 			throw new IllegalArgumentException(MessageFormat.format("{0} condition error: {1} not specified!", this.getClass().getSimpleName(), key));
 		}

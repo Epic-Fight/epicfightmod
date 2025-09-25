@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import yesman.epicfight.api.animation.types.EntityState.StateFactor;
-import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
+import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class StateSpectrum {
@@ -36,8 +36,8 @@ public class StateSpectrum {
 		return stateFactor.defaultValue();
 	}
 	
-	public TypeFlexibleHashMap<StateFactor<?>> getStateMap(LivingEntityPatch<?> entitypatch, float time) {
-		TypeFlexibleHashMap<StateFactor<?>> stateMap = new TypeFlexibleHashMap<>(true);
+	public ParameterizedHashMap<StateFactor<?>> getStateMap(LivingEntityPatch<?> entitypatch, float time) {
+		ParameterizedHashMap<StateFactor<?>> stateMap = new ParameterizedHashMap<>();
 		
 		for (StatesInTime state : this.timePairs) {
 			if (state.isIn(entitypatch, time)) {

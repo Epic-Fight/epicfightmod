@@ -6,8 +6,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModContainer;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
@@ -18,7 +19,7 @@ import yesman.epicfight.main.EpicFightMod;
 public class IngameConfigurationScreen extends Screen {
 	protected final Screen parentScreen;
 	
-	public IngameConfigurationScreen(Screen screen) {
+	public IngameConfigurationScreen(final ModContainer mod, Screen screen) {
 		super(Component.translatable("gui." + EpicFightMod.MODID + ".configurations"));
 		this.parentScreen = screen;
 	}
@@ -57,9 +58,8 @@ public class IngameConfigurationScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderDirtBackground(guiGraphics);
-		guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
 	}
 	
 	@Override

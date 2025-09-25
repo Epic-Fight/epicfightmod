@@ -15,8 +15,8 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.ClassicMesh.ClassicMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -81,7 +81,7 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 			OpenMatrix4f transform = this.getVanillaPartTransform();
 			
 			if (transform != null) {
-				poseStack.mulPoseMatrix(OpenMatrix4f.exportToMojangMatrix(transform));
+				poseStack.mulPose(OpenMatrix4f.exportToMojangMatrix(transform));
 			}
 			
 			Matrix4f matrix4f = poseStack.last().pose();

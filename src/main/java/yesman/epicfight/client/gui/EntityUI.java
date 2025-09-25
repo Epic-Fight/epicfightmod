@@ -7,22 +7,20 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class EntityUI {
@@ -35,75 +33,49 @@ public abstract class EntityUI {
 		ENTITY_UI_LIST.add(this);
 	}
 	
-	public static void drawUIAsLevelModel(Matrix4f matrix, ResourceLocation textureLocation, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int minU, int minV, int maxU, int maxV, int uvSize) {
+	public static void setupPoseStack(PoseStack poseStack, LivingEntity entity, float uiX, float uiY, float uiZ, boolean lockRotation, float partialTick) {
+		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+		float xRot = -Mth.lerp(partialTick, cameraEntity.xRotO, cameraEntity.getXRot());
+		float yRot = -Mth.lerp(partialTick, cameraEntity.yRotO, cameraEntity.getYRot()) + 180.0F;
+		poseStack.translate(uiX, uiY, uiZ);
+		poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
+		poseStack.mulPose(Axis.XP.rotationDegrees(xRot));
+	}
+	
+	public static void drawUIAsLevelModel(PoseStack.Pose posestack$pose, ResourceLocation textureLocation, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int minU, int minV, int maxU, int maxV, int uvSize) {
 		float uvSizeInvert = 1.0F / uvSize;
 		
-		drawUIAsLevelModel(matrix, textureLocation, buffer, minX, minY, maxX, maxY, minU * uvSizeInvert, minV * uvSizeInvert, maxU * uvSizeInvert, maxV * uvSizeInvert);
+		drawUIAsLevelModel(posestack$pose, textureLocation, buffer, minX, minY, maxX, maxY, minU * uvSizeInvert, minV * uvSizeInvert, maxU * uvSizeInvert, maxV * uvSizeInvert);
 	}
 	
-	public static void drawUIAsLevelModel(Matrix4f matrix, ResourceLocation textureLocation, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, float minU, float minV, float maxU, float maxV) {
+	public static void drawUIAsLevelModel(PoseStack.Pose posestack$pose, ResourceLocation textureLocation, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, float minU, float minV, float maxU, float maxV) {
 		VertexConsumer vertexConsumer = buffer.getBuffer(EpicFightRenderTypes.entityUITexture(textureLocation));
 		
-		vertexConsumer.vertex(matrix, minX, minY, 0).uv(minU, maxV).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, 0).uv(maxU, maxV).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, 0).uv(maxU, minV).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, 0).uv(minU, minV).endVertex();
+		vertexConsumer.addVertex(posestack$pose, minX, minY, 0).setUv(minU, maxV);
+        vertexConsumer.addVertex(posestack$pose, maxX, minY, 0).setUv(maxU, maxV);
+        vertexConsumer.addVertex(posestack$pose, maxX, maxY, 0).setUv(maxU, minV);
+        vertexConsumer.addVertex(posestack$pose, minX, maxY, 0).setUv(minU, minV);
 	}
 	
-	public static void drawColoredQuadAsLevelModel(Matrix4f matrix, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int packedColor) {
+	public static void drawColoredQuadAsLevelModel(PoseStack.Pose posestack$pose, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int packedColor) {
 		VertexConsumer vertexConsumer = buffer.getBuffer(EpicFightRenderTypes.entityUIColor());
 		
-		vertexConsumer.vertex(matrix, minX, minY, 0).color(packedColor).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, 0).color(packedColor).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, 0).color(packedColor).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, 0).color(packedColor).endVertex();
+		vertexConsumer.addVertex(posestack$pose, minX, minY, 0).setColor(packedColor);
+        vertexConsumer.addVertex(posestack$pose, maxX, minY, 0).setColor(packedColor);
+        vertexConsumer.addVertex(posestack$pose, maxX, maxY, 0).setColor(packedColor);
+        vertexConsumer.addVertex(posestack$pose, minX, maxY, 0).setColor(packedColor);
 	}
 	
-	public static void drawColoredQuadAsLevelModel(Matrix4f matrix, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int r, int g, int b, int a) {
+	public static void drawColoredQuadAsLevelModel(PoseStack.Pose posestack$pose, MultiBufferSource buffer, float minX, float minY, float maxX, float maxY, int r, int g, int b, int a) {
 		VertexConsumer vertexConsumer = buffer.getBuffer(EpicFightRenderTypes.entityUIColor());
 		
-		vertexConsumer.vertex(matrix, minX, minY, 0).color(r, g, b, a).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, 0).color(r, g, b, a).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, 0).color(r, g, b, a).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, 0).color(r, g, b, a).endVertex();
+		vertexConsumer.addVertex(posestack$pose, minX, minY, 0).setColor(r, g, b, a);
+        vertexConsumer.addVertex(posestack$pose, maxX, minY, 0).setColor(r, g, b, a);
+        vertexConsumer.addVertex(posestack$pose, maxX, maxY, 0).setColor(r, g, b, a);
+        vertexConsumer.addVertex(posestack$pose, minX, maxY, 0).setColor(r, g, b, a);
 	}
 	
-	public final Matrix4f getModelViewMatrixAlignedToCamera(PoseStack poseStack, LivingEntity entity, float x, float y, float z, boolean lockRotation, float partialTicks) {
-		float posX = (float)Mth.lerp(partialTicks, entity.xOld, entity.getX());
-		float posY = (float)Mth.lerp(partialTicks, entity.yOld, entity.getY());
-		float posZ = (float)Mth.lerp(partialTicks, entity.zOld, entity.getZ());
-		
-		poseStack.pushPose();
-		poseStack.translate(-posX, -posY, -posZ);
-		poseStack.mulPose(QuaternionUtils.YP.rotationDegrees(180.0F));
-
-		float screenX = posX + x;
-		float screenY = posY + y;
-		float screenZ = posZ + z;
-
-		OpenMatrix4f viewMatrix = OpenMatrix4f.importFromMojangMatrix(poseStack.last().pose());
-		OpenMatrix4f finalMatrix = new OpenMatrix4f();
-		finalMatrix.translate(new Vec3f(-screenX, screenY, -screenZ));
-		poseStack.popPose();
-		
-		if (lockRotation) {
-			finalMatrix.m00 = viewMatrix.m00;
-			finalMatrix.m01 = viewMatrix.m10;
-			finalMatrix.m02 = viewMatrix.m20;
-			finalMatrix.m10 = viewMatrix.m01;
-			finalMatrix.m11 = viewMatrix.m11;
-			finalMatrix.m12 = viewMatrix.m21;
-			finalMatrix.m20 = viewMatrix.m02;
-			finalMatrix.m21 = viewMatrix.m12;
-			finalMatrix.m22 = viewMatrix.m22;
-		}
-		
-		finalMatrix.mulFront(viewMatrix);
-		
-		return OpenMatrix4f.exportToMojangMatrix(finalMatrix);
-	}
+	public abstract boolean shouldDraw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, float partialTick);
 	
-	public abstract boolean shouldDraw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, float partialTicks);
-	
-	public abstract void draw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, PoseStack poseStack, MultiBufferSource multiBufferSource, float partialTicks);
+	public abstract void draw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, PoseStack poseStack, MultiBufferSource multiBufferSource, float partialTick);
 }

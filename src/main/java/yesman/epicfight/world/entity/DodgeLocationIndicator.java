@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import yesman.epicfight.api.animation.types.DodgeAnimation;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class DodgeLocationIndicator extends LivingEntity {
@@ -22,7 +23,7 @@ public class DodgeLocationIndicator extends LivingEntity {
 	}
 	
 	public DodgeLocationIndicator(LivingEntityPatch<?> entitypatch) {
-		this(EpicFightEntities.DODGE_LOCATION_INDICATOR.get(), entitypatch.getOriginal().level());
+		this(EpicFightEntityTypes.DODGE_LOCATION_INDICATOR.get(), entitypatch.getOriginal().level());
 		
 		this.entitypatch = entitypatch;
 		

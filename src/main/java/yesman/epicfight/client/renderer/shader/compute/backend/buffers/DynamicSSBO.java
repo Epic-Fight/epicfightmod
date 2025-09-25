@@ -10,8 +10,10 @@ import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import com.mojang.blaze3d.platform.GlStateManager;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
@@ -29,18 +31,18 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
         this.mode = DataMode;
         this.srcSize = srcSize;
         this.uploader = uploader;
-        this.glSSBO = GL15C.glGenBuffers();
+        this.glSSBO = GlStateManager._glGenBuffers();
         
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
-        GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, (long) src.length * srcSize * 4, mode.glMode);
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
+        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
+        GlStateManager._glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, (long) src.length * srcSize * 4, mode.glMode);
+        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
         
         this.buffer = BufferUtils.createByteBuffer(src.length * srcSize * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     }
     
     @Override
     public void updateAll() {
-    	GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
+    	GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
         for (T s : this.src) {
         	this.uploader.accept(s, this.buffer);
@@ -48,13 +50,13 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
         
         this.buffer.position(0);
         
-		GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, 0, this.buffer);
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
+        GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, 0, this.buffer);
+        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
     }
     
     @Override
     public void updateFromTo(int from, int to) {
-    	GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
+    	GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
     	
         for (int i = from; i < to; i++) {
         	this.uploader.accept(this.src[i], this.buffer);
@@ -63,7 +65,7 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
         this.buffer.position(0);
         
 		GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, (long) srcSize * 4 * from, this.buffer);
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
+		GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
     }
     
     @Override
@@ -83,7 +85,7 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
     @Override
     public void close() {
         if (this.glSSBO != 0) {
-        	GL15C.glDeleteBuffers(this.glSSBO);
+        	GlStateManager._glDeleteBuffers(this.glSSBO);
         }
     }
     

@@ -8,7 +8,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class CrossbowCapability extends RangedWeaponCapability {
-	protected CrossbowCapability(CapabilityItem.Builder builder) {
+	protected CrossbowCapability(RangedWeaponCapability.Builder builder) {
 		super(builder);
 	}
 	

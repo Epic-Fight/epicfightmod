@@ -9,8 +9,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -20,7 +20,7 @@ import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.EntityState.StateFactor;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMaskEntry;
-import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
+import yesman.epicfight.api.utils.datastructure.ParameterizedMap;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -61,7 +61,7 @@ public abstract class DynamicAnimation {
 	}
 	
 	/**
-	 * Called when the animation put on the {@link AnimationPlayer}
+	 * Called before the animation put on the {@link AnimationPlayer}
 	 * @param entitypatch
 	 */
 	public void begin(LivingEntityPatch<?> entitypatch) {}
@@ -97,8 +97,8 @@ public abstract class DynamicAnimation {
 		return EntityState.DEFAULT_STATE;
 	}
 	
-	public TypeFlexibleHashMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
-		return new TypeFlexibleHashMap<> (false);
+	public ParameterizedMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
+		return EntityState.DEFAULT_STATE.getStateMap();
 	}
 
 	public <T> T getState(StateFactor<T> stateFactor, LivingEntityPatch<?> entitypatch, float time) {
@@ -153,7 +153,7 @@ public abstract class DynamicAnimation {
 		return Optional.empty();
 	}
 	
-	public boolean isBasicAttackAnimation() {
+	public boolean isComboAttackAnimation() {
 		return false;
 	}
 

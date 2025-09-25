@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
@@ -268,13 +268,22 @@ public class UIComponentPop<T extends UIComponent> extends Screen implements Con
 			public void blitRotate(GuiGraphics guiGraphics, Vec2[] texCoords) {
 				PoseStack poseStack = guiGraphics.pose();
 				RenderSystem.setShader(GameRenderer::getPositionTexShader);
-				BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-				bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-				bufferbuilder.vertex(poseStack.last().pose(), this.getX(), this.getY(), this.getBlitOffset()).uv(texCoords[0].x, texCoords[0].y).endVertex();
-				bufferbuilder.vertex(poseStack.last().pose(), this.getX() + this.width, this.getY(), this.getBlitOffset()).uv(texCoords[1].x, texCoords[1].y).endVertex();
-				bufferbuilder.vertex(poseStack.last().pose(), this.getX() + this.width, this.getY() + this.height, this.getBlitOffset()).uv(texCoords[2].x, texCoords[2].y).endVertex();
-				bufferbuilder.vertex(poseStack.last().pose(), this.getX(), this.getY() + this.height, this.getBlitOffset()).uv(texCoords[3].x, texCoords[3].y).endVertex();
-				BufferUploader.drawWithShader(bufferbuilder.end());
+				BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+				
+				bufferbuilder
+					.addVertex(poseStack.last().pose(), this.getX(), this.getY(), this.getBlitOffset())
+					.setUv(texCoords[0].x, texCoords[0].y);
+				bufferbuilder
+					.addVertex(poseStack.last().pose(), this.getX() + this.width, this.getY(), this.getBlitOffset())
+					.setUv(texCoords[1].x, texCoords[1].y);
+				bufferbuilder
+					.addVertex(poseStack.last().pose(), this.getX() + this.width, this.getY() + this.height, this.getBlitOffset())
+					.setUv(texCoords[2].x, texCoords[2].y);
+				bufferbuilder
+					.addVertex(poseStack.last().pose(), this.getX(), this.getY() + this.height, this.getBlitOffset())
+					.setUv(texCoords[3].x, texCoords[3].y);
+				
+				BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 			}
 
 			public int getBlitOffset() {

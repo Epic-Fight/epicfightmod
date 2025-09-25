@@ -3,8 +3,8 @@ package yesman.epicfight.client.gui.datapack.screen;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PackEntry<K, T> implements Map.Entry<K, T> {

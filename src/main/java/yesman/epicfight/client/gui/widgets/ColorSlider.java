@@ -13,8 +13,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.utils.ColorUtil;
 import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 
@@ -101,20 +102,7 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 				double lerpFactor = (value - min) / (max - min);
 				int startColor = colors[i];
 				int endColor = colors[i + 1];
-				int f = startColor >> 24 & 255;
-				int f1 = startColor >> 16 & 255;
-				int f2 = startColor >> 8 & 255;
-				int f3 = startColor & 255;
-				int f4 = endColor >> 24 & 255;
-				int f5 = endColor >> 16 & 255;
-				int f6 = endColor >> 8 & 255;
-				int f7 = endColor & 255;
-				int r = (int) Mth.lerp(lerpFactor, f, f4);
-				int g = (int) Mth.lerp(lerpFactor, f1, f5);
-				int b = (int) Mth.lerp(lerpFactor, f2, f6);
-				int a = (int) Mth.lerp(lerpFactor, f3, f7);
-				
-				packedColor = r << 24 | g << 16 | b << 8 | a;
+				packedColor = ColorUtil.mixPackedARGB(lerpFactor, startColor, endColor);
 			}
 		}
 		
@@ -138,10 +126,10 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 		Matrix4f matrix4f = guiGraphics.pose().last().pose();
 		VertexConsumer consumer = guiGraphics.bufferSource().getBuffer(RenderType.gui());
 		
-		consumer.vertex(matrix4f, (float)x1, (float)y2, 0.0F).color(f1, f2, f3, f).endVertex();
-		consumer.vertex(matrix4f, (float)x2, (float)y2, 0.0F).color(f5, f6, f7, f4).endVertex();
-		consumer.vertex(matrix4f, (float)x2, (float)y1, 0.0F).color(f5, f6, f7, f4).endVertex();
-		consumer.vertex(matrix4f, (float)x1, (float)y1, 0.0F).color(f1, f2, f3, f).endVertex();
+		consumer.addVertex(matrix4f, (float)x1, (float)y2, 0.0F).setColor(f1, f2, f3, f);
+		consumer.addVertex(matrix4f, (float)x2, (float)y2, 0.0F).setColor(f5, f6, f7, f4);
+		consumer.addVertex(matrix4f, (float)x2, (float)y1, 0.0F).setColor(f5, f6, f7, f4);
+		consumer.addVertex(matrix4f, (float)x1, (float)y1, 0.0F).setColor(f1, f2, f3, f);
 	}
 	
 	private static void fillRhombus(GuiGraphics guiGraphics, int minX, int minY, int maxX, int maxY, int pColor) {
@@ -155,12 +143,12 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 		int centerY = minY + (maxY - minY) / 2;
 		
 		VertexConsumer vertexconsumer = guiGraphics.bufferSource().getBuffer(EpicFightRenderTypes.guiTriangle());
-		vertexconsumer.vertex(matrix4f, (float) centerX, (float) minY, (float) 0).color(r, g, b, a).endVertex();
-		vertexconsumer.vertex(matrix4f, (float) minX, (float) centerY, (float) 0).color(r, g, b, a).endVertex();
-		vertexconsumer.vertex(matrix4f, (float) centerX, (float) maxY, (float) 0).color(r, g, b, a).endVertex();
-		vertexconsumer.vertex(matrix4f, (float) centerX, (float) maxY, (float) 0).color(r, g, b, a).endVertex();
-		vertexconsumer.vertex(matrix4f, (float) maxX, (float) centerY, (float) 0).color(r, g, b, a).endVertex();
-		vertexconsumer.vertex(matrix4f, (float) centerX, (float) minY, (float) 0).color(r, g, b, a).endVertex();
+		vertexconsumer.addVertex(matrix4f, (float) centerX, (float) minY, (float) 0).setColor(r, g, b, a);
+		vertexconsumer.addVertex(matrix4f, (float) minX, (float) centerY, (float) 0).setColor(r, g, b, a);
+		vertexconsumer.addVertex(matrix4f, (float) centerX, (float) maxY, (float) 0).setColor(r, g, b, a);
+		vertexconsumer.addVertex(matrix4f, (float) centerX, (float) maxY, (float) 0).setColor(r, g, b, a);
+		vertexconsumer.addVertex(matrix4f, (float) maxX, (float) centerY, (float) 0).setColor(r, g, b, a);
+		vertexconsumer.addVertex(matrix4f, (float) centerX, (float) minY, (float) 0).setColor(r, g, b, a);
 		
 		guiGraphics.flush();
 	}
@@ -308,10 +296,6 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 	@Override
 	public void _setActive(boolean active) {
 		this.active = active;
-	}
-	
-	@Override
-	public void _tick() {
 	}
 	
 	@Override

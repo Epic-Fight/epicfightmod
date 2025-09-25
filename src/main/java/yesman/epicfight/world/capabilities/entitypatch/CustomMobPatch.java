@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.entitypatch;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
@@ -13,9 +14,9 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
 import yesman.epicfight.world.entity.ai.brain.BrainRecomposer;
@@ -26,10 +27,9 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 public class CustomMobPatch<T extends PathfinderMob> extends MobPatch<T> {
 	private final MobPatchReloadListener.CustomMobPatchProvider provider;
 	
-	public CustomMobPatch(Faction faction, MobPatchReloadListener.CustomMobPatchProvider provider) {
-		super(faction);
+	public CustomMobPatch(T original, Faction faction, MobPatchReloadListener.CustomMobPatchProvider provider) {
+		super(original, faction);
 		this.provider = provider;
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -49,14 +49,20 @@ public class CustomMobPatch<T extends PathfinderMob> extends MobPatch<T> {
 	}
 	
 	public void initAttributes() {
-		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES.get()));
-		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION.get()));
-		this.original.getAttribute(EpicFightAttributes.IMPACT.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT.get()));
-		this.original.getAttribute(EpicFightAttributes.STUN_ARMOR.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.STUN_ARMOR.get()));
+		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES));
+		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION));
+		this.original.getAttribute(EpicFightAttributes.IMPACT).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT));
+		this.original.getAttribute(EpicFightAttributes.STUN_ARMOR).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.STUN_ARMOR));
 		
 		if (this.provider.getAttributeValues().containsKey(Attributes.ATTACK_DAMAGE)) {
 			this.original.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.provider.getAttributeValues().getDouble(Attributes.ATTACK_DAMAGE));
 		}
+	}
+	
+	@Override
+	public void readData(CompoundTag compound) {
+		super.readData(compound);
+		this.initAttributes();
 	}
 	
 	@Override

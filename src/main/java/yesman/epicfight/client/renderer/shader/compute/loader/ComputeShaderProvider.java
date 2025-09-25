@@ -6,10 +6,12 @@ import java.util.function.Function;
 
 import org.lwjgl.opengl.GL33C;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 //import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
@@ -44,11 +46,11 @@ public class ComputeShaderProvider {
         return irisLoaded;
     }
     
-    public static void register(RegisterShadersEvent event){
-        String glVersion = GL33C.glGetString(GL33C.GL_VERSION);
-        int major = GL33C.glGetInteger(GL33C.GL_MAJOR_VERSION);
-        int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
-
+    public static void register(RegisterShadersEvent event) {
+        String glVersion = GlStateManager._getString(GL33C.GL_VERSION);
+        int major = GlStateManager._getInteger(GL33C.GL_MAJOR_VERSION);
+        int minor = GlStateManager._getInteger(GL33C.GL_MINOR_VERSION);
+        
         supportComputeShader = (major > 4) || (major == 4 && minor >= 3);
         
         EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
@@ -58,8 +60,8 @@ public class ComputeShaderProvider {
         
         clear();
         
-		meshComputeVanilla = ComputeShaderLoader.LoadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
-		meshComputeIris = ComputeShaderLoader.LoadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+		meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+		meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
     }
     
     public static void clear() {

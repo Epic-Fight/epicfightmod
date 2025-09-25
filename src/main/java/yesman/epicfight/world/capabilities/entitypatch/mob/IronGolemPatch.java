@@ -9,24 +9,24 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsTargetGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class IronGolemPatch extends MobPatch<IronGolem> {
-	public IronGolemPatch() {
-		super(Factions.VILLAGER);
+	public IronGolemPatch(IronGolem original) {
+		super(original, Factions.VILLAGER);
 	}
 	
 	@Override
@@ -50,8 +50,8 @@ public class IronGolemPatch extends MobPatch<IronGolem> {
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.IRON_GOLEM, EpicFightAttributes.MAX_STRIKES.get(), 4.0D);
-		event.add(EntityType.IRON_GOLEM, EpicFightAttributes.IMPACT.get(), 6.0D);
+		event.add(EntityType.IRON_GOLEM, EpicFightAttributes.MAX_STRIKES, 4.0D);
+		event.add(EntityType.IRON_GOLEM, EpicFightAttributes.IMPACT, 6.0D);
 	}
 	
 	@Override

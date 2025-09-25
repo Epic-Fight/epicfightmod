@@ -1,18 +1,18 @@
 package yesman.epicfight.gameasset;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
@@ -29,8 +29,8 @@ import yesman.epicfight.model.armature.RavagerArmature;
 import yesman.epicfight.model.armature.SpiderArmature;
 import yesman.epicfight.model.armature.VexArmature;
 import yesman.epicfight.model.armature.WitherArmature;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
-import yesman.epicfight.world.entity.EpicFightEntities;
 
 public class Armatures {
 	public static final Armatures INSTANCE = new Armatures();
@@ -41,9 +41,9 @@ public class Armatures {
 		T invoke(String name, int jointNumber, Joint joint, Map<String, Joint> jointMap);
 	}
 	
-	private static final Map<ResourceLocation, ArmatureAccessor<? extends Armature>> ACCESSORS = Maps.newHashMap();
-	private static final Map<ArmatureAccessor<? extends Armature>, Armature> ARMATURES = Maps.newHashMap();
-	private static final Map<EntityType<?>, AssetAccessor<? extends Armature>> ENTITY_TYPE_ARMATURE_MAPPER = Maps.newHashMap();
+	private static final Map<ResourceLocation, ArmatureAccessor<? extends Armature>> ACCESSORS = new HashMap<> ();
+	private static final Map<ArmatureAccessor<? extends Armature>, Armature> ARMATURES = new HashMap<> ();
+	private static final Map<EntityType<?>, AssetAccessor<? extends Armature>> ENTITY_TYPE_ARMATURE_MAPPER = new HashMap<> ();
 	
 	public static final ArmatureAccessor<HumanoidArmature> BIPED = ArmatureAccessor.create(EpicFightMod.MODID, "entity/biped", HumanoidArmature::new);
 	public static final ArmatureAccessor<CreeperArmature> CREEPER = ArmatureAccessor.create(EpicFightMod.MODID, "entity/creeper", CreeperArmature::new);
@@ -85,8 +85,8 @@ public class Armatures {
 		registerEntityTypeArmature(EntityType.PLAYER, BIPED);
 		registerEntityTypeArmature(EntityType.ENDER_DRAGON, DRAGON);
 		registerEntityTypeArmature(EntityType.WITHER, WITHER);
-		registerEntityTypeArmature(EpicFightEntities.WITHER_SKELETON_MINION.get(), SKELETON);
-		registerEntityTypeArmature(EpicFightEntities.WITHER_GHOST_CLONE.get(), WITHER);
+		registerEntityTypeArmature(EpicFightEntityTypes.WITHER_SKELETON_MINION.get(), SKELETON);
+		registerEntityTypeArmature(EpicFightEntityTypes.WITHER_GHOST_CLONE.get(), WITHER);
 	}
 	
 	public static void reload(ResourceManager resourceManager) {
@@ -102,7 +102,7 @@ public class Armatures {
 	
 	//For presets
 	public static void registerEntityTypeArmatureByPreset(EntityType<?> entityType, String presetName) {
-		EntityType<?> presetEntityType = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(presetName));
+		EntityType<?> presetEntityType = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(presetName));
 		ENTITY_TYPE_ARMATURE_MAPPER.put(entityType, ENTITY_TYPE_ARMATURE_MAPPER.get(presetEntityType));
 	}
 	

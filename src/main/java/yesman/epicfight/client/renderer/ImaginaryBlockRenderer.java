@@ -25,9 +25,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 @OnlyIn(Dist.CLIENT)
 public class ImaginaryBlockRenderer {
@@ -83,9 +83,8 @@ public class ImaginaryBlockRenderer {
 					float f2 = bytebuffer.getFloat(8);
 					
 					Vector4f vector4f = matrix4f.transform(new Vector4f(f, f1, f2, 1.0F));
-					consumer.vertex(vector4f.x(), vector4f.y(), vector4f.z());
-					consumer.color(255, 255, 255, 44);
-					consumer.endVertex();
+					consumer.addVertex(vector4f.x(), vector4f.y(), vector4f.z());
+					consumer.setColor(255, 255, 255, 44);
 				}
 			}
 		}

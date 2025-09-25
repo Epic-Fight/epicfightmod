@@ -13,8 +13,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
@@ -285,41 +285,41 @@ public class OBBCollider extends Collider {
 		float v8y = (float) (this.worldCenter.y + -this.rotatedVertices[1].y);
 		float v8z = (float) (this.worldCenter.z + -this.rotatedVertices[1].z);
 		
-		vertexConsumer.vertex(matrix, v1x, v1y, v1z).color(color).normal(v2x - v1x, v2y - v1y, v2z - v1z).endVertex();
-		vertexConsumer.vertex(matrix, v2x, v2y, v2z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v1x, v1y, v1z).setColor(color).setNormal(v2x - v1x, v2y - v1y, v2z - v1z);
+		vertexConsumer.addVertex(matrix, v2x, v2y, v2z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v2x, v2y, v2z).color(color).normal(v3x - v2x, v3y - v2y, v3z - v2z).endVertex();
-		vertexConsumer.vertex(matrix, v3x, v3y, v3z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v2x, v2y, v2z).setColor(color).setNormal(v3x - v2x, v3y - v2y, v3z - v2z);
+		vertexConsumer.addVertex(matrix, v3x, v3y, v3z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v3x, v3y, v3z).color(color).normal(v4x - v3x, v4y - v3y, v4z - v3z).endVertex();
-		vertexConsumer.vertex(matrix, v4x, v4y, v4z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v3x, v3y, v3z).setColor(color).setNormal(v4x - v3x, v4y - v3y, v4z - v3z);
+		vertexConsumer.addVertex(matrix, v4x, v4y, v4z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v4x, v4y, v4z).color(color).normal(v1x - v4x, v1y - v4y, v1z - v4z).endVertex();
-		vertexConsumer.vertex(matrix, v1x, v1y, v1z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v4x, v4y, v4z).setColor(color).setNormal(v1x - v4x, v1y - v4y, v1z - v4z);
+		vertexConsumer.addVertex(matrix, v1x, v1y, v1z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v1x, v1y, v1z).color(color).normal(v5x - v1x, v5y - v1y, v5z - v1z).endVertex();
-		vertexConsumer.vertex(matrix, v5x, v5y, v5z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v1x, v1y, v1z).setColor(color).setNormal(v5x - v1x, v5y - v1y, v5z - v1z);
+		vertexConsumer.addVertex(matrix, v5x, v5y, v5z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v2x, v2y, v2z).color(color).normal(v6x - v2x, v6y - v2y, v6z - v2z).endVertex();
-		vertexConsumer.vertex(matrix, v6x, v6y, v6z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v2x, v2y, v2z).setColor(color).setNormal(v6x - v2x, v6y - v2y, v6z - v2z);
+		vertexConsumer.addVertex(matrix, v6x, v6y, v6z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v3x, v3y, v3z).color(color).normal(v7x - v3x, v7y - v3y, v7z - v3z).endVertex();
-		vertexConsumer.vertex(matrix, v7x, v7y, v7z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v3x, v3y, v3z).setColor(color).setNormal(v7x - v3x, v7y - v3y, v7z - v3z);
+		vertexConsumer.addVertex(matrix, v7x, v7y, v7z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v4x, v4y, v4z).color(color).normal(v8x - v4x, v8y - v4y, v8z - v4z).endVertex();
-		vertexConsumer.vertex(matrix, v8x, v8y, v8z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v4x, v4y, v4z).setColor(color).setNormal(v8x - v4x, v8y - v4y, v8z - v4z);
+		vertexConsumer.addVertex(matrix, v8x, v8y, v8z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v5x, v5y, v5z).color(color).normal(v6x - v5x, v6y - v5y, v6z - v5z).endVertex();
-		vertexConsumer.vertex(matrix, v6x, v6y, v6z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v5x, v5y, v5z).setColor(color).setNormal(v6x - v5x, v6y - v5y, v6z - v5z);
+		vertexConsumer.addVertex(matrix, v6x, v6y, v6z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v6x, v6y, v6z).color(color).normal(v7x - v6x, v7y - v6y, v7z - v6z).endVertex();
-		vertexConsumer.vertex(matrix, v7x, v7y, v7z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v6x, v6y, v6z).setColor(color).setNormal(v7x - v6x, v7y - v6y, v7z - v6z);
+		vertexConsumer.addVertex(matrix, v7x, v7y, v7z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v7x, v7y, v7z).color(color).normal(v8x - v7x, v8y - v7y, v8z - v7z).endVertex();
-		vertexConsumer.vertex(matrix, v8x, v8y, v8z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v7x, v7y, v7z).setColor(color).setNormal(v8x - v7x, v8y - v7y, v8z - v7z);
+		vertexConsumer.addVertex(matrix, v8x, v8y, v8z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 		
-		vertexConsumer.vertex(matrix, v8x, v8y, v8z).color(color).normal(v5x - v8x, v5y - v8y, v5z - v8z).endVertex();
-		vertexConsumer.vertex(matrix, v5x, v5y, v5z).color(color).normal(0.0F, 0.0F, 0.0F).endVertex();
+		vertexConsumer.addVertex(matrix, v8x, v8y, v8z).setColor(color).setNormal(v5x - v8x, v5y - v8y, v5z - v8z);
+		vertexConsumer.addVertex(matrix, v5x, v5y, v5z).setColor(color).setNormal(0.0F, 0.0F, 0.0F);
 	}
 	
 	@Override
@@ -351,30 +351,30 @@ public class OBBCollider extends Collider {
         float minY = (float)(this.modelCenter.y - vec.y);
         float minZ = (float)(this.modelCenter.z - vec.z);
         
-        vertexConsumer.vertex(matrix, minX, maxY, minZ).color(color).normal(0.0F, 0.0F, 1.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, maxZ).color(color).normal(0.0F, 0.0F, 1.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, maxZ).color(color).normal(1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, maxZ).color(color).normal(1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, maxZ).color(color).normal(0.0F, 0.0F, -1.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, minZ).color(color).normal(0.0F, 0.0F, -1.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, minZ).color(color).normal(-1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, minZ).color(color).normal(-1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, maxZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, maxZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, maxZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, maxZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, maxY, minZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, minZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, maxY, minZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, minZ).color(color).normal(0.0F, -1.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, minZ).color(color).normal(0.0F, 0.0F, 1.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, maxZ).color(color).normal(0.0F, 0.0F, 1.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, maxZ).color(color).normal(1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, maxZ).color(color).normal(1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, maxZ).color(color).normal(0.0F, 0.0F, -1.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, minZ).color(color).normal(0.0F, 0.0F, -1.0F).endVertex();
-        vertexConsumer.vertex(matrix, maxX, minY, minZ).color(color).normal(-1.0F, 0.0F, 0.0F).endVertex();
-        vertexConsumer.vertex(matrix, minX, minY, minZ).color(color).normal(-1.0F, 0.0F, 0.0F).endVertex();
+        vertexConsumer.addVertex(matrix, minX, maxY, minZ).setColor(color).setNormal(0.0F, 0.0F, 1.0F);
+        vertexConsumer.addVertex(matrix, minX, maxY, maxZ).setColor(color).setNormal(0.0F, 0.0F, 1.0F);
+        vertexConsumer.addVertex(matrix, minX, maxY, maxZ).setColor(color).setNormal(1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, maxZ).setColor(color).setNormal(1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, maxZ).setColor(color).setNormal(0.0F, 0.0F, -1.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, minZ).setColor(color).setNormal(0.0F, 0.0F, -1.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, minZ).setColor(color).setNormal(-1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, maxY, minZ).setColor(color).setNormal(-1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, maxZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, maxZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, maxY, maxZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, maxZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, maxY, minZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, minZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, maxY, minZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, minZ).setColor(color).setNormal(0.0F, -1.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, minZ).setColor(color).setNormal(0.0F, 0.0F, 1.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, maxZ).setColor(color).setNormal(0.0F, 0.0F, 1.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, maxZ).setColor(color).setNormal(1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, maxZ).setColor(color).setNormal(1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, maxZ).setColor(color).setNormal(0.0F, 0.0F, -1.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, minZ).setColor(color).setNormal(0.0F, 0.0F, -1.0F);
+        vertexConsumer.addVertex(matrix, maxX, minY, minZ).setColor(color).setNormal(-1.0F, 0.0F, 0.0F);
+        vertexConsumer.addVertex(matrix, minX, minY, minZ).setColor(color).setNormal(-1.0F, 0.0F, 0.0F);
         
         poseStack.popPose();
 	}

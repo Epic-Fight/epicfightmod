@@ -1,20 +1,24 @@
 package yesman.epicfight.world.capabilities.entitypatch.boss;
 
 import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.entity.WitherGhostClone;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class WitherGhostPatch extends MobPatch<WitherGhostClone> {
+	public WitherGhostPatch(WitherGhostClone entity) {
+		super(entity);
+	}
+	
 	@Override
 	public void onJoinWorld(WitherGhostClone original, EntityJoinLevelEvent event) {
 		super.onJoinWorld(original, event);
@@ -36,7 +40,7 @@ public class WitherGhostPatch extends MobPatch<WitherGhostClone> {
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EpicFightEntities.WITHER_GHOST_CLONE.get(), EpicFightAttributes.IMPACT.get(), 3.0D);
+		event.add(EpicFightEntityTypes.WITHER_GHOST_CLONE.get(), EpicFightAttributes.IMPACT, 3.0D);
 	}
 	
 	@Override

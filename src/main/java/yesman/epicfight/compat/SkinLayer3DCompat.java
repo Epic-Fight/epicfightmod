@@ -1,8 +1,11 @@
 package yesman.epicfight.compat;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -24,7 +27,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -34,20 +36,18 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.capabilities.EntityCapability;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.SkinLayer3DTransformer;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.neoevent.EntityRemoveEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
@@ -56,7 +56,26 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.mixin.skinlayers.MixinSkinUtil;
 
 public class SkinLayer3DCompat implements ICompatModule {
-	private static Capability<SkinLayer3DMeshes> SKIN_LAYER_3D_CAPABILITY;
+	private static final EntityCapability<SkinLayer3DMeshes, Void> SKIN_LAYER_3D_CAPABILITY = 
+		EntityCapability.createVoid(
+			  ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "epicfight_mesh")
+			, SkinLayer3DMeshes.class
+		);
+	
+	private static final SkinlayerMeshProvider SKINLAYER_PROVIDER = new SkinlayerMeshProvider();
+	
+	private static class SkinlayerMeshProvider implements ICapabilityProvider<Player, Void, SkinLayer3DMeshes> {
+		final Map<Player, SkinLayer3DMeshes> epicFight3dSkinLayerCapability = new HashMap<> ();
+		
+		@Override
+		public @Nullable SkinLayer3DMeshes getCapability(Player object, Void context) {
+			return this.epicFight3dSkinLayerCapability.get(object);
+		}
+		
+		public void remove(Entity player) {
+			this.epicFight3dSkinLayerCapability.remove(player);
+		}
+	}
 	
 	@Override
 	public void onModEventBus(IEventBus eventBus) {
@@ -64,47 +83,36 @@ public class SkinLayer3DCompat implements ICompatModule {
 	}
 
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 		
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void onModEventBusClient(IEventBus eventBus) {
-		SKIN_LAYER_3D_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
-		
 		eventBus.<PatchedRenderersEvent.Modify>addListener((event) -> {
 			if (event.get(EntityType.PLAYER) instanceof PPlayerRenderer playerrenderer) {
 				playerrenderer.addPatchedLayerAlways(CustomLayerFeatureRenderer.class, new EpicFight3DSkinLayerRenderer());
 			}
 		});
+		
+		eventBus.<RegisterCapabilitiesEvent>addListener((event) -> {
+			event.registerEntity(SKIN_LAYER_3D_CAPABILITY, EntityType.PLAYER, SKINLAYER_PROVIDER);
+		});
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
-		eventBus.addGenericListener(Entity.class, this::onCapabilityRegister);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public void onCapabilityRegister(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject().level().isClientSide() && event.getObject().getType() == EntityType.PLAYER) {
-			event.addCapability(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "animated_3d_skinlayer_mesh"), new ICapabilityProvider() {
-				final SkinLayer3DMeshes epicFight3dSkinLayerCapability = new SkinLayer3DMeshes();
-				
-				@Override
-				public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-					return cap == SKIN_LAYER_3D_CAPABILITY ? LazyOptional.of(() -> this.epicFight3dSkinLayerCapability).cast() :  LazyOptional.empty();
-				}
-			});
+	public void onGameEventBusClient(IEventBus eventBus) {
+		eventBus.<EntityRemoveEvent>addListener((event) -> {
+			SkinLayer3DMeshes skinlayerMesh = SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY.getCapability(event.getEntity(), null);
 			
-			event.addListener(() -> {
-				event.getObject().getCapability(SKIN_LAYER_3D_CAPABILITY).ifPresent((skinlayers3dMeshes) -> {
-					skinlayers3dMeshes.partMeshes.forEach((k, v) -> v.destroy());
-					skinlayers3dMeshes.partMeshes.clear();
-				});
-			});
-		}
+			if (skinlayerMesh != null) {
+				skinlayerMesh.partMeshes.forEach((k, v) -> v.destroy());
+				skinlayerMesh.partMeshes.clear();
+				SKINLAYER_PROVIDER.remove(event.getEntity());
+			}
+		});
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -144,7 +152,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 		
 		@Override
 		protected void renderLayer(AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch, AbstractClientPlayer player, CustomLayerFeatureRenderer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
-			if (!player.isSkinLoaded() || player.isInvisible()) {
+			if (SkinLayersModBase.config.compatibilityMode || player.isInvisible()) {
 				return;
 	        }
 			
@@ -152,7 +160,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 	            return;
 			}
 			
-			SkinLayer3DMeshes skin3dlayerMeshes = player.getCapability(SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY, null).orElse(null);
+			SkinLayer3DMeshes skin3dlayerMeshes = player.getCapability(SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY, null);
 			
 			if (skin3dlayerMeshes == null) {
 				return;
@@ -167,7 +175,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 				
 				boolean noModel = !skin3dlayerMeshes.partMeshes.containsKey(playerModelPart);
 				
-				if (noModel || ClientEngine.getInstance().renderEngine.shouldRenderVanillaModel()) {
+				if (noModel || RenderEngine.getInstance().shouldRenderVanillaModel()) {
 					if (player instanceof PlayerSettings playerSettings) {
 						switch (playerModelPart) {
 						case JACKET -> {
@@ -196,7 +204,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 					
 					//Initialize model
 					if (noModel) {
-						ClientEngine.getInstance().renderEngine.setModelInitializerTimer(60);
+						RenderEngine.getInstance().setModelInitializerTimer(60);
 					}
 				}
 				
@@ -204,7 +212,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 					SkinnedMesh mesh = skin3dlayerMeshes.partMeshes.get(playerModelPart);
 					
 					if (mesh != null) {
-						mesh.draw(poseStack, buffer, RenderType.entityTranslucent(player.getSkinTextureLocation(), true), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, overlay, entitypatch.getArmature(), poses);
+						mesh.draw(poseStack, buffer, RenderType.entityTranslucent(player.getSkin().texture(), true), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, overlay, entitypatch.getArmature(), poses);
 					}
 				}
 			}
@@ -216,13 +224,13 @@ public class SkinLayer3DCompat implements ICompatModule {
             
             if (SolidPixelWrapper.wrapBox(builder, new WrappedNativeImage(skinImage), width, height, depth, textureU, textureV, topPivot, rotationOffset) != null) {
                 return SkinLayer3DTransformer.transformMesh(
-	                			player
-	                		 , (skinlayerModelPart == null) ? new CustomizableModelPart(builder.getVanillaCubes(), builder.getCubes(), Collections.emptyMap()) : (CustomizableModelPart)skinlayerModelPart
-	                		 , vanillaModelPart
-	                		 , playerModelPart
-	                		 , builder.getVanillaCubes()
-	                		 , builder.getCubes()
-                	   );
+            			player
+            		 , (skinlayerModelPart == null) ? new CustomizableModelPart(builder.getVanillaCubes(), builder.getCubes(), Collections.emptyMap()) : (CustomizableModelPart)skinlayerModelPart
+            		 , vanillaModelPart
+            		 , playerModelPart
+            		 , builder.getVanillaCubes()
+            		 , builder.getCubes()
+        	   );
             }
             
             return null;

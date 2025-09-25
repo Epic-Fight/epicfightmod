@@ -8,8 +8,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CheckBox extends AbstractWidget implements DataBindingComponent<Boolean, Boolean> {
@@ -187,10 +187,6 @@ public class CheckBox extends AbstractWidget implements DataBindingComponent<Boo
 		this.value = this.defaultVal;
 	}
 	
-	@Override
-	public void _tick() {
-	}
-
 	@Override
 	public int _getX() {
 		return this.getX();

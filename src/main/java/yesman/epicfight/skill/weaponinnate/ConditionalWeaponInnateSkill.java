@@ -3,15 +3,12 @@ package yesman.epicfight.skill.weaponinnate;
 import java.util.List;
 import java.util.function.Function;
 
-import com.google.common.collect.Lists;
-
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
-import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -19,24 +16,32 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class ConditionalWeaponInnateSkill extends WeaponInnateSkill {
-	public static class Builder extends SkillBuilder<ConditionalWeaponInnateSkill> {
+	public static final class Builder extends WeaponInnateSkill.Builder<ConditionalWeaponInnateSkill.Builder> {
 		protected Function<ServerPlayerPatch, Integer> selector;
 		protected AnimationAccessor<? extends AttackAnimation>[] animations;
 		
-		public Builder setSelector(Function<ServerPlayerPatch, Integer> selector) {
+		public Builder(Function<ConditionalWeaponInnateSkill.Builder, ? extends ConditionalWeaponInnateSkill> constructor) {
+			super(constructor);
+		}
+		
+		public ConditionalWeaponInnateSkill.Builder setSelector(Function<ServerPlayerPatch, Integer> selector) {
 			this.selector = selector;
 			return this;
 		}
 		
 		@SafeVarargs
-		public final Builder setAnimations(AnimationAccessor<? extends AttackAnimation>... animations) {
+		public final ConditionalWeaponInnateSkill.Builder setAnimations(AnimationAccessor<? extends AttackAnimation>... animations) {
 			this.animations = animations;
 			return this;
 		}
 	}
 	
 	public static ConditionalWeaponInnateSkill.Builder createConditionalWeaponInnateBuilder() {
-		return (new ConditionalWeaponInnateSkill.Builder()).setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.WEAPON_CHARGE);
+		return new ConditionalWeaponInnateSkill.Builder(ConditionalWeaponInnateSkill::new).setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.WEAPON_CHARGE);
+	}
+	
+	public static ConditionalWeaponInnateSkill.Builder createConditionalWeaponInnateBuilder(Function<ConditionalWeaponInnateSkill.Builder, ? extends ConditionalWeaponInnateSkill> constructor) {
+		return new ConditionalWeaponInnateSkill.Builder(constructor).setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.WEAPON_CHARGE);
 	}
 	
 	protected final AnimationAccessor<? extends AttackAnimation>[] attackAnimations;
@@ -44,7 +49,7 @@ public class ConditionalWeaponInnateSkill extends WeaponInnateSkill {
 	
 	public ConditionalWeaponInnateSkill(ConditionalWeaponInnateSkill.Builder builder) {
 		super(builder);
-		this.properties = Lists.newArrayList();
+		
 		this.attackAnimations = builder.animations;
 		this.selector = builder.selector;
 	}
@@ -71,9 +76,9 @@ public class ConditionalWeaponInnateSkill extends WeaponInnateSkill {
 	}
 	
 	@Override
-	public void executeOnServer(SkillContainer containter, FriendlyByteBuf args) {
+	public void executeOnServer(SkillContainer containter, CompoundTag arguments) {
 		this.playSkillAnimation(containter.getServerExecutor());
-		super.executeOnServer(containter, args);
+		super.executeOnServer(containter, arguments);
 	}
 	
 	protected int getAnimationInCondition(ServerPlayerPatch executor) {

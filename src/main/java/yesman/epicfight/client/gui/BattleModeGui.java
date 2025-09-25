@@ -1,21 +1,23 @@
 package yesman.epicfight.client.gui;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraft.util.Mth;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
@@ -31,66 +33,105 @@ import yesman.epicfight.skill.modules.ChargeableSkill;
 
 @OnlyIn(Dist.CLIENT)
 public class BattleModeGui {
+	private final List<SkillContainer> skillIcons = new ArrayList<> ();
 	private Minecraft minecraft;
+	private boolean isVisible;
+	private int slidingO;
 	private int sliding;
-	private boolean slidingToggle;
-	private final List<SkillContainer> skillIcons = new LinkedList<> ();
-
+	private float staminaO;
+	private float stamina;
+	
 	public BattleModeGui(Minecraft minecraft) {
-		this.sliding = 29;
-		this.slidingToggle = false;
+		this.sliding = 7;
+		this.isVisible = false;
 		this.minecraft = minecraft;
 	}
 	
-	public void renderTick() {
-		if (this.sliding > 50) {
+	public void tick(LocalPlayerPatch playerpatch) {
+		this.staminaO = this.stamina;
+		this.stamina = playerpatch.getStamina();
+		
+		this.slidingO = this.sliding;
+		
+		if (this.sliding > 6) {
 			return;
 		} else if (this.sliding > 0) {
-			if (this.slidingToggle) {
-				this.sliding -= 2;
+			if (this.isVisible) {
+				--this.sliding;
 			} else {
-				this.sliding += 2;
+				++this.sliding;
 			}
 		}
 	}
 	
-	public void renderStaminaBar(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+	public void renderStaminaBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		if (Minecraft.getInstance().screen instanceof UISetupScreen) {
 			return;
 		}
 		
 		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
 		
-		if (playerpatch == null) {
+		if (playerpatch == null || !playerpatch.getOriginal().isAlive() || playerpatch.getOriginal().isSpectator()) {
 			return;
 		}
 		
-		float maxStamina = playerpatch.getMaxStamina();
-		float stamina = playerpatch.getStamina();
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
+		poseStack.setIdentity();
 		
-		if (maxStamina > 0.0F && stamina < maxStamina) {
-			Vec2i pos = ClientConfig.getStaminaPosition(screenWidth, screenHeight);
-			float prevStamina = playerpatch.getStaminaO();
-			float ratio = (prevStamina + (stamina - prevStamina) * partialTick) / maxStamina;
-
-			guiGraphics.pose().pushPose();
-			guiGraphics.pose().translate(0, this.sliding, 0);
+		float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+		float sliding = Mth.lerp(partialTick, this.slidingO, this.sliding) * 5.0F + 4.0F;
+		poseStack.translate(0, sliding, 0);
+		
+		float maxStamina = playerpatch.getMaxStamina();
+		
+		if (maxStamina > 0.0F && this.stamina < maxStamina) {
+			Vec2i pos = ClientConfig.getStaminaPosition();
+			float ratio = (this.staminaO + (this.stamina - this.staminaO) * partialTick) / maxStamina;
 			RenderSystem.setShaderColor(1.0F, ratio, 0.25F, 1.0F);
 			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, 118, 4, 2, 38, 237, 9, 255, 255);
-			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, (int)(118*ratio), 4, 2, 47, (int)(237*ratio), 9, 255, 255);
+			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, (int)(118 * ratio), 4, 2, 47, (int)(237 * ratio), 9, 255, 255);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			guiGraphics.pose().popPose();
+		}
+		
+		poseStack.popPose();
+	}
+	
+	public void renderChargingBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
+		
+		if (playerpatch == null || !playerpatch.getOriginal().isAlive() || playerpatch.getOriginal().isSpectator()) {
+			return;
+		}
+		
+		if (playerpatch.isHoldingAny() && playerpatch.getHoldingSkill() instanceof ChargeableSkill chageableSkill) {
+			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+			int chargeTicks = playerpatch.getChargingTicks();
+			int prevChargingAmount = playerpatch.getChargingTicksO();
+			
+			float ratio = Math.min((prevChargingAmount + (chargeTicks - prevChargingAmount) * partialTick) / chageableSkill.getMaxChargingTicks(), 1.0F);
+			Vec2i pos = ClientConfig.getChargingBarPosition();
+
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, 1, 71, 238, 13, 255, 255);
+			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, 1, 57, (int)(238 * ratio), 13, 255, 255);
+
+			ResourceLocation rl = ResourceLocation.parse(chageableSkill.toString());
+			String skillName = Component.translatable(String.format("skill.%s.%s", rl.getNamespace(), rl.getPath())).getString();
+			
+			int stringWidth = this.minecraft.font.width(skillName);
+			guiGraphics.drawString(this.minecraft.font, skillName, (pos.x + 120 - stringWidth * 0.5F), pos.y - 12, 16777215, true);
 		}
 	}
 	
-	public void renderNormalSkills(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+	public void renderNormalSkills(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		if (Minecraft.getInstance().screen instanceof UISetupScreen) {
 			return;
 		}
 		
 		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
 		
-		if (playerpatch == null) {
+		if (playerpatch == null || !playerpatch.getOriginal().isAlive() || playerpatch.getOriginal().isSpectator()) {
 			return;
 		}
 		
@@ -109,13 +150,19 @@ public class BattleModeGui {
 		}
 		
 		this.skillIcons.removeIf(skillContainer -> skillContainer.isEmpty() || !skillContainer.getSkill().shouldDraw(skillContainer));
+		
 		AlignDirection alignDirection = ClientConfig.passiveAlignDirection;
 		HorizontalBasis horBasis = ClientConfig.passiveBaseX;
 		VerticalBasis verBasis = ClientConfig.passiveBaseY;
-		int passiveX = horBasis.positionGetter.apply(screenWidth, ClientConfig.passiveX);
-		int passiveY = verBasis.positionGetter.apply(screenHeight, ClientConfig.passiveY);
+		Window window = Minecraft.getInstance().getWindow();
+		int passiveX = horBasis.positionGetter.apply(window.getGuiScaledWidth(), ClientConfig.passiveX);
+		int passiveY = verBasis.positionGetter.apply(window.getGuiScaledHeight(), ClientConfig.passiveY);
 		int icons = this.skillIcons.size();
 		Vec2i slotCoord = alignDirection.startCoordGetter.get(passiveX, passiveY, 24, 24, icons, horBasis, verBasis);
+		
+		RenderSystem.enableBlend();
+		RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 		
 		for (SkillContainer container : this.skillIcons) {
 			if (!container.isEmpty()) {
@@ -126,31 +173,31 @@ public class BattleModeGui {
 				slotCoord = alignDirection.nextPositionGetter.getNext(horBasis, verBasis, slotCoord, 24, 24);
 			}
 		}
+		
+		RenderSystem.disableBlend();
 	}
 	
-	public void renderWeaponInnateSkill(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+	public void renderWeaponInnateSkill(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		if (Minecraft.getInstance().screen instanceof UISetupScreen) {
 			return;
 		}
 		
 		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
 		
-		if (playerpatch == null) {
+		if (playerpatch == null || !playerpatch.getOriginal().isAlive() || playerpatch.getOriginal().isSpectator()) {
 			return;
 		}
 		
 		SkillContainer container = playerpatch.getSkill(SkillSlots.WEAPON_INNATE);
-
+		
 		if (!container.isEmpty() && container.getSkill().shouldDraw(container)) {
-			Window sr = Minecraft.getInstance().getWindow();
-			int width = sr.getGuiScaledWidth();
-			int height = sr.getGuiScaledHeight();
-			Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
+			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+			Vec2i pos = ClientConfig.getWeaponInnatePosition();
 			container.getSkill().drawOnGui(this, container, guiGraphics, pos.x, pos.y, partialTick);
 		}
 	}
 	
-	public void renderCharingBar(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+	public void renderCharingBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 		if (Minecraft.getInstance().screen instanceof UISetupScreen) {
 			return;
 		}
@@ -162,10 +209,11 @@ public class BattleModeGui {
 		}
 		
 		if (playerpatch.isHoldingAny() && playerpatch.getHoldingSkill() instanceof ChargeableSkill chargeableSkill) {
-			int chargeAmount = playerpatch.getChargingAmount();
-			int prevChargingAmount = playerpatch.getPrevChargingAmount();
+			float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+			int chargeAmount = playerpatch.getChargingTicks();
+			int prevChargingAmount = playerpatch.getChargingTicksO();
 			float ratio = Math.min((prevChargingAmount + (chargeAmount - prevChargingAmount) * partialTick) / chargeableSkill.getMaxChargingTicks(), 1.0F);
-			Vec2i pos = ClientConfig.getChargingBarPosition(screenWidth, screenHeight);
+			Vec2i pos = ClientConfig.getChargingBarPosition();
 
 			guiGraphics.pose().pushPose();
 			guiGraphics.pose().translate(0, this.sliding, 0);
@@ -184,21 +232,23 @@ public class BattleModeGui {
 	}
 	
 	public void slideUp() {
-		this.sliding = 49;
-		this.slidingToggle = true;
-	}
-
-	public void slideDown() {
-		this.sliding = 1;
-		this.slidingToggle = false;
+		if (!this.isVisible) {
+			this.sliding = 6;
+			this.isVisible = true;
+		}
 	}
 	
-	public void init() {
-		this.skillIcons.clear();
+	public void slideDown() {
+		if (this.isVisible) {
+			this.sliding = 1;
+			this.isVisible = false;
+		}
 	}
-
-	public int getSlidingProgression() {
-		return this.sliding;
+	
+	public void init(LocalPlayerPatch playerpatch) {
+		this.skillIcons.clear();
+		this.staminaO = playerpatch.getStamina();
+		this.stamina = playerpatch.getStamina();
 	}
 	
 	public Font getFont() {

@@ -2,7 +2,6 @@ package yesman.epicfight.client.world.capabilites.entitypatch.player;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -22,13 +21,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.Pose;
@@ -44,8 +43,8 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
@@ -56,24 +55,20 @@ import yesman.epicfight.network.client.CPChangePlayerMode;
 import yesman.epicfight.network.client.CPModifyEntityModelYRot;
 import yesman.epicfight.network.client.CPSetPlayerTarget;
 import yesman.epicfight.network.client.CPSetStamina;
-import yesman.epicfight.network.common.AnimatorControlPacket;
-import yesman.epicfight.skill.modules.ChargeableSkill;
+import yesman.epicfight.network.common.AbstractAnimatorControl;
+import yesman.epicfight.registry.entries.EpicFightDataComponentTypes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.ZoomInType;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 @OnlyIn(Dist.CLIENT)
 public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
-	private static final UUID ACTION_EVENT_UUID = UUID.fromString("d1a1e102-1621-11ed-861d-0242ac120002");
 	private Minecraft minecraft;
 	private LivingEntity rayTarget;
 	private boolean targetLockedOn;
-	private float staminaO;
-	private int prevChargingAmount;
-	
+	private int chargingTicksO;
 	private float lockOnXRot;
 	private float lockOnXRotO;
 	private float lockOnYRot;
@@ -88,41 +83,19 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	private FirstPersonLayer firstPersonLayer = new FirstPersonLayer();
 	private AnimationSubFileReader.PovSettings povSettings;
 	
-	@Override
-	public void onConstructed(LocalPlayer entity) {
-		super.onConstructed(entity);
-		this.minecraft = Minecraft.getInstance();
-	}
-	
-	@Override
-	public void onJoinWorld(LocalPlayer player, EntityJoinLevelEvent event) {
-		super.onJoinWorld(player, event);
+	public LocalPlayerPatch(LocalPlayer entity) {
+		super(entity);
 		
-		this.eventListeners.addEventListener(EventType.ACTION_EVENT_CLIENT, ACTION_EVENT_UUID, (playerEvent) -> {
-			ClientEngine.getInstance().controlEngine.unlockHotkeys();
-		});
+		this.minecraft = Minecraft.getInstance();
 	}
 	
 	public void onRespawnLocalPlayer(ClientPlayerNetworkEvent.Clone event) {
 		this.onJoinWorld(event.getNewPlayer(), new EntityJoinLevelEvent(event.getNewPlayer(), event.getNewPlayer().level()));
 	}
 	
-	@Override
-	public void tick(LivingEvent.LivingTickEvent event) {
-		this.staminaO = this.getStamina();
-		
-		if (this.isHoldingAny() && this.getHoldingSkill() instanceof ChargeableSkill) {
-			this.prevChargingAmount = this.getChargingAmount();
-		} else {
-			this.prevChargingAmount = 0;
-		}
-		
-		super.tick(event);
-	}
-	
 	private EntityHitResult pickEntity() {
-		double distance = this.original.getBlockReach() * 2.0D;
-		double entityReach = this.original.getEntityReach() * 2.0D;
+		double distance = this.original.blockInteractionRange() * 2.0D;
+		double entityReach = this.original.entityInteractionRange() * 2.0D;
 		double pickRange = Math.max(distance, entityReach);
 		Vec3 vec3 = this.original.getEyePosition(1.0F);
 		Vec3 vec31 = this.original.getViewVector(1.0F);
@@ -143,10 +116,19 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	}
 	
 	@Override
-	public void clientTick(LivingEvent.LivingTickEvent event) {
-		this.staminaO = this.getStamina();
+	public void preTick(EntityTickEvent.Pre event) {
+		if (this.isHoldingAny()) {
+			this.chargingTicksO = this.getChargingTicks();
+		} else {
+			this.chargingTicksO = 0;
+		}
 		
-		super.clientTick(event);
+		super.preTick(event);
+	}
+	
+	@Override
+	public void preTickClient(EntityTickEvent.Pre event) {
+		super.preTickClient(event);
 		
 		// Handle targeting entity
 		EntityHitResult cameraHitResult = this.pickEntity();
@@ -203,7 +185,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 				this.lockOnXRot = this.lockOnXRotO + xLerp;
 				this.lockOnYRot = this.lockOnYRotO + yLerp;
 				
-				if (!this.getEntityState().turningLocked() || this.getEntityState().lockonRotate()) {
+				if (!this.getEntityState().turningLocked() || this.getEntityState().lookTarget()) {
 					Vec3 playerEye = this.original.getEyePosition();
 					Vec3 targetEye = this.rayTarget.getEyePosition();
 					double eyeYDiff = Math.abs(playerEye.y - targetEye.y);
@@ -244,28 +226,31 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		
 		switch (rangeWeaponZoomInType) {
 		case ALWAYS -> {
-			ClientEngine.getInstance().renderEngine.zoomIn();
+			RenderEngine.getInstance().zoomIn();
 		}
 		case USE_TICK -> {
 			if (this.original.getUseItemRemainingTicks() > 0) {
-				ClientEngine.getInstance().renderEngine.zoomIn();
+				RenderEngine.getInstance().zoomIn();
 			} else {
-				ClientEngine.getInstance().renderEngine.zoomOut(40);
+				RenderEngine.getInstance().zoomOut(8);
 			}
 		}
 		case AIMING -> {
 			if (this.getClientAnimator().isAiming()) {
-				ClientEngine.getInstance().renderEngine.zoomIn();
+				RenderEngine.getInstance().zoomIn();
 			} else {
-				ClientEngine.getInstance().renderEngine.zoomOut(40);
+				RenderEngine.getInstance().zoomOut(8);
 			}
 		}
 		case CUSTOM -> {} //Zoom manually handled
 		default -> {
-			ClientEngine.getInstance().renderEngine.zoomOut(0);
+			RenderEngine.getInstance().zoomOut(0);
 		}
 		}
-		
+	}
+	
+	@Override
+	public void postTickClient(EntityTickEvent.Post event) {
 		// Handle first person animation
 		final AssetAccessor<? extends StaticAnimation> currentPlaying = this.firstPersonLayer.animationPlayer.getRealAnimation();
 		
@@ -325,9 +310,9 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public void toVanillaMode(boolean synchronize) {
+		RenderEngine.getInstance().battleModeHUD.slideDown();
+		
 		if (this.playerMode != PlayerMode.VANILLA) {
-			ClientEngine.getInstance().renderEngine.downSlideSkillUI();
-			
 			if (ClientConfig.authSwitchCamera) {
 				this.minecraft.options.setCameraType(CameraType.FIRST_PERSON);
 			}
@@ -342,9 +327,9 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public void toEpicFightMode(boolean synchronize) {
+		RenderEngine.getInstance().battleModeHUD.slideUp();
+		
 		if (this.playerMode != PlayerMode.EPICFIGHT) {
-			ClientEngine.getInstance().renderEngine.upSlideSkillUI();
-			
 			if (ClientConfig.authSwitchCamera) {
 				this.minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);
 			}
@@ -376,20 +361,21 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		return actionAnimation.shouldPlayerMove(this);
 	}
 	
-	public float getStaminaO() {
-		return this.staminaO;
-	}
-	
-	public int getPrevChargingAmount() {
-		return this.prevChargingAmount;
+	public int getChargingTicksO() {
+		return this.chargingTicksO;
 	}
 
-	public float getLerpedLockOnX(double partial) {
-		return Mth.rotLerp((float)partial, this.lockOnXRotO, this.lockOnXRot);
+	public float getLerpedLockOnX(double partialTick) {
+		return Mth.rotLerp((float)partialTick, this.lockOnXRotO, this.lockOnXRot);
 	}
 	
-	public float getLerpedLockOnY(double partial) {
-		return Mth.rotLerp((float)partial, this.lockOnYRotO, this.lockOnYRot);
+	public float getLerpedLockOnY(double partialTick) {
+		return Mth.rotLerp((float)partialTick, this.lockOnYRotO, this.lockOnYRot);
+	}
+	
+	@Override
+	public Vec3 getViewVector(float partialTick) {
+		return this.targetLockedOn ? this.original.calculateViewVector(this.original.getXRot(), this.getLerpedLockOnY(partialTick)) : super.getViewVector(partialTick);
 	}
 	
 	public boolean isTargetLockedOn() {
@@ -484,7 +470,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		super.disableModelYRot(sendPacket);
 		
 		if (sendPacket) {
-			EpicFightNetworkManager.sendToServer(new CPModifyEntityModelYRot());
+			EpicFightNetworkManager.sendToServer(new CPModifyEntityModelYRot(0.0F, true));
 		}
 	}
 	
@@ -560,7 +546,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void reserveAnimation(AssetAccessor<? extends StaticAnimation> animation) {
 		this.animator.reserveAnimation(animation);
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.RESERVE, animation, 0.0F, false, false, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.RESERVE, animation, 0.0F, false, false, false));
 	}
 	
 	/**
@@ -570,7 +556,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void playAnimationInstantly(AssetAccessor<? extends StaticAnimation> animation) {
 		this.animator.playAnimationInstantly(animation);
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.PLAY_INSTANTLY, animation, 0.0F, false, false, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.PLAY_INSTANTLY, animation, 0.0F, false, false, false));
 	}
 	
 	/**
@@ -580,7 +566,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void playShootingAnimation() {
 		this.animator.playShootingAnimation();
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.SHOT, -1, 0.0F, false, true, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.SHOT, Animations.EMPTY_ANIMATION, 0.0F, false, true, false));
 	}
 	
 	/**
@@ -591,7 +577,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void stopPlaying(AssetAccessor<? extends StaticAnimation> animation) {
 		this.animator.stopPlaying(animation);
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.STOP, animation, -1.0F, false, false, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.STOP, animation, -1.0F, false, false, false));
 	}
 	
 	/**
@@ -604,7 +590,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	 */
 	@Override
 	public void playAnimationSynchronized(AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier) {
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.PLAY, animation, transitionTimeModifier, false, false, true));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.PLAY, animation, transitionTimeModifier, false, false, true));
 	}
 	
 	/**
@@ -615,7 +601,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void playAnimationInClientSide(AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier) {
 		this.animator.playAnimation(animation, transitionTimeModifier);
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(AnimatorControlPacket.Action.PLAY, animation, transitionTimeModifier, false, true, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(AbstractAnimatorControl.Action.PLAY, animation, transitionTimeModifier, false, true, false));
 	}
 	
 	/**
@@ -625,14 +611,22 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	 * @param pause
 	 **/
 	@Override
-	public void pauseAnimator(AnimatorControlPacket.Action action, boolean pause) {
+	public void pauseAnimator(AbstractAnimatorControl.Action action, boolean pause) {
 		super.pauseAnimator(action, pause);
-		EpicFightNetworkManager.sendToServer(new CPAnimatorControl(action, -1, 0.0F, pause, false, false));
+		this.handleAnimationPayloadSend(new CPAnimatorControl(action, Animations.EMPTY_ANIMATION, 0.0F, pause, false, false));
+	}
+	
+	private void handleAnimationPayloadSend(CPAnimatorControl payload) {
+		if (payload.action().syncVariables()) {
+			payload.animationVariables().addAll(this.getAnimator().getVariables().createPendingVariablesPayloads(payload.animation()));
+		}
+		
+		EpicFightNetworkManager.sendToServer(payload);
 	}
 	
 	@Override
 	public void openSkillBook(ItemStack itemstack, InteractionHand hand) {
-		if (itemstack.hasTag() && itemstack.getTag().contains("skill")) {
+		if (itemstack.has(EpicFightDataComponentTypes.SKILL)) {
 			Minecraft.getInstance().setScreen(new SkillBookScreen(this.original, itemstack, hand));
 		}
 	}
@@ -640,7 +634,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void resetHolding() {
 		if (this.holdingSkill != null) {
-			ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
+			ControlEngine.getInstance().releaseAllServedKeys();
 		}
 		
 		super.resetHolding();

@@ -33,8 +33,9 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
@@ -45,7 +46,7 @@ import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.PatchedCapeLayer;
@@ -59,7 +60,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	private static final InteractionHand[] HANDS = InteractionHand.values();
 	
 	public static EntitySnapshot<LivingEntityPatch<?>> captureLivingEntity(LivingEntityPatch<?> entitypatch) {
-		if (ClientEngine.getInstance().renderEngine.hasRendererFor(entitypatch.getOriginal())) {
+		if (RenderEngine.getInstance().hasRendererFor(entitypatch.getOriginal())) {
 			return new EntitySnapshot<> (entitypatch);
 		}
 		
@@ -67,7 +68,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	}
 	
 	public static PlayerSnapshot capturePlayer(AbstractClientPlayerPatch<?> playerpatch) {
-		if (ClientEngine.getInstance().renderEngine.hasRendererFor(playerpatch.getOriginal())) {
+		if (RenderEngine.getInstance().hasRendererFor(playerpatch.getOriginal())) {
 			return new PlayerSnapshot(playerpatch);
 		}
 		
@@ -87,7 +88,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public EntitySnapshot(T entitypatch) {
 		LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> vanillarenderer = (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>)Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entitypatch.getOriginal());
-		PatchedEntityRenderer patchedrenderer = (PatchedEntityRenderer)ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
+		PatchedEntityRenderer patchedrenderer = (PatchedEntityRenderer)RenderEngine.getInstance().getEntityRenderer(entitypatch.getOriginal());
 		AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(entitypatch);
 		
 		ResourceLocation textureLocation = vanillarenderer.getTextureLocation(entitypatch.getOriginal());
@@ -174,13 +175,13 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 		for (Pair<InteractionHand, ItemStack> items : this.handItems) {
 			ItemStack itemstack = items.getSecond();
 			
-			if (ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).appearedInAfterimage()) {
+			if (RenderEngine.getInstance().getItemRenderer(itemstack).appearedInAfterimage()) {
 				poseStack.pushPose();
 				BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(itemstack, this.entitypatch.getOriginal().level(), this.entitypatch.getOriginal(), this.entitypatch.getOriginal().getId() + ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
 				
 				if (!bakedmodel.isCustomRenderer()) {
-					MathUtils.mulStack(poseStack, ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
-					bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false);
+					MathUtils.mulStack(poseStack, RenderEngine.getInstance().getItemRenderer(itemstack).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
+					bakedmodel = ClientHooks.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false);
 					poseStack.translate(-0.5F, -0.5F, -0.5F);
 					
 					for (var model : bakedmodel.getRenderPasses(itemstack, true)) {
@@ -261,7 +262,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 		public PlayerSnapshot(AbstractClientPlayerPatch<?> entitypatch) {
 			super(entitypatch);
 			
-			PatchedLivingEntityRenderer patchedrenderer = (PatchedLivingEntityRenderer)ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
+			PatchedLivingEntityRenderer patchedrenderer = (PatchedLivingEntityRenderer)RenderEngine.getInstance().getEntityRenderer(entitypatch.getOriginal());
 			PoseStack poseStack = new PoseStack();
 			patchedrenderer.mulPoseStack(poseStack, entitypatch.getArmature(), entitypatch.getOriginal(), entitypatch, 1.0F);
 			this.localMatrix = poseStack.last().pose();
@@ -271,7 +272,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 				this.unboundPoseMatrices[i] = new OpenMatrix4f(entitypatch.getArmature().getPoseMatrices()[i]);
 			}
 			
-			if (entitypatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE) && entitypatch.getOriginal().getCloakTextureLocation() != null) {
+			if (entitypatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE) && entitypatch.getOriginal().getSkin().capeTexture() != null) {
 				entitypatch.getSimulator(SimulationTypes.CLOTH).ifPresent(clohtSimulator -> {
 					clohtSimulator.getRunningObject(ClothSimulator.PLAYER_CLOAK).ifPresent(clothObj -> {
 						ClothObject capturedClothObj = clothObj.captureMyself();
@@ -283,7 +284,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 				        };
 						
 						capturedClothObj.tick(entitypatch, partialColliderTransformProvider, 1.0F, entitypatch.getArmature(), this.unboundPoseMatrices);
-						this.capeFigure = new RenderableFigure(capturedClothObj, entitypatch.getOriginal().getCloakTextureLocation());
+						this.capeFigure = new RenderableFigure(capturedClothObj, entitypatch.getOriginal().getSkin().capeTexture());
 					});
 				});
 			}

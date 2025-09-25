@@ -3,9 +3,9 @@ package yesman.epicfight.client.renderer.entity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.WitherSkeletonRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
@@ -15,8 +15,9 @@ public class WitherSkeletonMinionRenderer extends WitherSkeletonRenderer {
 	public WitherSkeletonMinionRenderer(Context context) {
 		super(context);
 	}
-
-	public ResourceLocation getTextureLocation(AbstractSkeleton entity) {
+	
+	@Override
+	public ResourceLocation getTextureLocation(WitherSkeleton entity) {
 		return WITHER_SKELETON_LOCATION;
 	}
 }

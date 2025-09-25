@@ -7,14 +7,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.screen.overlay.OverlayManager;
 
 @Mixin(value = LightTexture.class)
 public abstract class MixinLightTexture {
 	@Inject(at = @At(value = "HEAD"), method = "updateLightTexture(F)V", cancellable = true)
-	private void epicfight_head_updateLightTexture(CallbackInfo info) {
-		OverlayManager overlayManager = ClientEngine.getInstance().renderEngine.getOverlayManager();
+	private void epicfight$head_updateLightTexture(CallbackInfo info) {
+		OverlayManager overlayManager = RenderEngine.getInstance().getOverlayManager();
 		
 		if (overlayManager.isGammaChanged()) {
 			Minecraft minecraft = Minecraft.getInstance();
@@ -23,8 +23,8 @@ public abstract class MixinLightTexture {
 	}
 	
 	@Inject(at = @At(value = "TAIL"), method = "updateLightTexture(F)V", cancellable = true)
-	private void epicfight_tail_updateLightTexture(CallbackInfo info) {
-		OverlayManager overlayManager = ClientEngine.getInstance().renderEngine.getOverlayManager();
+	private void epicfight$tail_updateLightTexture(CallbackInfo info) {
+		OverlayManager overlayManager = RenderEngine.getInstance().getOverlayManager();
 		
 		if (overlayManager.isGammaChanged()) {
 			Minecraft minecraft = Minecraft.getInstance();

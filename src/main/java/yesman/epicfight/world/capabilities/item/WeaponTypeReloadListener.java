@@ -18,6 +18,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.netty.util.internal.StringUtil;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -28,29 +29,29 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModLoader;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
-import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.api.forgeevent.WeaponCapabilityPresetRegistryEvent;
+import yesman.epicfight.api.neoevent.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
-import yesman.epicfight.data.conditions.EpicFightConditions;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.registry.entries.EpicFightConditions;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 	public static void registerDefaultWeaponTypes() {
-		Map<ResourceLocation, Function<Item, CapabilityItem.Builder>> typeEntry = Maps.newHashMap();
+		Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
 		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "axe"), WeaponCapabilityPresets.AXE);
 		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "fist"), WeaponCapabilityPresets.FIST);
 		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "hoe"), WeaponCapabilityPresets.HOE);
@@ -69,14 +70,14 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shield"), WeaponCapabilityPresets.SHIELD);
 		
 		WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
-		ModLoader.get().postEvent(weaponCapabilityPresetRegistryEvent);
+		ModLoader.postEvent(weaponCapabilityPresetRegistryEvent);
 		PRESETS.putAll(weaponCapabilityPresetRegistryEvent.getTypeEntry());
 	}
 	
 	public static final String DIRECTORY = "capabilities/weapons/types";
 	
 	private static final Gson GSON = (new GsonBuilder()).create();
-	private static final Map<ResourceLocation, Function<Item, CapabilityItem.Builder>> PRESETS = Maps.newHashMap();
+	private static final Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> PRESETS = Maps.newHashMap();
 	private static final Map<ResourceLocation, CompoundTag> CAPABILITY_COMPOUNDS = Maps.newHashMap();
 	
 	public WeaponTypeReloadListener() {
@@ -107,7 +108,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		}
 	}
 	
-	public static Function<Item, CapabilityItem.Builder> getOrThrow(String typeName) {
+	public static Function<Item, ? extends CapabilityItem.Builder<?>> getOrThrow(String typeName) {
 		ResourceLocation rl = ResourceLocation.parse(typeName);
 		
 		if (!PRESETS.containsKey(rl)) {
@@ -117,15 +118,15 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		return PRESETS.get(rl);
 	}
 	
-	public static Function<Item, CapabilityItem.Builder> get(String typeName) {
+	public static Function<Item, ? extends CapabilityItem.Builder<?>> get(String typeName) {
 		return get(ResourceLocation.parse(typeName));
 	}
 	
-	public static Function<Item, CapabilityItem.Builder> get(ResourceLocation typeName) {
+	public static Function<Item, ? extends CapabilityItem.Builder<?>> get(ResourceLocation typeName) {
 		return PRESETS.get(typeName);
 	}
 	
-	public static void register(ResourceLocation rl, CapabilityItem.Builder builder) {
+	public static <T extends CapabilityItem.Builder<?>> void register(ResourceLocation rl, T builder) {
 		PRESETS.put(rl, (item) -> builder);
 	}
 	
@@ -141,7 +142,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		builder.canBePlacedOffhand(tag.contains("usable_in_offhand") ? tag.getBoolean("usable_in_offhand") : true);
 		
 		if (tag.contains("hit_particle")) {
-			ParticleType<?> particleType = ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle")));
+			ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle")));
 			
 			if (particleType == null) {
 				EpicFightMod.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
@@ -153,7 +154,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		}
 		
 		if (tag.contains("swing_sound")) {
-			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound")));
+			SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound")));
 			
 			if (sound == null) {
 				EpicFightMod.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
@@ -163,7 +164,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		}
 		
 		if (tag.contains("hit_sound")) {
-			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound")));
+			SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound")));
 			
 			if (sound == null) {
 				EpicFightMod.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
@@ -191,8 +192,9 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		
 		for (String key : innateSkillsTag.getAllKeys()) {
 			Style style = Style.ENUM_MANAGER.getOrThrow(key);
+			Skill skill = EpicFightRegistries.SKILL.get(ResourceLocation.parse(innateSkillsTag.getString(key)));
 			
-			builder.innateSkill(style, (itemstack) -> SkillManager.getSkill(innateSkillsTag.getString(key)));
+			builder.innateSkill(style, itemstack -> skill);
 		}
 		
 		CompoundTag livingmotionModifierTag = tag.getCompound("livingmotion_modifier");
@@ -272,10 +274,6 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		return builder;
 	}
 	
-	public static int getTagCount() {
-		return CAPABILITY_COMPOUNDS.size();
-	}
-	
 	public static Stream<CompoundTag> getWeaponTypeDataStream() {
 		Stream<CompoundTag> tagStream = CAPABILITY_COMPOUNDS.entrySet().stream().map((entry) -> {
 			entry.getValue().putString("registry_name", entry.getKey().toString());
@@ -284,7 +282,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		return tagStream;
 	}
 	
-	public static Set<Map.Entry<ResourceLocation, Function<Item, CapabilityItem.Builder>>> entries() {
+	public static Set<Map.Entry<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>>> entries() {
 		return PRESETS.entrySet();
 	}
 	
@@ -295,14 +293,13 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 	
 	@OnlyIn(Dist.CLIENT)
 	public static void processServerPacket(SPDatapackSync packet) {
-		if (packet.getType() == SPDatapackSync.Type.WEAPON_TYPE) {
+		if (packet.packetType() == SPDatapackSync.PacketType.WEAPON_TYPE) {
 			PRESETS.clear();
 			registerDefaultWeaponTypes();
-
-
-			for (CompoundTag tag : packet.getTags()) {
+			
+			for (CompoundTag tag : packet.tags()) {
 				ResourceLocation rl = ResourceLocation.parse(tag.getString("registry_name"));
-
+				
 				try
 				{
 					PRESETS.put(rl, (itemstack) -> deserializeWeaponCapabilityBuilder(rl, tag));

@@ -5,30 +5,30 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Ravager;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class RavagerPatch extends MobPatch<Ravager> {
-	public RavagerPatch() {
-		super(Factions.ILLAGER);
+	public RavagerPatch(Ravager original) {
+		super(original, Factions.ILLAGER);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.RAVAGER, EpicFightAttributes.MAX_STRIKES.get(), 8.0D);
-		event.add(EntityType.RAVAGER, EpicFightAttributes.IMPACT.get(), 6.0D);
+		event.add(EntityType.RAVAGER, EpicFightAttributes.MAX_STRIKES, 8.0D);
+		event.add(EntityType.RAVAGER, EpicFightAttributes.IMPACT, 6.0D);
 	}
 	
 	@Override

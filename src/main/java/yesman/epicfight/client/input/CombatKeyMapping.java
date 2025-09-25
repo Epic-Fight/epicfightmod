@@ -3,8 +3,8 @@ package yesman.epicfight.client.input;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.ClientEngine;
 
 @OnlyIn(Dist.CLIENT)
@@ -15,6 +15,6 @@ public class CombatKeyMapping extends KeyMapping {
 	
 	@Override
 	public boolean isActiveAndMatches(InputConstants.Key keyCode) {
-        return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isBattleMode();
+        return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isEpicFightMode();
     }
 }

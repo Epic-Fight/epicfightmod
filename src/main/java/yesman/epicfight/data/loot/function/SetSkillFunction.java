@@ -1,78 +1,125 @@
 package yesman.epicfight.data.loot.function;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
+import net.minecraft.core.Holder;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
-import net.minecraftforge.fml.ModList;
-import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.data.loot.EpicFightLootTables;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.neoforged.fml.ModList;
+import yesman.epicfight.registry.entries.EpicFightDataComponentTypes;
+import yesman.epicfight.registry.entries.EpicFightLootItemFunctions;
 import yesman.epicfight.skill.Skill;
 
-public class SetSkillFunction implements LootItemFunction {
-	private final List<FloatObjectPair<String>> skillsAndWeight;
+public class SetSkillFunction extends LootItemConditionalFunction {
+	/**
+	 * A codec for skill modifier
+	 * 
+	 * e.g.
+	 * 
+	 * {
+	 * 	"skills": ["epicfight:roll", "epicfight:step"],
+	 *  "weights": [0.1, 0.2],
+	 * }
+	 * 
+	 **/
+	public static final MapCodec<SetSkillFunction> CODEC = RecordCodecBuilder.mapCodec(
+		instance -> commonFields(instance)
+            .and(
+	            instance.group(
+	            	Skill.CODEC.listOf().fieldOf("skills").forGetter(setskillfunction -> setskillfunction.skillSource.stream().map(FloatObjectPair::right).toList()),
+	                Codec.FLOAT.listOf().fieldOf("weights").forGetter(setskillfunction -> setskillfunction.skillSource.stream().map(FloatObjectPair::leftFloat).toList())
+	            )
+		    )
+            .apply(instance, SetSkillFunction::new)
+    );
 	
-	public SetSkillFunction(List<FloatObjectPair<String>> skillsAndWeight) {
-		this.skillsAndWeight = skillsAndWeight;
+	private final List<FloatObjectPair<Holder<Skill>>> skillSource;
+	
+	public SetSkillFunction(List<LootItemCondition> predicates, List<Holder<Skill>> skills, List<Float> weights) {
+		super(predicates);
+		
+		if (skills.size() != weights.size()) {
+			throw new IllegalArgumentException("skills and weights number unmatches");
+		}
+		
+		ImmutableList.Builder<FloatObjectPair<Holder<Skill>>> builder = ImmutableList.builder();
+		
+		for (int i = 0; i < skills.size(); i++) {
+			builder.add(FloatObjectPair.of(weights.get(i), skills.get(i)));
+		}
+		
+		this.skillSource = builder.build();
 	}
 	
-	private Skill getSkillForSeed(float seed) {
-		for (FloatObjectPair<String> pair : this.skillsAndWeight) {
-			if (seed < pair.firstFloat()) {
-				return SkillManager.getSkill(pair.second());
+	private Holder<Skill> selectRandomSkillFromSource(RandomSource randomSource) {
+		for (FloatObjectPair<Holder<Skill>> pair : this.skillSource) {
+			if (randomSource.nextFloat() < pair.firstFloat()) {
+				return pair.second();
 			}
 		}
 		
-		return this.skillsAndWeight.isEmpty() ? null : SkillManager.getSkill(this.skillsAndWeight.get(0).second());
+		return this.skillSource.isEmpty() ? null : this.skillSource.get(0).second();
 	}
 	
 	@Override
-	public ItemStack apply(ItemStack itemstack, LootContext lootContext) {
+	protected ItemStack run(ItemStack itemstack, LootContext context) {
 		if (ModList.get().isLoaded("epicskills")) {
 			return ItemStack.EMPTY;
 		}
 		
-		float val = lootContext.getRandom().nextFloat();
-		Skill skill = this.getSkillForSeed(val);
+		Holder<Skill> skill = this.selectRandomSkillFromSource(context.getRandom());
 		
 		if (skill != null) {
-			itemstack.getOrCreateTag().putString("skill", skill.toString());
+			itemstack.set(EpicFightDataComponentTypes.SKILL, skill);
 		}
 		
 		return itemstack;
 	}
 	
-	public static LootItemFunction.Builder builder(String... skills) {
+	@Override
+	public LootItemFunctionType<? extends LootItemConditionalFunction> getType() {
+		return EpicFightLootItemFunctions.SKILLS.get();
+	}
+	
+	@SafeVarargs
+	public static LootItemFunction.Builder builder(Holder<Skill>... skills) {
 		return new LootItemFunction.Builder() {
 			public LootItemFunction build() {
-				List<FloatObjectPair<String>> list = Lists.newArrayList();
+				List<Holder<Skill>> list1 = new ArrayList<> ();
+				List<Float> list2 = new ArrayList<> ();
 				float weight = 1.0F / skills.length;
 				float weightSum = 0.0F;
 				
-				for (String skill : skills) {
+				for (Holder<Skill> skill : skills) {
 					weightSum += weight;
-					list.add(FloatObjectPair.of(weightSum, skill));
+					list1.add(skill);
+					list2.add(weightSum);
 				}
 				
-				return new SetSkillFunction(list);
+				return new SetSkillFunction(List.of(), list1, list2);
 			}
 		};
 	}
 	
 	public static LootItemFunction.Builder builder(Object... skillAndWeight) {
 		return new LootItemFunction.Builder() {
+			@SuppressWarnings("unchecked")
 			public LootItemFunction build() {
-				List<FloatObjectPair<String>> list = Lists.newArrayList();
+				List<Holder<Skill>> list1 = new ArrayList<> ();
+				List<Float> list2 = new ArrayList<> ();
+				
 				float weightTotal = 0.0F;
 				float weightSum = 0.0F;
 				
@@ -82,55 +129,12 @@ public class SetSkillFunction implements LootItemFunction {
 				
 				for (int i = 0; i < skillAndWeight.length / 2; i++) {
 					weightSum += (float)skillAndWeight[i * 2];
-					list.add(FloatObjectPair.of(weightSum / weightTotal, (String)skillAndWeight[i * 2 + 1]));
+					list1.add((Holder<Skill>)skillAndWeight[i * 2 + 1]);
+					list2.add(weightSum / weightTotal);
 				}
 				
-				return new SetSkillFunction(list);
+				return new SetSkillFunction(List.of(), list1, list2);
 			}
 		};
-	}
-	
-	@Override
-	public LootItemFunctionType getType() {
-		return EpicFightLootTables.SET_SKILLBOOK_SKILL;
-	}
-	
-	public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<SetSkillFunction> {
-		@Override
-		public void serialize(JsonObject jsonObj, SetSkillFunction skillFunction, JsonSerializationContext jsonDeserializationContext) {
-			JsonArray skillArray = new JsonArray();
-			JsonArray weightArray = new JsonArray();
-			
-			for (FloatObjectPair<String> pair : skillFunction.skillsAndWeight) {
-				skillArray.add(pair.second());
-				weightArray.add(pair.firstFloat());
-			}
-			
-			jsonObj.add("skills", skillArray);
-			jsonObj.add("weights", weightArray);
-		}
-		
-		@Override
-		public SetSkillFunction deserialize(JsonObject jsonObj, JsonDeserializationContext jsonDeserializationContext) {
-			JsonArray skillArray = jsonObj.getAsJsonArray("skills");
-			JsonArray weightArray = jsonObj.getAsJsonArray("weights");
-			List<FloatObjectPair<String>> list = Lists.newArrayList();
-			float totalWeights = 0.0F;
-			
-			for (int i = 0; i < skillArray.size(); i++) {
-				totalWeights += weightArray.get(i).getAsFloat();
-			}
-			
-			for (int i = 0; i < skillArray.size(); i++) {
-				if (SkillManager.getSkill(skillArray.get(i).getAsString()) == null) {
-					(new NoSuchElementException("SetSkillFunction: There is no skill named " + skillArray.get(i).getAsString())).printStackTrace();
-					continue;
-				}
-				
-				list.add(FloatObjectPair.of(weightArray.get(i).getAsFloat() / totalWeights, skillArray.get(i).getAsString()));
-			}
-			
-			return new SetSkillFunction(list);
-		}
 	}
 }

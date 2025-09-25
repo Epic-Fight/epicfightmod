@@ -9,8 +9,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.renderer.LightningRenderHelper;
 
 @OnlyIn(Dist.CLIENT)
@@ -28,7 +28,7 @@ public class DroppedNetherStarRenderer extends ItemEntityRenderer {
 		VertexConsumer vertexBuilder = multiBufferSource.getBuffer(RenderType.lightning());
 		float progression = (entityIn.tickCount + partialTicks) * 0.01F;
 		float repeater = ((float)Math.sin(progression * 5.0F) + 1.0F) * 0.5F;
-		LightningRenderHelper.renderCyclingLight(vertexBuilder, poseStack, 32, 0, 255, 9, 0.05F, progression, repeater);
+		LightningRenderHelper.renderCirclingLight(vertexBuilder, poseStack, 32, 0, 255, 9, 0.05F, progression, repeater);
 		poseStack.popPose();
 	}
 }

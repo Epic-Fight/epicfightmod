@@ -22,8 +22,8 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class SpiderPatch<T extends PathfinderMob> extends MobPatch<T> {
-	public SpiderPatch() {
-		super(Factions.NEUTRAL);
+	public SpiderPatch(T original) {
+		super(original, Factions.NEUTRAL);
 	}
 	
 	@Override

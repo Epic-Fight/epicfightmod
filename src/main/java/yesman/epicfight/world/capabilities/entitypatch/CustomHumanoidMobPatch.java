@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.entitypatch;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
@@ -17,10 +18,10 @@ import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
 import yesman.epicfight.world.entity.ai.brain.BrainRecomposer;
@@ -31,8 +32,8 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 public class CustomHumanoidMobPatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
 	private final MobPatchReloadListener.CustomHumanoidMobPatchProvider provider;
 
-	public CustomHumanoidMobPatch(Faction faction, MobPatchReloadListener.CustomHumanoidMobPatchProvider provider) {
-		super(faction);
+	public CustomHumanoidMobPatch(T original, Faction faction, MobPatchReloadListener.CustomHumanoidMobPatchProvider provider) {
+		super(original, faction);
 		
 		this.provider = provider;
 		this.weaponLivingMotions = this.provider.getHumanoidWeaponMotions();
@@ -60,11 +61,17 @@ public class CustomHumanoidMobPatch<T extends PathfinderMob> extends HumanoidMob
 		}
 	}
 	
+	@Override
+	public void readData(CompoundTag compound) {
+		super.readData(compound);
+		this.initAttributes();
+	}
+	
 	public void initAttributes() {
-		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES.get()));
-		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION.get()));
-		this.original.getAttribute(EpicFightAttributes.IMPACT.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT.get()));
-		this.original.getAttribute(EpicFightAttributes.STUN_ARMOR.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.STUN_ARMOR.get()));
+		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES));
+		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION));
+		this.original.getAttribute(EpicFightAttributes.IMPACT).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT));
+		this.original.getAttribute(EpicFightAttributes.STUN_ARMOR).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.STUN_ARMOR));
 		
 		if (this.provider.getAttributeValues().containsKey(Attributes.ATTACK_DAMAGE)) {
 			this.original.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.provider.getAttributeValues().getDouble(Attributes.ATTACK_DAMAGE));

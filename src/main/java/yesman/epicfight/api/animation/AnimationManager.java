@@ -1,5 +1,6 @@
 package yesman.epicfight.api.animation;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -30,17 +30,17 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
-import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.api.data.reloader.SkillReloadListener;
 import yesman.epicfight.api.exception.AssetLoadingException;
 import yesman.epicfight.api.utils.InstantiateInvoker;
 import yesman.epicfight.api.utils.MutableBoolean;
@@ -49,7 +49,7 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPCheckAnimationRegistryMatches;
+import yesman.epicfight.network.client.CPPairingAnimationRegistry;
 import yesman.epicfight.network.server.SPDatapackSync;
 
 @SuppressWarnings("unchecked")
@@ -61,10 +61,10 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		return INSTANCE;
 	}
 	
-	private final Map<Integer, AnimationAccessor<? extends StaticAnimation>> animationById = Maps.newHashMap();
-	private final Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> animationByName = Maps.newHashMap();
-	private final Map<AnimationAccessor<? extends StaticAnimation>, StaticAnimation> animations = Maps.newHashMap();
-	private final Map<AnimationAccessor<? extends StaticAnimation>, String> resourcepackAnimationCommands = Maps.newHashMap();
+	private final Map<Integer, AnimationAccessor<? extends StaticAnimation>> animationById = new HashMap<> ();
+	private final Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> animationByName = new HashMap<> ();
+	private final Map<AnimationAccessor<? extends StaticAnimation>, StaticAnimation> animations = new HashMap<> ();
+	private final Map<AnimationAccessor<? extends StaticAnimation>, String> resourcepackAnimationCommands = new HashMap<> ();
 	
 	public AnimationManager() {
 		super(new GsonBuilder().create(), "animmodels/animations");
@@ -185,7 +185,7 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 										}
 									});
 		
-		SkillManager.reloadAllSkillsAnimations();
+		SkillReloadListener.reloadAllSkillsAnimations();
 		
 		this.animations.entrySet().stream().reduce(Lists.<AssetAccessor<? extends StaticAnimation>>newArrayList(), (list, entry) -> {
 			MutableBoolean init = new MutableBoolean(true);
@@ -238,10 +238,6 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		return EpicFightSharedConstants.isPhysicalClient() ? Minecraft.getInstance().getResourceManager() : serverResourceManager;
 	}
 	
-	public int getResourcepackAnimationCount() {
-		return this.resourcepackAnimationCommands.size();
-	}
-	
 	public Stream<CompoundTag> getResourcepackAnimationStream() {
 		return this.resourcepackAnimationCommands.entrySet().stream().map((entry) -> {
 			CompoundTag compTag = new CompoundTag();
@@ -261,7 +257,7 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 	@OnlyIn(Dist.CLIENT)
 	public void processServerPacket(SPDatapackSync packet, boolean mandatoryPack) {
 		if (mandatoryPack) {
-			for (CompoundTag tag : packet.getTags()) {
+			for (CompoundTag tag : packet.tags()) {
 				String invocationCommand = tag.getString("invoke_command");
 				ResourceLocation registryName = ResourceLocation.parse(tag.getString("registry_name"));
 				int id = tag.getInt("id");
@@ -270,7 +266,7 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 					continue;
 				}
 				
-				AnimationAccessor<? extends StaticAnimation> accessor = AnimationAccessorImpl.create(registryName, getResourcepackAnimationCount(), false, (accessor$2) -> {
+				AnimationAccessor<? extends StaticAnimation> accessor = AnimationAccessorImpl.create(registryName, this.resourcepackAnimationCommands.size(), false, (accessor$2) -> {
 					try {
 						return InstantiateInvoker.invoke(invocationCommand, StaticAnimation.class).getResult();
 					} catch (Exception e) {
@@ -286,22 +282,21 @@ public class AnimationManager extends SimpleJsonResourceReloadListener {
 		}
 		
 		int animationCount = this.animations.size();
-		String[] registryNames = new String[animationCount];
+		List<String> registryNames = Lists.newArrayList();
 		
 		for (int i = 0; i < animationCount; i++) {
-			String registryName = this.animationById.get(i + 1).registryName().toString();
-			registryNames[i] = registryName;
+			registryNames.add(this.animationById.get(i + 1).registryName().toString());
 		}
 		
-		CPCheckAnimationRegistryMatches registrySyncPacket = new CPCheckAnimationRegistryMatches(animationCount, registryNames);
+		CPPairingAnimationRegistry registrySyncPacket = new CPPairingAnimationRegistry(registryNames);
 		EpicFightNetworkManager.sendToServer(registrySyncPacket);
 	}
 	
-	public void validateClientAnimationRegistry(CPCheckAnimationRegistryMatches msg, ServerGamePacketListenerImpl connection) {
+	public void validateClientAnimationRegistry(CPPairingAnimationRegistry msg, ServerGamePacketListenerImpl connection) {
 		StringBuilder messageBuilder = new StringBuilder();
 		int count = 0;
 		
-		Set<String> clientAnimationRegistry = new HashSet<> (Set.of(msg.registryNames));
+		Set<String> clientAnimationRegistry = new HashSet<> (Set.copyOf(msg.registryNames()));
 		
 		for (String registryName : this.animations.keySet().stream().map((rl) -> rl.toString()).toList()) {
 			if (!clientAnimationRegistry.contains(registryName)) {

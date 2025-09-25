@@ -1,10 +1,10 @@
 package yesman.epicfight.network;
 
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
-public interface EntityPairingPacketType extends ExtendableEnum {
-	ExtendableEnumManager<EntityPairingPacketType> ENUM_MANAGER = new ExtendableEnumManager<> ("entity_pairing_packet_type");
+public interface EntityPairingPacketType extends ExtensibleEnum {
+	ExtensibleEnumManager<EntityPairingPacketType> ENUM_MANAGER = new ExtensibleEnumManager<> ("entity_pairing_packet_type");
 	
 	@SuppressWarnings("unchecked")
 	default <T extends Enum<T>> T toEnum(Class<T> type) {

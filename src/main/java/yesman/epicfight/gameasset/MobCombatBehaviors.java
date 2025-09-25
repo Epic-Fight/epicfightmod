@@ -1,7 +1,6 @@
 package yesman.epicfight.gameasset;
 
 import yesman.epicfight.data.conditions.entity.HealthPoint;
-import yesman.epicfight.network.server.SPMoveAndPlayAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherPatch;
@@ -199,10 +198,10 @@ public class MobCombatBehaviors {
 	public static final CombatBehaviors.Builder<EndermanPatch> ENDERMAN_TELEPORT = CombatBehaviors.<EndermanPatch>builder()
 		.newBehaviorSeries(
 			BehaviorSeries.<EndermanPatch>builder().weight(50.0F).canBeInterrupted(false).looping(false)
-				.nextBehavior(Behavior.<EndermanPatch>builder().animationBehavior(Animations.ENDERMAN_TP_KICK1).randomChance(0.1F).withinEyeHeight().withinDistance(8.0F, 100.0F).packetProvider(SPMoveAndPlayAnimation::new))
+				.nextBehavior(Behavior.<EndermanPatch>builder().animationBehavior(Animations.ENDERMAN_TP_KICK1).randomChance(0.1F).withinEyeHeight().withinDistance(8.0F, 100.0F))
 		).newBehaviorSeries(
 			BehaviorSeries.<EndermanPatch>builder().weight(50.0F).canBeInterrupted(false).looping(false)
-				.nextBehavior(Behavior.<EndermanPatch>builder().animationBehavior(Animations.ENDERMAN_TP_KICK2).randomChance(0.1F).withinEyeHeight().withinDistance(8.0F, 100.0F).packetProvider(SPMoveAndPlayAnimation::new))
+				.nextBehavior(Behavior.<EndermanPatch>builder().animationBehavior(Animations.ENDERMAN_TP_KICK2).randomChance(0.1F).withinEyeHeight().withinDistance(8.0F, 100.0F))
 		);
 	
 	public static final CombatBehaviors.Builder<EndermanPatch> ENDERMAN_RAGE = CombatBehaviors.<EndermanPatch>builder()

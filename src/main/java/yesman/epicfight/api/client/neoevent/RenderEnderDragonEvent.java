@@ -1,0 +1,54 @@
+package yesman.epicfight.api.client.neoevent;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EnderDragonRenderer;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
+
+@OnlyIn(Dist.CLIENT)
+public class RenderEnderDragonEvent extends Event implements ICancellableEvent {
+	private final EnderDragon entity;
+    private final EnderDragonRenderer renderer;
+    private final float partialRenderTick;
+    private final PoseStack poseStack;
+    private final MultiBufferSource buffers;
+    private final int light;
+	
+	public RenderEnderDragonEvent(EnderDragon entity, EnderDragonRenderer renderer, float partialRenderTick, PoseStack poseStack, MultiBufferSource buffers, int light) {
+		this.entity = entity;
+        this.renderer = renderer;
+        this.partialRenderTick = partialRenderTick;
+        this.poseStack = poseStack;
+        this.buffers = buffers;
+        this.light = light;
+	}
+	
+	public EnderDragon getEntity() {
+		return entity;
+	}
+
+	public EnderDragonRenderer getRenderer() {
+		return renderer;
+	}
+	
+	public float getPartialRenderTick() {
+		return partialRenderTick;
+	}
+
+	public PoseStack getPoseStack() {
+		return poseStack;
+	}
+
+	public MultiBufferSource getBuffers() {
+		return buffers;
+	}
+
+	public int getLight() {
+		return light;
+	}
+}

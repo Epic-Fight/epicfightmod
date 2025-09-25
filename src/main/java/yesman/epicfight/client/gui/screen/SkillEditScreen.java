@@ -21,15 +21,15 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.data.reloader.SkillManager;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.data.reloader.SkillReloadListener;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillSlot;
-import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
+import yesman.epicfight.world.capabilities.skill.PlayerSkills;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillEditScreen extends Screen {
@@ -38,13 +38,13 @@ public class SkillEditScreen extends Screen {
 	private static final int MAX_SHOWING_BUTTONS = 6;
 	
 	private final Player player;
-	private final CapabilitySkill skills;
+	private final PlayerSkills skills;
 	private final Map<SkillSlot, SlotButton> slotButtons = Maps.newHashMap();
 	private final List<LearnSkillButton> learnedSkillButtons = Lists.newArrayList();
 	private int start;
 	private SlotButton selectedSlotButton;
 	
-	public SkillEditScreen(Player player, CapabilitySkill skills) {
+	public SkillEditScreen(Player player, PlayerSkills skills) {
 		super(Component.translatable("gui.epicfight.skill_edit"));
 		this.player = player;
 		this.skills = skills;
@@ -71,7 +71,7 @@ public class SkillEditScreen extends Screen {
 					int k = this.width / 2 - 69;
 					
 					MutableInt widgetHeight = new MutableInt(this.height / 2 - 78);
-					Stream<Skill> learnedSkillCollection = this.player.isCreative() ? SkillManager.getSkills((skill) -> skill.getCategory() == skillSlot.category()).stream() : this.skills.listAcquiredSkills().filter(skill -> skill.getCategory() == skillSlot.category());
+					Stream<Skill> learnedSkillCollection = this.player.isCreative() ? SkillReloadListener.getSkills((skill) -> skill.getCategory() == skillSlot.category()).stream() : this.skills.listAcquiredSkills().filter(skill -> skill.getCategory() == skillSlot.category());
 					
 					learnedSkillCollection.forEach(skill -> {
 						this.learnedSkillButtons.add(new LearnSkillButton(k, widgetHeight.intValue(), 147, 24, skill, Component.translatable(skill.getTranslationKey()), (pressedButton) -> {
@@ -81,9 +81,8 @@ public class SkillEditScreen extends Screen {
 								}
 								
 								this.skills.getSkillContainerFor(skillSlot).setSkill(skill);
-								EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, -1, !this.minecraft.player.isCreative(), skill));
+								EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, skill.holder(), -1, !this.minecraft.player.isCreative()));
 								this.skills.addLearnedSkill(skill);
-								
 								this.onClose();
 							}
 						}).setActive(this.skills.getSkillContainer(skill) == null));
@@ -113,7 +112,7 @@ public class SkillEditScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics);
+		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		
 		if (this.canScroll()) {
 			int scrollPosition = (int)(140 * (this.start / (float)(this.learnedSkillButtons.size() - MAX_SHOWING_BUTTONS)));
@@ -142,8 +141,9 @@ public class SkillEditScreen extends Screen {
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics) {
-		super.renderBackground(guiGraphics);
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+		
 		guiGraphics.blit(SKILL_EDIT_UI, this.width / 2 - 104, this.height / 2 - 100, 0, 0, 208, 200);
 	}
 	
@@ -158,11 +158,11 @@ public class SkillEditScreen extends Screen {
 	}
 	
 	@Override
-	public boolean mouseScrolled(double x, double y, double wheel) {
+	public boolean mouseScrolled(double x, double y, double xScroll, double yScroll) {
 		if (!this.canScroll()) {
 			return false;
 		} else {
-			if (wheel > 0.0F) {
+			if (yScroll > 0.0F) {
 				if (this.start > 0) {
 					--this.start;
 					
@@ -201,11 +201,6 @@ public class SkillEditScreen extends Screen {
 		}
 		
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-			super.render(guiGraphics, mouseX, mouseY, partialTicks);
-		}
-		
-		@Override
 		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			int y = (this.isHovered || SkillEditScreen.this.selectedSlotButton == this) ? 35 : 17;
 			guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 237, y, this.width, this.height);
@@ -227,7 +222,7 @@ public class SkillEditScreen extends Screen {
 		}
 		
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 			int texY = (this.isHovered || !this.active) ? 224 : 200;
 			guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 0, texY, this.width, this.height);

@@ -8,8 +8,8 @@ import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 
 public abstract class AbstractIllagerPatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
-	public AbstractIllagerPatch(Faction faction) {
-		super(faction);	
+	public AbstractIllagerPatch(T original, Faction faction) {
+		super(original, faction);	
 	}
 	
 	@Override

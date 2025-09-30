@@ -52,7 +52,7 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 	
 	@Override
 	public void onInitiate(SkillContainer container) {
-		container.getExecutor().getEventListener().addEventListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
+		container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
 			if (this.isActivated(container) && !this.isDisabled(container)) {
 				if (event.getAttackDamage() > event.getTarget().getHealth()) {
 					this.setDurationSynchronize(container, Math.min(this.maxDuration, container.getRemainDuration() + this.returnDuration));
@@ -60,10 +60,10 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 			}
 		});
 		
-		container.getExecutor().getEventListener().addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+		container.getExecutor().getEventListener().addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event) -> {
 			int phaseLevel = event.getPlayerPatch().getEntityState().getLevel();
 			
-			if (event.getAmount() > 0.0F && this.isActivated(container) && !this.isDisabled(container) && phaseLevel > 0 && phaseLevel < 3 && 
+			if (event.getDamage() > 0.0F && this.isActivated(container) && !this.isDisabled(container) && phaseLevel > 0 && phaseLevel < 3 && 
 				this.canExecute(container) && isBlockableSource(event.getDamageSource())) {
 				DamageSource damageSource = event.getDamageSource();
 				boolean isFront = false;
@@ -86,7 +86,7 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 					float knockback = 0.25F;
 					
 					if (damageSource instanceof EpicFightDamageSource epicfightSource) {
-						knockback += Math.min(epicfightSource.getImpact() * 0.1F, 1.0F);
+						knockback += Math.min(epicfightSource.calculateImpact() * 0.1F, 1.0F);
 					}
 					
 					if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
@@ -118,8 +118,8 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 	public void onRemoved(SkillContainer container) {
 		super.onRemoved(container);
 		
-		container.getExecutor().getEventListener().removeListener(EventType.HURT_EVENT_PRE, EVENT_UUID, 0);
-		container.getExecutor().getEventListener().removeListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, 0);
+		container.getExecutor().getEventListener().removeListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
 	}
 	

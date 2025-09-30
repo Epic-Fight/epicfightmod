@@ -16,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,12 +43,12 @@ import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 public class SkillManager extends SimpleJsonResourceReloadListener {
 	public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill"));
+	public static final Codec<Skill> CODEC = ExtraCodecs.lazyInitializedCodec(() -> RegistryManager.ACTIVE.getRegistry(SKILL_REGISTRY_KEY).getCodec());
 	private static final List<CompoundTag> SKILL_PARAMS = Lists.newArrayList();
 	private static final Gson GSON = (new GsonBuilder()).create();
 	private static Set<String> namespaces;
@@ -130,16 +132,16 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 		if (localplayerpatch != null) {
 			CapabilitySkill skillCapability = localplayerpatch.getSkillCapability();
 			
-			for (SkillContainer skill : skillCapability.skillContainers) {
-				if (skill.getSkill() != null) {
+			skillCapability.listSkillContainers().forEach(skillContainer -> {
+				if (skillContainer.getSkill() != null) {
 					// Reload skill
-					skill.setSkill(getSkill(skill.getSkill().toString()), true);
+					skillContainer.setSkill(getSkill(skillContainer.getSkill().toString()), true);
 				}
-			}
+			});
 			
-			skillCapability.skillContainers[SkillCategories.BASIC_ATTACK.universalOrdinal()].setSkill(EpicFightSkills.BASIC_ATTACK);
-			skillCapability.skillContainers[SkillCategories.AIR_ATTACK.universalOrdinal()].setSkill(EpicFightSkills.AIR_ATTACK);
-			skillCapability.skillContainers[SkillCategories.KNOCKDOWN_WAKEUP.universalOrdinal()].setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
+			skillCapability.getSkillContainerFor(SkillSlots.BASIC_ATTACK).setSkill(EpicFightSkills.BASIC_ATTACK);
+			skillCapability.getSkillContainerFor(SkillSlots.AIR_ATTACK).setSkill(EpicFightSkills.AIR_ATTACK);
+			skillCapability.getSkillContainerFor(SkillSlots.KNOCKDOWN_WAKEUP).setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
 		}
 	}
 	

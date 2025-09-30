@@ -2,7 +2,7 @@ package yesman.epicfight.world.entity.eventlistener;
 
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-public class StaminaConsumeEvent extends PlayerEvent<PlayerPatch<?>> {
+public class StaminaConsumeEvent extends AbstractPlayerEvent<PlayerPatch<?>> {
 	private float amount;
 	
 	public StaminaConsumeEvent(PlayerPatch<?> playerpatch, float amount) {

@@ -46,6 +46,7 @@ import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
+import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.compat.AzureLibArmorCompat;
 import yesman.epicfight.compat.AzureLibCompat;
 import yesman.epicfight.compat.CuriosCompat;
@@ -66,6 +67,8 @@ import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.network.EntityPairingPacketType;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightDataSerializers;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.particle.EpicFightParticles;
@@ -106,117 +109,124 @@ import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
  *  ***************************************************************
  *  Major version changes
  *  ***************************************************************
- *  20.10.7 -> 20.11.2
+ *  20.12.1 Created
  *  
- *  Added item keyword & preferences
- *  Fixed the Guard penalty reset immediately when stop using guard
- *  Fixed the afterimage particle becoming invisible when a shader is applied
- *  Fixed the mobs' living animations being reset when rejoining the world
- *  Fixed the swirling arrow trail right before it hits
+ *  A version that first compatible with skill tree addon
  *  
- *  ***************************************************************
+ *  New skills
+ *  - Catharsis: Fills weapon charge when dodge in time
+ *  - Vengeance: Get damage bonus against your last attacker
+ *  - Adaptive skin: Get damage resistance against the damage types that a player has taken recently
+ *  - Bonebreaker: Get damage bonus against the enemy you attacked last
+ *  - Adrenaline: reset stamina regen counter when kill enemies
  *  
- *  20.11.2 -> 20.11.3
+ *  Skill sound & visual enhancements
+ *  - Roll
+ *  - Forbidden strength
+ *  - Hypervitality
+ *  - Berserker
+ *  - Stamina pillager
+ *  - Swordmaster
+ *  - Emergency escape
+ *  - Technician
  *  
- *  Fixed the game rules being reset when changing dimensions
- *  Fixed the shot animations playing randomly
- *  Fixed the pillager's body twisting while aiming
- *  Fixed the arrows ricochet due to the virtual entity created by the player's dodge skills
- *  Fixed the arrows not to ricochet while player's dodging
- *  Fixed the player still playing running animation when charging Demolition Leap with Longsword in hand
- *  Added a Kube JS event hook for registering skills
+ *  Emergency escape rework
+ *  - Cooldown decreased 15 -> 5
+ *  - Now players can cast dodge skills when being hit (Affected by cooldown)
  *  
- *  ***************************************************************
+ *  Endurance sscape rework
+ *  - Stun shield duration increased 3 -> 8
  *  
- *  20.11.3 -> 20.11.4
+ *  Eviscerate nerf
+ *  - Deal 50% > (10%|15%|20%|25%|30%) of target's lost health (based on an item tier)
  *  
- *  Fixed the Demolition Leap charging animation not playing
- *  Fixed the players to be able to break non-living entities like boats and item frames in Epic Fight mode
- *  Added a FPV angle limitation when climbing ladder
- *  
- *  ***************************************************************
- *  
- *  20.11.4 -> 20.11.5
- *  
- *  Fixed the players doing vanilla attacks against Ender dragon
- *  Fixed the Demolition Leap animation ends earlier with Tachi and Greatsword holding animations
- *  Fixed the Death Harvest not requiring XP level to change the skill
- *  Fixed the mount attack animations not playing
+ *  Afterimage particle enhanced
+ *  - Now it shows held weapon, equipped armors, and cape
  *  
  *  ***************************************************************
+ *  20.12.2
  *  
- *  20.11.5 -> 20.11.6
- *  
- *  Fixed the tools to be registered as Mining preferred items
- *  Added filter function in Item preference screen
- *  
- *  ***************************************************************
- *  
- *  20.11.6 -> 20.11.7
- *  
- *  Fixed the Wither skull crash when hit terrain & entities
- *  Fixed the player's innate skill disappearing when changing dimensions
- *  Fixed the Ender dragon crash
+ *  Fixed the bug that players can't eat or drink any food items (#2048)
+ *  Fixed the crash when hit by arrows from other mods (#2047)
+ *  Fixed the bug that players can't disarm guard after attacking while guarding
  *  
  *  ***************************************************************
+ *  20.12.3
  *  
- *  20.11.7 -> 20.11.8
- *  
- *  Fixed the Endurance having no cooldown
- *  Fixed the player head jittering when locking on { Credit - Exopandora(the dev of Shoulder surfing mod) }
- *  Fixed the camera snap when locking on target is dead
- *  Interal API changes
- *  - Fixed the random crash caused by OpenMatrix4f
- *  - Experimental fix for ConcurrentModificationException when a player logs out
- *  - Enhanced the armature pathing algorithm so that it can accomodates over 10 sub joints
+ *  Fixed the Vex crashing game when the target is dead before attacking
+ *  Fixed the laser particle transform issue
+ *  Fixed the crash when Wither afterimage is created
+ *  Fixed the Wither swirl animation when Wither armor is activated
+ *  Fixed the crash when trail particle is loaded in datapack editor (#2053)
  *  
  *  ***************************************************************
+ *  20.12.4
  *  
- *  20.11.8 -> 20.11.9
- *  
- *  Forge version changed 47.4.0 > 47.4.3
- *  Fixed the Ender dragon crash when absorbing crystal
- *  Fixed the mob's living motions for Weapon categories are not applied
- *  Fixed the Giant Whirldwind animation speed not varying based on charging amount for other players
- *  Fixed the animation list not appearing in Combat Behaviors and Weapon Combo screen in datapack editor
- *  Fixed the parsing error for combat behavior conditions
- *  Increased the update rate of entity's position when playing movement animations
- *  
- *  Interal API changes
- *  - Splitted HUD components into multiple Forge overlays, making them hideable by event hooks
+ *  Fixed the players can't attack after charging the Greatsword innate skill (#2060)
+ *  Fixed the Ender dragon turns back when attacking (#2054)
+ *  Fixed the afterimage particle doesn't reflect entity's scale
  *  
  *  ***************************************************************
+ *  20.12.5
  *  
- *  20.11.9 -> 20.11.10
- *  
- *  Fixed "Player moved wrongly" log
- *  
- *  ***************************************************************
- *  
- *  20.11.10 -> 20.11.11
- *  
- *  Fixed the darkened trail effects when absorbing Experience orbs
- *  Interal API changes
- *  - The default Entity Y Rot Provider is now MOB_ATTACK_TARGET_LOOK
- *  - Added a pose modifier that rotates according to coord bone's rotation {@link yesman.epicfight.gameasset.Animations.ReusableSources#APPLY_COORD_ROTATION}
- *    This pose modifier should be used with {@link yesman.epicfight.gameasset.Animations.ReusableSources#SYNC_COORD_ROTATION} by on End Event
+ *  Fixed the weapon innate skill icon not being white when it's unavailable
+ *  Fixed the leg animation being reset when stiffComboAttack is false
+ *  Removed the Animation shader option. Instead Compute shader has been implemented, which boosts frame rate and expand compatibility with shaderpacks for Iris
+ *  Internal changes
+ *  - ChareableSkill now inherits HoldableSkill. Since their work quite similar all if-else branch for ChareableSkill and HoldableSkill are merged.
  *  
  *  ***************************************************************
- *  Minor version changes
- *  ***************************************************************
+ *  20.12.6
+ *  
+ *  Fixed the afterimage having a wrong main hand item transform when holding any offhand item
+ *  Fixed the player's equipping armors are all broken when hurt by the Axe's innate skill (#2068)
+ *  Internal changes
+ *  - Compute shader optimization: Made it use Persistent buffer (by jvn, #2070)
+ *  - Added a variable tickSinceLastJump in ControlEngine to enhance air slash check
  *  
  *  ***************************************************************
+ *  20.12.7
+ *  
+ *  -Player's following action UI-
+ *  Added adaptive crosshair for mining and combat
+ *  Added a block overlay to indicate your next mining action
+ *  Added a reset button on Ingame UI Setup screen
+ *  Added config options for enable/disable both block and entity target
+ *  
+ *  -Graphic fixes-
+ *  Fixed the entity outline rendering abnormally
+ *  Fixed so that compute shader can render entity outline
+ *  Fixed the incorrect normal tweak of compute shader for Iris shaderpacks
+ *  Fixed Phantom ascent crash (#2084)
+ *  
+ *  -Internal changes-
+ *  Added a method that developers can determine a skill book item texture
+ *  {@link SkillCategory#bookIcon}
+ *  
+ *  ***************************************************************
+ *  20.12.8
+ *  
+ *  The default value of canSwitchPlayerMode gamerule changed from false to true
+ *  Fixed the Trident innate skill icon with channel enchantment is broken
+ *  Fixed the animation entries not showing up in the list in the datapack editor
+ *  Fixed the crash when ground slam particle generated
+ *  Fixed the trail particle being dark when afterimage particle is in the screen
+ *  Optimized animation keyframes to accelerate the fps, especially when rendering a model with massive joints
+ *  
+ *  ***************************************************************
+ *  20.12.9
+ *  
+ *  Fixed the normal shading issue both vanilla render pipeline and compute shader
+ *  Added {@link InnateSkillChangeEvent.class} event that is fired after weapon innate skill is changed
  *  
  *  --- TO DO ---
  *  
  *  Update language files (always)
- *  Add an reach property to attack animation (idea)
  *  Add an alert function when an entity targeting the player tries grappling or execution attack
  *  Add UI for execution resistance
  *  Add functionality to blooming effect (resists wither effect)
  *  Add a screen for setting animation properties in datapack editor
  *  Enhance the stun system (maybe remove or barely leave knockback)
- *  Add resource hashing for animation file to prevent client modifying animation by resource pack
  *  
  *  @author yesman
  */
@@ -225,6 +235,10 @@ public class EpicFightMod {
 	public static final String MODID = "epicfight";
 	public static final String EPICSKINS_MODID = "epicskins";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	
+	public static String prefix(String s) {
+		return String.format("%s:%s", MODID, s);
+	}
 	
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
 		logAndStacktraceIfDevSide(logFunction, message, exceptionProvider, message);
@@ -256,7 +270,7 @@ public class EpicFightMod {
     	
     	context.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);
     	context.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory(IngameConfigurationScreen::new));
-		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(EpicFightCreativeTabs.ITEMS.get()));
+		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(EpicFightCreativeTabs.ITEMS));
     	
 		final IEventBus bus = context.getModEventBus();
 		
@@ -269,6 +283,10 @@ public class EpicFightMod {
     	bus.addListener(EpicFightCapabilities::registerCapabilities);
     	bus.addListener(EpicFightEntities::onSpawnPlacementRegister);
     	
+    	if (EpicFightSharedConstants.isPhysicalClient()) {
+			bus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
+		}
+    	
     	MinecraftForge.EVENT_BUS.addListener(this::command);
         MinecraftForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
     	
@@ -278,6 +296,7 @@ public class EpicFightMod {
     	Style.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Styles.class);
     	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, WeaponCategories.class);
     	Faction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Factions.class);
+    	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
     	
     	EpicFightMobEffects.EFFECTS.register(bus);
     	EpicFightPotions.POTIONS.register(bus);
@@ -352,10 +371,9 @@ public class EpicFightMod {
     	event.enqueueWork(Style.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(WeaponCategory.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(Faction.ENUM_MANAGER::loadEnum);
-    	
+    	event.enqueueWork(EntityPairingPacketType.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(() -> {
     		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
-    		
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();
     		ModLoader.get().postEvent(animationregistryevent);
     		animationregistryevent.getBuilders().stream().sorted((b1, b2) -> b1.namespace().compareTo(b2.namespace())).forEach((builder) -> builder.task().accept(builder));
@@ -412,6 +430,7 @@ public class EpicFightMod {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+        	event.enqueueWork(ComputeShaderProvider::checkIfSupports);
     		event.enqueueWork(EntityPatchProvider::registerEntityPatchesClient);
     		event.enqueueWork(SkillBookScreen::registerIconItems);
     		event.enqueueWork(EpicFightItemProperties::registerItemProperties);
@@ -441,7 +460,7 @@ public class EpicFightMod {
 		 */
 		SkillManager.getNamespaces().forEach((modid) -> {
 			ModList.get().getModContainerById(modid).flatMap((mc) -> mc.getCustomExtension(EpicFightExtensions.class)).ifPresentOrElse((extension) -> {
-				if (extension.skillBookCreativeTab() == event.getTab()) {
+				if (extension.skillBookCreativeTab().get() == event.getTab()) {
 					SkillManager.getSkillNames((skill) -> skill.getCategory().learnable() && skill.getCreativeTab() == null && skill.getRegistryName().getNamespace() == modid).forEach((rl) -> {
 						ItemStack stack = new ItemStack(EpicFightItems.SKILLBOOK.get());
 						SkillBookItem.setContainingSkill(rl.toString(), stack);

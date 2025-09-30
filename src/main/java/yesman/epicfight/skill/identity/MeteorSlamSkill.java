@@ -1,7 +1,7 @@
 package yesman.epicfight.skill.identity;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.LevelUtil;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
@@ -24,7 +25,6 @@ import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -70,8 +70,8 @@ public class MeteorSlamSkill extends Skill {
 	public void onInitiate(SkillContainer container) {
 		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
-		listener.addEventListener(EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
-			if (container.getExecutor() instanceof ServerPlayerPatch serverPlayerPatch) {
+		listener.addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
+			if (!container.getExecutor().isLogicalClient()) {
 				Skill skill = event.getSkillContainer().getSkill();
 				
 				if (skill.getCategory() != SkillCategories.BASIC_ATTACK && skill.getCategory() != SkillCategories.AIR_ATTACK) {
@@ -106,7 +106,7 @@ public class MeteorSlamSkill extends Skill {
 					
 					if (distance > this.minDistance) {
 						container.getExecutor().playAnimationSynchronized(slamAnimation, 0.0F);
-						container.getDataManager().setDataSync(SkillDataKeys.FALL_DISTANCE.get(), (float)distance, serverPlayerPatch.getOriginal());
+						container.getDataManager().setDataSync(SkillDataKeys.FALL_DISTANCE.get(), (float)distance);
 						container.getDataManager().setData(SkillDataKeys.PROTECT_NEXT_FALL.get(), true);
 						event.setCanceled(true);
 					}
@@ -114,12 +114,11 @@ public class MeteorSlamSkill extends Skill {
 			}
 		});
 		
-		listener.addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
 			if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && container.getDataManager().getDataValue(SkillDataKeys.PROTECT_NEXT_FALL.get())) {
 				float stamina = container.getExecutor().getStamina();
-				float damage = event.getAmount();
-				event.setAmount(damage - stamina);
-				event.setCanceled(true);
+				float damage = event.getDamage();
+				event.attachValueModifier(ValueModifier.adder(-stamina));
 				container.getExecutor().setStamina(stamina - damage);
 				container.getDataManager().setData(SkillDataKeys.PROTECT_NEXT_FALL.get(), false);
 			}
@@ -136,13 +135,13 @@ public class MeteorSlamSkill extends Skill {
 	public void onRemoved(SkillContainer container) {
 		super.onRemoved(container);
 		container.getExecutor().getEventListener().removeListener(EventType.FALL_EVENT, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(EventType.HURT_EVENT_PRE, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.SKILL_CAST_EVENT, EVENT_UUID);
 	}
 	
 	@Override
-	public List<WeaponCategory> getAvailableWeaponCategories() {
-		return List.copyOf(this.slamMotions.keySet());
+	public Set<WeaponCategory> getAvailableWeaponCategories() {
+		return this.slamMotions.keySet();
 	}
 	
 	@Override

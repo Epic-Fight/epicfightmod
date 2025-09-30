@@ -43,6 +43,7 @@ public class WeaponCapability extends CapabilityItem {
 	protected final boolean canBePlacedOffhand;
 	protected final Function<Style, Boolean> comboCancel;
 	protected final ZoomInType zoomInType;
+	protected final float reach;
 	
 	protected WeaponCapability(CapabilityItem.Builder builder) {
 		super(builder);
@@ -61,6 +62,7 @@ public class WeaponCapability extends CapabilityItem {
 		this.canBePlacedOffhand = weaponBuilder.canBePlacedOffhand;
 		this.comboCancel = weaponBuilder.comboCancel;
 		this.zoomInType = weaponBuilder.zoomInType;
+		this.reach = weaponBuilder.reach;
 	}
 	
 	@Override
@@ -161,6 +163,11 @@ public class WeaponCapability extends CapabilityItem {
 		return this.autoAttackMotions.containsKey(Styles.MOUNT);
 	}
 	
+	@Override
+	public float getReach() {
+		return this.reach;
+	}
+	
 	public static WeaponCapability.Builder builder() {
 		return new WeaponCapability.Builder();
 	}
@@ -178,6 +185,7 @@ public class WeaponCapability extends CapabilityItem {
 		Function<Style, Boolean> comboCancel;
 		boolean canBePlacedOffhand;
 		ZoomInType zoomInType;
+		float reach;
 		
 		protected Builder() {
 			this.constructor = WeaponCapability::new;
@@ -193,6 +201,7 @@ public class WeaponCapability extends CapabilityItem {
 			this.canBePlacedOffhand = true;
 			this.comboCancel = (style) -> true;
 			this.zoomInType = ZoomInType.NONE;
+			this.reach = 0.2F;
 		}
 		
 		@Override
@@ -233,6 +242,11 @@ public class WeaponCapability extends CapabilityItem {
 		
 		public Builder canBePlacedOffhand(boolean canBePlacedOffhand) {
 			this.canBePlacedOffhand = canBePlacedOffhand;
+			return this;
+		}
+		
+		public Builder reach(float reach) {
+			this.reach = reach;
 			return this;
 		}
 		

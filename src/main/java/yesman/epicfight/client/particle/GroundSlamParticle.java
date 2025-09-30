@@ -11,6 +11,7 @@ import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,21 +21,18 @@ import yesman.epicfight.world.level.block.FractureBlockState;
 
 @OnlyIn(Dist.CLIENT)
 public class GroundSlamParticle extends NoRenderParticle {
-	protected GroundSlamParticle(ClientLevel level, double x, double y, double z, double dx, double dy, double dz) {
+	protected GroundSlamParticle(ClientLevel level, double x, double y, double z, double dx, double dy, double dz, BlockPos bp, BlockState bs) {
 		super(level, x, y, z, dx, dy, dz);
 		
-		BlockPos blockpos = new BlockPos.MutableBlockPos(x, y, z);
-		BlockState blockstate = level.getBlockState(blockpos);
-		
-		if (blockstate.isAir()) {
-			blockstate = level.getBlockState(blockpos.below());
+		if (bs.isAir()) {
+			bs = level.getBlockState(bp.below());
 		}
 		
-		if (blockstate instanceof FractureBlockState fractureBlockState) {
-			blockstate = fractureBlockState.getOriginalBlockState(blockpos);
+		if (bs instanceof FractureBlockState fractureBlockState) {
+			bs = fractureBlockState.getOriginalBlockState(bp);
 		}
 		
-		if (!blockstate.shouldSpawnParticlesOnBreak()) {
+		if (!bs.shouldSpawnParticlesOnBreak()) {
 			return;
 		}
 		
@@ -45,7 +43,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 			Vec3f positionVec = OpenMatrix4f.transform3v(mat, Vec3f.Z_AXIS, null).scale((float)dx);
 			Vec3f moveVec = OpenMatrix4f.transform3v(mat, Vec3f.Z_AXIS, null).scale((float)dz);
 			
-			Particle blockParticle = new TerrainParticle(level, x + positionVec.x, y, z + positionVec.z, 0, 0, 0, blockstate, blockpos);
+			Particle blockParticle = new TerrainParticle(level, x + positionVec.x, y, z + positionVec.z, 0, 0, 0, bs, bp);
 			blockParticle.setParticleSpeed((moveVec.x + (Math.random() - 0.5)) * 0.3D, (Math.random()) * 0.5D, (moveVec.z + (Math.random() - 0.5)) * 0.3D);
 			blockParticle.setLifetime(60 + (new Random().nextInt(20)));
 			
@@ -62,7 +60,11 @@ public class GroundSlamParticle extends NoRenderParticle {
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-			return new GroundSlamParticle(level, x, y, z, xSpeed, ySpeed, zSpeed);
+			BlockPos blockpos = new BlockPos.MutableBlockPos(x, y, z);
+			BlockState blockstate = level.getBlockState(blockpos);
+			if (blockstate == null) blockstate = Blocks.AIR.defaultBlockState(); 
+			
+			return new GroundSlamParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, blockpos, blockstate);
 		}
 	}
 }

@@ -124,7 +124,7 @@ public class LivingAnimationsScreen extends Screen {
 														}
 													}).defaultVal(LivingMotions.IDLE))
 									.addColumn(Grid.popup("living_animation", PopupBox.AnimationPopupBox::new)
-													.filter((animation) -> !(animation instanceof MainFrameAnimation))
+													.filter((accessor) -> !(accessor.checkType(MainFrameAnimation.class)))
 													.editWidgetCreated((popupBox) -> popupBox.setModel(Armatures.BIPED, Meshes.BIPED))
 													.valueChanged((event) -> {
 														this.modelPreviewer.clearAnimations();

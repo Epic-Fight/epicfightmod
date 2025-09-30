@@ -1,9 +1,11 @@
 package yesman.epicfight.client.gui.screen;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -57,8 +59,8 @@ public class SkillEditScreen extends Screen {
 		this.learnedSkillButtons.clear();
 		
 		for (SkillSlot skillSlot : SkillSlot.ENUM_MANAGER.universalValues()) {
-			if ((this.player.isCreative() || this.skills.hasCategory(skillSlot.category())) && skillSlot.category().learnable()) {
-				SlotButton slotButton = new SlotButton(i, j, 18, 18, skillSlot, this.skills.skillContainers[skillSlot.universalOrdinal()].getSkill(), (button) -> {
+			if ((this.player.isCreative() || !this.skills.getSkillContainersFor(skillSlot.category()).isEmpty()) && skillSlot.category().learnable()) {
+				SlotButton slotButton = new SlotButton(i, j, 18, 18, skillSlot, this.skills.getSkillContainerFor(skillSlot).getSkill(), (button) -> {
 					this.start = 0;
 					
 					for (Button shownButton : this.learnedSkillButtons) {
@@ -67,30 +69,27 @@ public class SkillEditScreen extends Screen {
 					
 					this.learnedSkillButtons.clear();
 					int k = this.width / 2 - 69;
-					int l = this.height / 2 - 78;
 					
-					Collection<Skill> learnedSkillCollection = this.player.isCreative() ? SkillManager.getSkills((skill) -> skill.getCategory() == skillSlot.category()) : this.skills.getLearnedSkills(skillSlot.category());
+					MutableInt widgetHeight = new MutableInt(this.height / 2 - 78);
+					Stream<Skill> learnedSkillCollection = this.player.isCreative() ? SkillManager.getSkills((skill) -> skill.getCategory() == skillSlot.category()).stream() : this.skills.listAcquiredSkills().filter(skill -> skill.getCategory() == skillSlot.category());
 					
-					for (Skill learnedSkill : learnedSkillCollection) {
-						this.learnedSkillButtons.add(new LearnSkillButton(k, l, 147, 24, learnedSkill, Component.translatable(learnedSkill.getTranslationKey()), (pressedButton) -> {
-							if (this.minecraft.player.experienceLevel >= learnedSkill.getRequiredXp() || this.minecraft.player.isCreative()) {
+					learnedSkillCollection.forEach(skill -> {
+						this.learnedSkillButtons.add(new LearnSkillButton(k, widgetHeight.intValue(), 147, 24, skill, Component.translatable(skill.getTranslationKey()), (pressedButton) -> {
+							if (this.minecraft.player.experienceLevel >= skill.getRequiredXp() || this.minecraft.player.isCreative()) {
 								if (!this.canPress(pressedButton)) {
 									return;
 								}
 								
-								this.skills.skillContainers[skillSlot.universalOrdinal()].setSkill(learnedSkill);
-								EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot.universalOrdinal(), -1, learnedSkill.toString(), !this.minecraft.player.isCreative()));
-								
-								if (!this.skills.getLearnedSkills(skillSlot.category()).contains(learnedSkill)) {
-									this.skills.addLearnedSkill(learnedSkill);
-								}
+								this.skills.getSkillContainerFor(skillSlot).setSkill(skill);
+								EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, -1, !this.minecraft.player.isCreative(), skill));
+								this.skills.addLearnedSkill(skill);
 								
 								this.onClose();
 							}
-						}).setActive(this.skills.getSkillContainer(learnedSkill) == null));
+						}).setActive(this.skills.getSkillContainer(skill) == null));
 						
-						l+=26;
-					}
+						widgetHeight.add(26);
+					});
 					
 					for (Button shownButton : this.learnedSkillButtons) {
 						this.addWidget(shownButton);

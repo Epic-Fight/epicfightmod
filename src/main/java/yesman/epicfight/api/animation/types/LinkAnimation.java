@@ -19,6 +19,7 @@ import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class LinkAnimation extends DynamicAnimation implements AnimationAccessor<LinkAnimation> {
+	protected TransformSheet coord;
 	protected AssetAccessor<? extends DynamicAnimation> fromAnimation;
 	protected AssetAccessor<? extends StaticAnimation> toAnimation;
 	protected float nextStartTime;
@@ -129,8 +130,8 @@ public class LinkAnimation extends DynamicAnimation implements AnimationAccessor
 	
 	@Override
 	public TransformSheet getCoord() {
-		if (this.getTransfroms().containsKey("Coord")) {
-			return this.getTransfroms().get("Coord");
+		if (this.coord != null) {
+			return this.coord;
 		} else if (this.getTransfroms().containsKey("Root")) {
 			return this.getTransfroms().get("Root");
 		}
@@ -175,10 +176,12 @@ public class LinkAnimation extends DynamicAnimation implements AnimationAccessor
 	public void copyTo(LinkAnimation dest) {
 		dest.setConnectedAnimations(this.fromAnimation, this.toAnimation);
 		dest.setTotalTime(this.getTotalTime());
-		
-		Map<String, TransformSheet> trnasforms = dest.getTransfroms();
-		trnasforms.clear();
-		trnasforms.putAll(this.getTransfroms());
+		dest.getAnimationClip().reset();
+		this.getTransfroms().forEach((jointName, transformSheet) -> dest.getAnimationClip().addJointTransform(jointName, transformSheet.copyAll()));
+	}
+	
+	public void loadCoord(TransformSheet coord) {
+		this.coord = coord;
 	}
 	
 	public float getNextStartTime() {

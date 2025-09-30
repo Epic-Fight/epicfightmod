@@ -16,8 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 public class DragonCrystalLinkPhase extends PatchedDragonPhase {
 	public static final float STUN_SHIELD_AMOUNT = 20.0F;
@@ -92,12 +91,9 @@ public class DragonCrystalLinkPhase extends PatchedDragonPhase {
 	
 	@Override
 	public float onHurt(DamageSource damagesource, float amount) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(damagesource.getEntity(), LivingEntityPatch.class).ifPresent(entitypatch -> {
-			if (entitypatch.getEpicFightDamageSource() != null) {
-				float impact = entitypatch.getEpicFightDamageSource().getImpact();
-				this.dragonpatch.setStunShield(this.dragonpatch.getStunShield() - impact);
-			}
-		});
+		if (damagesource instanceof EpicFightDamageSource epicfightDamagesource) {
+			this.dragonpatch.setStunShield(this.dragonpatch.getStunShield() - epicfightDamagesource.calculateImpact());
+		}
 		
 		return amount;
 	}

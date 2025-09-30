@@ -1,11 +1,11 @@
 package yesman.epicfight.skill.guard;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,7 +27,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
-import yesman.epicfight.world.entity.eventlistener.HurtEvent;
+import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 public class ParryingSkill extends GuardSkill {
 	private int PARRY_WINDOW;
@@ -56,7 +56,7 @@ public class ParryingSkill extends GuardSkill {
 			return;
         int lastActive = container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get());
 		if (container.getServerExecutor().getOriginal().tickCount - lastActive > PARRY_WINDOW * 2) {
-			container.getDataManager().setDataSync(SkillDataKeys.LAST_ACTIVE.get(), container.getServerExecutor().getOriginal().tickCount, container.getServerExecutor().getOriginal());
+			container.getDataManager().setDataSync(SkillDataKeys.LAST_ACTIVE.get(), container.getServerExecutor().getOriginal().tickCount);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class ParryingSkill extends GuardSkill {
 	}
 	
 	@Override
-	public void guard(SkillContainer container, CapabilityItem itemCapability, HurtEvent.Pre event, float knockback, float impact, boolean advanced) {
+	public void guard(SkillContainer container, CapabilityItem itemCapability, TakeDamageEvent.Attack event, float knockback, float impact, boolean advanced) {
 		if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.ADVANCED_GUARD)) {
 			DamageSource damageSource = event.getDamageSource();
 			
@@ -75,7 +75,7 @@ public class ParryingSkill extends GuardSkill {
 				boolean successParrying = serverPlayer.tickCount - container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get()) < PARRY_WINDOW;
 				float penalty = container.getDataManager().getDataValue(SkillDataKeys.PENALTY.get());
 				event.getPlayerPatch().playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
-				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(((ServerLevel)serverPlayer.level()), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, damageSource.getDirectEntity());
+				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverPlayer.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, damageSource.getDirectEntity());
 				
 				if (successParrying) {
 					event.setParried(true);
@@ -86,7 +86,7 @@ public class ParryingSkill extends GuardSkill {
 					container.getDataManager().setData(SkillDataKeys.LAST_ACTIVE.get(), 0);
 				} else {
 					penalty += this.getPenalizer(itemCapability);
-					container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), penalty, serverPlayer);
+					container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), penalty);
 				}
 				
 				if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
@@ -133,7 +133,7 @@ public class ParryingSkill extends GuardSkill {
 		}
 		
 		if (blockType == BlockType.ADVANCED_GUARD) {
-			List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuradMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+			List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
 			
 			if (motions != null) {
 				SkillDataManager dataManager = container.getDataManager();
@@ -169,7 +169,7 @@ public class ParryingSkill extends GuardSkill {
 	}
 	
 	@Override
-	public List<WeaponCategory> getAvailableWeaponCategories() {
-		return List.copyOf(this.advancedGuardMotions.keySet());
+	public Set<WeaponCategory> getAvailableWeaponCategories() {
+		return this.advancedGuardMotions.keySet();
 	}
 }

@@ -1,0 +1,14 @@
+{
+	"xp_requirement": 5,
+	"damage_resistance": 0.15,
+	"max_resistance_stack": 3,
+	"attribute_modifiers": [
+		{
+			"attribute": "minecraft:generic.max_health",
+			"name": "adaptive_skin_skill_stat",
+			"uuid": "e9cd15f0-72cc-474b-bfee-66276d06157d",
+			"operation": "addition",
+			"amount": 6.0
+		}
+	]
+}

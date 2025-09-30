@@ -14,7 +14,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.network.client.CPExecuteSkill;
+import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
@@ -34,7 +34,7 @@ public class DodgeSkill extends Skill {
 	}
 	
 	public static Builder createDodgeBuilder() {
-		return (new Builder()).setCategory(SkillCategories.DODGE).setActivateType(ActivateType.ONE_SHOT).setResource(Resource.STAMINA);
+		return new Builder().setCategory(SkillCategories.DODGE).setActivateType(ActivateType.ONE_SHOT).setResource(Resource.STAMINA);
 	}
 	
 	protected final AnimationAccessor<? extends StaticAnimation>[] animations;
@@ -60,9 +60,9 @@ public class DodgeSkill extends Skill {
 		int vertic = forward + backward;
 		int horizon = left + right;
 		float yRot = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
-		float degree = -(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon) + yRot;
+		float degree = Mth.wrapDegrees(-(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon) + yRot);
 		
-		CPExecuteSkill packet = new CPExecuteSkill(skillContainer.getSlotId());
+		CPSkillRequest packet = new CPSkillRequest(skillContainer.getSlot());
 		packet.getBuffer().writeInt(vertic >= 0 ? 0 : 1);
 		packet.getBuffer().writeFloat(degree);
 		
@@ -88,8 +88,8 @@ public class DodgeSkill extends Skill {
 	}
 	
 	@Override
-	public boolean isExecutableState(PlayerPatch<?> executer) {
-		EntityState playerState = executer.getEntityState();
-		return !(executer.isInAir() || !playerState.canUseSkill()) && !executer.getOriginal().isInWater() && !executer.getOriginal().onClimbable() && executer.getOriginal().getVehicle() == null;
+	public boolean isExecutableState(PlayerPatch<?> executor) {
+		EntityState playerState = executor.getEntityState();
+		return !(executor.isInAir() || !playerState.canUseSkill()) && !executor.getOriginal().isInWater() && !executor.getOriginal().onClimbable() && executor.getOriginal().getVehicle() == null;
 	}
 }

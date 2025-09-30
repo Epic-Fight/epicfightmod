@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -20,6 +19,8 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -37,9 +38,10 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeLivingMotion;
-import yesman.epicfight.network.server.SPEntityPacket;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
@@ -80,17 +82,22 @@ public class EndermanPatch extends MobPatch<EnderMan> {
 	@Override
 	public void onStartTracking(ServerPlayer trackingPlayer) {
 		if (this.isRaging()) {
-			SPEntityPacket packet = new SPEntityPacket(this.original.getId());
+			SPEntityPairingPacket packet = new SPEntityPairingPacket(this.original.getId(), EntityPairingPacketTypes.ENDERMAN_RAGE);
 			EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
 		}
 	}
 	
 	@Override
-	public void processEntityPacket(FriendlyByteBuf buf) {
-		ClientAnimator animator = this.getClientAnimator();
-		animator.addLivingAnimation(LivingMotions.IDLE, Animations.ENDERMAN_RAGE_IDLE);
-		animator.addLivingAnimation(LivingMotions.WALK, Animations.ENDERMAN_RAGE_WALK);
-		animator.setCurrentMotionsAsDefault();
+	@OnlyIn(Dist.CLIENT)
+	public void entityPairing(SPEntityPairingPacket packet) {
+		super.entityPairing(packet);
+		
+		if (packet.getPairingPacketType() == EntityPairingPacketTypes.ENDERMAN_RAGE) {
+			ClientAnimator animator = this.getClientAnimator();
+			animator.addLivingAnimation(LivingMotions.IDLE, Animations.ENDERMAN_RAGE_IDLE);
+			animator.addLivingAnimation(LivingMotions.WALK, Animations.ENDERMAN_RAGE_WALK);
+			animator.setCurrentMotionsAsDefault();
+		}
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {

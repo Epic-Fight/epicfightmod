@@ -55,7 +55,7 @@ public class HitParticleType extends SimpleParticleType {
 	};
 	
 	public static final BiFunction<Entity, Entity, Vector3d> ATTACKER_Y_ROTATION = (target, attacker) -> {
-		return new Vector3d(90.0F, 180.0F - attacker.getYRot(), -1.0D);
+		return new Vector3d(90.0F, attacker.getYRot(), -1.0D);
 	};
 	
 	public BiFunction<Entity, Entity, Vector3d> positionProvider;

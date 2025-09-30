@@ -6,7 +6,6 @@ import java.util.UUID;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -17,14 +16,12 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -47,7 +44,7 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
 		listener.addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
-			if (event.getPlayerPatch().isChargingSkill(this)) {
+			if (event.getPlayerPatch().isHoldingSkill(this)) {
 				LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
 				clientPlayer.setSprinting(false);
 				clientPlayer.sprintTriggerTime = -1;
@@ -93,43 +90,42 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 	}
 	
 	@Override
-	public void startCharging(PlayerPatch<?> caster) {
-		AssetAccessor<? extends StaticAnimation> currentPlaying = caster.getAnimator().getPlayerFor(null).getRealAnimation();
+	public void startHolding(SkillContainer container) {
+		AssetAccessor<? extends StaticAnimation> currentPlaying = container.getExecutor().getAnimator().getPlayerFor(null).getRealAnimation();
 		
 		if (currentPlaying.get().isMainFrameAnimation()) {
-			caster.stopPlaying(currentPlaying);
+			container.getExecutor().stopPlaying(currentPlaying);
 		}
-		
-		caster.playAnimationSynchronized(this.chargingAnimation, 0.0F);
+
+		container.getExecutor().playAnimationSynchronized(this.chargingAnimation, 0.0F);
 	}
 	
 	@Override
-	public void resetCharging(PlayerPatch<?> caster) {
-		if (caster.isLogicalClient()) {
-			caster.getAnimator().stopPlaying(this.chargingAnimation);
+	public void resetHolding(SkillContainer container) {
+		if (container.getExecutor().isLogicalClient()) {
+			container.getExecutor().getAnimator().stopPlaying(this.chargingAnimation);
 		} else {
-			caster.stopPlaying(this.chargingAnimation);
+			container.getExecutor().stopPlaying(this.chargingAnimation);
 		}
 	}
-	
+
 	@Override
-	public void castSkill(ServerPlayerPatch caster, SkillContainer skillContainer, int chargingTicks, SPSkillExecutionFeedback feedbackPacket, boolean onMaxTick) {
-		//skillContainer.getDataManager().setDataSync(SkillDataKeys.CHARGING_POWER.get(), chargingTicks, caster.getOriginal());
-		
-		caster.getAnimator().getVariables().put(SynchedAnimationVariableKeys.CHARGING_TICKS.get(), this.attackAnimation, chargingTicks);
-		caster.playAnimationSynchronized(this.attackAnimation, 0.0F);
-		this.cancelOnServer(skillContainer, null);
+	public void onStopHolding(SkillContainer container, SPSkillExecutionFeedback feedback) {
+		container.getExecutor().getAnimator().getVariables().put(SynchedAnimationVariableKeys.CHARGING_TICKS.get(), this.attackAnimation, container.getExecutor().getAccumulatedChargeAmount());
+		container.getExecutor().playAnimationSynchronized(this.attackAnimation, 0.0F);
+		this.cancelOnServer(container, null);
 	}
-	
+
+	@Override
+	public void holdTick(SkillContainer container) {
+		ChargeableSkill.super.holdTick(container);
+	}
+
 	@Override
 	public KeyMapping getKeyMapping() {
 		return EpicFightKeyMappings.WEAPON_INNATE_SKILL;
 	}
-	
-	@Override
-	public void gatherChargingArguments(LocalPlayerPatch caster, ControlEngine controlEngine, FriendlyByteBuf buffer) {
-	}
-	
+
 	@Override
 	public List<Component> getTooltipOnItem(ItemStack itemStack, CapabilityItem cap, PlayerPatch<?> playerCap) {
 		List<Component> list = super.getTooltipOnItem(itemStack, cap, playerCap);

@@ -2,7 +2,10 @@ package yesman.epicfight.skill;
 
 import java.util.function.Supplier;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
@@ -16,11 +19,15 @@ import yesman.epicfight.skill.identity.MeteorSlamSkill;
 import yesman.epicfight.skill.identity.RevelationSkill;
 import yesman.epicfight.skill.mover.DemolitionLeapSkill;
 import yesman.epicfight.skill.mover.PhantomAscentSkill;
+import yesman.epicfight.skill.passive.AdaptiveSkinSkill;
+import yesman.epicfight.skill.passive.AdrenalineFiendSkill;
+import yesman.epicfight.skill.passive.BonebreakerSkill;
+import yesman.epicfight.skill.passive.VengeanceSkill;
 import yesman.epicfight.skill.weaponinnate.BattojutsuSkill;
 import yesman.epicfight.skill.weaponinnate.BladeRushSkill;
 import yesman.epicfight.skill.weaponinnate.EverlastingAllegiance;
 import yesman.epicfight.skill.weaponinnate.GraspingSpireSkill;
-import yesman.epicfight.skill.weaponinnate.SteelWhirlwindSkill;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 
 public class SkillDataKeys {
 	private static final Supplier<RegistryBuilder<SkillDataKey<?>>> BUILDER = () -> new RegistryBuilder<SkillDataKey<?>>().addCallback(SkillDataKey.getRegistryCallback());
@@ -41,10 +48,13 @@ public class SkillDataKeys {
 	public static final RegistryObject<SkillDataKey<Integer>> PARRY_MOTION_COUNTER = DATA_KEYS.register("parry_motion_counter", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, ParryingSkill.class));
 	public static final RegistryObject<SkillDataKey<Float>> FALL_DISTANCE = DATA_KEYS.register("fall_distance", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.FLOAT, 0.0F, MeteorSlamSkill.class));
 	public static final RegistryObject<SkillDataKey<Boolean>> PROTECT_NEXT_FALL = DATA_KEYS.register("slam_protect_next_fall", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, MeteorSlamSkill.class, DemolitionLeapSkill.class, PhantomAscentSkill.class));
-	public static final RegistryObject<SkillDataKey<Integer>> STACKS = DATA_KEYS.register("stacks", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, RevelationSkill.class));
+	public static final RegistryObject<SkillDataKey<Integer>> STACKS = DATA_KEYS.register("stacks", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, AdaptiveSkinSkill.class, BonebreakerSkill.class, RevelationSkill.class));
 	public static final RegistryObject<SkillDataKey<Boolean>> JUMP_KEY_PRESSED_LAST_TICK = DATA_KEYS.register("jump_key_pressed_last_tick", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, PhantomAscentSkill.class));
 	public static final RegistryObject<SkillDataKey<Integer>> JUMP_COUNT = DATA_KEYS.register("jump_count", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, PhantomAscentSkill.class));
 	public static final RegistryObject<SkillDataKey<Integer>> THROWN_TRIDENT_ENTITY_ID = DATA_KEYS.register("thrown_trident_entity_id", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, -1, EverlastingAllegiance.class));
 	public static final RegistryObject<SkillDataKey<Integer>> LAST_HIT_COUNT = DATA_KEYS.register("last_hit_count", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, GraspingSpireSkill.class));
-	public static final RegistryObject<SkillDataKey<Integer>> CHARGING_POWER = DATA_KEYS.register("charging_power", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, SteelWhirlwindSkill.class));
+	
+	public static final RegistryObject<SkillDataKey<TagKey<DamageType>>> RESISTING_DAMAGE_TYPE = DATA_KEYS.register("resisting_damage_type", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.tagKey(Registries.DAMAGE_TYPE), EpicFightDamageTypeTags.NONE, true, AdaptiveSkinSkill.class));
+	public static final RegistryObject<SkillDataKey<Integer>> TICK_RECORD = DATA_KEYS.register("tick_record", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, AdaptiveSkinSkill.class, AdrenalineFiendSkill.class, VengeanceSkill.class));
+	public static final RegistryObject<SkillDataKey<Integer>> ENTITY_ID = DATA_KEYS.register("entity_id", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, -1, BonebreakerSkill.class, VengeanceSkill.class));
 }

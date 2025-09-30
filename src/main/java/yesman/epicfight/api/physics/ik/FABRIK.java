@@ -29,7 +29,7 @@ public class FABRIK {
 	}
 	
 	public void addChain(Pose pose, Joint startJoint, Joint endJoint) {
-		OpenMatrix4f boundTransform = this.armature.getBindedTransformFor(pose, startJoint);
+		OpenMatrix4f boundTransform = this.armature.getBoundTransformFor(pose, startJoint);
 		Joint.HierarchicalJointAccessor jointAccessor = this.armature.searchPathIndex(startJoint, endJoint.getName());
 		OpenMatrix4f.toTranslationVector(boundTransform, this.startPos);
 		this.addChainRecursively(pose, boundTransform, startJoint, jointAccessor.createAccessTicket(startJoint));

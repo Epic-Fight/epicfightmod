@@ -41,6 +41,7 @@ import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
@@ -50,13 +51,14 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.entity.eventlistener.AttackEndEvent;
+import yesman.epicfight.world.entity.eventlistener.AttackPhaseEndEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class AttackAnimation extends ActionAnimation {
 	/** Entities that collided **/
-	public static final SharedAnimationVariableKey<List<LivingEntity>> HIT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
+	public static final SharedAnimationVariableKey<List<Entity>> ATTACK_TRIED_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
 	/** Entities that actually hurt **/
-	public static final SharedAnimationVariableKey<List<LivingEntity>> HURT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
+	public static final SharedAnimationVariableKey<List<LivingEntity>> ACTUALLY_HIT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
 	
 	public final Phase[] phases;
 	
@@ -171,8 +173,18 @@ public class AttackAnimation extends ActionAnimation {
 	public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
 		super.end(entitypatch, nextAnimation, isEnd);
 		
-		if (entitypatch instanceof ServerPlayerPatch playerpatch && isEnd) {
-			playerpatch.getEventListener().triggerEvents(EventType.ATTACK_ANIMATION_END_EVENT, new AttackEndEvent(playerpatch, this.getAccessor()));
+		if (entitypatch instanceof ServerPlayerPatch playerpatch) {
+			if (isEnd) {
+				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_ANIMATION_END_EVENT, new AttackEndEvent(playerpatch, this.getAccessor()));
+			}
+			
+			AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+			float elapsedTime = player.getElapsedTime();
+			EntityState state = this.getState(entitypatch, elapsedTime);
+			
+			if (!isEnd && state.attacking()) {
+				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), this.getPhaseByTime(elapsedTime), this.getPhaseOrderByTime(elapsedTime)));
+			}
 		}
 		
 		if (entitypatch instanceof HumanoidMobPatch<?> mobpatch && entitypatch.isLogicalClient()) {
@@ -200,6 +212,10 @@ public class AttackAnimation extends ActionAnimation {
 			}
 			
 			this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
+			
+			if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch playerpatch) {
+				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+			}
 		}
 	}
 	
@@ -213,11 +229,11 @@ public class AttackAnimation extends ActionAnimation {
 			HitEntityList hitEntities = new HitEntityList(entitypatch, list, phase.getProperty(AttackPhaseProperty.HIT_PRIORITY).orElse(HitEntityList.Priority.DISTANCE));
 			int maxStrikes = this.getMaxStrikes(entitypatch, phase);
 			
-			while (entitypatch.getCurrenltyHurtEntities().size() < maxStrikes && hitEntities.next()) {
+			while (entitypatch.getCurrentlyActuallyHitEntities().size() < maxStrikes && hitEntities.next()) {
 				Entity target = hitEntities.getEntity();
 				LivingEntity trueEntity = this.getTrueEntity(target);
 				
-				if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target)) {
+				if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrentlyAttackTriedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target)) {
 					if (target instanceof LivingEntity || target instanceof PartEntity) {
 						if (entity.hasLineOfSight(target)) {
 							EpicFightDamageSource damagesource = this.getEpicFightDamageSource(entitypatch, target, phase);
@@ -232,10 +248,10 @@ public class AttackAnimation extends ActionAnimation {
 								this.spawnHitParticle((ServerLevel)target.level(), entitypatch, target, phase);
 							}
 							
-							entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
+							entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
 							
 							if (attackResult.resultType.shouldCount()) {
-								entitypatch.getCurrenltyHurtEntities().add(trueEntity);
+								entitypatch.getCurrentlyActuallyHitEntities().add(trueEntity);
 							}
 						}
 					}
@@ -259,7 +275,9 @@ public class AttackAnimation extends ActionAnimation {
 	}
 	
 	protected int getMaxStrikes(LivingEntityPatch<?> entitypatch, Phase phase) {
-		return phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER).map((valueCorrector) -> valueCorrector.getTotalValue(entitypatch.getMaxStrikes(phase.hand))).orElse(Float.valueOf(entitypatch.getMaxStrikes(phase.hand))).intValue();
+		return phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER)
+					.map(valueModifier -> (int)ValueModifier.calculator().attach(valueModifier).getResult(entitypatch.getMaxStrikes(phase.hand)))
+					.orElse(entitypatch.getMaxStrikes(phase.hand));
 	}
 	
 	protected SoundEvent getSwingSound(LivingEntityPatch<?> entitypatch, Phase phase) {
@@ -279,49 +297,45 @@ public class AttackAnimation extends ActionAnimation {
 			phase = this.getPhaseByTime(entitypatch.getAnimator().getPlayerFor(this.getAccessor()).getElapsedTime());
 		}
 		
-		EpicFightDamageSource extendedSource;
+		EpicFightDamageSource epicfightSource;
 		
 		if (originalSource instanceof EpicFightDamageSource epicfightDamageSource) {
-			extendedSource = epicfightDamageSource;
+			epicfightSource = epicfightDamageSource;
 		} else {
-			extendedSource = EpicFightDamageSources.copy(originalSource).setAnimation(this.getAccessor());
+			epicfightSource = EpicFightDamageSources.fromVanillaDamageSource(originalSource).setAnimation(this.getAccessor());
 		}
 		
-		phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).ifPresent((opt) -> {
-			extendedSource.setDamageModifier(opt);
+		phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).ifPresent(opt -> {
+			epicfightSource.attachDamageModifier(opt);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER).ifPresent((opt) -> {
-			extendedSource.setArmorNegation(opt.getTotalValue(extendedSource.getArmorNegation()));
+		phase.getProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER).ifPresent(opt -> {
+			epicfightSource.attachArmorNegationModifier(opt);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.IMPACT_MODIFIER).ifPresent((opt) -> {
-			extendedSource.setImpact(opt.getTotalValue(extendedSource.getImpact()));
+		phase.getProperty(AttackPhaseProperty.IMPACT_MODIFIER).ifPresent(opt -> {
+			epicfightSource.attachImpactModifier(opt);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.STUN_TYPE).ifPresent((opt) -> {
-			extendedSource.setStunType(opt);
+		phase.getProperty(AttackPhaseProperty.STUN_TYPE).ifPresent(opt -> {
+			epicfightSource.setStunType(opt);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.SOURCE_TAG).ifPresent((opt) -> {
-			opt.forEach(extendedSource::addRuntimeTag);
+		phase.getProperty(AttackPhaseProperty.SOURCE_TAG).ifPresent(opt -> {
+			opt.forEach(epicfightSource::addRuntimeTag);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.EXTRA_DAMAGE).ifPresent((opt) -> {
-			opt.forEach(extendedSource::addExtraDamage);
+		phase.getProperty(AttackPhaseProperty.EXTRA_DAMAGE).ifPresent(opt -> {
+			opt.forEach(epicfightSource::addExtraDamage);
 		});
 		
-		phase.getProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresent((opt) -> {
-			extendedSource.setInitialPosition(opt.apply(entitypatch));
-		});
-		
-		phase.getProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse((opt) -> {
-			extendedSource.setInitialPosition(opt.apply(entitypatch));
+		phase.getProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse(opt -> {
+			epicfightSource.setInitialPosition(opt.apply(entitypatch));
 		}, () -> {
-			extendedSource.setInitialPosition(entitypatch.getOriginal().position());
+			epicfightSource.setInitialPosition(entitypatch.getOriginal().position());
 		});
 		
-		return extendedSource;
+		return epicfightSource;
 	}
 	
 	protected void spawnHitParticle(ServerLevel world, LivingEntityPatch<?> attacker, Entity hit, Phase phase) {
@@ -356,6 +370,16 @@ public class AttackAnimation extends ActionAnimation {
 		return (A)this;
 	}
 	
+	public <A extends AttackAnimation> A removeProperty(AttackPhaseProperty<?> propertyType) {
+		return this.removeProperty(propertyType, 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <A extends AttackAnimation> A removeProperty(AttackPhaseProperty<?> propertyType, int index) {
+		this.phases[index].removeProperty(propertyType);
+		return (A)this;
+	}
+	
 	public Phase getPhaseByTime(float elapsedTime) {
 		Phase currentPhase = null;
 		
@@ -368,6 +392,20 @@ public class AttackAnimation extends ActionAnimation {
 		}
 		
 		return currentPhase;
+	}
+	
+	public int getPhaseOrderByTime(float elapsedTime) {
+		int i = 0;
+		
+		for (Phase phase : this.phases) {
+			if (phase.end > elapsedTime) {
+				break;
+			}
+			
+			i++;
+		}
+		
+		return i;
 	}
 	
 	@Override
@@ -470,6 +508,11 @@ public class AttackAnimation extends ActionAnimation {
 		
 		public <V> Phase addProperty(AttackPhaseProperty<V> propertyType, V value) {
 			this.properties.put(propertyType, value);
+			return this;
+		}
+		
+		public Phase removeProperty(AttackPhaseProperty<?> propertyType) {
+			this.properties.remove(propertyType);
 			return this;
 		}
 		

@@ -49,7 +49,7 @@ public class DragonAirstrikePhase extends PatchedDragonPhase {
 	public void doClientTick() {
 		super.doClientTick();
 		Vec3 dragonpos = this.dragon.position();
-		OpenMatrix4f mouthpos = this.dragonpatch.getArmature().getBindedTransformFor(this.dragonpatch.getAnimator().getPose(1.0F), Armatures.DRAGON.get().upperMouth);
+		OpenMatrix4f mouthpos = this.dragonpatch.getArmature().getBoundTransformFor(this.dragonpatch.getAnimator().getPose(1.0F), Armatures.DRAGON.get().upperMouth);
 		
 		float f = (float)this.dragon.getLatencyPos(7, 1.0F)[0];
 		float f1 = (float)(this.dragon.getLatencyPos(5, 1.0F)[1] - this.dragon.getLatencyPos(10, 1.0F)[1]);

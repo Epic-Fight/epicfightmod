@@ -1,5 +1,7 @@
 package yesman.epicfight.api.animation.types;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -19,7 +21,8 @@ public class DirectStaticAnimation extends StaticAnimation implements AnimationA
 		this.accessor = this;
 	}
 	
-	/* Multilayer Constructor */
+	/* Multilayer, Pov animation Constructor */
+	@ApiStatus.Internal
 	public DirectStaticAnimation(ResourceLocation baseAnimPath, float transitionTime, boolean repeatPlay, String registryName, AssetAccessor<? extends Armature> armature) {
 		super(baseAnimPath, transitionTime, repeatPlay, registryName, armature);
 		

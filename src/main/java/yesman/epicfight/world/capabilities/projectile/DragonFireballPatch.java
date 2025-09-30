@@ -5,6 +5,7 @@ import net.minecraft.world.entity.projectile.DragonFireball;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 public class DragonFireballPatch extends ProjectilePatch<DragonFireball> {
 	@Override
@@ -18,7 +19,6 @@ public class DragonFireballPatch extends ProjectilePatch<DragonFireball> {
 	
 	@Override
 	protected void setMaxStrikes(DragonFireball projectileEntity, int maxStrikes) {
-		
 	}
 	
 	@Override
@@ -32,5 +32,10 @@ public class DragonFireballPatch extends ProjectilePatch<DragonFireball> {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public EpicFightDamageSource createEpicFightDamageSource() {
+		return null;
 	}
 }

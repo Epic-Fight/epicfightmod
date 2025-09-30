@@ -9,8 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.server.SPEntityPacket;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public interface BossPatch<T extends Entity> {
@@ -19,14 +20,14 @@ public interface BossPatch<T extends Entity> {
 	public T getOriginal();
 	
 	default void recordBossEventOwner(ServerPlayer trackingPlayer) {
-		SPEntityPacket packet = new SPEntityPacket(this.getOriginal().getId());
+		SPEntityPairingPacket packet = new SPEntityPairingPacket(this.getOriginal().getId(), EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER);
 		packet.getBuffer().writeBoolean(true);
 		packet.getBuffer().writeUUID(this.getBossEvent().getId());
 		EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
 	}
 	
 	default void removeBossEventOwner(ServerPlayer trackingPlayer) {
-		SPEntityPacket packet = new SPEntityPacket(this.getOriginal().getId());
+		SPEntityPairingPacket packet = new SPEntityPairingPacket(this.getOriginal().getId(), EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER);
 		packet.getBuffer().writeBoolean(false);
 		packet.getBuffer().writeUUID(this.getBossEvent().getId());
 		EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);

@@ -217,7 +217,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 					pose.putJointData(jointName, animationClip.get(jointName).getInterpolatedTransform(kf.time()));
 				}
 				
-				OpenMatrix4f boundPoseMatrix = armature.get().getBindedTransformFor(pose, this.endJoint);
+				OpenMatrix4f boundPoseMatrix = armature.get().getBoundTransformFor(pose, this.endJoint);
 				JointTransform boundJointTransform = JointTransform.fromMatrixWithoutScale(boundPoseMatrix);
 				boundTransformKeyframes[i] = new Keyframe(kf);
 				JointTransform tipTransform = boundTransformKeyframes[i].transform();

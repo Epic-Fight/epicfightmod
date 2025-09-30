@@ -1,13 +1,12 @@
 package yesman.epicfight.client.gui.screen;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -29,9 +28,7 @@ public class SlotSelectScreen extends Screen {
 	public SlotSelectScreen(Set<SkillContainer> containers, SkillBookScreen parent) {
 		super(Component.empty());
 		this.parent = parent;
-		this.containers = new ArrayList<>(containers);
-		
-		Collections.sort(this.containers, (c1, c2) -> {
+		this.containers = containers.stream().sorted((c1, c2) -> {
 			if (c1.getSlotId() > c2.getSlotId()) {
 				return 1;
 			} else if (c1.getSlotId() < c2.getSlotId()) {
@@ -39,7 +36,7 @@ public class SlotSelectScreen extends Screen {
 			}
 			
 			return 0;
-		});
+		}).toList();
 	}
 	
 	@Override
@@ -51,9 +48,13 @@ public class SlotSelectScreen extends Screen {
 		for (SkillContainer container : this.containers) {
 			String slotName = container.getSlot().toString().toLowerCase(Locale.ROOT);
 			String skillName = container.getSkill() == null ? "Empty" : Component.translatable(container.getSkill().getTranslationKey()).getString();
+			
 			SlotButton slotbutton = new SlotButton(k, l, 167, 17, Component.literal(slotName + ": "+ skillName), (button) -> {
-				this.parent.learnSkill(container);
-				this.onClose();
+				this.parent.acquireSkillTo(container);
+				
+				if (Minecraft.getInstance().screen == this) {
+					this.onClose();
+				}
 			});
 			
 			l+=22;

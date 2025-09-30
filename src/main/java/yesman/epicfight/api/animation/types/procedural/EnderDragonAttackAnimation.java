@@ -36,9 +36,8 @@ public class EnderDragonAttackAnimation extends AttackAnimation {
 		if (entitypatch instanceof InverseKinematicsSimulatable ikSimulatable) {
 			Vec3 entitypos = ikSimulatable.toEntity().position();
 			OpenMatrix4f toWorld = OpenMatrix4f.mul(OpenMatrix4f.createTranslation((float)entitypos.x, (float)entitypos.y, (float)entitypos.z), ikSimulatable.getModelMatrix(1.0F), null);
-			//ikSimulatable.resetTipAnimations();
 			
-			this.getProperty(StaticAnimationProperty.BAKED_IK_DEFINITION).ifPresent((ikDefinitions) -> {
+			this.getProperty(StaticAnimationProperty.BAKED_IK_DEFINITION).ifPresent(ikDefinitions -> {
 				for (BakedInverseKinematicsDefinition bakedIKInfo : ikDefinitions) {
 					TransformSheet tipAnim = bakedIKInfo.terminalBoneTransform().getFirstFrame();
 					Keyframe[] keyframes = tipAnim.getKeyframes();

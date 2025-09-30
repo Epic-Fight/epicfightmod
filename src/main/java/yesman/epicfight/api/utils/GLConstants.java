@@ -5,6 +5,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GLConstants {
+	/**
+	 * Extracted the GL constants to avoid direct using of gl classes since it causes issues
+	 */
 	public static final int GL_BYTE = 5120;
 	public static final int GL_SHORT = 5122;
 	public static final int GL_INT = 5124;

@@ -1,8 +1,6 @@
 package yesman.epicfight.world.capabilities.entitypatch.player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -20,25 +18,22 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.forgeevent.InnateSkillChangeEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPAddLearnedSkill;
-import yesman.epicfight.network.server.SPAddOrRemoveSkillData;
 import yesman.epicfight.network.server.SPChangeLivingMotion;
-import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPModifyPlayerData;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.modules.ChargeableSkill;
-import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -46,9 +41,9 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.DodgeSuccessEvent;
-import yesman.epicfight.world.entity.eventlistener.HurtEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 import yesman.epicfight.world.entity.eventlistener.SetTargetEvent;
+import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	private LivingEntity attackTarget;
@@ -59,23 +54,13 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		super.onJoinWorld(player, event);
 		
 		CapabilitySkill skillCapability = this.getSkillCapability();
-		PayloadBundleBuilder payloadBundle = PayloadBundleBuilder.create();
+		PayloadBundleBuilder payloadBundleBuilder = PayloadBundleBuilder.create();
 		
-		for (SkillContainer skill : skillCapability.skillContainers) {
-			if (skill.getSkill() != null && skill.getSkill().getCategory().shouldSynchronize()) {
-				payloadBundle.and(new SPChangeSkill(skill.getSlot(), skill.getSkill().toString(), SPChangeSkill.State.ENABLE));
-			}
-		}
-
-		List<String> learnedSkill = new ArrayList<> ();
-
-		for (SkillCategory category : SkillCategory.ENUM_MANAGER.universalValues()) {
-			if (skillCapability.hasCategory(category)) {
-				learnedSkill.addAll(skillCapability.getLearnedSkills(category).stream().map(Skill::toString).toList());
-			}
-		}
+		skillCapability.listSkillContainers().filter(skillContainer -> !skillContainer.isEmpty() && skillContainer.getSkill().getCategory().shouldSynchronize()).forEach(skillContainer -> {
+			payloadBundleBuilder.and(skillContainer.createSyncPacketToLocalPlayer());
+		});
 		
-		this.eventListeners.addEventListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, PLAYER_EVENT_UUID, (playerevent) -> {
+		this.eventListeners.addEventListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, PLAYER_EVENT_UUID, (playerevent) -> {
 			if (playerevent.getDamageSource().isBasicAttack()) {
 				SkillContainer container = this.getSkill(SkillSlots.WEAPON_INNATE);
 				ItemStack mainHandItem = this.getOriginal().getMainHandItem();
@@ -90,9 +75,10 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			}
 		}, 10);
 		
-		payloadBundle.and(new SPAddLearnedSkill(learnedSkill.toArray(new String[0])));
-		payloadBundle.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
-		payloadBundle.send((start, others) -> {
+		payloadBundleBuilder.and(new SPAddLearnedSkill(skillCapability.listAcquiredSkills().map(skill -> skill.getRegistryName().toString()).toList().toArray(new String[0])));
+		payloadBundleBuilder.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
+		
+		payloadBundleBuilder.send((start, others) -> {
 			EpicFightNetworkManager.sendToPlayer(start, this.original, others);
 		});
 	}
@@ -103,18 +89,15 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		SPChangeLivingMotion msg = new SPChangeLivingMotion(this.getOriginal().getId());
 		msg.putEntries(this.getAnimator().getLivingAnimations().entrySet());
 		
-		for (SkillContainer container : this.getSkillCapability().skillContainers) {
-			for (SkillDataKey<?> key : container.getDataManager().keySet()) {
-				if (key.syncronizeTrackingPlayers()) {
-					payloadBundleBuilder.and(new SPAddOrRemoveSkillData(key, container.getSlot().universalOrdinal(), container.getDataManager().getDataValue(key), SPAddOrRemoveSkillData.AddRemove.ADD, this.original.getId()));
-				}
-			}
-		}
+		payloadBundleBuilder.and(msg);
 		
-		payloadBundleBuilder
-			.and(msg)
-			.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
+		this.getSkillCapability().listSkillContainers().filter(skillContainer -> !skillContainer.isEmpty() && skillContainer.getSkill().getCategory().shouldSynchronize()).forEach(skillContainer -> {
+			payloadBundleBuilder.and(skillContainer.createSyncPacketToRemotePlayer());
+			skillContainer.getDataManager().onTracked(payloadBundleBuilder);
+			skillContainer.getSkill().onTracked(skillContainer, payloadBundleBuilder);
+		});
 		
+		payloadBundleBuilder.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
 		payloadBundleBuilder.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, trackingPlayer, others));
 	}
 	
@@ -130,22 +113,18 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	
 	@Override
 	public void updateHeldItem(CapabilityItem fromCap, CapabilityItem toCap, ItemStack from, ItemStack to, InteractionHand hand) {
-		if (this.isChargingSkill()) {
-			this.getSkillContainerFor(this.chargingSkill.asSkill()).ifPresent((container) -> {
+		if (this.isHoldingAny()) {
+			this.getSkillContainerFor(this.holdingSkill.asSkill()).ifPresent((container) -> {
 				container.getSkill().cancelOnServer(container, null);
 				EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.expired(container.getSlotId()), this.original);
 			});
 			
-			this.resetSkillCharging();
-		}
-
-		if (this.isHoldingSkill())
-		{
 			this.resetHolding();
 		}
 		
 		CapabilityItem mainHandCap = (hand == InteractionHand.MAIN_HAND) ? toCap : this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
 		mainHandCap.changeWeaponInnateSkill(this, (hand == InteractionHand.MAIN_HAND) ? to : this.original.getMainHandItem());
+		MinecraftForge.EVENT_BUS.post(new InnateSkillChangeEvent(this, from, fromCap, to, toCap, hand));
 		
 		if (hand == InteractionHand.OFF_HAND) {
 			if (!from.isEmpty()) {
@@ -232,7 +211,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	}
 	
 	@Override
-	public void sendToAllPlayerTrackingMe(Object packet) {
+	public void sendToAllPlayersTrackingMe(Object packet) {
 		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(packet, this.original);
 	}
 	
@@ -260,20 +239,20 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			return AttackResult.missed(amount); 
 		}
 		
-		HurtEvent.Pre hurtEvent = new HurtEvent.Pre(this, damageSource, amount);
+		TakeDamageEvent.Attack hurtEvent = new TakeDamageEvent.Attack(this, damageSource, amount);
 		
-		if (this.getEventListener().triggerEvents(EventType.HURT_EVENT_PRE, hurtEvent)) {
-			return new AttackResult(hurtEvent.getResult(), hurtEvent.getAmount());
+		if (this.getEventListener().triggerEvents(EventType.TAKE_DAMAGE_EVENT_ATTACK, hurtEvent)) {
+			return new AttackResult(hurtEvent.getResult(), hurtEvent.getDamage());
 		} else {
 			return super.tryHurt(damageSource, amount);
 		}
 	}
 	
 	@Override
-	public void onDodgeSuccess(DamageSource damageSource) {
-		super.onDodgeSuccess(damageSource);
+	public void onDodgeSuccess(DamageSource damageSource, Vec3 location) {
+		super.onDodgeSuccess(damageSource, location);
 
-		DodgeSuccessEvent dodgeSuccessEvent = new DodgeSuccessEvent(this, damageSource);
+		DodgeSuccessEvent dodgeSuccessEvent = new DodgeSuccessEvent(this, damageSource, location);
 		this.getEventListener().triggerEvents(EventType.DODGE_SUCCESS_EVENT, dodgeSuccessEvent);
 	}
 
@@ -318,16 +297,6 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		this.getEventListener().triggerEvents(EventType.SET_TARGET_EVENT, setTargetEvent);
 
 		this.attackTarget = setTargetEvent.getTarget();
-	}
-	
-	@Override
-	public boolean startSkillCharging(ChargeableSkill chargingSkill) {
-		if (super.startSkillCharging(chargingSkill)) {
-			EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.chargingBegin(this.getSkillContainerFor(chargingSkill.asSkill()).get().getSlotId()), this.getOriginal());
-			return true;
-		}
-		
-		return false;
 	}
 
 	@Override

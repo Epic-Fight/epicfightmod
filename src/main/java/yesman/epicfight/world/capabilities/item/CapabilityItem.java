@@ -40,6 +40,8 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPChangeSkill;
+import yesman.epicfight.network.server.SPSetRemotePlayerSkill;
+import yesman.epicfight.network.server.SPSetSkillContainerValue;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.skill.Skill;
@@ -225,41 +227,47 @@ public class CapabilityItem {
 	
 	public void changeWeaponInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
 		Skill weaponInnateSkill = this.getInnateSkill(playerpatch, itemstack);
-		String skillName = "";
-		SPChangeSkill.State state = SPChangeSkill.State.ENABLE;
 		SkillContainer weaponInnateSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_INNATE);
+		PayloadBundleBuilder toLocal = PayloadBundleBuilder.create();
+		PayloadBundleBuilder toRemote = PayloadBundleBuilder.create();
 		
 		if (weaponInnateSkill != null) {
 			if (weaponInnateSkillContainer.getSkill() != weaponInnateSkill) {
 				weaponInnateSkillContainer.setSkill(weaponInnateSkill);
 			}
 			
-			skillName = weaponInnateSkill.toString();
+			toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_INNATE, playerpatch.getOriginal().getId(), weaponInnateSkill));
 		} else {
-			state = SPChangeSkill.State.DISABLE;
+			toLocal.and(SPSetSkillContainerValue.enable(SkillSlots.WEAPON_INNATE, true, playerpatch.getOriginal().getId()));
 		}
 		
 		weaponInnateSkillContainer.setDisabled(weaponInnateSkill == null);
+		toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_INNATE, weaponInnateSkill));
 		
-		PayloadBundleBuilder payloadBundlebuilder = PayloadBundleBuilder.create();
-		payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_INNATE, skillName, state));
-		
-		Skill skill = this.getPassiveSkill();
+		Skill passiveSkill = this.getPassiveSkill();
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
 		
-		if (skill != null) {
-			if (passiveSkillContainer.getSkill() != skill) {
-				passiveSkillContainer.setSkill(skill);
-				payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, skill.toString(), SPChangeSkill.State.ENABLE));
+		if (passiveSkill != null) {
+			if (passiveSkillContainer.getSkill() != passiveSkill) {
+				passiveSkillContainer.setSkill(passiveSkill);
+				toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), passiveSkill));
+				toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_PASSIVE, passiveSkill));
 			}
 		} else {
 			passiveSkillContainer.setSkill(null);
-			payloadBundlebuilder.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, "empty", SPChangeSkill.State.ENABLE));
+			toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), null));
+			toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_PASSIVE, passiveSkill));
 		}
 		
-		payloadBundlebuilder.send((first, others) -> {
+		toLocal.send((first, others) -> {
 			EpicFightNetworkManager.sendToPlayer(first, (ServerPlayer)playerpatch.getOriginal(), others);
 		});
+		
+		toRemote.send((first, others) -> {
+			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(first, (ServerPlayer)playerpatch.getOriginal(), others);
+		});
+		
+		
 	}
 	
 	public SoundEvent getSmashingSound() {
@@ -286,14 +294,10 @@ public class CapabilityItem {
 	}
 	
 	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot equipmentSlot, @Nullable LivingEntityPatch<?> entitypatch) {
-		return this.getAttributeModifiers(equipmentSlot, entitypatch, false);
-    }
-	
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot equipmentSlot, @Nullable LivingEntityPatch<?> entitypatch, boolean oldStyle) {
 		Multimap<Attribute, AttributeModifier> map = HashMultimap.create();
 		
 		if (entitypatch != null) {
-			Map<Attribute, AttributeModifier> modifierMap = this.getDamageAttributesInCondition(oldStyle ? entitypatch.getOldStyle() : this.getStyle(entitypatch));
+			Map<Attribute, AttributeModifier> modifierMap = this.getDamageAttributesInCondition(this.getStyle(entitypatch));
 			
 			if (modifierMap != null) {
 				for (Entry<Attribute, AttributeModifier> entry : modifierMap.entrySet()) {
@@ -355,6 +359,10 @@ public class CapabilityItem {
 	
 	public boolean canHoldInOffhandAlone() {
 		return true;
+	}
+	
+	public float getReach() {
+		return 0.0F;
 	}
 	
 	/**

@@ -8,6 +8,8 @@ public interface Faction extends ExtendableEnum {
 	ExtendableEnumManager<Faction> ENUM_MANAGER = new ExtendableEnumManager<> ("faction");
 	
 	public ResourceLocation healthBarTexture();
+	
 	public int healthBarIndex();
+	
 	public int damageColor();
 }

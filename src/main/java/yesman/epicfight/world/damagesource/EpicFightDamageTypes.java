@@ -6,7 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageType;
 import yesman.epicfight.main.EpicFightMod;
 
-public interface EpicFightDamageTypes {
-	ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shockwave"));
-	ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "wither_beam"));
+public final class EpicFightDamageTypes {
+	private EpicFightDamageTypes() {}
+	
+	public static final ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shockwave"));
+	public static final ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "wither_beam"));
 }

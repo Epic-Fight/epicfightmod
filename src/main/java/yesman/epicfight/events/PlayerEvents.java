@@ -21,6 +21,7 @@ import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.common.AnimatorControlPacket;
 import yesman.epicfight.network.server.SPAbsorption;
 import yesman.epicfight.network.server.SPAnimatorControl;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -84,7 +85,7 @@ public class PlayerEvents {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getOriginal(), ServerPlayerPatch.class).ifPresent(oldCap -> {
 			EpicFightCapabilities.<ServerPlayer, ServerPlayerPatch>getParameterizedEntityPatch(event.getEntity(), ServerPlayer.class, ServerPlayerPatch.class).ifPresent(newCap -> {
 				if ((!event.isWasDeath() || EpicFightGameRules.KEEP_SKILLS.getRuleValue(event.getOriginal().level()))) {
-					newCap.copySkillsFrom(oldCap);
+					newCap.copySkillsFrom(oldCap, event.isWasDeath());
 				}
 				
 				newCap.toMode(oldCap.getPlayerMode(), false);
@@ -99,6 +100,16 @@ public class PlayerEvents {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), ServerPlayerPatch.class).ifPresent(playerpatch -> {
 			playerpatch.getAnimator().resetLivingAnimations();
 			playerpatch.modifyLivingMotionByCurrentItem(true);
+			
+			EpicFightNetworkManager.PayloadBundleBuilder packetBundleBuilder = EpicFightNetworkManager.PayloadBundleBuilder.create();
+			
+			playerpatch.getSkillCapability().listSkillContainers().filter(SkillContainer::hasSkill).forEach(skillContainer -> {
+				skillContainer.getSkill().onTracked(skillContainer, packetBundleBuilder);
+			});
+			
+			packetBundleBuilder.send((start, others) -> {
+				EpicFightNetworkManager.sendToPlayer(start, playerpatch.getOriginal(), others);
+			});
 		});
 	}
 	

@@ -17,7 +17,7 @@ public class CustomPassiveSkill extends CustomSkill {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y) {
+    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(0.0F, (float)gui.getSlidingProgression(), 0.0F);

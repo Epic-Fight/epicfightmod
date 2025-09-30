@@ -66,8 +66,8 @@ public abstract class MeshPart {
 		if (this.renderProperties != null && this.renderProperties.customColor() != null) {
 			COLOR.set(
 				  this.renderProperties.customColor().x
-				, this.renderProperties.customColor().x
-				, this.renderProperties.customColor().x
+				, this.renderProperties.customColor().y
+				, this.renderProperties.customColor().z
 				, a
 			);
 			

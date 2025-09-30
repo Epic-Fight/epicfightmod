@@ -45,7 +45,7 @@ public class EpicFightAttributes {
 	public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, EpicFightMod.MODID);
 	
     public static final RegistryObject<Attribute> MAX_STAMINA = ATTRIBUTES.register("staminar", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".staminar", 15.0D, 0.0D, 1024.0D).setSyncable(true));
-    public static final RegistryObject<Attribute> STAMINA_REGEN = ATTRIBUTES.register("stamina_regen", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".stamina_regen", 1.0D, 0.0D, 1024.0D).setSyncable(true));
+    public static final RegistryObject<Attribute> STAMINA_REGEN = ATTRIBUTES.register("stamina_regen", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".stamina_regen", 1.0D, 0.0D, 30.0D).setSyncable(true));
     public static final RegistryObject<Attribute> STUN_ARMOR = ATTRIBUTES.register("stun_armor", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".stun_armor", 0.0D, 0.0D, 1024.0D).setSyncable(true));
     public static final RegistryObject<Attribute> WEIGHT = ATTRIBUTES.register("weight", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".weight", 0.0D, 0.0D, 1024.0).setSyncable(true));
     public static final RegistryObject<Attribute> MAX_STRIKES = ATTRIBUTES.register("max_strikes", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".max_strikes", 1.0D, 1.0D, 1024.0).setSyncable(true));
@@ -146,22 +146,22 @@ public class EpicFightAttributes {
 	}
     
 	public static AttributeModifier getArmorNegationModifier(double value) {
-		return new AttributeModifier(EpicFightAttributes.ARMOR_NEGATION_MODIFIER, EpicFightMod.MODID + ":weapon_modifier", value, AttributeModifier.Operation.ADDITION);
+		return new AttributeModifier(EpicFightAttributes.ARMOR_NEGATION_MODIFIER, EpicFightMod.prefix("weapon_modifier"), value, AttributeModifier.Operation.ADDITION);
 	}
-
+	
 	public static AttributeModifier getMaxStrikesModifier(int value) {
-		return new AttributeModifier(EpicFightAttributes.MAX_STRIKE_MODIFIER, EpicFightMod.MODID + ":weapon_modifier", value, AttributeModifier.Operation.ADDITION);
+		return new AttributeModifier(EpicFightAttributes.MAX_STRIKE_MODIFIER, EpicFightMod.prefix("weapon_modifier"), value, AttributeModifier.Operation.ADDITION);
 	}
-
+	
 	public static AttributeModifier getImpactModifier(double value) {
-		return new AttributeModifier(EpicFightAttributes.IMPACT_MODIFIER, EpicFightMod.MODID + ":weapon_modifier", value, AttributeModifier.Operation.ADDITION);
+		return new AttributeModifier(EpicFightAttributes.IMPACT_MODIFIER, EpicFightMod.prefix("weapon_modifier"), value, AttributeModifier.Operation.ADDITION);
 	}
-
+	
 	public static AttributeModifier getDamageBonusModifier(double value) {
-		return new AttributeModifier(ATTACK_DAMAGE_MODIFIER, EpicFightMod.MODID + ":weapon_modifier", value, AttributeModifier.Operation.ADDITION);
+		return new AttributeModifier(ATTACK_DAMAGE_MODIFIER, EpicFightMod.prefix("weapon_modifier"), value, AttributeModifier.Operation.ADDITION);
 	}
-
+	
 	public static AttributeModifier getSpeedBonusModifier(double value) {
-		return new AttributeModifier(ATTACK_SPEED_MODIFIER, EpicFightMod.MODID + ":weapon_modifier", value, AttributeModifier.Operation.ADDITION);
+		return new AttributeModifier(ATTACK_SPEED_MODIFIER, EpicFightMod.prefix("weapon_modifier"), value, AttributeModifier.Operation.ADDITION);
 	}
 }

@@ -36,10 +36,13 @@ minecraft {
                 }
             }
     	}
-    	
+
         client {
             workingDirectory project.file('run')
             property 'forge.enabledGameTestNamespaces', mod_id
+            //jvmArgs '-Dorg.lwjgl.opengl.libname=\'C:\\Program Files\\RenderDoc\\renderdoc.dll\''
+            //args '-Dorg.lwjgl.opengl.libname=renderdoc.dll'
+
         }
 
         server {
@@ -111,55 +114,46 @@ mixin {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-	// Required dependencies to build the project
-	// compile against the JEI API but do not include it at runtime
+	/**
+	// Copy and paste dependencies you need at the below
+	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
  	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
-  	// at runtime, use the full JEI jar for Forge
   	runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
 	
-	// The mods we had worked on for compatibility in our side
+	// Azurelib, Azurelib armor, Geckolib compatibility (optional)
     compileOnly fg.deobf("curse.maven:azurelib-817423:5500355")
     compileOnly fg.deobf("curse.maven:azurelib-armor-912767:5500370")
     compileOnly fg.deobf("curse.maven:geckolib-388172:5675221")
-    
+	
+	// Iris, Sodium compatibility, compute shader compat (optional)
     compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
     compileOnly fg.deobf("curse.maven:oculus-581495:5299671")
     
+    // Werewolves, Vampirism compatibility, baking layer model for vampire and visibility fix when transform to the wolf (optional)
     compileOnly fg.deobf("curse.maven:werewolves-become-a-beast-417851:5406832")
     compileOnly fg.deobf("curse.maven:vampirism-become-a-vampire-233029:5743414")
     
+    // Curios compatibility, baking curio models from curio slots (optional)
     compileOnly fg.deobf("curse.maven:curios-309927:6216710")
     
-    compileOnly fg.deobf("curse.maven:citadel-331936:5559513") // ice-and-fire dependency
+    // Ice-and-fire dependency, dragon mount render fix (optional)
+    compileOnly fg.deobf("curse.maven:citadel-331936:5559513")
     compileOnly fg.deobf("curse.maven:ice-and-fire-dragons-264231:5633453")
     
+    // Player animator compatibility, emote fix (optional)
     compileOnly fg.deobf("curse.maven:playeranimator-658587:4587214")
     
-    // The mods had to use local repository
-    compileOnly fg.deobf("local:skinlayers3d:1.6.6")
-    compileOnly fg.deobf("local:firstperson:2.4.3")
-
-    // KubeJS compatibility
-    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
-    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
-    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-    /**
-     * The mods we had worked on for resourcepack or datapack.
-     **/
-    /**
-	compileOnly fg.deobf("curse.maven:curios-309927:6216710") // samurai-dynasty dependency
-	compileOnly fg.deobf("curse.maven:samurai-dynasty-848381:5672395")
-    **/
+    // Skinlayer3d compatibility (optional) (Warn: this mod file will cause crash, as it references obfuscated names)
+    compileOnly fg.deobf("libs:skinlayers3d:1.9.0")
     
-    /**
-     * Curios compatibility with Relics.
-     **/
-     /**
-    implementation fg.deobf("curse.maven:curios-309927:6418456")
-    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
-    implementation fg.deobf("curse.maven:octo-lib-916747:5644693")
-    implementation fg.deobf("local:relics:0.8.0.9")
+    // First-person compatibility (optional) (Warn: this mod file will cause crash, as it references obfuscated names)
+    compileOnly fg.deobf("libs:firstperson:2.5.0")
+    
+    // KubeJS compatibility (optional)
+    compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
+    compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
+    compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
     **/
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

@@ -35,15 +35,9 @@ public class SPModifyPlayerData {
 		return new SPModifyPlayerData(PacketType.SET_GRAPPLE_TARGET, entityId).addData("grapplingTarget", grapplingTarget == null ? -1 : grapplingTarget.getId());
 	}
 	
-	PacketType packetType;
+	private final PacketType packetType;
 	private final int entityId;
 	private final Map<String, Object> data;
-
-	public SPModifyPlayerData() {
-		this.packetType = null;
-		this.entityId = 0;
-		this.data = Maps.newHashMap();
-	}
 	
 	private SPModifyPlayerData(PacketType packetType, int entityId) {
 		this.packetType = packetType;

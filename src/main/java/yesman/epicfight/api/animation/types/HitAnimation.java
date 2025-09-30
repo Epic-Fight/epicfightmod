@@ -52,8 +52,7 @@ public class HitAnimation extends MainFrameAnimation {
 	@Override
 	public void setLinkAnimation(AssetAccessor<? extends DynamicAnimation> fromAnimation, Pose startPose, boolean isOnSameLayer, float transitionTimeModifier, LivingEntityPatch<?> entitypatch, LinkAnimation dest) {
 		dest.resetNextStartTime();
-		
-		dest.getTransfroms().clear();
+		dest.getAnimationClip().reset();
 		dest.setTotalTime(transitionTimeModifier + this.transitionTime);
 		dest.setConnectedAnimations(fromAnimation, this.getAccessor());
 		

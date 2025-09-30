@@ -1,5 +1,7 @@
 package yesman.epicfight.network.common;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.network.server.SPAnimatorControl;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -48,6 +50,37 @@ public class AnimatorControlPacket {
 	}
 	
 	public enum Action {
-		PLAY, PLAY_INSTANTLY, RESERVE, STOP, SHOT, SOFT_PAUSE, HARD_PAUSE
+		PLAY, PLAY_CLIENT, PLAY_INSTANTLY, RESERVE, STOP, SHOT, SOFT_PAUSE, HARD_PAUSE
+	}
+	
+	public enum Layer {
+		ANIMATION, BASE_LAYER, COMPOSITE_LAYER;
+	}
+	
+	public enum Priority {
+		ANIMATION, LOWEST, LOW, MIDDLE, HIGH, HIGHEST;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public static yesman.epicfight.api.client.animation.Layer.Priority getPriority(Priority priority) {
+		switch (priority) {
+		case LOWEST -> {
+			return yesman.epicfight.api.client.animation.Layer.Priority.LOWEST;
+		}
+		case LOW -> {
+			return yesman.epicfight.api.client.animation.Layer.Priority.LOW;
+		}
+		case MIDDLE -> {
+			return yesman.epicfight.api.client.animation.Layer.Priority.MIDDLE;
+		}
+		case HIGH -> {
+			return yesman.epicfight.api.client.animation.Layer.Priority.HIGH;
+		}
+		case HIGHEST-> {
+			return yesman.epicfight.api.client.animation.Layer.Priority.HIGHEST;
+		}
+		}
+		
+		return null;
 	}
 }

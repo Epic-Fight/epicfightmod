@@ -38,9 +38,14 @@ public record TrailInfo(
 	, int interpolateCount
 	, int trailLifetime
 	, int updateInterval
+	, int blockLight
+	, int skyLight
 	, ResourceLocation texturePath
 	, InteractionHand hand
 ) {
+	public static final ResourceLocation GENERIC_TRAIL_TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/swing_trail.png");
+	public static final ResourceLocation SWORDMASTER_SWING_TRAIL_TEX = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/swordmaster_trail.png");
+	
 	public static final TrailInfo PREVIEWER_DEFAULT_TRAIL = TrailInfo.builder()
 			.startPos(new Vec3(0.0D, 0.0D, 0.0D))
 			.endPos(new Vec3(0.0D, 0.0D, -1.0D))
@@ -49,9 +54,30 @@ public record TrailInfo(
 			.r(0.75F)
 			.g(0.75F)
 			.b(0.75F)
-			.texture(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/swing_trail.png"))
+			.texture(GENERIC_TRAIL_TEXTURE)
 			.type(EpicFightParticles.SWING_TRAIL.get())
 			.create();
+	
+	public TrailInfo.Builder unpackAsBuilder() {
+		return new TrailInfo.Builder()
+				.startPos(this.start)
+				.endPos(this.end)
+				.joint(this.joint)
+				.type(this.particle)
+				.time(this.startTime, this.endTime)
+				.fadeTime(this.fadeTime)
+				.r(this.rCol)
+				.g(this.gCol)
+				.b(this.bCol)
+				.interpolations(this.interpolateCount)
+				.lifetime(this.trailLifetime)
+				.updateInterval(this.updateInterval)
+				.blockLight(this.blockLight)
+				.skyLight(this.skyLight)
+				.texture(this.texturePath)
+				.itemSkinHand(this.hand)
+		;
+	}
 	
 	public static final TrailInfo ANIMATION_DEFAULT_TRAIL = TrailInfo.builder()
 			.time(0.1F, 0.2F)
@@ -74,6 +100,8 @@ public record TrailInfo(
 			, builder.interpolateCount
 			, builder.trailLifetime
 			, builder.updateInterval
+			, builder.blockLight
+			, builder.skyLight
 			, builder.texturePath
 			, builder.hand
 		);
@@ -93,6 +121,8 @@ public record TrailInfo(
 		builder.r(!validColor ? this.rCol : trailInfo.rCol);
 		builder.g(!validColor ? this.gCol : trailInfo.gCol);
 		builder.b(!validColor ? this.bCol : trailInfo.bCol);
+		builder.blockLight(Math.max(this.blockLight, trailInfo.blockLight));
+		builder.skyLight(Math.max(this.skyLight, trailInfo.skyLight));
 		builder.interpolations((trailInfo.interpolateCount < 0) ? this.interpolateCount : trailInfo.interpolateCount);
 		builder.lifetime((trailInfo.trailLifetime < 0) ? this.trailLifetime : trailInfo.trailLifetime);
 		builder.texture((trailInfo.texturePath == null) ? this.texturePath : trailInfo.texturePath);
@@ -195,6 +225,16 @@ public record TrailInfo(
 			trailBuilder.itemSkinHand(hand);
 		}
 		
+		if (trailObj.has("block_light")) {
+			int blockLight = trailObj.get("block_light").getAsInt();
+			trailBuilder.blockLight(blockLight);
+		}
+		
+		if (trailObj.has("sky_light")) {
+			int skyLight = trailObj.get("sky_light").getAsInt();
+			trailBuilder.skyLight(skyLight);
+		}
+		
 		return trailBuilder.create();
 	}
 	
@@ -255,6 +295,16 @@ public record TrailInfo(
 			trailBuilder.endPos(new Vec3(endPos.getDouble(0), endPos.getDouble(1), endPos.getDouble(2)));
 		}
 		
+		if (compoundTag.contains("block_light")) {
+			int blockLight = compoundTag.getInt("block_light");
+			trailBuilder.blockLight(blockLight);
+		}
+		
+		if (compoundTag.contains("sky_light")) {
+			int skyLight = compoundTag.getInt("sky_light");
+			trailBuilder.skyLight(skyLight);
+		}
+		
 		if (compoundTag.contains("item_skin_hand")) {
 			String itemSkinHand = compoundTag.getString("item_skin_hand");
 			InteractionHand hand = InteractionHand.valueOf(itemSkinHand.toUpperCase(Locale.ROOT));
@@ -279,6 +329,8 @@ public record TrailInfo(
 		private int interpolateCount = -1;
 		private int trailLifetime = -1;
 		private int updateInterval = 1;
+		private int blockLight;
+		private int skyLight;
 		private ResourceLocation texturePath;
 		private InteractionHand hand = InteractionHand.MAIN_HAND;
 		
@@ -340,6 +392,16 @@ public record TrailInfo(
 		
 		public TrailInfo.Builder updateInterval(int updateInterval) {
 			this.updateInterval = updateInterval;
+			return this;
+		}
+		
+		public TrailInfo.Builder blockLight(int blockLight) {
+			this.blockLight = blockLight;
+			return this;
+		}
+		
+		public TrailInfo.Builder skyLight(int skyLight) {
+			this.skyLight = skyLight;
 			return this;
 		}
 		

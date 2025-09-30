@@ -45,6 +45,7 @@ public class ServerAnimator extends Animator {
 		
 		if (!nextAnimation.get().isMetaAnimation()) {
 			nextAnimation.get().setLinkAnimation(this.animationPlayer.getAnimation(), lastPose, true, transitionTimeModifier, this.entitypatch, this.linkAnimation);
+			this.linkAnimation.getAnimationClip().setBaked();
 			this.linkAnimation.putOnPlayer(this.animationPlayer, this.entitypatch);
 			this.entitypatch.updateEntityState();
 			this.nextAnimation = nextAnimation;
@@ -73,7 +74,7 @@ public class ServerAnimator extends Animator {
 	@Override
 	public boolean stopPlaying(AssetAccessor<? extends StaticAnimation> targetAnimation) {
 		if (this.animationPlayer.getRealAnimation() == targetAnimation) {
-			this.animationPlayer.terminate();
+			this.animationPlayer.terminate(this.entitypatch);
 			return true;
 		}
 		

@@ -1,0 +1,14 @@
+{
+	"xp_requirement": 5,
+	"damage_bonus": 0.1,
+	"max_damage_bonus_stacks": 8,
+	"attribute_modifiers": [
+		{
+			"attribute": "minecraft:generic.attack_speed",
+			"name": "bonebreaker_skill_stat",
+			"uuid": "06212e76-6dbe-4d4b-a875-562829bb6db4",
+			"operation": "multiply_total",
+			"amount": 0.15
+		}
+	]
+}

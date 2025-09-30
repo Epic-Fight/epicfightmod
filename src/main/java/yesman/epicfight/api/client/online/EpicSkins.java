@@ -125,8 +125,7 @@ public record EpicSkins(Supplier<ResourceLocation> cloakTexture, float r, float 
 			, Meshes.CAPE_DEFAULT
 			, ClothSimulator.ClothObjectBuilder.create()
 				.parentJoint(Armatures.BIPED.get().torso)
-				.putAll("default".equals(playerpatch.getOriginal().getModelName())
-							? ClothColliderPresets.BIPED : ClothColliderPresets.BIPED_SLIM)
+				.putAll("default".equals(playerpatch.getOriginal().getModelName()) ? ClothColliderPresets.BIPED : ClothColliderPresets.BIPED_SLIM)
 			, () -> playerpatch.getOriginal().isCapeLoaded() && !playerpatch.getOriginal().isInvisible() && playerpatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE) && playerpatch.getOriginal().getItemBySlot(EquipmentSlot.CHEST).getItem() != Items.ELYTRA
 		);
 		

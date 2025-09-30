@@ -7,10 +7,15 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.network.EntityPairingPacketTypes;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -39,7 +44,7 @@ public class EnduranceSkill extends PassiveSkill {
 		
 		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
-		listener.addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event) -> {
 			if (container.getExecutor().getEntityState().getLevel() == 1 && event.getDamageSource().getEntity() != null && event.getPlayerPatch().consumeForSkill(this, this.resource)) {
 				float staminaConsumption = Math.max(container.getExecutor().getStamina() * this.staminaRatio, 1.5F);
 				
@@ -53,19 +58,32 @@ public class EnduranceSkill extends PassiveSkill {
 	}
 	
 	@Override
+	public void onRemoved(SkillContainer container) {
+		super.onRemoved(container);
+		
+		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+	}
+	
+	@Override
 	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		super.executeOnServer(container, args);
 		
 		float staminaConsume = args.readFloat();
 		container.getExecutor().setMaxStunShield(staminaConsume);
 		container.getExecutor().setStunShield(staminaConsume);
-	}
-	
-	@Override
-	public void onRemoved(SkillContainer container) {
-		super.onRemoved(container);
 		
-		container.getExecutor().getEventListener().removeListener(EventType.HURT_EVENT_PRE, EVENT_UUID);
+		Player player = container.getExecutor().getOriginal();
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), EpicFightSounds.ENDURACNE.get(), player.getSoundSource(), 1.0F, 1.0F);
+		
+		SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(container.getExecutor().getOriginal().getId(), EntityPairingPacketTypes.FLASH_WHITE);
+		
+		// durationTick, maxOverlay, maxBrightness
+		pairingPacket.getBuffer().writeInt(9);
+		pairingPacket.getBuffer().writeInt(15);
+		pairingPacket.getBuffer().writeInt(1);
+		pairingPacket.getBuffer().writeBoolean(true);
+		
+		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, container.getServerExecutor().getOriginal());
 	}
 	
 	@Override

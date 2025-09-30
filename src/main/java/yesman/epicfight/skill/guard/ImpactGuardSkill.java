@@ -1,6 +1,7 @@
 package yesman.epicfight.skill.guard;
 
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -25,9 +26,10 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageSources;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.eventlistener.HurtEvent;
+import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 public class ImpactGuardSkill extends GuardSkill {
 	public static GuardSkill.Builder createEnergizingGuardBuilder() {
@@ -53,26 +55,41 @@ public class ImpactGuardSkill extends GuardSkill {
 	}
 	
 	@Override
-	public void guard(SkillContainer container, CapabilityItem itemCapapbility, HurtEvent.Pre event, float knockback, float impact, boolean advanced) {
+	public void guard(SkillContainer container, CapabilityItem itemCapapbility, TakeDamageEvent.Attack event, float knockback, float impact, boolean advanced) {
 		boolean canUse = this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapapbility, BlockType.ADVANCED_GUARD);
 		
 		if (event.getDamageSource().is(DamageTypeTags.IS_EXPLOSION)) {
-			impact = event.getAmount();
+			impact = event.getDamage();
 		}
 		
 		super.guard(container, itemCapapbility, event, knockback, impact, canUse);
 	}
 	
 	@Override
-	public void dealEvent(PlayerPatch<?> playerpatch, HurtEvent.Pre event, boolean advanced) {
+	public void dealEvent(PlayerPatch<?> playerpatch, TakeDamageEvent.Attack event, boolean advanced) {
 		boolean isSpecialSource = isAdvancedBlockableDamageSource(event.getDamageSource());
-		event.setAmount(isSpecialSource ? event.getAmount() * this.damageReducer * 0.01F : 0.0F);
+		
+		if (isSpecialSource) {
+			EpicFightDamageSource efsource;
+			
+			if (event.getDamageSource() instanceof EpicFightDamageSource epicfightDamagesource) {
+				efsource = epicfightDamagesource;
+			} else {
+				efsource = EpicFightDamageSources.fromVanillaDamageSource(event.getDamageSource());
+			}
+			
+			efsource.addRuntimeTag(EpicFightDamageTypeTags.UNBLOCKALBE);
+			efsource.addRuntimeTag(EpicFightDamageTypeTags.NO_STUN);
+			
+			playerpatch.getOriginal().hurt(efsource, event.getDamage() * this.damageReducer);
+		}
+		
 		event.setResult(isSpecialSource ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.BLOCKED);
+		playerpatch.countHurtTime(event.getDamage());
 		
-		playerpatch.countHurtTime(event.getAmount());
-		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class)
-			.ifPresent(attackerpatch -> attackerpatch.setLastAttackEntity(playerpatch.getOriginal()));
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class).ifPresent(attackerpatch -> {
+			attackerpatch.setLastAttackEntity(playerpatch.getOriginal());
+		});
 		
 		if (event.getDamageSource() instanceof EpicFightDamageSource epicfightDamageSource) {
 			epicfightDamageSource.setStunType(StunType.NONE);
@@ -83,17 +100,18 @@ public class ImpactGuardSkill extends GuardSkill {
 		
 		if (advanced) {
 			LivingEntity original = playerpatch.getOriginal();
-			EpicFightParticles.AIR_BURST.get().spawnParticleWithArgument(((ServerLevel)original.level()), null, null, original, directEntity);
+			EpicFightParticles.AIR_BURST.get().spawnParticleWithArgument(((ServerLevel)original.level()), original, directEntity);
 		}
 		
-		EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(directEntity, LivingEntity.class, LivingEntityPatch.class)
-			.ifPresent(entitypatch -> entitypatch.onAttackBlocked(event.getDamageSource(), playerpatch));
+		EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(directEntity, LivingEntity.class, LivingEntityPatch.class).ifPresent(entitypatch -> {
+			entitypatch.onAttackBlocked(event.getDamageSource(), playerpatch);
+		});
 	}
 	
 	@Override
 	protected boolean isBlockableSource(DamageSource damageSource, boolean advanced) {
 		return !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-				&& !damageSource.is(EpicFightDamageType.PARTIAL_DAMAGE)
+				&& !damageSource.is(EpicFightDamageTypeTags.UNBLOCKALBE)
 				&& (!damageSource.is(DamageTypeTags.BYPASSES_ARMOR)
 					&& !damageSource.is(DamageTypeTags.IS_PROJECTILE)
 					&& !damageSource.is(DamageTypeTags.IS_EXPLOSION)
@@ -128,12 +146,13 @@ public class ImpactGuardSkill extends GuardSkill {
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public List<Object> getTooltipArgsOfScreen(List<Object> list) {
-		list.add(String.format("%.1f", 100.0F - this.damageReducer));
+		list.add(String.format("%.1f", this.damageReducer * 100.0D));
+		
 		return list;
 	}
 	
 	@Override
-	public List<WeaponCategory> getAvailableWeaponCategories() {
-		return List.copyOf(this.advancedGuardMotions.keySet());
+	public Set<WeaponCategory> getAvailableWeaponCategories() {
+		return this.advancedGuardMotions.keySet();
 	}
 }

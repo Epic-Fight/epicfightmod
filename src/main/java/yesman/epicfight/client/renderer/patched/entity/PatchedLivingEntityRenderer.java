@@ -5,6 +5,8 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Vector4f;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.GsonBuilder;
@@ -15,6 +17,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -37,6 +40,7 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.LayerUtil;
@@ -136,7 +140,22 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 			PrepareModelEvent prepareModelEvent = new PrepareModelEvent(this, mesh, entitypatch, buffer, poseStack, packedLight, partialTicks);
 			
 			if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
-				mesh.draw(poseStack, buffer, renderType, packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, this.getOverlayCoord(entity, entitypatch, partialTicks), armature, armature.getPoseMatrices());
+				Vector4f color = new Vector4f(1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F);
+				entitypatch.getEntityDecorations().modifyColor(color, partialTicks);
+				
+				int blockLight = (packedLight & 0xF0) >> 4;
+				int skyLight = (packedLight & 0xF00000) >> 20;
+				Vec2i lightUv = new Vec2i(blockLight, skyLight);
+				entitypatch.getEntityDecorations().modifyLight(lightUv, partialTicks);
+				int modifiedLight = LightTexture.pack(lightUv.x, lightUv.y);
+				mesh.draw(poseStack, buffer, renderType, modifiedLight, color.x(), color.y(), color.z(), color.w(), this.getOverlayCoord(entity, entitypatch, partialTicks), armature, armature.getPoseMatrices());
+				
+				entitypatch.getEntityDecorations().listDecorationOverlays().forEach(decorationOverlay -> {
+					if (!decorationOverlay.shouldRemove() && decorationOverlay.shouldRender()) {
+						Vector4f overlayColor = decorationOverlay.color(partialTicks);
+						mesh.draw(poseStack, buffer, decorationOverlay.getRenderType(), modifiedLight, overlayColor.x(), overlayColor.y(), overlayColor.z(), overlayColor.w(), OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
+					}
+				});
 			}
 		}
 		
@@ -237,7 +256,13 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 	}
 	
 	protected int getOverlayCoord(E entity, T entitypatch, float partialTicks) {
-		return OverlayTexture.pack(0, OverlayTexture.v(entity.hurtTime > 5));
+		int initU = 0;
+		int initV = OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0);
+		
+		Vec2i coord = new Vec2i(initU, initV);
+		entitypatch.getEntityDecorations().modifyOverlay(coord, partialTicks);
+		
+		return OverlayTexture.pack(coord.x, coord.y);
 	}
 	
 	@Override

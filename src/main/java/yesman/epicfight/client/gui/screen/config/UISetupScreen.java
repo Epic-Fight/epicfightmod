@@ -1,6 +1,7 @@
 package yesman.epicfight.client.gui.screen.config;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -29,6 +30,8 @@ public class UISetupScreen extends Screen {
 
 	@Override
 	public void init() {
+		this.renderables.clear();
+		
 		int weaponInnateX = ClientConfig.weaponInnateBaseX.positionGetter.apply(this.width, ClientConfig.weaponInnateX);
 		int weaponInnateY = ClientConfig.weaponInnateBaseY.positionGetter.apply(this.height, ClientConfig.weaponInnateY);
 		
@@ -37,11 +40,11 @@ public class UISetupScreen extends Screen {
 		OptionHandler<HorizontalBasis> weaponInnateBaseXHandler = OptionHandler.of(ClientConfig.weaponInnateBaseX, (val) -> ClientConfig.weaponInnateBaseX = val);
 		OptionHandler<VerticalBasis> weaponInnateBaseYHandler = OptionHandler.of(ClientConfig.weaponInnateBaseY, (val) -> ClientConfig.weaponInnateBaseY = val);
 		
-		//Weapon innate icon
-		this.addRenderableWidget(new UIComponent(weaponInnateX, weaponInnateY, weaponInnateXHandler, weaponInnateYHandler, weaponInnateBaseXHandler, weaponInnateBaseYHandler
-			, 32, 32, 0, 0, 1, 1, 1, 1, 0, 163, 184, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/weapon_innate/sweeping_edge.png")
+		// Weapon innate icon
+		this.addRenderableWidget(new UIComponent(weaponInnateX, weaponInnateY, weaponInnateXHandler, weaponInnateYHandler, weaponInnateBaseXHandler, weaponInnateBaseYHandler,
+			32, 32, 0, 0, 1, 1, 1, 1, 0, 163, 184, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/weapon_innate/sweeping_edge.png")
 		));
-
+		
 		int staminaX = ClientConfig.staminaBarBaseX.positionGetter.apply(this.width, ClientConfig.staminaBarX);
 		int staminaY = ClientConfig.staminaBarBaseY.positionGetter.apply(this.height, ClientConfig.staminaBarY);
 		OptionHandler<Integer> staminaBarXHandler = OptionHandler.of(ClientConfig.staminaBarX, (val) -> ClientConfig.staminaBarX = val);
@@ -49,11 +52,11 @@ public class UISetupScreen extends Screen {
 		OptionHandler<HorizontalBasis> staminaBarBaseXHandler = OptionHandler.of(ClientConfig.staminaBarBaseX, (val) -> ClientConfig.staminaBarBaseX = val);
 		OptionHandler<VerticalBasis> staminaBarBaseYHandler = OptionHandler.of(ClientConfig.staminaBarBaseY, (val) -> ClientConfig.staminaBarBaseY = val);
 		
-		//Stamina bar
-		this.addRenderableWidget(new UIComponent(staminaX, staminaY, staminaBarXHandler, staminaBarYHandler, staminaBarBaseXHandler, staminaBarBaseYHandler
-			, 118, 4, 2, 38, 237, 9, 256, 256, 255, 128, 64, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
+		// Stamina bar
+		this.addRenderableWidget(new UIComponent(staminaX, staminaY, staminaBarXHandler, staminaBarYHandler, staminaBarBaseXHandler, staminaBarBaseYHandler,
+			118, 4, 2, 38, 237, 9, 256, 256, 255, 128, 64, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
 		));
-
+		
 		int chargingBarX = ClientConfig.chargingBarBaseX.positionGetter.apply(this.width, ClientConfig.chargingBarX);
 		int chargingBarY = ClientConfig.chargingBarBaseY.positionGetter.apply(this.height, ClientConfig.chargingBarY);
 		OptionHandler<Integer> chargingBarXHandler = OptionHandler.of(ClientConfig.chargingBarX, (val) -> ClientConfig.chargingBarX = val);
@@ -61,11 +64,11 @@ public class UISetupScreen extends Screen {
 		OptionHandler<HorizontalBasis> chargingBarBaseXHandler = OptionHandler.of(ClientConfig.chargingBarBaseX, (val) -> ClientConfig.chargingBarBaseX = val);
 		OptionHandler<VerticalBasis> chargingBarBaseYHandler = OptionHandler.of(ClientConfig.chargingBarBaseY, (val) -> ClientConfig.chargingBarBaseY = val);
 		
-		//Charging bar
-		this.addRenderableWidget(new UIComponent(chargingBarX, chargingBarY, chargingBarXHandler, chargingBarYHandler, chargingBarBaseXHandler, chargingBarBaseYHandler
-			, 238, 13, 1, 71, 237, 13, 256, 256, 255, 255, 255, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
+		// Charging bar
+		this.addRenderableWidget(new UIComponent(chargingBarX, chargingBarY, chargingBarXHandler, chargingBarYHandler, chargingBarBaseXHandler, chargingBarBaseYHandler,
+			238, 13, 1, 71, 237, 13, 256, 256, 255, 255, 255, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
 		));
-
+		
 		int passiveX = ClientConfig.passiveBaseX.positionGetter.apply(this.width, ClientConfig.passiveX);
 		int passiveY = ClientConfig.passiveBaseY.positionGetter.apply(this.height, ClientConfig.passiveY);
 		OptionHandler<Integer> passiveXHandler = OptionHandler.of(ClientConfig.passiveX, (val) -> ClientConfig.passiveX = val);
@@ -74,10 +77,33 @@ public class UISetupScreen extends Screen {
 		OptionHandler<VerticalBasis> passiveBaseYHandler = OptionHandler.of(ClientConfig.passiveBaseY, (val) -> ClientConfig.passiveBaseY = val);
 		OptionHandler<AlignDirection> passiveAlignDirectionHandler = OptionHandler.of(ClientConfig.passiveAlignDirection, (val) -> ClientConfig.passiveAlignDirection = val);
 		
-		//Passive skill icons
+		// Passive skill icons
 		this.addRenderableWidget(new PassiveUIComponent(passiveX, passiveY, passiveXHandler, passiveYHandler, passiveBaseXHandler, passiveBaseYHandler, passiveAlignDirectionHandler
 			, 24, 24, 0, 0, 1, 1, 1, 1, 255, 255, 255, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/guard/guard.png"), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/passive/berserker.png")
 		));
+		
+		this.addRenderableWidget(
+			Button.builder(Component.literal("⟳"), button -> {
+				ClientConfig.weaponInnateX = ClientConfig.WEAPON_INNATE_X.getDefault();
+				ClientConfig.weaponInnateY = ClientConfig.WEAPON_INNATE_Y.getDefault();
+				ClientConfig.weaponInnateBaseX = ClientConfig.WEAPON_INNATE_BASE_X.getDefault();
+				ClientConfig.weaponInnateBaseY = ClientConfig.WEAPON_INNATE_BASE_Y.getDefault();
+				ClientConfig.staminaBarX = ClientConfig.STAMINA_BAR_X.getDefault();
+				ClientConfig.staminaBarY = ClientConfig.STAMINA_BAR_Y.getDefault();
+				ClientConfig.staminaBarBaseX = ClientConfig.STAMINA_BAR_BASE_X.getDefault();
+				ClientConfig.staminaBarBaseY = ClientConfig.STAMINA_BAR_BASE_Y.getDefault();
+				ClientConfig.chargingBarX = ClientConfig.CHARGING_BAR_X.getDefault();
+				ClientConfig.chargingBarY = ClientConfig.CHARGING_BAR_Y.getDefault();
+				ClientConfig.chargingBarBaseX = ClientConfig.CHARGING_BAR_BASE_X.getDefault();
+				ClientConfig.chargingBarBaseY = ClientConfig.CHARGING_BAR_BASE_Y.getDefault();
+				ClientConfig.passiveX = ClientConfig.PASSIVE_X.getDefault();
+				ClientConfig.passiveY = ClientConfig.PASSIVE_Y.getDefault();
+				ClientConfig.passiveBaseX = ClientConfig.PASSIVE_BASE_X.getDefault();
+				ClientConfig.passiveBaseY = ClientConfig.PASSIVE_BASE_Y.getDefault();
+				ClientConfig.passiveAlignDirection = ClientConfig.PASSIVE_ALIGN_DIRECTION.getDefault();
+				this.init();
+			}).bounds(this.width-14, 0, 14, 14).build()
+		);
 	}
 
 	@Override

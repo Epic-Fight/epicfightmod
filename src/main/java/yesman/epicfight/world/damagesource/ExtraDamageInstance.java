@@ -5,21 +5,39 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.enchantment.Enchantments;
 
 public class ExtraDamageInstance {
-	public static final ExtraDamage TARGET_LOST_HEALTH = new ExtraDamage((attacker, itemstack, target, baseDamage, params) -> {
-			return (target.getMaxHealth() - target.getHealth()) * params[0];
-		}, (itemstack, tooltips, baseDamage, params) -> {
-			tooltips.append(Component.translatable("damage_source.epicfight.target_lost_health", Component.literal(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(params[0] * 100F) + "%").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.DARK_GRAY));
+	@SuppressWarnings("deprecation")
+	public static final ExtraDamage EVISCERATE_LOST_HEALTH = new ExtraDamage(
+		(attacker, itemstack, target, baseDamage, params) -> {
+			int tier = 0;
+			
+			if (itemstack.getItem() instanceof TieredItem tieredItem) {
+				tier += tieredItem.getTier().getLevel();
+			}
+		
+			return (target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier);
+		},
+		(itemstack, tooltips, baseDamage, params) -> {
+			int tier = 0;
+			
+			if (itemstack.getItem() instanceof TieredItem tieredItem) {
+				tier += tieredItem.getTier().getLevel();
+			}
+			
+			tooltips.append(Component.translatable("damage_source.epicfight.target_lost_health", Component.literal(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format((params[0] + tier * 0.05F) * 100F) + "%").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.DARK_GRAY));
 		});
 	
-	public static final ExtraDamage SWEEPING_EDGE_ENCHANTMENT = new ExtraDamage((attacker, itemstack, target, baseDamage, params) -> {
+	public static final ExtraDamage SWEEPING_EDGE_ENCHANTMENT = new ExtraDamage(
+		(attacker, itemstack, target, baseDamage, params) -> {
 			int i = itemstack.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
 			float modifier = (i > 0) ? (float)i / (i + 1.0F) : 0.0F;
 			
 			return baseDamage * modifier;
-		}, (itemstack, tooltips, baseDamage, params) -> {
+		},
+		(itemstack, tooltips, baseDamage, params) -> {
 			int i = itemstack.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
 			
 			if (i > 0) {

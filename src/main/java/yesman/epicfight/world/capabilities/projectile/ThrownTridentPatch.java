@@ -2,21 +2,24 @@ package yesman.epicfight.world.capabilities.projectile;
 
 import java.util.List;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.server.SPEntityPacket;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
@@ -26,7 +29,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -44,7 +47,7 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 	@Override
 	public void onStartTracking(ServerPlayer trackingPlayer) {
 		if (this.innateActivated) {
-			SPEntityPacket packet = new SPEntityPacket(this.original.getId());
+			SPEntityPairingPacket packet = new SPEntityPairingPacket(this.original.getId(), EntityPairingPacketTypes.TRIDENT_THROWN);
 			packet.getBuffer().writeInt(this.returnTick);
 			packet.getBuffer().writeInt(this.original.tickCount);
 			
@@ -53,10 +56,15 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 	}
 	
 	@Override
-	public void processEntityPacket(FriendlyByteBuf buf) {
-		this.innateActivated = true;
-		this.returnTick = buf.readInt();
-		this.original.tickCount = buf.readInt();
+	@OnlyIn(Dist.CLIENT)
+	public void entityPairing(SPEntityPairingPacket packet) {
+		super.entityPairing(packet);
+		
+		if (packet.getPairingPacketType() == EntityPairingPacketTypes.TRIDENT_THROWN) {
+			this.innateActivated = true;
+			this.returnTick = packet.getBuffer().readInt();
+			this.original.tickCount = packet.getBuffer().readInt();
+		}
 	}
 	
 	@Override
@@ -73,7 +81,7 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 				SkillContainer container = playerpatch.getSkill(SkillSlots.WEAPON_INNATE);
 				
 				if (container.getSkill() instanceof EverlastingAllegiance) {
-					EverlastingAllegiance.setThrownTridentEntityId(playerpatch.getOriginal(), container, projectileEntity.getId());
+					EverlastingAllegiance.setThrownTridentEntityId(container, projectileEntity.getId());
 				}
 			});
 			
@@ -89,7 +97,7 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 					
 					if (container.getSkill() instanceof EverlastingAllegiance) {
 						if (EverlastingAllegiance.getThrownTridentEntityId(container) > -1) {
-							EverlastingAllegiance.setThrownTridentEntityId(playerpatch.getOriginal(), container, -1);
+							EverlastingAllegiance.setThrownTridentEntityId(container, -1);
 						}
 					}
 				});
@@ -97,14 +105,14 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 			
 			if (this.innateActivated) {
 				List<Entity> entities = this.original.level().getEntities(this.original, this.original.getBoundingBox().inflate(1.0D, 1.0D, 1.0D));
-
-				EpicFightDamageSources damageSources = EpicFightDamageSources.of(this.original.level());
-				EpicFightDamageSource source = damageSources.trident(this.original.getOwner(), this.original)
+				EpicFightDamageSource source =
+					EpicFightDamageSources
+						.trident(this.original.getOwner(), this.original)
 						.setStunType(StunType.HOLD)
-						.addRuntimeTag(EpicFightDamageType.WEAPON_INNATE)
+						.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE)
 						.addExtraDamage(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create())
-						.setDamageModifier(ValueModifier.multiplier(1.4F))
-						.setArmorNegation(30.0F);
+						.setBaseArmorNegation(30.0F)
+						.attachDamageModifier(ValueModifier.multiplier(1.4F));
 				
 				for (Entity entity : entities) {
 					if (entity.is(this.original.getOwner())) {
@@ -118,8 +126,7 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 						
 						if (entity.hurt(source, f)) {
 							entity.playSound(EpicFightSounds.BLADE_HIT.get(), 1.0F, 1.0F);
-							((ServerLevel)entity.level()).sendParticles(EpicFightParticles.HIT_BLADE.get()
-									, entity.position().x, entity.position().y + entity.getBbHeight() * 0.5D, entity.position().z, 0, 0, 0, 0, 1.0D);
+							((ServerLevel)entity.level()).sendParticles(EpicFightParticles.HIT_BLADE.get(), entity.position().x, entity.position().y + entity.getBbHeight() * 0.5D, entity.position().z, 0, 0, 0, 0, 1.0D);
 						}
 					}
 				}
@@ -169,5 +176,15 @@ public class ThrownTridentPatch extends ProjectilePatch<ThrownTrident> {
 		this.independentXRot = this.original.getXRot();
 		this.returnTick = this.original.tickCount;
 		this.initialFirePosition = this.original.position();
+	}
+
+	@Override
+	public EpicFightDamageSource createEpicFightDamageSource() {
+		return EpicFightDamageSources.trident(this.original, this.original.getOwner())
+				.setStunType(StunType.SHORT)
+				.addRuntimeTag(DamageTypeTags.IS_PROJECTILE)
+				.setBaseArmorNegation(this.armorNegation)
+				.setBaseImpact(this.impact)
+				.setInitialPosition(this.initialFirePosition);
 	}
 }

@@ -20,6 +20,7 @@ build
 # other
 eclipse
 run
+run-data
 epicskins
 ServerCommunicationHelper
 

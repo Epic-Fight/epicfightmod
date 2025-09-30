@@ -132,12 +132,12 @@ public class CustomSkill extends Skill {
     }
 
     @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y) {
+    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
         if (drawOnGui != null) {
             DrawOnGuiContext context = new DrawOnGuiContext(gui, container, guiGraphics, x, y);
             CallbackUtils.safeCallback(drawOnGui, context, "Error while drawing HUD for skill: " + getRegistryName());
         }
-        super.drawOnGui(gui, container, guiGraphics, x, y);
+        super.drawOnGui(gui, container, guiGraphics, x, y, partialTick);
     }
 
     @Override

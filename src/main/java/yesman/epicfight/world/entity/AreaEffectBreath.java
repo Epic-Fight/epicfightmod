@@ -15,7 +15,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
@@ -71,8 +70,7 @@ public class AreaEffectBreath extends AreaEffectCloud {
 						continue;
 					}
 					
-					EpicFightDamageSources damageSources = EpicFightDamageSources.of(livingentity.level());
-					EpicFightDamageSource damageSource = damageSources.enderDragonBreath(this.getOwner(), this).setAnimation(Animations.EMPTY_ANIMATION).setStunType(StunType.SHORT);
+					EpicFightDamageSource damageSource = EpicFightDamageSources.enderDragonBreath(this.getOwner(), this).setStunType(StunType.SHORT);
 					
 					if (livingentity.isInvulnerableTo(damageSource)) {
 						continue;
@@ -88,7 +86,8 @@ public class AreaEffectBreath extends AreaEffectCloud {
 							livingentity.invulnerableTime = 0;
 							
 							damageSource.setInitialPosition(this.initialFirePosition);
-							damageSource.setImpact(2.0F);
+							damageSource.setBaseImpact(2.0F);
+							
 							livingentity.hurt(damageSource, 3.0F);
 						}
 					}

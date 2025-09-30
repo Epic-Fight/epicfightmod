@@ -1,0 +1,21 @@
+{
+	"xp_requirement": 5,
+	"max_duration": 200,
+	"damage_bonus": 0.3,
+	"attribute_modifiers": [
+		{
+			"attribute": "minecraft:generic.max_health",
+			"name": "vengeance_skill_stat",
+			"uuid": "bcb1f110-c987-412e-9e40-5831c62eba2e",
+			"operation": "addition",
+			"amount": 3.0
+		},
+		{
+			"attribute": "minecraft:generic.attack_damage",
+			"name": "vengeance_skill_stat",
+			"uuid": "bcb1f110-c987-412e-9e40-5831c62eba2e",
+			"operation": "multiply_total",
+			"amount": 0.075
+		}
+	]
+}

@@ -3,7 +3,7 @@ package yesman.epicfight.world.entity.eventlistener;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class TargetIndicatorCheckEvent extends PlayerEvent<LocalPlayerPatch> {
+public class TargetIndicatorCheckEvent extends AbstractPlayerEvent<LocalPlayerPatch> {
 	private final LivingEntityPatch<?> target;
 	
 	public TargetIndicatorCheckEvent(LocalPlayerPatch playerpatch, LivingEntityPatch<?> target) {

@@ -107,6 +107,7 @@ public class Layer {
 		}
 		
 		nextAnimation.get().setLinkAnimation(fromAnimation, lastPose, !this.animationPlayer.isEmpty(), transitionTimeModifier, entitypatch, this.linkAnimation);
+		this.linkAnimation.getAnimationClip().setBaked();
 	}
 	
 	public void update(LivingEntityPatch<?> entitypatch) {

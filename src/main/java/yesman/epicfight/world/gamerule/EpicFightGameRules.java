@@ -52,7 +52,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> CAN_SWITCH_PLAYER_MODE = create(
 			  "canSwitchPlayerMode"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.define("default_gamerule.canSwitchPlayerMode", false)
+			, (configBuilder) -> configBuilder.define("default_gamerule.canSwitchPlayerMode", true)
 			, RuleType.BOOLEAN
 			, true
 	);

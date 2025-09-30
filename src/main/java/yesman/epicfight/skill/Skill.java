@@ -1,13 +1,12 @@
 package yesman.epicfight.skill;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +15,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -26,15 +26,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPExecuteSkill;
-import yesman.epicfight.network.server.SPSetSkillValue;
-import yesman.epicfight.network.server.SPSetSkillValue.Target;
+import yesman.epicfight.network.client.CPSkillRequest;
+import yesman.epicfight.network.server.SPSetSkillContainerValue;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.modules.HoldableSkill;
@@ -44,6 +42,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 import yesman.epicfight.world.entity.eventlistener.SkillCancelEvent;
+import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
 public abstract class Skill {
 	public static SkillBuilder<Skill> createBuilder() {
@@ -58,7 +57,7 @@ public abstract class Skill {
 		return (new SkillBuilder<> ()).setCategory(SkillCategories.MOVER).setResource(Resource.STAMINA);
 	}
 	
-	private final Map<Attribute, AttributeModifier> attributes = Maps.newHashMap();
+	private final Map<Attribute, AttributeModifier> attributes = new HashMap<> ();
 	protected final ResourceLocation registryName;
 	protected final SkillCategory category;
 	protected final CreativeModeTab creativeTab;
@@ -115,14 +114,13 @@ public abstract class Skill {
 	 * Check the resource & other restrictions to execute the skill
 	 */
 	public boolean canExecute(SkillContainer container) {
-		return checkExecuteCondition(container);
+		return this.checkExecuteCondition(container);
 	}
 	
 	/**
 	 * This makes the skill icon white in Gui if it returns false
 	 */
 	public boolean checkExecuteCondition(SkillContainer container) {
-
 		return true;
 	}
 	
@@ -139,43 +137,33 @@ public abstract class Skill {
 	 */
 	@OnlyIn(Dist.CLIENT)
 	public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
-		return new CPExecuteSkill(container.getSlotId(), CPExecuteSkill.WorkType.ACTIVATE, args);
+		return new CPSkillRequest(container.getSlot(), CPSkillRequest.WorkType.CAST, args);
 	}
-
-	@OnlyIn(Dist.CLIENT)
-	@Deprecated(forRemoval = true)
-	public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controlEngine) {
-		return null;
-	}
-
+	
 	@OnlyIn(Dist.CLIENT)
 	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
 		return null;
 	}
-
-
+	
 	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
 		ServerPlayerPatch executor = container.getServerExecutor();
-
 		
-		if (executor.isChargingSkill()) {
-			if (this instanceof ChargeableSkill chargingSkill) {
+		if (executor.isHoldingAny()) {
+			if (executor.getHoldingSkill() instanceof ChargeableSkill) {
 				feedbackPacket.getBuffer().writeInt(executor.getAccumulatedChargeAmount());
-				chargingSkill.castSkill(executor, container, executor.getAccumulatedChargeAmount(), feedbackPacket, false);
-				executor.resetSkillCharging();
-				EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 			}
+			
+			if (executor.getHoldingSkill() == this) {
+				executor.getHoldingSkill().onStopHolding(container, feedbackPacket);
+			}
+			
+			executor.resetHolding();
 		} else {
-			if (executor.isHoldingSkill())
-			{
-				if (this instanceof HoldableSkill holdableSkill) {
-					holdableSkill.onStopHolding(container, args);
-					executor.resetHolding();
-				}
-			}
-			EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
+			container.activate();
 		}
+		
+		EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 	}
 	
 	public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
@@ -186,8 +174,7 @@ public abstract class Skill {
 	}
 	
 	public final float getDefaultConsumptionAmount(PlayerPatch<?> executor) {
-        return switch (this.resource)
-        {
+        return switch (this.resource) {
             case STAMINA -> executor.getModifiedStaminaConsume(this.consumption);
             case WEAPON_CHARGE, COOLDOWN -> 1;
             default -> 0.0F;
@@ -215,6 +202,9 @@ public abstract class Skill {
 		executor.getEventListener().triggerEvents(EventType.SKILL_CANCEL_EVENT, skillCancelEvent);
 	}
 	
+	public void onTracked(SkillContainer container, EpicFightNetworkManager.PayloadBundleBuilder payloadBuilder) {
+	}
+	
 	public void onInitiate(SkillContainer container) {
 		container.maxDuration = this.maxDuration;
 		
@@ -225,6 +215,23 @@ public abstract class Skill {
 				attr.addTransientModifier(stat.getValue());
 			}
 		}
+	}
+	
+	/**
+	 * A method that initiates skill for local and remote players.
+	 * It's ok to use onInitiate method above when you have to synchronize to the local player only. Use this method when you need your skill to be synchronized to all remote players
+	 * @param container
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public void onInitiateClient(SkillContainer container) {
+	}
+	
+	/**
+	 * Remove all events from onInitiateClient
+	 * @param container
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public void onRemoveClient(SkillContainer container) {
 	}
 	
 	/**
@@ -249,7 +256,7 @@ public abstract class Skill {
 	}
 	
 	public void setConsumption(SkillContainer container, float value) {
-		container.resource = Math.min(Math.max(value, 0), container.getMaxResource());
+		container.resource = Mth.clamp(value, 0, container.getMaxResource());
 		
 		if (value >= container.getMaxResource()) {
 			if (container.stack < this.maxStackSize) {
@@ -286,14 +293,14 @@ public abstract class Skill {
 				if (container.stack <= 0 && !container.getExecutor().getOriginal().isCreative()) {
 					isEnd = true;
 				}
-			} else {
+			} else if (this.activateType != ActivateType.HELD) {
 				if (container.duration <= 0) {
 					isEnd = true;
 				}
 			}
 			
 			if (isEnd) {
-				if (!container.getExecutor().isLogicalClient() && this.activateType != ActivateType.CHARGING) {
+				if (!container.getExecutor().isLogicalClient() && this.activateType != ActivateType.HELD) {
 					this.cancelOnServer(container, null);
 				}
 				
@@ -301,29 +308,18 @@ public abstract class Skill {
 			}
 		}
 
-		if (this.activateType == ActivateType.HELD && container.getExecutor().getHoldableSkill() == this)
-		{
-			HoldableSkill holdableSkill = (HoldableSkill) this;
+		if (this.activateType == ActivateType.HELD && container.getExecutor().getHoldingSkill() == this) {
+			HoldableSkill holdableSkill = (HoldableSkill)this;
 			holdableSkill.holdTick(container);
 
-			if (!container.getExecutor().isLogicalClient())
-			{
-				container.getExecutor().resetActionTick();
-			}
-		}
-		
-		if (this.activateType == Skill.ActivateType.CHARGING && container.getExecutor().getChargingSkill() == this) {
-			ChargeableSkill chargingSkill = (ChargeableSkill)this;
-			chargingSkill.chargingTick(container.getExecutor());
-			
 			if (!container.getExecutor().isLogicalClient()) {
 				container.getExecutor().resetActionTick();
-				
-				if (container.getExecutor().getSkillChargingTicks(1.0F) > chargingSkill.getAllowedMaxChargingTicks()) {
+
+				if (this instanceof ChargeableSkill chargingSkill && container.getExecutor().getSkillChargingTicks(1.0F) > chargingSkill.getAllowedMaxChargingTicks()) {
 					SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
 					feedbackPacket.getBuffer().writeInt(container.getExecutor().getAccumulatedChargeAmount());
-					chargingSkill.castSkill(container.getServerExecutor(), container, container.getExecutor().getAccumulatedChargeAmount(), feedbackPacket, true);
-					container.getExecutor().resetSkillCharging();
+					chargingSkill.onStopHolding(container, feedbackPacket);
+					container.getExecutor().resetHolding();
 					EpicFightNetworkManager.sendToPlayer(feedbackPacket, container.getServerExecutor().getOriginal());
 				}
 			}
@@ -371,33 +367,30 @@ public abstract class Skill {
 		}
 	}
 	
-	public static void setSkillConsumptionSynchronize(SkillContainer skillContainer, float amount) {
-		skillContainer.setResource(amount);
-		EpicFightNetworkManager.sendToPlayer(new SPSetSkillValue(Target.RESOURCE, skillContainer.getSlotId(), amount, false), skillContainer.getServerExecutor().getOriginal());
+	public static void setSkillConsumptionSynchronize(SkillContainer skillContainer, float fVal) {
+		skillContainer.setResource(fVal);
+		EpicFightNetworkManager.sendToPlayer(SPSetSkillContainerValue.resource(skillContainer.getSlot(), fVal, skillContainer.getExecutor().getOriginal().getId()), skillContainer.getServerExecutor().getOriginal());
 	}
 	
-	public static void setSkillDurationSynchronize(SkillContainer skillContainer, int amount) {
-		skillContainer.setDuration(amount);
-		EpicFightNetworkManager.sendToPlayer(new SPSetSkillValue(Target.DURATION, skillContainer.getSlotId(), amount, false), skillContainer.getServerExecutor().getOriginal());
+	public static void setSkillDurationSynchronize(SkillContainer skillContainer, int iVal) {
+		skillContainer.setDuration(iVal);
+		EpicFightNetworkManager.sendToPlayer(SPSetSkillContainerValue.duration(skillContainer.getSlot(), iVal, skillContainer.getExecutor().getOriginal().getId()), skillContainer.getServerExecutor().getOriginal());
 	}
 	
-	public static void setSkillMaxDurationSynchronize(SkillContainer skillContainer, int amount) {
-		skillContainer.setMaxDuration(amount);
-		EpicFightNetworkManager.sendToPlayer(new SPSetSkillValue(Target.MAX_DURATION, skillContainer.getSlotId(), amount, false), skillContainer.getServerExecutor().getOriginal());
+	public static void setSkillMaxDurationSynchronize(SkillContainer skillContainer, int iVal) {
+		skillContainer.setMaxDuration(iVal);
+		EpicFightNetworkManager.sendToPlayer(SPSetSkillContainerValue.maxDuration(skillContainer.getSlot(), iVal, skillContainer.getExecutor().getOriginal().getId()), skillContainer.getServerExecutor().getOriginal());
 	}
 	
-	public static void setSkillStackSynchronize(SkillContainer skillContainer, int amount) {
-		skillContainer.setStack(amount);
-		EpicFightNetworkManager.sendToPlayer(new SPSetSkillValue(Target.STACK, skillContainer.getSlotId(), amount, false), skillContainer.getServerExecutor().getOriginal());
+	public static void setSkillStackSynchronize(SkillContainer skillContainer, int iVal) {
+		skillContainer.setStack(iVal);
+		EpicFightNetworkManager.sendToPlayer(SPSetSkillContainerValue.stacks(skillContainer.getSlot(), iVal, skillContainer.getExecutor().getOriginal().getId()), skillContainer.getServerExecutor().getOriginal());
 	}
 	
-	public static void setSkillMaxResourceSynchronize(SkillContainer skillContainer, float amount) {
-		skillContainer.setMaxResource(amount);
-		EpicFightNetworkManager.sendToPlayer(new SPSetSkillValue(Target.MAX_RESOURCE, skillContainer.getSlotId(), amount, false), skillContainer.getServerExecutor().getOriginal());
+	public static void setSkillMaxResourceSynchronize(SkillContainer skillContainer, float fVal) {
+		skillContainer.setMaxResource(fVal);
+		EpicFightNetworkManager.sendToPlayer(SPSetSkillContainerValue.maxResource(skillContainer.getSlot(), fVal, skillContainer.getExecutor().getOriginal().getId()), skillContainer.getServerExecutor().getOriginal());
 	}
-	/**
-	 * Make sure this method is called in a server side.
-	 */
 	
 	public ResourceLocation getRegistryName() {
 		return this.registryName;
@@ -407,7 +400,7 @@ public abstract class Skill {
 		return String.format("skill.%s.%s", this.getRegistryName().getNamespace(), this.getRegistryName().getPath());
 	}
 	
-	public float getCooldownRegenPerSecond(PlayerPatch<?> player) {
+	public float getCooldownRegenPerSecond(PlayerPatch<?> playerpatch) {
 		return 1.0F;
 	}
 	
@@ -439,12 +432,12 @@ public abstract class Skill {
 		return this.attributes.entrySet();
 	}
 	
-	public boolean resourcePredicate(PlayerPatch<?> playerpatch) {
-		return playerpatch.consumeForSkill(this, this.resource);
+	public boolean resourcePredicate(PlayerPatch<?> playerpatch, SkillCastEvent event) {
+		return playerpatch.consumeForSkill(this, this.resource, event.getArguments());
 	}
 	
-	public boolean shouldDeactivateAutomatically(PlayerPatch<?> executer) {
-		return !executer.getOriginal().isCreative();
+	public boolean shouldDeactivateAutomatically(PlayerPatch<?> executor) {
+		return !executor.getOriginal().isCreative();
 	}
 	
 	public ActivateType getActivateType() {
@@ -465,7 +458,6 @@ public abstract class Skill {
 	
 	@OnlyIn(Dist.CLIENT)
 	public void onScreen(LocalPlayerPatch playerpatch, float resolutionX, float resolutionY) {
-		
 	}
 	
 	/**
@@ -474,7 +466,7 @@ public abstract class Skill {
 	 */
 	@OnlyIn(Dist.CLIENT)
 	public List<Component> getTooltipOnItem(ItemStack itemStack, CapabilityItem cap, PlayerPatch<?> playerpatch) {
-		return Lists.newArrayList();
+		return new ArrayList<> ();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -483,7 +475,7 @@ public abstract class Skill {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y) {
+	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -505,8 +497,7 @@ public abstract class Skill {
 		return Component.translatable(String.format("%s.%s.%s", "skill", this.getRegistryName().getNamespace(), this.getRegistryName().getPath()));
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	public List<WeaponCategory> getAvailableWeaponCategories() {
+	public Set<WeaponCategory> getAvailableWeaponCategories() {
 		return null;
 	}
 	
@@ -516,7 +507,7 @@ public abstract class Skill {
 	}
 	
 	public enum ActivateType {
-		ONE_SHOT, DURATION, DURATION_INFINITE, TOGGLE, CHARGING, HELD
+		ONE_SHOT, DURATION, DURATION_INFINITE, TOGGLE, HELD
 	}
 	
 	public enum Resource {

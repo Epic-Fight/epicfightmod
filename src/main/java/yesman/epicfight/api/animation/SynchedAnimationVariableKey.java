@@ -80,7 +80,7 @@ public interface SynchedAnimationVariableKey<T> {
 		if (entitypatch.isLogicalClient()) {
 			EpicFightNetworkManager.sendToServer(new CPAnimationVariablePacket<> (this, animation, value, action));
 		} else {
-			entitypatch.sendToAllPlayerTrackingMe(new SPAnimationVariablePacket<> (entitypatch, this, animation, value, action));
+			entitypatch.sendToAllPlayersTrackingMe(new SPAnimationVariablePacket<> (entitypatch, this, animation, value, action));
 		}
 	}
 	

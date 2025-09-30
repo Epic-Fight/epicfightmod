@@ -8,9 +8,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -35,9 +41,10 @@ public class HyperVitalitySkill extends PassiveSkill {
 		container.getExecutor().getEventListener().addEventListener(EventType.SKILL_CONSUME_EVENT, EVENT_UUID, (event) -> {
 			if (!this.isDisabled(container) && event.getSkill().getCategory() == SkillCategories.WEAPON_INNATE) {
 				PlayerPatch<?> playerpatch = event.getPlayerPatch();
+				Player player = playerpatch.getOriginal();
 				
 				if (playerpatch.getSkill(SkillSlots.WEAPON_INNATE).getStack() < 1) {
-					if (container.getStack() > 0 && !playerpatch.getOriginal().isCreative()) {
+					if (container.getStack() > 0 && !player.isCreative()) {
 						float consumption = event.getSkill().getConsumption();
 						
 						if (playerpatch.consumeForSkill(this, Skill.Resource.STAMINA, consumption * 0.1F)) {
@@ -45,9 +52,20 @@ public class HyperVitalitySkill extends PassiveSkill {
 							container.setMaxResource(consumption * 0.2F);
 							
 							if (!container.getExecutor().isLogicalClient()) {
+								player.level().playSound(null, player.getX(), player.getY(), player.getZ(), EpicFightSounds.HYPERVITALITY.get(), player.getSoundSource(), 1.0F, 1.0F);
 								container.setMaxDuration(event.getSkill().getMaxDuration());
 								container.activate();
-								EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), (ServerPlayer)playerpatch.getOriginal());
+								EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), (ServerPlayer)player);
+								
+								SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(player.getId(), EntityPairingPacketTypes.FLASH_WHITE);
+								
+								// durationTick, maxOverlay, maxBrightness
+								pairingPacket.getBuffer().writeInt(4);
+								pairingPacket.getBuffer().writeInt(15);
+								pairingPacket.getBuffer().writeInt(8);
+								pairingPacket.getBuffer().writeBoolean(false);
+								
+								EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, (ServerPlayer)player);
 							}
 						}
 					}
@@ -75,6 +93,7 @@ public class HyperVitalitySkill extends PassiveSkill {
 	}
 	
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
 		super.executeOnClient(container, args);
 		container.activate();
@@ -92,7 +111,7 @@ public class HyperVitalitySkill extends PassiveSkill {
 	}
 	
 	@Override
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y) {
+	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 		PoseStack poseStack = new PoseStack();
 		poseStack.pushPose();
 		poseStack.translate(0, (float) gui.getSlidingProgression(), 0);

@@ -132,7 +132,8 @@ public class AnimationPlayer {
 		return this.isEnd;
 	}
 	
-	public void terminate() {
+	public void terminate(LivingEntityPatch<?> entitypatch) {
+		this.play.get().end(entitypatch, this.play, true);
 		this.isEnd = true;
 	}
 	

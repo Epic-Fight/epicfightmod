@@ -1,11 +1,19 @@
 package yesman.epicfight.client.events;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -18,12 +26,14 @@ import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.particle.AirBurstParticle;
 import yesman.epicfight.client.particle.AnimationTrailParticle;
+import yesman.epicfight.client.particle.AshDirectionalParticle;
 import yesman.epicfight.client.particle.BladeRushParticle;
 import yesman.epicfight.client.particle.BloodParticle;
+import yesman.epicfight.client.particle.CatharsisParticle;
 import yesman.epicfight.client.particle.CutParticle;
 import yesman.epicfight.client.particle.DustParticle;
 import yesman.epicfight.client.particle.EnderParticle;
-import yesman.epicfight.client.particle.EntityAfterImageParticle;
+import yesman.epicfight.client.particle.EntityAfterimageParticle;
 import yesman.epicfight.client.particle.EviscerateParticle;
 import yesman.epicfight.client.particle.FeatherParticle;
 import yesman.epicfight.client.particle.ForceFieldEndParticle;
@@ -42,6 +52,7 @@ import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
 
@@ -64,7 +75,8 @@ public class ClientModBusEvent {
     	event.registerSpriteSet(EpicFightParticles.BREATH_FLAME.get(), EnderParticle.BreathFlameProvider::new);
     	event.registerSpecial(EpicFightParticles.FORCE_FIELD.get(), new ForceFieldParticle.Provider());
     	event.registerSpecial(EpicFightParticles.FORCE_FIELD_END.get(), new ForceFieldEndParticle.Provider());
-    	event.registerSpecial(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), new EntityAfterImageParticle.Provider());
+    	event.registerSpecial(EpicFightParticles.ADRENALINE_PLAYER_BEATING.get(), new EntityAfterimageParticle.AdrenalineParticleProvider());
+    	event.registerSpecial(EpicFightParticles.WHITE_AFTERIMAGE.get(), new EntityAfterimageParticle.WhiteAfterimageProvider());
     	event.registerSpecial(EpicFightParticles.LASER.get(), new LaserParticle.Provider());
     	event.registerSpecial(EpicFightParticles.NEUTRALIZE.get(), new DustParticle.ExpansiveMetaParticle.Provider());
     	event.registerSpecial(EpicFightParticles.BOSS_CASTING.get(), new DustParticle.ContractiveMetaParticle.Provider());
@@ -73,6 +85,8 @@ public class ClientModBusEvent {
     	event.registerSpecial(EpicFightParticles.PROJECTILE_TRAIL.get(), new ProjectileTrailParticle.Provider());
     	event.registerSpriteSet(EpicFightParticles.FEATHER.get(), FeatherParticle.Provider::new);
     	event.registerSpecial(EpicFightParticles.AIR_BURST.get(), new AirBurstParticle.Provider());
+    	event.registerSpriteSet(EpicFightParticles.ASH_DIRECTIONAL.get(), AshDirectionalParticle.Provider::new);
+    	event.registerSpriteSet(EpicFightParticles.CATHARSIS.get(), CatharsisParticle.Provider::new);
     }
 	
 	@SubscribeEvent
@@ -115,5 +129,35 @@ public class ClientModBusEvent {
 		event.registerAboveAll("skills", ClientEngine.getInstance().renderEngine.battleModeUI::renderNormalSkills);
 		event.registerAboveAll("weapon_innate", ClientEngine.getInstance().renderEngine.battleModeUI::renderWeaponInnateSkill);
 		event.registerAboveAll("charging_bar", ClientEngine.getInstance().renderEngine.battleModeUI::renderCharingBar);
+	}
+	
+	@SubscribeEvent
+	public static void registerAdditionalEvent(ModelEvent.RegisterAdditional event) {
+		SkillCategory.ENUM_MANAGER.universalValues().stream().filter(skillCategory -> !skillCategory.bookIcon().equals(SkillCategory.DEFAULT_BOOK_ICON)).forEach(skillCategory -> {
+			event.register(new ModelResourceLocation(skillCategory.bookIcon(), "inventory"));
+		});
+	}
+	
+	@SubscribeEvent
+	public static void modifyBakingResultEvent(ModelEvent.ModifyBakingResult event) {
+		ModelResourceLocation skillbookLocation = new ModelResourceLocation(SkillCategory.DEFAULT_BOOK_ICON, "inventory");
+		
+		if (event.getModels().containsKey(skillbookLocation)) {
+			List<ItemOverrides.BakedOverride> skillCategoryOverrides = new ArrayList<> ();
+			
+			SkillCategory.ENUM_MANAGER.universalValues().stream().filter(skillCategory -> !skillCategory.bookIcon().equals(SkillCategory.DEFAULT_BOOK_ICON)).sorted((c1, c2) -> {
+				return Integer.compare(c2.universalOrdinal(), c1.universalOrdinal());
+			}).forEach(skillCategory -> {
+				ModelResourceLocation model = new ModelResourceLocation(skillCategory.bookIcon(), "inventory");
+				ItemOverrides.PropertyMatcher[] propertyMatchers = new ItemOverrides.PropertyMatcher[1];
+				propertyMatchers[0] = new ItemOverrides.PropertyMatcher(0, skillCategory.universalOrdinal());
+				BakedModel bakedModel = event.getModelBakery().getBakedTopLevelModels().get(model);
+				skillCategoryOverrides.add(new ItemOverrides.BakedOverride(propertyMatchers, bakedModel));
+			});
+			
+			ItemOverrides overrides = event.getModels().get(skillbookLocation).getOverrides();
+			overrides.overrides = skillCategoryOverrides.toArray(i -> new ItemOverrides.BakedOverride[i]);
+			overrides.properties = new ResourceLocation[] {ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill")};
+		}
 	}
 }

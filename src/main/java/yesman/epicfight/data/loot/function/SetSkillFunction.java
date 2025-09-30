@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
+import net.minecraftforge.fml.ModList;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.skill.Skill;
@@ -37,6 +38,10 @@ public class SetSkillFunction implements LootItemFunction {
 	
 	@Override
 	public ItemStack apply(ItemStack itemstack, LootContext lootContext) {
+		if (ModList.get().isLoaded("epicskills")) {
+			return ItemStack.EMPTY;
+		}
+		
 		float val = lootContext.getRandom().nextFloat();
 		Skill skill = this.getSkillForSeed(val);
 		

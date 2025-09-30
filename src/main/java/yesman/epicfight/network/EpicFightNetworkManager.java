@@ -16,42 +16,8 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.network.client.CPAnimationVariablePacket;
-import yesman.epicfight.network.client.CPAnimatorControl;
-import yesman.epicfight.network.client.CPChangePlayerMode;
-import yesman.epicfight.network.client.CPChangeSkill;
-import yesman.epicfight.network.client.CPCheckAnimationRegistryMatches;
-import yesman.epicfight.network.client.CPExecuteSkill;
-import yesman.epicfight.network.client.CPModifyEntityModelYRot;
-import yesman.epicfight.network.client.CPModifySkillData;
-import yesman.epicfight.network.client.CPSetPlayerTarget;
-import yesman.epicfight.network.client.CPSetStamina;
-import yesman.epicfight.network.client.CPSyncPlayerAnimationPosition;
-import yesman.epicfight.network.client.CPUpdatePlayerInput;
-import yesman.epicfight.network.server.SPAbsorption;
-import yesman.epicfight.network.server.SPAddLearnedSkill;
-import yesman.epicfight.network.server.SPAddOrRemoveSkillData;
-import yesman.epicfight.network.server.SPAnimationVariablePacket;
-import yesman.epicfight.network.server.SPAnimatorControl;
-import yesman.epicfight.network.server.SPChangeGamerule;
-import yesman.epicfight.network.server.SPChangeLivingMotion;
-import yesman.epicfight.network.server.SPChangePlayerMode;
-import yesman.epicfight.network.server.SPChangeSkill;
-import yesman.epicfight.network.server.SPClearSkills;
-import yesman.epicfight.network.server.SPDatapackSync;
-import yesman.epicfight.network.server.SPEntityPacket;
-import yesman.epicfight.network.server.SPFracture;
-import yesman.epicfight.network.server.SPModifyPlayerData;
-import yesman.epicfight.network.server.SPModifySkillData;
-import yesman.epicfight.network.server.SPMoveAndPlayAnimation;
-import yesman.epicfight.network.server.SPPlayAnimationAndSetTarget;
-import yesman.epicfight.network.server.SPPotion;
-import yesman.epicfight.network.server.SPRemoveSkill;
-import yesman.epicfight.network.server.SPSetAttackTarget;
-import yesman.epicfight.network.server.SPSetSkillValue;
-import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.network.server.SPSyncAnimationPosition;
-import yesman.epicfight.network.server.SPUpdatePlayerInput;
+import yesman.epicfight.network.client.*;
+import yesman.epicfight.network.server.*;
 
 public class EpicFightNetworkManager {
 	private static final String PROTOCOL_VERSION = "1";
@@ -110,7 +76,7 @@ public class EpicFightNetworkManager {
 	public static void registerPackets() {
 		int id = 0;
 		
-		INSTANCE.registerMessage(id++, CPExecuteSkill.class, CPExecuteSkill::toBytes, CPExecuteSkill::fromBytes, CPExecuteSkill::handle);
+		INSTANCE.registerMessage(id++, CPSkillRequest.class, CPSkillRequest::toBytes, CPSkillRequest::fromBytes, CPSkillRequest::handle);
 		INSTANCE.registerMessage(id++, CPAnimatorControl.class, CPAnimatorControl::toBytes, CPAnimatorControl::fromBytes, CPAnimatorControl::handle);
 		INSTANCE.registerMessage(id++, CPModifyEntityModelYRot.class, CPModifyEntityModelYRot::toBytes, CPModifyEntityModelYRot::fromBytes, CPModifyEntityModelYRot::handle);
 		INSTANCE.registerMessage(id++, CPChangePlayerMode.class, CPChangePlayerMode::toBytes, CPChangePlayerMode::fromBytes, CPChangePlayerMode::handle);
@@ -125,9 +91,9 @@ public class EpicFightNetworkManager {
 		
 		INSTANCE.registerMessage(id++, SPChangeSkill.class, SPChangeSkill::toBytes, SPChangeSkill::fromBytes, SPChangeSkill::handle);
 		INSTANCE.registerMessage(id++, SPSkillExecutionFeedback.class, SPSkillExecutionFeedback::toBytes, SPSkillExecutionFeedback::fromBytes, SPSkillExecutionFeedback::handle);
-		INSTANCE.registerMessage(id++, SPEntityPacket.class, SPEntityPacket::toBytes, SPEntityPacket::fromBytes, SPEntityPacket::handle);
+		INSTANCE.registerMessage(id++, SPEntityPairingPacket.class, SPEntityPairingPacket::toBytes, SPEntityPairingPacket::fromBytes, SPEntityPairingPacket::handle);
 		INSTANCE.registerMessage(id++, SPChangeLivingMotion.class, SPChangeLivingMotion::toBytes, SPChangeLivingMotion::fromBytes, SPChangeLivingMotion::handle);
-		INSTANCE.registerMessage(id++, SPSetSkillValue.class, SPSetSkillValue::toBytes, SPSetSkillValue::fromBytes, SPSetSkillValue::handle);
+		INSTANCE.registerMessage(id++, SPSetSkillContainerValue.class, SPSetSkillContainerValue::toBytes, SPSetSkillContainerValue::fromBytes, SPSetSkillContainerValue::handle);
 		INSTANCE.registerMessage(id++, SPModifyPlayerData.class, SPModifyPlayerData::toBytes, SPModifyPlayerData::fromBytes, SPModifyPlayerData::handle);
 		INSTANCE.registerMessage(id++, SPAnimatorControl.class, SPAnimatorControl::toBytes, SPAnimatorControl::fromBytes, SPAnimatorControl::handle);
 		INSTANCE.registerMessage(id++, SPPlayAnimationAndSetTarget.class, SPPlayAnimationAndSetTarget::toBytes, SPPlayAnimationAndSetTarget::fromBytes, SPPlayAnimationAndSetTarget::handle);
@@ -140,13 +106,14 @@ public class EpicFightNetworkManager {
 		INSTANCE.registerMessage(id++, SPDatapackSync.class, SPDatapackSync::toBytes, SPDatapackSync::fromBytes, SPDatapackSync::handle);
 		INSTANCE.registerMessage(id++, SPSetAttackTarget.class, SPSetAttackTarget::toBytes, SPSetAttackTarget::fromBytes, SPSetAttackTarget::handle);
 		INSTANCE.registerMessage(id++, SPClearSkills.class, SPClearSkills::toBytes, SPClearSkills::fromBytes, SPClearSkills::handle);
-		INSTANCE.registerMessage(id++, SPRemoveSkill.class, SPRemoveSkill::toBytes, SPRemoveSkill::fromBytes, SPRemoveSkill::handle);
+		INSTANCE.registerMessage(id++, SPRemoveSkillAndLearn.class, SPRemoveSkillAndLearn::toBytes, SPRemoveSkillAndLearn::fromBytes, SPRemoveSkillAndLearn::handle);
 		INSTANCE.registerMessage(id++, SPFracture.class, SPFracture::toBytes, SPFracture::fromBytes, SPFracture::handle);
 		INSTANCE.registerMessage(id++, SPUpdatePlayerInput.class, SPUpdatePlayerInput::toBytes, SPUpdatePlayerInput::fromBytes, SPUpdatePlayerInput::handle);
-		INSTANCE.registerMessage(id++, SPAddOrRemoveSkillData.class, SPAddOrRemoveSkillData::toBytes, SPAddOrRemoveSkillData::fromBytes, SPAddOrRemoveSkillData::handle);
 		INSTANCE.registerMessage(id++, SPAnimationVariablePacket.class, SPAnimationVariablePacket::toBytes, SPAnimationVariablePacket::fromBytes, SPAnimationVariablePacket::handle);
 		INSTANCE.registerMessage(id++, SPAbsorption.class, SPAbsorption::toBytes, SPAbsorption::fromBytes, SPAbsorption::handle);
 		INSTANCE.registerMessage(id++, SPSyncAnimationPosition.class, SPSyncAnimationPosition::toBytes, SPSyncAnimationPosition::fromBytes, SPSyncAnimationPosition::handle);
+		INSTANCE.registerMessage(id++, SPPlayUISound.class, SPPlayUISound::toBytes, SPPlayUISound::fromBytes, SPPlayUISound::handle);
+		INSTANCE.registerMessage(id++, SPSetRemotePlayerSkill.class, SPSetRemotePlayerSkill::toBytes, SPSetRemotePlayerSkill::fromBytes, SPSetRemotePlayerSkill::handle);
 	}
 	
 	public static class PayloadBundleBuilder {
@@ -167,7 +134,7 @@ public class EpicFightNetworkManager {
 		
 		public void send(BiConsumer<Object, Object[]> sendTo) {
 			if (this.payloads.size() == 0) {
-				throw new IllegalStateException("No payloads provided for Multi payload builder");
+				return;
 			} else if (this.payloads.size() == 1) {
 				sendTo.accept(this.payloads.get(0), new Object[0]);
 			} else {

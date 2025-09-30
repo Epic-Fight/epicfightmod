@@ -43,6 +43,7 @@ import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimation
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
+import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.CompositeMesh;
@@ -533,7 +534,7 @@ public class JsonAssetLoader {
 		
 		TransformFormat format = this.rootJson.has("format") ? ParseUtil.enumValueOfOrNull(TransformFormat.class, GsonHelper.getAsString(this.rootJson, "format")) : TransformFormat.MATRIX;
 		JsonArray array = this.rootJson.get("animation").getAsJsonArray();
-		boolean action = animation instanceof ActionAnimation;
+		boolean action = animation instanceof MainFrameAnimation;
 		boolean attack = animation instanceof AttackAnimation;
 		boolean noTransformData = !action && !attack && FMLEnvironment.dist == Dist.DEDICATED_SERVER;
 		boolean root = true;

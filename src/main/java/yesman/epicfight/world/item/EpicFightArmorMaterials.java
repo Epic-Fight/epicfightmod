@@ -42,7 +42,7 @@ public enum EpicFightArmorMaterials implements ArmorMaterial {
 	
 	@Override
 	public String getName() {
-		return EpicFightMod.MODID + ":" + this.name;
+		return  EpicFightMod.prefix(this.name);
 	}
 
 	@Override

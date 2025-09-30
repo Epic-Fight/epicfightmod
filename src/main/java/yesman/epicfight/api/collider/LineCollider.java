@@ -142,7 +142,7 @@ public class LineCollider extends Collider {
 		if (armature.rootJoint.equals(joint)) {
 			poseMatrix = interpolatedPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
 		} else {
-			poseMatrix = armature.getBindedTransformFor(interpolatedPose, joint);
+			poseMatrix = armature.getBoundTransformFor(interpolatedPose, joint);
 		}
 		
 		MathUtils.mulStack(poseStack, poseMatrix);

@@ -21,7 +21,6 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
@@ -92,18 +91,6 @@ public class BasicAttackAnimation extends AttackAnimation {
 		if (!this.properties.containsKey(AttackAnimationProperty.BASIS_ATTACK_SPEED)) {
 			float basisSpeed = Float.parseFloat(String.format(Locale.US, "%.2f", (1.0F / this.getTotalTime())));
 			this.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, basisSpeed);
-		}
-	}
-	
-	@Override
-	public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
-		super.end(entitypatch, nextAnimation, isEnd);
-		
-		boolean stiffAttack = EpicFightGameRules.STIFF_COMBO_ATTACKS.getRuleValue(entitypatch.getOriginal().level());
-		
-		if (!isEnd && !nextAnimation.get().isMainFrameAnimation() && entitypatch.isLogicalClient() && !stiffAttack) {
-			float playbackSpeed = EpicFightSharedConstants.A_TICK * this.getPlaySpeed(entitypatch, this);
-			entitypatch.getClientAnimator().baseLayer.copyLayerTo(entitypatch.getClientAnimator().baseLayer.getLayer(Layer.Priority.HIGHEST), playbackSpeed);
 		}
 	}
 	

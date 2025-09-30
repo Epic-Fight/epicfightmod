@@ -5,14 +5,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.api.client.animation.property.TrailInfo;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations;
+import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.AnimationPropertyModifier;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -44,7 +51,7 @@ public class SwordmasterSkill extends PassiveSkill {
 	public SwordmasterSkill(SwordmasterSkill.Builder builder) {
 		super(builder);
 		
-		this.availableWeaponCategories = builder.availableWeaponCategories;
+		this.availableWeaponCategories = ImmutableSet.copyOf(builder.availableWeaponCategories);
 	}
 	
 	@Override
@@ -65,6 +72,45 @@ public class SwordmasterSkill extends PassiveSkill {
 				event.setAttackSpeed(attackSpeed * (1.0F + this.speedBonus * 0.01F));
 			}
 		});
+		
+		if (!container.getExecutor().isLogicalClient()) {
+			container.getExecutor().getEntityDecorations().addSwingSoundModifier(EntityDecorations.SWORDMASTER_SWING_SOUND, new AnimationPropertyModifier<> () {
+				@Override
+				public SoundEvent getModifiedValue(SoundEvent val, CapabilityItem object) {
+					return (SwordmasterSkill.this.availableWeaponCategories.contains(object.getWeaponCategory()) && val == EpicFightSounds.WHOOSH.get()) ? EpicFightSounds.SWORDMASTER_SWING.get() : val;
+				}
+				
+				@Override
+				public boolean shouldRemove() {
+					return false;
+				}
+			});
+		}
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	@Override
+	public void onInitiateClient(SkillContainer container) {
+		container.getExecutor().getEntityDecorations().addTrailInfoModifier(EntityDecorations.SWORDMASTER_TRAIL_MODIFIER, new AnimationPropertyModifier<> () {
+			@Override
+			public TrailInfo getModifiedValue(TrailInfo val, CapabilityItem object) {
+				if (SwordmasterSkill.this.getAvailableWeaponCategories().contains(object.getWeaponCategory())) {
+					TrailInfo.Builder builder = val.unpackAsBuilder();
+					builder.lifetime(val.trailLifetime() + 2);
+					builder.blockLight(val.blockLight() + 10);
+					if (val.texturePath().equals(TrailInfo.GENERIC_TRAIL_TEXTURE)) builder.texture(TrailInfo.SWORDMASTER_SWING_TRAIL_TEX);
+					
+					return builder.create();
+				}
+				
+				return val;
+			}
+			
+			@Override
+			public boolean shouldRemove() {
+				return container.getExecutor().getSkill(SwordmasterSkill.this) == null;
+			}
+		});
 	}
 	
 	@Override
@@ -72,6 +118,10 @@ public class SwordmasterSkill extends PassiveSkill {
 		super.onRemoved(container);
 		
 		container.getExecutor().getEventListener().removeListener(EventType.MODIFY_ATTACK_SPEED_EVENT, EVENT_UUID);
+		
+		if (!container.getExecutor().isLogicalClient()) {
+			container.getExecutor().getEntityDecorations().removeSwingSoundModifier(EntityDecorations.SWORDMASTER_SWING_SOUND);
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -92,13 +142,8 @@ public class SwordmasterSkill extends PassiveSkill {
 		return list;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	@Override
-	public List<WeaponCategory> getAvailableWeaponCategories() {
-		if (this.availableWeaponCategoryList == null) {
-			this.availableWeaponCategoryList = List.copyOf(this.availableWeaponCategories);
-		}
-		
-		return this.availableWeaponCategoryList;
+	public Set<WeaponCategory> getAvailableWeaponCategories() {
+		return this.availableWeaponCategories;
 	}
 }

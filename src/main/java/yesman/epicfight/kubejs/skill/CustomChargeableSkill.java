@@ -1,5 +1,8 @@
 package yesman.epicfight.kubejs.skill;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+
 import dev.latvian.mods.kubejs.typings.Info;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -8,21 +11,17 @@ import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
-import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-
-import java.util.Arrays;
-import java.util.function.Consumer;
 
 public class CustomChargeableSkill extends CustomSkill implements ChargeableSkill {
-    public record CastSkillContext(Skill getSkill, ServerPlayerPatch getCaster, SkillContainer getSkillContainer, int getChargingTicks, SPSkillExecutionFeedback getFeedbackPacket, boolean onMaxTick) {}
+    public record CastSkillContext(Skill getSkill, SkillContainer getSkillContainer, SPSkillExecutionFeedback getFeedbackPacket) {}
     public record GatherChargingArgumentsContext(Skill getSkill, LocalPlayerPatch getCaster, ControlEngine getControlEngine, FriendlyByteBuf getBuffer) {}
 
     private final Consumer<PlayerPatch<?>> startCharging;
-    private final Consumer<PlayerPatch<?>> resetCharging;
+    private final Consumer<SkillContainer> resetCharging;
     private final int allowedMaxChargingTicks;
     private final int maxChargingTicks;
     private final int minChargingTicks;
@@ -45,16 +44,20 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
     }
 
     @Override
-    public void startCharging(PlayerPatch<?> playerPatch) {
-        if (startCharging != null) {
-            startCharging.accept(playerPatch);
+    public void startHolding(SkillContainer container)
+    {
+        ChargeableSkill.super.startHolding(container);
+        if (startCharging != null)
+        {
+            startCharging.accept(container.getExecutor());
         }
     }
 
     @Override
-    public void resetCharging(PlayerPatch<?> playerPatch) {
+    public void resetHolding(SkillContainer container)
+    {
         if (resetCharging != null) {
-            resetCharging.accept(playerPatch);
+            resetCharging.accept(container);
         }
     }
 
@@ -74,26 +77,27 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
     }
 
     @Override
-    public void castSkill(ServerPlayerPatch serverPlayerPatch, SkillContainer skillContainer, int i, SPSkillExecutionFeedback spSkillExecutionFeedback, boolean b) {
+    public void onStopHolding(SkillContainer skillContainer, SPSkillExecutionFeedback spSkillExecutionFeedback) {
         if (castSkill != null) {
-            castSkill.accept(new CastSkillContext(this, serverPlayerPatch, skillContainer, i, spSkillExecutionFeedback, b));
+            castSkill.accept(new CastSkillContext(this, skillContainer, spSkillExecutionFeedback));
         }
     }
 
     @Override
-    public void gatherChargingArguments(LocalPlayerPatch localPlayerPatch, ControlEngine controlEngine, FriendlyByteBuf friendlyByteBuf) {
+    public void gatherHoldArguments(SkillContainer container, ControlEngine controlEngine, FriendlyByteBuf buffer)
+    {
         if (gatherChargingArguments != null) {
-            gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, localPlayerPatch, controlEngine, friendlyByteBuf));
+            gatherChargingArguments.accept(new GatherChargingArgumentsContext(this, container.getClientExecutor(), controlEngine, buffer));
         }
     }
 
     @Override
-    public void chargingTick(PlayerPatch<?> playerPatch) {
+    public void holdTick(SkillContainer container)
+    {
+        ChargeableSkill.super.holdTick(container);
         if (chargingTick != null) {
-            chargingTick.accept(playerPatch);
-            return;
+            chargingTick.accept(container.getExecutor());
         }
-        playerPatch.setChargingAmount(playerPatch.getChargingAmount() + 1);
     }
 
     @Override
@@ -110,7 +114,7 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
         """)
     public static class CustomChargeableSkillBuilder extends CustomSkillBuilder {
         private Consumer<PlayerPatch<?>> startCharging;
-        private Consumer<PlayerPatch<?>> resetCharging;
+        private Consumer<SkillContainer> resetCharging;
         private int allowedMaxChargingTicks;
         private int maxChargingTicks;
         private int minChargingTicks;
@@ -134,7 +138,7 @@ public class CustomChargeableSkill extends CustomSkill implements ChargeableSkil
         @Info("""
                 Called when the skill charge is reset.
                 """)
-        public CustomChargeableSkillBuilder resetCharging(Consumer<PlayerPatch<?>> resetCharging) {
+        public CustomChargeableSkillBuilder resetCharging(Consumer<SkillContainer> resetCharging) {
             this.resetCharging = resetCharging;
             return this;
         }

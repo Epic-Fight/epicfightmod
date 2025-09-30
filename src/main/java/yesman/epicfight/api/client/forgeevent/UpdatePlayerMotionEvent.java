@@ -5,9 +5,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import yesman.epicfight.world.entity.eventlistener.DetachablePlayerEvent;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class UpdatePlayerMotionEvent extends Event {
+public abstract class UpdatePlayerMotionEvent extends Event implements DetachablePlayerEvent<AbstractClientPlayerPatch<?>> {
 	private final AbstractClientPlayerPatch<?> playerpatch;
 	private LivingMotion motion;
 	
@@ -16,6 +17,7 @@ public abstract class UpdatePlayerMotionEvent extends Event {
 		this.motion = motion;
 	}
 	
+	@Override
 	public AbstractClientPlayerPatch<?> getPlayerPatch() {
 		return this.playerpatch;
 	}

@@ -70,7 +70,7 @@ public abstract class MultiCollider<T extends Collider> extends Collider {
 				transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(entitypatch.getArmature().rootJoint, new OpenMatrix4f()).removeTranslation();
 			} else {
 				float interpolateTime = prevElapsedTime + (elapsedTime - prevElapsedTime) * interpolation;
-				transformMatrix = armature.getBindedTransformFor(attackAnimation.getPoseByTime(entitypatch, interpolateTime, 1.0F), joint);
+				transformMatrix = armature.getBoundTransformFor(attackAnimation.getPoseByTime(entitypatch, interpolateTime, 1.0F), joint);
 			}
 			
 			double x = entitypatch.getXOld() + (original.getX() - entitypatch.getXOld()) * interpolation;

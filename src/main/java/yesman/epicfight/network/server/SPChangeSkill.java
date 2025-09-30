@@ -2,72 +2,45 @@ package yesman.epicfight.network.server;
 
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.registries.RegistryManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-public class SPChangeSkill {
-	private final SkillSlot skillSlot;
-	private final String skillName;
-	private final SPChangeSkill.State state;
-	
-	public SPChangeSkill() {
-		this(SkillSlots.BASIC_ATTACK, "", SPChangeSkill.State.ENABLE);
-	}
-	
-	public SPChangeSkill(SkillSlot slot, String name, SPChangeSkill.State state) {
-		this.skillSlot = slot;
-		this.skillName = name;
-		this.state = state;
-	}
-	
+public record SPChangeSkill(SkillSlot skillSlot, int entityId, @Nullable Skill skill) {
 	public static SPChangeSkill fromBytes(FriendlyByteBuf buf) {
-		SPChangeSkill msg = new SPChangeSkill(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readUtf(), SPChangeSkill.State.values()[buf.readInt()]);
-		return msg;
+		return new SPChangeSkill(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readInt(), buf.isReadable() ? buf.readRegistryId() : null);
 	}
 	
 	public static void toBytes(SPChangeSkill msg, FriendlyByteBuf buf) {
-		buf.writeInt(msg.skillSlot.universalOrdinal());
-		buf.writeUtf(msg.skillName);
-		buf.writeInt(msg.state.ordinal());
+		buf.writeInt(msg.skillSlot().universalOrdinal());
+		buf.writeInt(msg.entityId());
+		
+		if (msg.skill() != null) {
+			buf.writeRegistryId(RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill());
+		}
 	}
 	
 	public static void handle(SPChangeSkill msg, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			PlayerPatch<?> playerpatch = (PlayerPatch<?>)mc.player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
-			
-			if (playerpatch != null) {
-				if (!msg.skillName.equals("")) {
-					Skill skill = SkillManager.getSkill(msg.skillName);
-					
-					playerpatch.getSkill(msg.skillSlot).setSkill(skill);
-					
-					if (msg.skillSlot.category().learnable()) {
-						playerpatch.getSkillCapability().addLearnedSkill(skill);
-					}
+			EpicFightCapabilities.getUnparameterizedEntityPatch(Minecraft.getInstance().level.getEntity(msg.entityId()), PlayerPatch.class).ifPresent(playerpatch -> {
+				playerpatch.getSkill(msg.skillSlot()).setSkill(msg.skill());
+				
+				if (msg.skill() != null && msg.skillSlot().category().learnable()) {
+					playerpatch.getSkillCapability().addLearnedSkill(msg.skill());
 				}
 				
-				playerpatch.getSkill(msg.skillSlot).setDisabled(msg.state.setter);
-			}
+				playerpatch.getSkill(msg.skillSlot()).setDisabled(false);
+			});
 		});
 		
 		ctx.get().setPacketHandled(true);
-	}
-	
-	public enum State {
-		ENABLE(false), DISABLE(true);
-		
-		boolean setter;
-		
-		State(boolean setter) {
-			this.setter = setter;
-		}
 	}
 }

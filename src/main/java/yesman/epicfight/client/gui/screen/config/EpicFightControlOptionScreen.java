@@ -54,7 +54,7 @@ public class EpicFightControlOptionScreen extends EpicFightOptionSubScreen {
 		buttonHeight += 24;
 		
 		Button autoSwitchingItems = Button.builder(Component.translatable("gui." + modid + ".item_preferences"), (button) -> {
-			this.minecraft.setScreen(new PreferredItemsScreen(this));
+			this.minecraft.setScreen(new ItemsPreferenceScreen(this));
 		}).pos(this.width / 2 - 165, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable("gui." + modid + ".item_preferences.tooltip"))).build();
 		
 		this.optionsList.addSmall(autoSwitchingItems, null);

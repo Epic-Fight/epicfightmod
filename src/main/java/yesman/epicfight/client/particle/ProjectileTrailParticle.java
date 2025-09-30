@@ -36,7 +36,6 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 	protected ProjectileTrailParticle(ClientLevel level, ProjectilePatch<AbstractArrow> entitypatch, TrailInfo trailInfo) {
 		super(level, entitypatch, trailInfo);
 		
-		this.lastPos = entitypatch.getOriginal().getPosition(0.0F);
 		this.rCol = trailInfo.rCol();
 		this.gCol = trailInfo.gCol();
 		this.bCol = trailInfo.bCol();
@@ -74,13 +73,12 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 		boolean isFirstTrail = this.trailEdges.isEmpty();
 		
 		if (isFirstTrail) {
-			this.lastPos = this.owner.getOriginal().getPosition(0.0F);
 			this.lastXRot = this.owner.getOriginal().getXRot();
 			this.lastYRot = 180.0F + this.owner.getOriginal().getYRot();
 		}
 		
 		TrailInfo trailInfo = this.trailInfo;
-		Vec3 posOld = this.lastPos;
+		Vec3 posOld = this.owner.getOriginal().getPosition(0.0F);
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 		

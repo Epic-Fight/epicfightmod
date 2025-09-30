@@ -102,7 +102,7 @@ public class RevelationSkill extends Skill {
 	public void onInitiate(SkillContainer container) {
 		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
-		listener.addEventListener(EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
+		listener.addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
 			if (container.getExecutor().isLogicalClient()) {
 				Skill skill = event.getSkillContainer().getSkill();
 				
@@ -113,7 +113,7 @@ public class RevelationSkill extends Skill {
 				if (container.getExecutor().getTarget() != null) {
 					EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
 						if (this.isActivated(container)) {
-							if (container.sendExecuteRequest((LocalPlayerPatch)container.getExecutor(), ClientEngine.getInstance().controlEngine).isExecutable()) {
+							if (container.sendCastRequest((LocalPlayerPatch)container.getExecutor(), ClientEngine.getInstance().controlEngine).isExecutable()) {
 								container.setDuration(0);
 								event.setCanceled(true);
 							}
@@ -124,7 +124,7 @@ public class RevelationSkill extends Skill {
 		});
 		
 		listener.addEventListener(EventType.SET_TARGET_EVENT, EVENT_UUID, (event) -> {
-			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0, event.getPlayerPatch().getOriginal());
+			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0);
 		});
 		
 		listener.addEventListener(EventType.DODGE_SUCCESS_EVENT, EVENT_UUID, (event) -> {
@@ -136,7 +136,7 @@ public class RevelationSkill extends Skill {
 			
 		}, -1);
 		
-		listener.addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event) -> {
 			if (event.getResult() == ResultType.BLOCKED) {
 				LivingEntity target = container.getExecutor().getTarget();
 				
@@ -158,10 +158,10 @@ public class RevelationSkill extends Skill {
 	@Override
 	public void onRemoved(SkillContainer container) {
 		super.onRemoved(container);
-		container.getExecutor().getEventListener().removeListener(EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.SKILL_CAST_EVENT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(EventType.SET_TARGET_EVENT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(EventType.DODGE_SUCCESS_EVENT, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(EventType.HURT_EVENT_PRE, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(EventType.TARGET_INDICATOR_ALERT_CHECK_EVENT, EVENT_UUID);
 	}
 	
@@ -177,16 +177,16 @@ public class RevelationSkill extends Skill {
 	
 	public void checkStackAndActivate(SkillContainer container, ServerPlayerPatch playerpatch, LivingEntity target, int stacks, int addStacks) {
 		int maxStackSize = this.maxRevelationStacks.getOrDefault(target.getType(), this.defaultRevelationStacks);
-		int plusStack = stacks + addStacks;
+		int stacksToAdd = stacks + addStacks;
 		
-		if (plusStack < maxStackSize) {
-			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), plusStack, playerpatch.getOriginal());
+		if (stacksToAdd < maxStackSize) {
+			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), stacksToAdd);
 		} else {
 			if (!this.isActivated(container)) {
 				this.setDurationSynchronize(container, this.maxDuration);
 			}
 			
-			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0, playerpatch.getOriginal());
+			container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0);
 		}
 	}
 	
@@ -199,7 +199,7 @@ public class RevelationSkill extends Skill {
 
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y) {
+	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);

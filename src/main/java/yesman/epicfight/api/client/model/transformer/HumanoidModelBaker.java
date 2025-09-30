@@ -79,7 +79,7 @@ public class HumanoidModelBaker {
 	}
 	
 	public static SkinnedMesh bakeArmor(LivingEntity entityLiving, ItemStack itemstack, ArmorItem armorItem, EquipmentSlot slot, HumanoidModel<?> originalModel, Model forgeModel, HumanoidModel<?> entityModel, HumanoidMesh entityMesh) {
-		SkinnedMesh animatedArmorModel = null;
+		SkinnedMesh skinnedArmorModel = null;
 		
 		if (!EXCEPTIONAL_MODELS.contains(armorItem)) {
 			if (forgeModel == originalModel || !(forgeModel instanceof HumanoidModel humanoidModel)) {
@@ -88,25 +88,25 @@ public class HumanoidModelBaker {
 			
 			for (HumanoidModelTransformer modelTransformer : MODEL_TRANSFORMERS) {
 				try {
-					animatedArmorModel = modelTransformer.transformArmorModel(humanoidModel);
+					skinnedArmorModel = modelTransformer.transformArmorModel(humanoidModel);
 				} catch (Exception e) {
 					EpicFightMod.LOGGER.warn("Can't transform the model of " + ForgeRegistries.ITEMS.getKey(armorItem) + " because of :");
 					e.printStackTrace();
 					EXCEPTIONAL_MODELS.add(armorItem);
 				}
 				
-				if (animatedArmorModel != null) {
+				if (skinnedArmorModel != null) {
 					break;
 				}
 			}
 			
-			if (animatedArmorModel == null) {
-				animatedArmorModel = VANILLA_TRANSFORMER.transformArmorModel(humanoidModel);
+			if (skinnedArmorModel == null) {
+				skinnedArmorModel = VANILLA_TRANSFORMER.transformArmorModel(humanoidModel);
 			}
 		}
 		
-		BAKED_MODELS.put(ForgeRegistries.ITEMS.getKey(armorItem), animatedArmorModel);
+		BAKED_MODELS.put(ForgeRegistries.ITEMS.getKey(armorItem), skinnedArmorModel);
 		
-		return animatedArmorModel;
+		return skinnedArmorModel;
 	}
 }

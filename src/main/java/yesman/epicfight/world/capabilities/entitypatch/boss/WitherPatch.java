@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -33,6 +32,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -54,7 +55,9 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightDataSerializers;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -111,8 +114,13 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 	}
 	
 	@Override
-	public void processEntityPacket(FriendlyByteBuf buf) {
-		this.processOwnerRecordPacket(buf);
+	@OnlyIn(Dist.CLIENT)
+	public void entityPairing(SPEntityPairingPacket packet) {
+		super.entityPairing(packet);
+		
+		if (packet.getPairingPacketType() == EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER) {
+			this.processOwnerRecordPacket(packet.getBuffer());
+		}
 	}
 	
 	@Override
@@ -255,7 +263,7 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 						EpicFightDamageSource extendedSource = this.getDamageSource(Animations.WITHER_CHARGE, InteractionHand.MAIN_HAND);
 						extendedSource
 							.setStunType(StunType.KNOCKDOWN)
-							.setImpact(4.0F)
+							.setBaseImpact(4.0F)
 							.setInitialPosition(this.lastAttackPosition);
 						
 						AttackResult attackResult = this.tryHarm(this.blockingEntity.getOriginal(), extendedSource, blockingCount);
@@ -277,7 +285,6 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 	@Override
 	public void onAttackBlocked(DamageSource damageSource, LivingEntityPatch<?> opponent) {
 		if (damageSource instanceof EpicFightDamageSource extendedDamageSource) {
-
 			if (Animations.WITHER_CHARGE.equals(extendedDamageSource.getAnimation())) {
 				if (!this.blockedNow) {
 					this.blockedNow = true;

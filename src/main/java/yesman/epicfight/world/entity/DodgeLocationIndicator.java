@@ -48,7 +48,7 @@ public class DodgeLocationIndicator extends LivingEntity {
 		}
 		
 		if (!DodgeAnimation.DODGEABLE_SOURCE_VALIDATOR.apply(damageSource).dealtDamage()) {
-			this.entitypatch.onDodgeSuccess(damageSource);
+			this.entitypatch.onDodgeSuccess(damageSource, this.getBoundingBox().getCenter());
 		}
 		
 		this.discard();

@@ -18,7 +18,7 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.entity.DodgeLocationIndicator;
 
 public class DodgeAnimation extends ActionAnimation {
@@ -28,7 +28,7 @@ public class DodgeAnimation extends ActionAnimation {
 			&& !damagesource.is(DamageTypes.MAGIC)
 			&& !damagesource.is(DamageTypeTags.BYPASSES_ARMOR)
 			&& !damagesource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-			&& !damagesource.is(EpicFightDamageType.BYPASS_DODGE)
+			&& !damagesource.is(EpicFightDamageTypeTags.BYPASS_DODGE)
 		) {
 			return AttackResult.ResultType.MISSED;
 		}

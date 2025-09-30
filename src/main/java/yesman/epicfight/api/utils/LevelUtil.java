@@ -16,9 +16,9 @@ import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +41,7 @@ import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPFracture;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.level.block.FractureBlock;
 import yesman.epicfight.world.level.block.FractureBlockState;
@@ -256,21 +256,24 @@ public class LevelUtil {
 				if (!entity.is(caster)) {
 					double damageInflict = 1.0D - ((entity.position().distanceTo(center) - radius * 0.5D) / radius);
 					float damage = (float)(radius * 2.0D * Math.min(damageInflict, 1.0D));
-					EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
-					entity.hurt(damageSources.shockwave(caster)
-										     .setAnimation(Animations.EMPTY_ANIMATION)
-									         .setInitialPosition(center)
-						                     .addRuntimeTag(EpicFightDamageType.FINISHER)
-						                     .setStunType(StunType.KNOCKDOWN)
-											 .addRuntimeTag(DamageTypes.EXPLOSION)
-							,damage);
+					
+					entity.hurt(
+						EpicFightDamageSources
+							.shockwave(caster)
+							.setAnimation(Animations.EMPTY_ANIMATION)
+							.setInitialPosition(center)
+						    .addRuntimeTag(EpicFightDamageTypeTags.FINISHER)
+						    .addRuntimeTag(DamageTypeTags.IS_EXPLOSION)
+						    .setStunType(StunType.KNOCKDOWN),
+						damage
+					);
 				}
 			}
 		} else {
 			boolean smallSlam = (radius < 1.5D);
 			
 			if (!noSound) {
-				level.playLocalSound(center.x, center.y, center.z, smallSlam ? EpicFightSounds.GROUND_SLAM_SMALL.get() : EpicFightSounds.GROUND_SLAM.get(), SoundSource.BLOCKS, 1.0F, 1.0F, false);
+				level.playLocalSound(center.x, center.y, center.z, smallSlam ? EpicFightSounds.SLAM_LIGHT.get() : EpicFightSounds.SLAM_HEAVY.get(), SoundSource.BLOCKS, 1.0F, 1.0F, false);
 			}
 			
 			if (!smallSlam && !noParticle) {

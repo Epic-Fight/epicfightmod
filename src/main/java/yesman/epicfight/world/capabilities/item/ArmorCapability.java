@@ -39,7 +39,7 @@ public class ArmorCapability extends CapabilityItem {
 	}
 	
 	@Override
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot equipmentSlot, LivingEntityPatch<?> entitypatch, boolean oldStyle) {
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot equipmentSlot, LivingEntityPatch<?> entitypatch) {
 		Multimap<Attribute, AttributeModifier> map = HashMultimap.create();
 		
 		if (equipmentSlot == this.equipmentSlot) {

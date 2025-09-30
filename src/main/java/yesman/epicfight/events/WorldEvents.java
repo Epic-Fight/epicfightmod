@@ -18,7 +18,6 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPDatapackSync;
-import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
@@ -52,12 +51,12 @@ public class WorldEvents {
 				EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), ServerPlayerPatch.class).ifPresent(serverplayerpatch -> {
 					CapabilitySkill skillCapability = serverplayerpatch.getSkillCapability();
 					
-					for (SkillContainer skill : skillCapability.skillContainers) {
-						if (skill.getSkill() != null) {
+					skillCapability.listSkillContainers().forEach(skillContainer -> {
+						if (skillContainer.getSkill() != null) {
 							// Reload skill
-							skill.setSkill(SkillManager.getSkill(skill.getSkill().toString()), true);
+							skillContainer.setSkill(SkillManager.getSkill(skillContainer.getSkill().toString()), true);
 						}
-					}
+					});
 				});
 			}
 		} else {
@@ -69,12 +68,12 @@ public class WorldEvents {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(player, ServerPlayerPatch.class).ifPresent(serverplayerpatch -> {
 			CapabilitySkill skillCapability = serverplayerpatch.getSkillCapability();
 			
-			for (SkillContainer skill : skillCapability.skillContainers) {
-				if (skill.getSkill() != null) {
+			skillCapability.listSkillContainers().forEach(skillContainer -> {
+				if (skillContainer.getSkill() != null) {
 					// Reload skill
-					skill.setSkill(SkillManager.getSkill(skill.getSkill().toString()), true);
+					skillContainer.setSkill(SkillManager.getSkill(skillContainer.getSkill().toString()), true);
 				}
-			}
+			});
 			
 			List<CompoundTag> skillParams = SkillManager.getSkillParams();
 			SPDatapackSync skillParamsPacket = new SPDatapackSync(skillParams.size(), SPDatapackSync.Type.SKILL_PARAMS);

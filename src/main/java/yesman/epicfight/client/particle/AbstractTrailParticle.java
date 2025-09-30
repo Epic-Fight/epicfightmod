@@ -13,7 +13,12 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,7 +31,6 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 	protected final T owner;
 	protected final List<TrailEdge> trailEdges;
 	protected float startEdgeCorrection = 0.0F;
-	protected Vec3 lastPos;
 	protected boolean shouldRemove;
 	
 	protected AbstractTrailParticle(ClientLevel level, T entitypatch, TrailInfo trailInfo) {
@@ -43,6 +47,21 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		float size = (float)Math.max(this.trailInfo.start().length(), this.trailInfo.end().length()) * 2.0F;
 		this.setSize(size, size);
 		
+		this.rCol = Math.max(this.trailInfo.rCol(), 0.0F);
+		this.gCol = Math.max(this.trailInfo.gCol(), 0.0F);
+		this.bCol = Math.max(this.trailInfo.bCol(), 0.0F);
+	}
+	
+	/**
+	 * For datapack editor
+	 */
+	@Deprecated
+	protected AbstractTrailParticle(T entitypatch, TrailInfo trailInfo) {
+		super(null, 0, 0, 0);
+		
+		this.owner = entitypatch;
+		this.trailEdges = Lists.newLinkedList();
+		this.trailInfo = trailInfo;
 		this.rCol = Math.max(this.trailInfo.rCol(), 0.0F);
 		this.gCol = Math.max(this.trailInfo.gCol(), 0.0F);
 		this.bCol = Math.max(this.trailInfo.bCol(), 0.0F);
@@ -76,15 +95,14 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 			return;
 		}
 		
-		double xd = Math.pow(this.owner.getOriginal().getX() - this.lastPos.x, 2);
-		double yd = Math.pow(this.owner.getOriginal().getY() - this.lastPos.y, 2);
-		double zd = Math.pow(this.owner.getOriginal().getZ() - this.lastPos.z, 2);
+		Vec3 lastPos = this.owner.getOriginal().getPosition(0.0F);
+		double xd = Math.pow(this.owner.getOriginal().getX() - lastPos.x, 2);
+		double yd = Math.pow(this.owner.getOriginal().getY() - lastPos.y, 2);
+		double zd = Math.pow(this.owner.getOriginal().getZ() - lastPos.z, 2);
 		float move = (float)Math.sqrt(xd + yd + zd) * 2.0F;
 		
 		this.setSize(this.bbWidth + move, this.bbHeight + move);
 		this.createNextCurve();
-		
-		this.lastPos = this.owner.getOriginal().getPosition(1.0F);
 	}
 	
 	@Override
@@ -165,6 +183,36 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 	protected void makeTrailEdges(List<Vec3> startPositions, List<Vec3> endPositions, List<TrailEdge> dest) {
 		for (int i = 0; i < startPositions.size(); i++) {
 			dest.add(new TrailEdge(startPositions.get(i), endPositions.get(i), this.trailInfo.trailLifetime()));
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	protected int getLightColor(float pPartialTick) {
+		BlockPos blockpos = BlockPos.containing(this.x, this.y, this.z);
+		return this.level.hasChunkAt(blockpos) ? this.getLightColor(this.level, this.level.getBlockState(blockpos), blockpos) : 0;
+	}
+	
+	/**
+	 * A copy for {@link LevelRenderer#getLightColor(BlockAndTintGetter, BlockState, BlockPos)} 
+	 * @param level
+	 * @param state
+	 * @param pos
+	 * @return
+	 */
+	private int getLightColor(BlockAndTintGetter level, BlockState state, BlockPos pos) {
+		if (state.emissiveRendering(level, pos)) {
+			return 15728880;
+		} else {
+			int i = Mth.clamp(Math.max(this.trailInfo.skyLight(), level.getBrightness(LightLayer.SKY, pos)), 0, 15);
+			int j = Mth.clamp(Math.max(this.trailInfo.blockLight(), level.getBrightness(LightLayer.BLOCK, pos)), 0, 15);
+			int k = state.getLightEmission(level, pos);
+			
+			if (j < k) {
+				j = k;
+			}
+			
+			return i << 20 | j << 4;
 		}
 	}
 	

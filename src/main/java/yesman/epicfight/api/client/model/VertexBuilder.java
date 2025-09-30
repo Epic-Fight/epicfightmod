@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+
+// Vertex Indices
 @OnlyIn(Dist.CLIENT)
 public class VertexBuilder {
 	public static List<VertexBuilder> create(int[] drawingIndices) {

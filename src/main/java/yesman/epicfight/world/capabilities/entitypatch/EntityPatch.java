@@ -1,15 +1,18 @@
 package yesman.epicfight.world.capabilities.entitypatch;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.api.client.forgeevent.ProcessEntityPairingPacketEvent;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 
 public abstract class EntityPatch<T extends Entity> {
 	protected T original;
@@ -27,10 +30,6 @@ public abstract class EntityPatch<T extends Entity> {
 	}
 	
 	public void onStopTracking(ServerPlayer trackingPlayer) {
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public void processEntityPacket(FriendlyByteBuf buf) {
 	}
 	
 	public void onConstructed(T entity) {
@@ -56,25 +55,44 @@ public abstract class EntityPatch<T extends Entity> {
 		return this.original.level().isClientSide();
 	}
 	
-	public OpenMatrix4f getMatrix(float partialTicks) {
-		return MathUtils.getModelMatrixIntegral(0, 0, 0, 0, 0, 0, this.original.xRotO, this.original.getXRot(), this.original.yRotO, this.original.getYRot(), partialTicks, 1, 1, 1);
+	public OpenMatrix4f getMatrix(float partialTick) {
+		return MathUtils.getModelMatrixIntegral(0, 0, 0, 0, 0, 0, this.original.xRotO, this.original.getXRot(), this.original.yRotO, this.original.getYRot(), partialTick, 1, 1, 1);
 	}
 	
-	public double getAngleTo(Entity entityIn) {
+	public double getAngleTo(Entity entity) {
 		Vec3 a = this.original.getLookAngle();
-		Vec3 b = new Vec3(entityIn.getX() - this.original.getX(), entityIn.getY() - this.original.getY(), entityIn.getZ() - this.original.getZ()).normalize();
+		Vec3 b = new Vec3(entity.getX() - this.original.getX(), entity.getY() - this.original.getY(), entity.getZ() - this.original.getZ()).normalize();
 		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
 		
 		return Math.toDegrees(Math.acos(cos));
 	}
 	
-	public double getAngleToHorizontal(Entity entityIn) {
+	public double getAngleToHorizontal(Entity entity) {
 		Vec3 a = this.original.getLookAngle();
-		Vec3 b = new Vec3(entityIn.getX() - this.original.getX(), 0.0D, entityIn.getZ() - this.original.getZ()).normalize();
+		Vec3 b = new Vec3(entity.getX() - this.original.getX(), 0.0D, entity.getZ() - this.original.getZ()).normalize();
 		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
 		
 		return Math.toDegrees(Math.acos(cos));
 	}
 	
-	public abstract OpenMatrix4f getModelMatrix(float partialTicks);
+	public abstract OpenMatrix4f getModelMatrix(float partialTick);
+	
+	@OnlyIn(Dist.CLIENT)
+	public void fireEntityPairingEvent(SPEntityPairingPacket msg) {
+		ProcessEntityPairingPacketEvent pairingPacketEvent = new ProcessEntityPairingPacketEvent(this, msg);
+		MinecraftForge.EVENT_BUS.post(pairingPacketEvent);
+		
+		if (!pairingPacketEvent.isCanceled()) {
+			this.entityPairing(msg);
+		}
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public void entityPairing(SPEntityPairingPacket packet) {
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public boolean isOutlineVisible(LocalPlayerPatch player) {
+		return true;
+	}
 }

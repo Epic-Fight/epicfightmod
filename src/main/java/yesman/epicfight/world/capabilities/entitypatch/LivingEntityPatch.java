@@ -1,20 +1,27 @@
 package yesman.epicfight.world.capabilities.entitypatch;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
+import org.jetbrains.annotations.ApiStatus;
+import org.joml.Vector4f;
+
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -57,20 +64,31 @@ import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
+import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
+import yesman.epicfight.mixin.common.MixinMob;
+import yesman.epicfight.mixin.common.MixinPlayer;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
+import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.common.AnimatorControlPacket;
 import yesman.epicfight.network.server.SPAnimatorControl;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.DecorationOverlay;
+import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.ParticleGenerator;
+import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.RenderAttributeModifier;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
@@ -117,8 +135,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public LivingMotion currentLivingMotion = LivingMotions.IDLE;
 	public LivingMotion currentCompositeMotion = LivingMotions.IDLE;
 	
-	private Style oStyle;
-	private final Map<InteractionHand, Joint> parentJointOfHands = Maps.newHashMap();
+	protected final Map<InteractionHand, Joint> parentJointOfHands = new HashMap<> ();
+	protected final EntityDecorations entityDecorations = new EntityDecorations();
 	
 	@Override
 	public void onConstructed(T entityIn) {
@@ -134,8 +152,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	protected void initAnimator(Animator animator) {
-		animator.getVariables().putDefaultSharedVariable(AttackAnimation.HIT_ENTITIES);
-		animator.getVariables().putDefaultSharedVariable(AttackAnimation.HURT_ENTITIES);
+		animator.getVariables().putDefaultSharedVariable(AttackAnimation.ATTACK_TRIED_ENTITIES);
+		animator.getVariables().putDefaultSharedVariable(AttackAnimation.ACTUALLY_HIT_ENTITIES);
 		animator.getVariables().putDefaultSharedVariable(ActionAnimation.ACTION_ANIMATION_COORD);
 		
 		if (this.armature instanceof ToolHolderArmature toolArmature) {
@@ -166,8 +184,6 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void tick(LivingEvent.LivingTickEvent event) {
 		super.tick(event);
 		
-		this.oStyle = this.getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(this);
-		
 		if (this.original.getHealth() <= 0.0F) {
 			this.original.setXRot(0);
 			
@@ -195,17 +211,19 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 	}
 	
-	protected void clientTick(LivingEvent.LivingTickEvent event) {}
+	protected void clientTick(LivingEvent.LivingTickEvent event) {
+		this.entityDecorations.tick();
+	}
 	
 	protected void serverTick(LivingEvent.LivingTickEvent event) {}
 	
-	public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTicks) {
+	public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
 		if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
 			if (animation.doesHeadRotFollowEntityHead()) {
 				float headRotO = this.original.yBodyRotO - this.original.yHeadRotO;
 				float headRot = this.original.yBodyRot - this.original.yHeadRot;
-				float partialHeadRot = MathUtils.lerpBetween(headRotO, headRot, partialTicks);
-				OpenMatrix4f toOriginalRotation = new OpenMatrix4f(this.armature.getBindedTransformFor(pose, this.armature.searchJointByName("Head"))).removeScale().removeTranslation().invert();
+				float partialHeadRot = MathUtils.lerpBetween(headRotO, headRot, partialTick);
+				OpenMatrix4f toOriginalRotation = new OpenMatrix4f(this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"))).removeScale().removeTranslation().invert();
 				Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
 				Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
 				OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(partialHeadRot, yAxis).rotateDeg(-this.original.getXRot(), xAxis);
@@ -224,6 +242,145 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 		
 		this.setAirborneState(false);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	@Override
+	public void entityPairing(SPEntityPairingPacket packet) {
+		super.entityPairing(packet);
+		
+		if (packet.getPairingPacketType().is(EntityPairingPacketTypes.class)) {
+			switch (packet.getPairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
+			case BONEBREAKER_BEGIN -> {
+				this.entityDecorations.addDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY, new DecorationOverlay() {
+					static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/crack_level1.png");
+					
+					@Override
+					public RenderType getRenderType() {
+						return EpicFightRenderTypes.overlayModel(TEXTURE);
+					}
+				});
+			}
+			case BONEBREAKER_MAX_STACK -> {
+				this.entityDecorations.addDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY, new DecorationOverlay() {
+					static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/crack_level2.png");
+					
+					@Override
+					public RenderType getRenderType() {
+						return EpicFightRenderTypes.overlayModel(TEXTURE);
+					}
+				});
+			}
+			case BONEBREAKER_CLEAR -> {
+				this.entityDecorations.removeDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY);
+			}
+			case STAMINA_PILLAGER_BODY_ASHES -> {
+				this.entityDecorations.addColorModifier(EntityDecorations.STAMINA_PILLAGER_ASHES_COLOR, new RenderAttributeModifier<> () {
+					@Override
+					public void modifyValue(Vector4f value, float partialTick) {
+						float rotProgression = Mth.clamp(1.0F - ((LivingEntityPatch.this.original.deathTime + partialTick) / 16), 0.0F, 1.0F);
+						float color = Mth.clampedLerp(0.28F, 1.0F, rotProgression * rotProgression);
+						value.x = color;
+						value.y = color;
+						value.z = color;
+					}
+				});
+				
+				this.entityDecorations.addOverlayCoordModifier(EntityDecorations.STAMINA_PILLAGER_ASHES_OVERLAY, new RenderAttributeModifier<> () {
+					@Override
+					public void modifyValue(Vec2i value, float partialTick) {
+						value.x = OverlayTexture.NO_WHITE_U;
+						value.y = OverlayTexture.WHITE_OVERLAY_V;
+					}
+				});
+				
+				this.entityDecorations.addParticleGenerator(EntityDecorations.STAMINA_PILLAGER_ASHES_PARTICLE, new ParticleGenerator() {
+					@Override
+					public void generateParticles() {
+						OpenMatrix4f boundRootTransform = LivingEntityPatch.this.armature.getBoundTransformFor(LivingEntityPatch.this.animator.getPose(1.0F), LivingEntityPatch.this.armature.rootJoint);
+						Vec3f boundRootPos = boundRootTransform.toTranslationVector().add((float)LivingEntityPatch.this.getOriginal().getX(), (float)LivingEntityPatch.this.getOriginal().getY(), (float)LivingEntityPatch.this.getOriginal().getZ());
+						RandomSource random = LivingEntityPatch.this.original.getRandom();
+						Vec3 lookVec = LivingEntityPatch.this.original.getLookAngle().scale(0.1D);
+						
+						for (int i = 0; i < 3; i++) {
+							LivingEntityPatch.this.original.level().addParticle(
+								EpicFightParticles.ASH_DIRECTIONAL.get(),
+								boundRootPos.x + random.nextGaussian() * 0.4F,
+								boundRootPos.y + random.nextGaussian() * 0.6F,
+								boundRootPos.z + random.nextGaussian() * 0.4F,
+								lookVec.x,
+								0.1F,
+								lookVec.z
+							);
+						}
+					}
+				});
+			}
+			case FLASH_WHITE -> {
+				int durationTick = packet.getBuffer().readInt();
+				int maxOverlay = packet.getBuffer().readInt();
+				int maxBrightness = packet.getBuffer().readInt();
+				boolean disableRed = packet.getBuffer().readBoolean();
+				
+				this.entityDecorations.addOverlayCoordModifier(EntityDecorations.FLASH_WHITE_OVERLAY, new RenderAttributeModifier<> () {
+					private int tickCount;
+					
+					@Override
+					public void modifyValue(Vec2i value, float partialTick) {
+						float f = Mth.sin((this.tickCount + partialTick) / (durationTick + 1.0F) * (float)Math.PI) * maxOverlay;
+						value.x = (int)f;
+						
+						if (disableRed) {
+							value.y = OverlayTexture.WHITE_OVERLAY_V;
+						}
+					}
+					
+					@Override
+					public void tick() {
+						this.tickCount++;
+					}
+					
+					@Override
+					public boolean shouldRemove() {
+						return this.tickCount > durationTick;
+					}
+				});
+				
+				this.entityDecorations.addLightModifier(EntityDecorations.FLASH_WHITE_LIGHT, new RenderAttributeModifier<> () {
+					private int tickCount;
+					
+					@Override
+					public void modifyValue(Vec2i value, float partialTick) {
+						float f = Mth.sin((this.tickCount + partialTick) / (durationTick + 1.0F) * (float)Math.PI) * maxBrightness;
+						value.x += (int)f;
+					}
+					
+					@Override
+					public void tick() {
+						this.tickCount++;
+					}
+					
+					@Override
+					public boolean shouldRemove() {
+						return this.tickCount > durationTick;
+					}
+				});
+			}
+			case VENGEANCE_OVERLAY -> {
+				this.entityDecorations.addColorModifier(EntityDecorations.VENGEANCE_OVERLAY, new RenderAttributeModifier<> () {
+					@Override
+					public void modifyValue(Vector4f value, float partialTick) {
+						value.x = 1.0F;
+						value.y = 0.5F;
+						value.z = 0.5F;
+					}
+				});
+			}
+			case VENGEANCE_TARGET_CANCEL -> {
+				this.entityDecorations.removeColorModifier(EntityDecorations.VENGEANCE_OVERLAY);
+			}
+			}
+		}
 	}
 	
 	@Override
@@ -256,20 +413,27 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	 */
 	public CapabilityItem getAdvancedHoldingItemCapability(InteractionHand hand) {
 		if (hand == InteractionHand.MAIN_HAND) {
-			return getHoldingItemCapability(hand);
+			return this.getHoldingItemCapability(hand);
 		} else {
 			return this.isOffhandItemValid() ? this.getHoldingItemCapability(hand) : CapabilityItem.EMPTY;
 		}
 	}
 	
+	public ItemStack getAdvancedHoldingItemStack(InteractionHand hand) {
+		if (hand == InteractionHand.MAIN_HAND) {
+			return this.original.getItemInHand(hand);
+		} else {
+			return this.isOffhandItemValid() ? this.original.getItemInHand(hand) : ItemStack.EMPTY;
+		}
+	}
+	
 	public EpicFightDamageSource getDamageSource(AnimationAccessor<? extends StaticAnimation> animation, InteractionHand hand) {
-		EpicFightDamageSources damageSources = EpicFightDamageSources.of(this.original.level());
-		EpicFightDamageSource damagesource = damageSources.mobAttack(this.original).setAnimation(animation);
-		damagesource.setImpact(this.getImpact(hand));
-		damagesource.setArmorNegation(this.getArmorNegation(hand));
-		damagesource.setHurtItem(this.original.getItemInHand(hand));
-		
-		return damagesource;
+		return EpicFightDamageSources
+				.mobAttack(this.original)
+				.setAnimation(animation)
+				.setBaseArmorNegation(this.getArmorNegation(hand))
+				.setBaseImpact(this.getImpact(hand))
+				.setUsedItem(this.original.getItemInHand(hand));
 	}
 	
 	public AttackResult tryHurt(DamageSource damageSource, float amount) {
@@ -282,8 +446,13 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		
 		return result;
 	}
-
+	
+	/**
+	 * Since 20.12.1, There's no need to call epicfight damage source manually since vanilla damage sources are replaced by mixin {@link MixinPlayer}, {@link MixinMob}
+	 * @return
+	 */
 	@Nullable
+	@ApiStatus.Internal
 	public EpicFightDamageSource getEpicFightDamageSource() {
 		return this.epicFightDamageSource;
 	}
@@ -419,6 +588,15 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
     	this.rotateTo(yaw, limit, syncPrevRot);
 	}
 	
+	public float getYRotDeltaTo(Entity target) {
+		Vec3 playerPosition = this.getOriginal().position();
+		Vec3 targetPosition = target.position();
+		float yRotToTarget = (float)MathUtils.getYRotOfVector(targetPosition.subtract(playerPosition));
+		float yRotCurrent = Mth.wrapDegrees(this.getOriginal().getYRot());
+		
+		return Mth.clamp(Mth.wrapDegrees(yRotToTarget - yRotCurrent), -this.getYRotLimit(), this.getYRotLimit());
+	}
+	
 	public LivingEntity getTarget() {
 		return this.original.getLastHurtMob();
 	}
@@ -451,7 +629,6 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		} else {
 			yRotO = this.isLogicalClient() ? this.original.yBodyRotO : this.original.getYRot();
 			yRot = this.isLogicalClient() ? this.original.yBodyRot : this.original.getYRot();
-			
 		}
 		
 		return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, yRotO, yRot, partialTicks, scale, scale, scale);
@@ -566,7 +743,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		if (this.isLogicalClient()) {
 			this.animator.playAnimation(animation, transitionTimeModifier);
 		} else {
-			this.sendToAllPlayerTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.PLAY, animation, this.original.getId(), transitionTimeModifier, false));
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.PLAY, animation, this.original.getId(), transitionTimeModifier, false));
 		}
 	}
 	
@@ -578,7 +755,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		if (this.isLogicalClient()) {
 			this.animator.playShootingAnimation();
 		} else {
-			this.sendToAllPlayerTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.SHOT, -1, this.getOriginal().getId(), 0.0F, false));
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.SHOT, -1, this.getOriginal().getId(), 0.0F, false));
 		}
 	}
 	
@@ -614,7 +791,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 		}
 		
-		this.sendToAllPlayerTrackingMe(packetProvider.get(action, animation, transitionTimeModifier, this));
+		this.sendToAllPlayersTrackingMe(packetProvider.get(action, animation, transitionTimeModifier, this));
 	}
 	
 	/**
@@ -637,11 +814,11 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 		
 		if (!this.isLogicalClient()) {
-			this.sendToAllPlayerTrackingMe(new SPAnimatorControl(action, -1, this.original.getId(), 0.0F, pause));
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(action, -1, this.original.getId(), 0.0F, pause));
 		}
 	}
 	
-	public void sendToAllPlayerTrackingMe(Object packet) {
+	public void sendToAllPlayersTrackingMe(Object packet) {
 		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(packet, this.original);
 	}
 	
@@ -732,7 +909,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void notifyGrapplingWarning() {
 	}
 	
-	public void onDodgeSuccess(DamageSource damageSource) {
+	public void onDodgeSuccess(DamageSource damageSource, Vec3 location) {
 	}
 	
 	public void countHurtTime(float damageTaken) {
@@ -769,7 +946,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 
 	public SoundEvent getSwingSound(InteractionHand hand) {
-		return this.getAdvancedHoldingItemCapability(hand).getSmashingSound();
+		CapabilityItem itemCap = this.getAdvancedHoldingItemCapability(hand);
+		return this.entityDecorations.getModifiedSwingSound(itemCap.getSmashingSound(), itemCap);
 	}
 	
 	public HitParticleType getWeaponHitParticle(InteractionHand hand) {
@@ -807,6 +985,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 		
 		return impact * (1.0F + i * 0.12F);
+	}
+	
+	public float getReach(InteractionHand hand) {
+		return this.getAdvancedHoldingItemCapability(hand).getReach();
 	}
 	
 	public ItemStack getValidItemInHand(InteractionHand hand) {
@@ -944,7 +1126,6 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		if (this.isLogicalClient()) {
 			this.original.yBodyRot = yRot;
 			this.original.yHeadRot = yRot;
-			this.original.lerpYRot = yRot;
 		}
 	}
 	
@@ -967,32 +1148,37 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		
 		if (layerInfo != null) {
 			return layerInfo.getSecond().getPhaseByTime(layerInfo.getFirst().getElapsedTime()).hand;
-		}		
+		}		
 		return null;
-	}
-	
-	public Style getOldStyle() {
-		return this.oStyle;
 	}
 	
 	public LivingMotion getCurrentLivingMotion() {
 		return this.currentLivingMotion;
 	}
 	
-	public List<LivingEntity> getCurrenltyAttackedEntities() {
-		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HIT_ENTITIES);
+	public List<Entity> getCurrentlyAttackTriedEntities() {
+		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.ATTACK_TRIED_ENTITIES);
 	}
 
-	public List<LivingEntity> getCurrenltyHurtEntities() {
-		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HURT_ENTITIES);
+	public List<LivingEntity> getCurrentlyActuallyHitEntities() {
+		return this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.ACTUALLY_HIT_ENTITIES);
 	}
 
 	public void removeHurtEntities() {
-		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HIT_ENTITIES).clear();
-		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.HURT_ENTITIES).clear();
+		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.ATTACK_TRIED_ENTITIES).clear();
+		this.getAnimator().getVariables().getOrDefaultSharedVariable(AttackAnimation.ACTUALLY_HIT_ENTITIES).clear();
 	}
 	
 	public abstract Faction getFaction();
+	
+	public EntityDecorations getEntityDecorations() {
+		return this.entityDecorations;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public EntitySnapshot<?> captureEntitySnapshot() {
+		return EntitySnapshot.captureLivingEntity(this);
+	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public boolean flashTargetIndicator(LocalPlayerPatch playerpatch) {

@@ -4,32 +4,22 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.world.item.EpicFightItems;
 import yesman.epicfight.world.item.SkillBookItem;
 
 @OnlyIn(Dist.CLIENT)
 public class EpicFightItemProperties {
 	public static void registerItemProperties() {
-		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), ResourceLocation.withDefaultNamespace("skill"), (itemstack, level, entity, i) -> {
+		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill"), (itemstack, level, entity, i) -> {
 			Skill skill = SkillBookItem.getContainSkill(itemstack);
 			
 			if (skill != null) {
-				if (skill.getCategory() == SkillCategories.GUARD) {
-					return 1;
-				} else if (skill.getCategory() == SkillCategories.PASSIVE) {
-					return 2;
-				} else if (skill.getCategory() == SkillCategories.DODGE) {
-					return 3;
-				} else if (skill.getCategory() == SkillCategories.IDENTITY) {
-					return 4;
-				} else if (skill.getCategory() == SkillCategories.MOVER) {
-					return 5;
-				}
+				return skill.getCategory().universalOrdinal();
 			}
 			
-			return 0;
+			return Float.NEGATIVE_INFINITY;
 		});
 	}
 }

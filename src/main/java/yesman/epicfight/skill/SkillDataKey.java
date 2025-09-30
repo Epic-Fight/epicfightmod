@@ -75,7 +75,7 @@ public class SkillDataKey<T> {
 	}
 	
 	public static <T> SkillDataKey<T> createSkillDataKey(PacketBufferCodec<T> packetCodec, T defaultValue, boolean syncronizeTrackingPlayers, Class<?>... skillClass) {
-		SkillDataKey<T> key = new SkillDataKey<T>(packetCodec, defaultValue, syncronizeTrackingPlayers);
+		SkillDataKey<T> key = new SkillDataKey<T> (packetCodec, defaultValue, syncronizeTrackingPlayers);
 		
 		for (Class<?> cls : skillClass) {
 			SKILL_DATA_KEYS.put(cls, key);
@@ -94,15 +94,8 @@ public class SkillDataKey<T> {
 		return SkillDataKeys.REGISTRY.get().getSlaveMap(CLASS_TO_DATA_KEYS, Map.class);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static SkillDataKey<Object> byId(int id) {
-		return (SkillDataKey<Object>)getIdMap().byId(id);
-	}
-	
 	private final PacketBufferCodec<T> packetCodec;
 	private final T defaultValue;
-	
-	@Deprecated(forRemoval = true, since = "1.21.1")
 	private final boolean syncronizeTrackingPlayers;
 	
 	public SkillDataKey(PacketBufferCodec<T> packetCodec, T defaultValue, boolean syncronizeTrackingPlayers) {
@@ -127,7 +120,7 @@ public class SkillDataKey<T> {
 		return getIdMap().getId(this);
 	}
 	
-	public boolean syncronizeTrackingPlayers() {
+	public boolean syncronizeToTrackingPlayers() {
 		return this.syncronizeTrackingPlayers;
 	}
 }

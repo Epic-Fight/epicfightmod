@@ -1,10 +1,7 @@
 package yesman.epicfight.api.client.model;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -14,37 +11,27 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
-import yesman.epicfight.client.renderer.EpicFightVertexFormatElement;
-import yesman.epicfight.client.renderer.shader.AnimationShaderInstance;
-import yesman.epicfight.client.renderer.shader.ShaderParser;
+import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
+import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -57,14 +44,9 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	protected final int[][] affectingJointIndices;
 	
 	private final int maxJointCount;
-	private int arrayObjectId;
 	
-	private boolean bufferInitialized;
-	private VertexBuffer<Float> positionsBuffer;
-	private VertexBuffer<Float> uvsBuffer;
-	private VertexBuffer<Byte> normalsBuffer;
-	private VertexBuffer<Short> jointsBuffer;
-	private VertexBuffer<Float> weightsBuffer;
+	@Nullable
+	private ComputeShaderSetup computerShaderSetup;
 	
 	public SkinnedMesh(@Nullable Map<String, Number[]> arrayMap, @Nullable Map<MeshPartDefinition, List<VertexBuilder>> partBuilders, @Nullable SkinnedMesh parent, RenderProperties properties) {
 		super(arrayMap, partBuilders, parent, properties);
@@ -109,84 +91,29 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		
 		this.maxJointCount = maxJointId;
 		
-		if (RenderSystem.isOnRenderThread()) {
-			this.initBuffers();
-		} else {
-			RenderSystem.recordRenderCall(this::initBuffers);
+		if (ComputeShaderProvider.supportComputeShader()) {
+			if (RenderSystem.isOnRenderThread()) {
+				this.computerShaderSetup = ComputeShaderProvider.getComputeShaderSetup(this);
+			} else {
+				RenderSystem.recordRenderCall(() -> {
+					this.computerShaderSetup = ComputeShaderProvider.getComputeShaderSetup(this);
+				});
+			}
 		}
-	}
-	
-	public void initBuffers() {
-		this.positionsBuffer = new VertexBuffer<> (GLConstants.GL_FLOAT, 3, false, ByteBuffer::putFloat);
-		this.uvsBuffer = new VertexBuffer<> (GLConstants.GL_FLOAT, 2, false, ByteBuffer::putFloat);
-		this.normalsBuffer = new VertexBuffer<> (GLConstants.GL_BYTE, 3, true, ByteBuffer::put);
-		this.jointsBuffer = new VertexBuffer<> (GLConstants.GL_SHORT, 3, false, ByteBuffer::putShort);
-		this.weightsBuffer = new VertexBuffer<> (GLConstants.GL_FLOAT, 3, false, ByteBuffer::putFloat);
-		
-		this.arrayObjectId = GlStateManager._glGenVertexArrays();
-		
-		List<Float> positionList = Lists.newArrayList();
-		List<Float> uvList = Lists.newArrayList();
-		List<Byte> normalList = Lists.newArrayList();
-		List<Short> jointList = Lists.newArrayList();
-		List<Float> weightList = Lists.newArrayList();
-		Map<VertexBuilder, Integer> vertexBuilderMap = Maps.newHashMap();
-		
-		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
-		
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		
-		for (SkinnedMeshPart part : this.parts.values()) {
-			part.createVbo(vertexBuilderMap, this.positions, this.uvs, this.normals, this.weights, this.affectingJointCounts, this.affectingJointIndices, this.affectingWeightIndices, positionList, uvList, normalList, jointList, weightList);
-		}
-		
-		this.positionsBuffer.bindVertexData(positionList);
-		this.uvsBuffer.bindVertexData(uvList);
-		this.normalsBuffer.bindVertexData(normalList);
-		this.jointsBuffer.bindVertexData(jointList);
-		this.weightsBuffer.bindVertexData(weightList);
-		
-		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
-		
-		this.bufferInitialized = true;
-	}
-	
-	public void pointPositionsBuffer(int attrIndex) {
-		this.positionsBuffer.vertexAttribPointer(attrIndex);
-	}
-	
-	public void uvPositionsBuffer(int attrIndex) {
-		this.uvsBuffer.vertexAttribPointer(attrIndex);
-	}
-	
-	public void normalPositionsBuffer(int attrIndex) {
-		this.normalsBuffer.vertexAttribPointer(attrIndex);
-	}
-	
-	public void jointPositionsBuffer(int attrIndex) {
-		this.jointsBuffer.vertexAttribPointer(attrIndex);
-	}
-	
-	public void weightPositionsBuffer(int attrIndex) {
-		this.weightsBuffer.vertexAttribPointer(attrIndex);
 	}
 	
 	public void destroy() {
-		if (!this.bufferInitialized) {
-			return;
+		if (RenderSystem.isOnRenderThread()) {
+			if (this.computerShaderSetup != null) {
+				this.computerShaderSetup.destroyBuffers();
+			}
+		} else {
+			RenderSystem.recordRenderCall(() -> {
+				if (this.computerShaderSetup != null) {
+					this.computerShaderSetup.destroyBuffers();
+				}
+			});
 		}
-		
-		this.positionsBuffer.destroy();
-		this.uvsBuffer.destroy();
-		this.normalsBuffer.destroy();
-		this.jointsBuffer.destroy();
-		this.weightsBuffer.destroy();
-        this.parts.values().forEach(part -> RenderSystem.glDeleteBuffers(part.indexBufferId));
-        
-        RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
-        this.arrayObjectId = -1;
 	}
 	
 	@Override
@@ -228,6 +155,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			int jointIndex = this.affectingJointIndices[positionIndex][i];
 			int weightIndex = this.affectingWeightIndices[positionIndex][i];
 			float weight = this.weights[weightIndex];
+			
 			Vec4f.add(OpenMatrix4f.transform(poses[jointIndex], POS, TRANSFORM).scale(weight), TOTAL_POS, TOTAL_POS);
 		}
 		
@@ -262,44 +190,50 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			part.draw(poseStack, bufferbuilder, drawingFunction, packedLight, r, g, b, a, overlay);
 		}
 	}
-	
+
 	protected static final Vector4f POSITION = new Vector4f();
 	protected static final Vector3f NORMAL = new Vector3f();
-	protected static final OpenMatrix4f[] FINAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-	protected static final OpenMatrix4f[] NORMAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+	protected static final Matrix3f NORMAL_TRANSFORMER = new Matrix3f();
 	
 	/**
 	 * Draws the model to vanilla buffer
 	 */
 	@Override
-	public void drawPosed(PoseStack poseStack, VertexConsumer bufferbuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
-		Matrix4f matrix4f = poseStack.last().pose();
-		Matrix3f matrix3f = poseStack.last().normal();
+	public void drawPosed(PoseStack poseStack, VertexConsumer bufferbuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+		Matrix4f pose = poseStack.last().pose();
+		Matrix3f normal = poseStack.last().normal();
 		
 		for (SkinnedMeshPart part : this.parts.values()) {
 			if (!part.isHidden()) {
 				OpenMatrix4f transform = part.getVanillaPartTransform();
 				
 				for (int i = 0; i < poses.length; i++) {
-					FINAL_POSES[i].load(poses[i]);
+					ComputeShaderSetup.TOTAL_POSES[i].load(poses[i]);
 					
 					if (armature != null) {
-						FINAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
+						ComputeShaderSetup.TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
 					}
 					
 					if (transform != null) {
-						FINAL_POSES[i].mulBack(transform);
+						ComputeShaderSetup.TOTAL_POSES[i].mulBack(transform);
 					}
 					
-					NORMAL_POSES[i] = FINAL_POSES[i].removeTranslation();
+					ComputeShaderSetup.TOTAL_NORMALS[i] = ComputeShaderSetup.TOTAL_POSES[i].removeTranslation();
 				}
 				
 				for (VertexBuilder vi : part.getVertices()) {
-					getVertexPosition(vi.position, POSITION, FINAL_POSES);
-					getVertexNormal(vi.position, vi.normal, NORMAL, NORMAL_POSES);
+					this.getVertexPosition(vi.position, POSITION, ComputeShaderSetup.TOTAL_POSES);
+					this.getVertexNormal(vi.position, vi.normal, NORMAL, ComputeShaderSetup.TOTAL_NORMALS);
 					
-					POSITION.mul(matrix4f);
-					NORMAL.mul(matrix3f);
+					POSITION.mul(pose);
+					
+					if (ClientConfig.computeNormalInShader.get()) {
+						// Iris assumes normals are in view-space 
+						NORMAL_TRANSFORMER.set(pose);
+						NORMAL.mul(NORMAL_TRANSFORMER);
+					} else {
+						NORMAL.mul(normal);
+					}
 					
 					drawingFunction.draw(bufferbuilder, POSITION.x, POSITION.y, POSITION.z, NORMAL.x, NORMAL.y, NORMAL.z, packedLight, r, g, b, a, this.uvs[vi.uv * 2], this.uvs[vi.uv * 2 + 1], overlay);
 				}
@@ -312,181 +246,53 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	 * @param armature give this parameter as null if @param poses already bound origin translation
 	 * @param poses
 	 */
-	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
-		if (ClientConfig.activateAnimationShader && armature.getJointNumber() <= ShaderParser.SHADER_ARRAY_LIMIT) {
-			renderType.setupRenderState();
-			AnimationShaderInstance animationShader = EpicFightRenderTypes.getAnimationShader(renderType);
-			this.drawWithShader(poseStack, animationShader, packedLight, 1.0F, 1.0F, 1.0F, 1.0F, overlay, armature, poses);
-			renderType.clearRenderState();
+	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+		this.draw(poseStack, bufferSources, renderType, Mesh.DrawingFunction.NEW_ENTITY, packedLight, r, g, b, a, overlay, armature, poses);
+	}
+
+	@Override
+	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+		if (ClientConfig.activateComputeShader && this.computerShaderSetup != null) {
+			this.computerShaderSetup.drawWithShader(this, poseStack, bufferSources, EpicFightRenderTypes.getTriangulated(renderType), packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
-			this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), Mesh.DrawingFunction.NEW_ENTITY, packedLight, r, g, b, a, overlay, armature, poses);
+			this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 		}
-	}
-	
-	/**
-	 * Draw the model with shader optimization by shader and vertex format
-	 */
-	public void drawWithShader(PoseStack poseStack, ShaderInstance shader, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
-		AnimationShaderInstance animationShader = EpicFightRenderTypes.getAnimationShader(shader);
-		this.drawWithShader(poseStack, animationShader, packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, armature, poses);
-	}
-	
-	public void drawWithShader(PoseStack poseStack, AnimationShaderInstance animationShaderInstance, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
-		if (this.arrayObjectId < 0) {
-			throw new IllegalStateException("Mesh destroyed");
-		}
-		
-		if (animationShaderInstance == null) {
-			return;
-		}
-		
-		for (int i = 0; i < 12; ++i) {
-			int j = RenderSystem.getShaderTexture(i);
-			animationShaderInstance._setSampler("Sampler" + i, j);
-		}
-		
-		if (animationShaderInstance.getModelViewMatrixUniform() != null) {
-			animationShaderInstance.getModelViewMatrixUniform().set(poseStack.last().pose());
-		}
-		
-		if (animationShaderInstance.getProjectionMatrixUniform() != null) {
-			animationShaderInstance.getProjectionMatrixUniform().set(RenderSystem.getProjectionMatrix());
-		}
-		
-		if (animationShaderInstance.getNormalMatrixUniform() != null) {
-			animationShaderInstance.getNormalMatrixUniform().set(poseStack.last().normal());
-		}
-		
-		if (animationShaderInstance.getInverseViewRotationMatrixUniform() != null) {
-			animationShaderInstance.getInverseViewRotationMatrixUniform().set(RenderSystem.getInverseViewRotationMatrix());
-		}
-		
-		if (animationShaderInstance.getColorModulatorUniform() != null) {
-			animationShaderInstance.getColorModulatorUniform().set(RenderSystem.getShaderColor());
-		}
-		
-		if (animationShaderInstance.getGlintAlphaUniform() != null) {
-			animationShaderInstance.getGlintAlphaUniform().set(RenderSystem.getShaderGlintAlpha());
-		}
-		
-		if (animationShaderInstance.getFogStartUniform() != null) {
-			animationShaderInstance.getFogStartUniform().set(RenderSystem.getShaderFogStart());
-		}
-		
-		if (animationShaderInstance.getFogEndUniform() != null) {
-			animationShaderInstance.getFogEndUniform().set(RenderSystem.getShaderFogEnd());
-		}
-		
-		if (animationShaderInstance.getFogColorUniform() != null) {
-			animationShaderInstance.getFogColorUniform().set(RenderSystem.getShaderFogColor());
-		}
-		
-		if (animationShaderInstance.getFogShapeUniform() != null) {
-			animationShaderInstance.getFogShapeUniform().set(RenderSystem.getShaderFogShape().getIndex());
-		}
-		
-		if (animationShaderInstance.getTextureMatrixUniform() != null) {
-			animationShaderInstance.getTextureMatrixUniform().set(RenderSystem.getTextureMatrix());
-		}
-		
-		if (animationShaderInstance.getGameTimeUniform() != null) {
-			animationShaderInstance.getGameTimeUniform().set(RenderSystem.getShaderGameTime());
-		}
-		
-		if (animationShaderInstance.getScreenSizeUniform() != null) {
-			Window window = Minecraft.getInstance().getWindow();
-			animationShaderInstance.getScreenSizeUniform().set((float) window.getWidth(), (float) window.getHeight());
-		}
-		
-		if (animationShaderInstance.getColorUniform() != null) {
-			animationShaderInstance.getColorUniform().set(r, g, b, a);
-		}
-		
-		if (animationShaderInstance.getOverlayUniform() != null) {
-			animationShaderInstance.getOverlayUniform().set(overlay & '\uffff', overlay >> 16 & '\uffff');
-		}
-		
-		if (animationShaderInstance.getLightUniform() != null) {
-			animationShaderInstance.getLightUniform().set(packedLight & '\uffff', packedLight >> 16 & '\uffff');
-		}
-		
-		animationShaderInstance.setupShaderLights();
-		
-		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
-		
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		EpicFightVertexFormatElement.bindDrawing(this);
-		
-		for (SkinnedMeshPart part : this.parts.values()) {
-			part.drawWithShader(animationShaderInstance, r, g, b, a, armature, poses);
-		}
-		
-		EpicFightVertexFormatElement.unbindDrawing();
-		
-		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
 	}
 	
 	public int getMaxJointCount() {
 		return this.maxJointCount;
 	}
 	
+	public float[] weights() {
+		return this.weights;
+	}
+	
+	public int[] affectingJointCounts() {
+		return this.affectingJointCounts;
+	}
+	
+	public int[][] affectingWeightIndices() {
+		return this.affectingWeightIndices;
+	}
+	
+	public int[][] affectingJointIndices() {
+		return this.affectingJointIndices;
+	}
+	
 	@OnlyIn(Dist.CLIENT)
 	public class SkinnedMeshPart extends MeshPart {
-		private int indexBufferId;
-		
+		private ComputeShaderSetup.MeshPartBuffer partVBO;
+
 		public SkinnedMeshPart(List<VertexBuilder> animatedMeshPartList, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
 			super(animatedMeshPartList, renderProperties, vanillaPartTracer);
 		}
 		
-		private void createVbo(
-			  Map<VertexBuilder, Integer> vertexBuilderMap
-			, float[] positions
-			, float[] uvs
-			, float[] normals
-			, float[] weights
-			, int[] affectingJointCounts
-			, int[][] affectingJointIndices
-			, int[][] affectingWeightsIndices
-			, List<Float> position
-			, List<Float> uv
-			, List<Byte> normal
-			, List<Short> joint
-			, List<Float> weight
-		) {
-			ByteBuffer indicesBuffer = ByteBuffer.allocateDirect(this.getVertices().size() * 4).order(ByteOrder.nativeOrder());
-			
-			for (VertexBuilder vb : this.getVertices()) {
-				if (vertexBuilderMap.containsKey(vb)) {
-					indicesBuffer.putInt(vertexBuilderMap.get(vb));
-				} else {
-					int next = vertexBuilderMap.size();
-					indicesBuffer.putInt(next);
-					vertexBuilderMap.put(vb, next);
-					position.add(positions[vb.position * 3]);
-					position.add(positions[vb.position * 3 + 1]);
-					position.add(positions[vb.position * 3 + 2]);
-					uv.add(uvs[vb.uv * 2]);
-					uv.add(uvs[vb.uv * 2 + 1]);
-					normal.add(packNormal(normals[vb.normal * 3]));
-					normal.add(packNormal(normals[vb.normal * 3 + 1]));
-					normal.add(packNormal(normals[vb.normal * 3 + 2]));
-					joint.add(affectingJointCounts[vb.position] > 0 ? (short)affectingJointIndices[vb.position][0] : -1);
-					joint.add(affectingJointCounts[vb.position] > 1 ? (short)affectingJointIndices[vb.position][1] : -1);
-					joint.add(affectingJointCounts[vb.position] > 2 ? (short)affectingJointIndices[vb.position][2] : -1);
-					weight.add(affectingJointCounts[vb.position] > 0 ? weights[affectingWeightsIndices[vb.position][0]] : 0.0F);
-					weight.add(affectingJointCounts[vb.position] > 1 ? weights[affectingWeightsIndices[vb.position][1]] : 0.0F);
-					weight.add(affectingJointCounts[vb.position] > 2 ? weights[affectingWeightsIndices[vb.position][2]] : 0.0F);
-				}
-			}
-			
-			indicesBuffer.flip();
-			
-			this.indexBufferId = GlStateManager._glGenBuffers();
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, this.indexBufferId);
-			GlStateManager._glBufferData(GLConstants.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GLConstants.GL_STATIC_DRAW);
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
+		public void initVBO(ComputeShaderSetup.MeshPartBuffer partVBO) {
+			this.partVBO = partVBO;
+		}
+		
+		public ComputeShaderSetup.MeshPartBuffer getPartVBO() {
+			return this.partVBO;
 		}
 		
 		@Override
@@ -496,128 +302,24 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			}
 			
 			Vector4f color = this.getColor(r, g, b, a);
-			Matrix4f matrix4f = poseStack.last().pose();
-			Matrix3f matrix3f = poseStack.last().normal();
+			Matrix4f pose = poseStack.last().pose();
+			Matrix3f normal = poseStack.last().normal();
 			
 			for (VertexBuilder vi : this.getVertices()) {
 				getVertexPosition(vi.position, POSITION);
 				getVertexNormal(vi.normal, NORMAL);
-				POSITION.mul(matrix4f);
-				NORMAL.mul(matrix3f);
+				POSITION.mul(pose);
+				
+				if (ClientConfig.computeNormalInShader.get()) {
+					// Iris assumes normals are in view-space 
+					NORMAL_TRANSFORMER.set(pose);
+					NORMAL.mul(NORMAL_TRANSFORMER);
+				} else {
+					NORMAL.mul(normal);
+				}
 				
 				drawingFunction.draw(bufferBuilder, POSITION.x(), POSITION.y(), POSITION.z(), NORMAL.x(), NORMAL.y(), NORMAL.z(), packedLight, color.x, color.y, color.z, color.w, uvs[vi.uv * 2], uvs[vi.uv * 2 + 1], overlay);
 			}
-		}
-		
-		public void drawWithShader(AnimationShaderInstance animationShaderInstance, float r, float g, float b, float a, Armature armature, OpenMatrix4f[] poses) {
-			if (this.isHidden()) {
-				return;
-			}
-			
-			OpenMatrix4f transform = this.getVanillaPartTransform();
-			
-			for (int i = 0; i < poses.length; i++) {
-				FINAL_POSES[i].load(poses[i]);
-				
-				if (armature != null) {
-					FINAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
-				}
-				
-				if (transform != null) {
-					FINAL_POSES[i].mulBack(transform);
-				}
-			}
-			
-			for (int i = 0; i < poses.length; i++) {
-				if (animationShaderInstance.getPoses(i) != null) {
-					animationShaderInstance.getPoses(i).set(OpenMatrix4f.exportToMojangMatrix(FINAL_POSES[i]));
-				}
-			}
-			
-			boolean hasCustomColor = this.renderProperties != null && this.renderProperties.customColor() != null;
-			
-			if (hasCustomColor) {
-				animationShaderInstance.getColorUniform().set(this.renderProperties.customColor().x, this.renderProperties.customColor().y, this.renderProperties.customColor().z, 1.0F);
-			}
-			
-			animationShaderInstance._getVertexFormat().setupBufferState();
-			animationShaderInstance._apply();
-			
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, this.indexBufferId);
-			RenderSystem.drawElements(VertexFormat.Mode.TRIANGLES.asGLMode, this.getVertices().size(), VertexFormat.IndexType.INT.asGLType);
-			GlStateManager._glBindBuffer(GLConstants.GL_ELEMENT_ARRAY_BUFFER, 0);
-			
-			animationShaderInstance._clear();
-			animationShaderInstance._getVertexFormat().clearBufferState();
-			
-			if (hasCustomColor) {
-				animationShaderInstance.getColorUniform().set(r, g, b, a);
-			}
-		}
-		
-		static byte packNormal(float f) {
-			return (byte)((int)(Mth.clamp(f, -1.0F, 1.0F) * 127.0F) & 255);
-		}
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private class VertexBuffer<T extends Number> {
-		private int vertexBufferIds;
-		private final int glType;
-		private final int size;
-		private final boolean normalize;
-		private final BiConsumer<ByteBuffer, T> bufferUploader;
-		
-		public VertexBuffer(int glType, int size, boolean normalize, BiConsumer<ByteBuffer, T> bufferUploader) {
-			this.vertexBufferIds = GlStateManager._glGenBuffers();
-			this.glType = glType;
-			this.size = size;
-			this.normalize = normalize;
-			this.bufferUploader = bufferUploader;
-		}
-		
-		public void bindVertexData(List<T> data) {
-			if (this.vertexBufferIds < 0) {
-				throw new RuntimeException("vertex buffer is already destroyed");
-			}
-			
-			ByteBuffer buf = ByteBuffer.allocateDirect(data.size() * 4).order(ByteOrder.nativeOrder());
-			
-			for (T f : data) {
-				this.bufferUploader.accept(buf, f);
-			}
-			
-			buf.flip();
-			
-			GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, this.vertexBufferIds);
-			GlStateManager._glBufferData(GLConstants.GL_ARRAY_BUFFER, buf, GLConstants.GL_STATIC_DRAW);
-			GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, 0);
-		}
-		
-		public void vertexAttribPointer(int attrIndex) {
-			if (this.vertexBufferIds < 0) {
-				throw new RuntimeException("vertex buffer is already destroyed");
-			}
-			
-			GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, this.vertexBufferIds);
-			
-			switch (this.glType) {
-			case GLConstants.GL_DOUBLE, GLConstants.GL_FLOAT -> {
-				GlStateManager._vertexAttribPointer(attrIndex, this.size, this.glType, this.normalize, 0, 0);
-			}
-			case GLConstants.GL_BYTE, GLConstants.GL_SHORT, GLConstants.GL_INT -> {
-				if (this.normalize) {
-					GlStateManager._vertexAttribPointer(attrIndex, this.size, this.glType, true, 0, 0);
-				} else {
-					GlStateManager._vertexAttribIPointer(attrIndex, this.size, this.glType, 0, 0);
-				}
-			}
-			}
-		}
-		
-		public void destroy() {
-			RenderSystem.glDeleteBuffers(this.vertexBufferIds);
-			this.vertexBufferIds = -1;
 		}
 	}
 	

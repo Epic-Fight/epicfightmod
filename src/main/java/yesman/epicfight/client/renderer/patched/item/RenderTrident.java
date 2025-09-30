@@ -37,7 +37,7 @@ public class RenderTrident extends RenderItemBase {
 	}
 	
 	@Override
-	protected OpenMatrix4f getCorrectionMatrix(LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses) {
+	public OpenMatrix4f getCorrectionMatrix(LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses) {
 		if (entitypatch.getOriginal().getUseItemRemainingTicks() > 0) {
 			Joint parentJoint = entitypatch.getParentJointOfHand(hand);
 			this.transformHolder.load(TRANSFORM_WHEN_AIMING);

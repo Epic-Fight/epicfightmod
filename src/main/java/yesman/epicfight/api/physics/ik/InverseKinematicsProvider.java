@@ -65,7 +65,7 @@ public interface InverseKinematicsProvider extends SimulationProvider<InverseKin
 		FABRIK fabrik = new FABRIK(pose, armature, startJoint, endJoint);
     	fabrik.run(recalculatedPosition, 10);
     	OpenMatrix4f tipRotationMatrix = OpenMatrix4f.fromQuaternion(tipRotation);
-    	OpenMatrix4f animRotation = armature.getBindedTransformFor(pose, endJoint).removeTranslation();
+    	OpenMatrix4f animRotation = armature.getBoundTransformFor(pose, endJoint).removeTranslation();
     	OpenMatrix4f animToTipRotation = OpenMatrix4f.mul(OpenMatrix4f.invert(animRotation, null), tipRotationMatrix, null);
     	pose.orElseEmpty(endJoint.getName()).overwriteRotation(JointTransform.fromMatrixWithoutScale(animToTipRotation));
 	}

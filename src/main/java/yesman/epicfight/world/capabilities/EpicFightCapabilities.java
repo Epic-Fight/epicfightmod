@@ -37,6 +37,10 @@ public class EpicFightCapabilities {
 		return stack.isEmpty() ? defaultCap : stack.getCapability(CAPABILITY_ITEM).orElse(defaultCap);
 	}
 	
+	public static Optional<CapabilityItem> getItemCapability(ItemStack stack) {
+		return stack.isEmpty() ? Optional.empty() : stack.getCapability(CAPABILITY_ITEM).resolve();
+	}
+	
 	/**
 	 * This method should remain as the secondary option, especially when you can't fix local variables inside lambda expression.
 	 * 

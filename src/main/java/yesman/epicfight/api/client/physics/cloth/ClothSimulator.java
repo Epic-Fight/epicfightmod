@@ -1,6 +1,7 @@
 package yesman.epicfight.api.client.physics.cloth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +173,34 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			
 			this.parts = partBuilder.build();
 		}
-
+		
+		private ClothObject(ClothObject copyTarget) {
+			this.provider = copyTarget.provider;
+			this.parts = copyTarget.parts;
+			
+			this.particles = new HashMap<> ();
+			this.normalOffsetParticles = new HashMap<> ();
+			
+			for (Map.Entry<Integer, Particle> entry : copyTarget.particles.entrySet()) {
+				this.particles.put(entry.getKey(), entry.getValue().copy());
+			}
+			
+			for (Map.Entry<Integer, ClothPart.OffsetParticle> entry : copyTarget.normalOffsetParticles.entrySet()) {
+				this.normalOffsetParticles.put(entry.getKey(), entry.getValue().copy());
+			}
+			
+			for (Map.Entry<Integer, ClothPart.OffsetParticle> entry : copyTarget.normalOffsetParticles.entrySet()) {
+				this.normalOffsetParticles.put(entry.getKey(), entry.getValue().copy());
+			}
+			
+			this.particleNormals = ImmutableList.copyOf(copyTarget.particleNormals);
+			this.parentJoint = copyTarget.parentJoint;
+		}
+		
+		public ClothObject captureMyself() {
+			return new ClothObject(this);
+		}
+		
 		private static final int SUB_STEPS = 6;
 		private static final Vec3f EXTERNAL_FORCE = new Vec3f();
 		private static final Vec3f OFFSET = new Vec3f();
@@ -585,6 +613,10 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 				this.meshVertexId = meshVertexId;
 				this.collided = false;
 			}
+			
+			Particle copy() {
+				return new Particle(this.position.copy(), this.influence, this.rootDistance, this.meshVertexId);
+			}
 		}
 		
 		@OnlyIn(Dist.CLIENT)
@@ -940,6 +972,9 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			
 			@OnlyIn(Dist.CLIENT)
 			public static record OffsetParticle(int offsetVertexId, float length, Particle rootParticle, Vec3f position, List<Integer> positionNormalMembers, List<Integer> inverseNormal) {
+				public OffsetParticle copy() {
+					return new OffsetParticle(this.offsetVertexId, this.length, this.rootParticle, this.position.copy(), this.positionNormalMembers, this.inverseNormal);
+				}
 			}
 			
 			@OnlyIn(Dist.CLIENT)

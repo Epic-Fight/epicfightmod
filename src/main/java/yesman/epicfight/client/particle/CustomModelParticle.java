@@ -35,9 +35,12 @@ public abstract class CustomModelParticle<M extends Mesh> extends Particle {
 	@Override
 	public void render(VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
 		PoseStack poseStack = new PoseStack();
+		poseStack.pushPose();
 		this.setupPoseStack(poseStack, camera, partialTicks);
 		this.prepareDraw(poseStack, partialTicks);
 		this.particleMeshProvider.get().draw(poseStack, vertexConsumer, Mesh.DrawingFunction.POSITION_TEX_COLOR_LIGHTMAP, this.getLightColor(partialTicks), this.rCol, this.gCol, this.bCol, this.alpha, OverlayTexture.NO_OVERLAY);
+		this.revert(poseStack);
+		poseStack.popPose();
 	}
 	
 	@Override
@@ -52,25 +55,32 @@ public abstract class CustomModelParticle<M extends Mesh> extends Particle {
 		}
 	}
 	
-	public void prepareDraw(PoseStack poseStack, float partialTicks) {}
+	public void prepareDraw(PoseStack poseStack, float partialTicks) {
+	}
 	
 	protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTicks) {
+		poseStack.pushPose();
+		
+		Vec3 cameraPosition = camera.getPosition();
+		float x = (float)(Mth.lerp(partialTicks, this.xo, this.x) - cameraPosition.x());
+		float y = (float)(Mth.lerp(partialTicks, this.yo, this.y) - cameraPosition.y());
+		float z = (float)(Mth.lerp(partialTicks, this.zo, this.z) - cameraPosition.z());
+		poseStack.translate(x, y, z);
+		
 		Quaternionf rotation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 		float roll = Mth.lerp(partialTicks, this.oRoll, this.roll);
 		float pitch = Mth.lerp(partialTicks, this.pitchO, this.pitch);
 		float yaw = Mth.lerp(partialTicks, this.yawO, this.yaw);
-		rotation.mul(QuaternionUtils.YP.rotationDegrees(yaw));
+		rotation.mul(QuaternionUtils.YP.rotationDegrees(180.0F - yaw));
 		rotation.mul(QuaternionUtils.XP.rotationDegrees(pitch));
 		rotation.mul(QuaternionUtils.ZP.rotationDegrees(roll));
-		
-		Vec3 vec3 = camera.getPosition();
-		float x = (float)(Mth.lerp(partialTicks, this.xo, this.x) - vec3.x());
-		float y = (float)(Mth.lerp(partialTicks, this.yo, this.y) - vec3.y());
-		float z = (float)(Mth.lerp(partialTicks, this.zo, this.z) - vec3.z());
-		float scale = (float)Mth.lerp((double)partialTicks, this.scaleO, this.scale);
-		
-		poseStack.translate(x, y, z);
 		poseStack.mulPose(rotation);
+		
+		float scale = (float)Mth.lerp(partialTicks, this.scaleO, this.scale);
 		poseStack.scale(scale, scale, scale);
+	}
+	
+	protected void revert(PoseStack poseStack) {
+		poseStack.popPose();
 	}
 }

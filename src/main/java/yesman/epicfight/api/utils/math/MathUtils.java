@@ -177,24 +177,48 @@ public class MathUtils {
 		return getNearestVector(from, vectors.toArray(new Vec3[0]));
 	}
 	
-	public static float greatest(float... dList) {
-		float max = -1000000.0F;
+	public static int greatest(int... iList) {
+		int max = Integer.MIN_VALUE;
 		
-		for (float d : dList) {
-			if ( max < d) {
-				max = d;
+		for (int i : iList) {
+			if (max < i) {
+				max = i;
 			}
 		}
 		
 		return max;
 	}
 	
-	public static float least(float... dList) {
+	public static int least(int... iList) {
+		int min = Integer.MAX_VALUE;
+		
+		for (int i : iList) {
+			if (min > i) {
+				min = i;
+			}
+		}
+		
+		return min;
+	}
+	
+	public static float greatest(float... fList) {
+		float max = -1000000.0F;
+		
+		for (float f : fList) {
+			if (max < f) {
+				max = f;
+			}
+		}
+		
+		return max;
+	}
+	
+	public static float least(float... fList) {
 		float min = 1000000.0F;
 		
-		for (float d : dList) {
-			if (min > d) {
-				min = d;
+		for (float f : fList) {
+			if (min > f) {
+				min = f;
 			}
 		}
 		
@@ -205,7 +229,7 @@ public class MathUtils {
 		double max = -1000000.0D;
 		
 		for (double d : dList) {
-			if ( max < d) {
+			if (max < d) {
 				max = d;
 			}
 		}
@@ -467,6 +491,10 @@ public class MathUtils {
 		result.y = g;
 		result.z = b;
 		result.w = a;
+	}
+
+	public static byte normalIntValue(float pNum) {
+		return (byte)((int)(Mth.clamp(pNum, -1.0F, 1.0F) * 127.0F) & 255);
 	}
 	
 	private MathUtils() {}

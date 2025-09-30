@@ -2,6 +2,7 @@ package yesman.epicfight.gameasset;
 
 import java.util.Set;
 
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -18,40 +19,14 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.Skill.ActivateType;
 import yesman.epicfight.skill.Skill.Resource;
 import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.skill.dodge.DodgeSkill;
-import yesman.epicfight.skill.dodge.KnockdownWakeupSkill;
-import yesman.epicfight.skill.guard.GuardSkill;
-import yesman.epicfight.skill.guard.ImpactGuardSkill;
-import yesman.epicfight.skill.guard.ParryingSkill;
-import yesman.epicfight.skill.identity.MeteorSlamSkill;
-import yesman.epicfight.skill.identity.RevelationSkill;
-import yesman.epicfight.skill.mover.DemolitionLeapSkill;
-import yesman.epicfight.skill.mover.PhantomAscentSkill;
-import yesman.epicfight.skill.passive.BerserkerSkill;
-import yesman.epicfight.skill.passive.DeathHarvestSkill;
-import yesman.epicfight.skill.passive.EmergencyEscapeSkill;
-import yesman.epicfight.skill.passive.EnduranceSkill;
-import yesman.epicfight.skill.passive.ForbiddenStrengthSkill;
-import yesman.epicfight.skill.passive.HyperVitalitySkill;
-import yesman.epicfight.skill.passive.PassiveSkill;
-import yesman.epicfight.skill.passive.StaminaPillagerSkill;
-import yesman.epicfight.skill.passive.SwordmasterSkill;
-import yesman.epicfight.skill.passive.TechnicianSkill;
-import yesman.epicfight.skill.weaponinnate.BattojutsuSkill;
-import yesman.epicfight.skill.weaponinnate.BladeRushSkill;
-import yesman.epicfight.skill.weaponinnate.ConditionalWeaponInnateSkill;
-import yesman.epicfight.skill.weaponinnate.EverlastingAllegiance;
-import yesman.epicfight.skill.weaponinnate.EviscerateSkill;
-import yesman.epicfight.skill.weaponinnate.GraspingSpireSkill;
-import yesman.epicfight.skill.weaponinnate.GuillotineAxeSkill;
-import yesman.epicfight.skill.weaponinnate.LiechtenauerSkill;
-import yesman.epicfight.skill.weaponinnate.RushingTempoSkill;
-import yesman.epicfight.skill.weaponinnate.SimpleWeaponInnateSkill;
-import yesman.epicfight.skill.weaponinnate.SteelWhirlwindSkill;
-import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-import yesman.epicfight.skill.weaponinnate.WrathfulLightingSkill;
+import yesman.epicfight.skill.dodge.*;
+import yesman.epicfight.skill.guard.*;
+import yesman.epicfight.skill.identity.*;
+import yesman.epicfight.skill.mover.*;
+import yesman.epicfight.skill.passive.*;
+import yesman.epicfight.skill.weaponinnate.*;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -69,7 +44,11 @@ public class EpicFightSkills {
 	public static Skill PARRYING;
 	public static Skill IMPACT_GUARD;
 	/** Passive skills **/
+	public static Skill ADAPTIVE_SKIN;
+	public static Skill ADRENALINE_FIEND;
 	public static Skill BERSERKER;
+	public static Skill BONEBREAKER;
+	public static Skill CATHARSIS;
 	public static Skill DEATH_HARVEST;
 	public static Skill EMERGENCY_ESCAPE;
 	public static Skill ENDURANCE;
@@ -78,12 +57,7 @@ public class EpicFightSkills {
 	public static Skill STAMINA_PILLAGER;
 	public static Skill SWORD_MASTER;
 	public static Skill TECHNICIAN;
-		/** Unimplemented passives **/
-		public static Skill CATHARSIS;
-		public static Skill VENGEANCE;
-		public static Skill ADAPTIVE_SKIN;
-		public static Skill SADISM;
-		public static Skill RAGING_REFLECTION;
+	public static Skill VENGEANCE;
 	/** Weapon innate skills**/
 	public static Skill GUILLOTINE_AXE;
 	public static Skill SWEEPING_EDGE;
@@ -124,20 +98,25 @@ public class EpicFightSkills {
 		PARRYING = modRegistry.build("parrying", ParryingSkill::new, ParryingSkill.createActiveGuardBuilder());
 		IMPACT_GUARD = modRegistry.build("impact_guard", ImpactGuardSkill::new, ImpactGuardSkill.createEnergizingGuardBuilder());
 		
+		ADAPTIVE_SKIN = modRegistry.build("adaptive_skin", AdaptiveSkinSkill::new, AdaptiveSkinSkill.createAdaptiveSkinBuilder());
+		ADRENALINE_FIEND = modRegistry.build("adrenaline_fiend", AdrenalineFiendSkill::new, PassiveSkill.createPassiveBuilder());
 		BERSERKER = modRegistry.build("berserker", BerserkerSkill::new, PassiveSkill.createPassiveBuilder());
+		BONEBREAKER = modRegistry.build("bonebreaker", BonebreakerSkill::new, PassiveSkill.createPassiveBuilder());
+		CATHARSIS = modRegistry.build("catharsis", CatharsisSkill::new, PassiveSkill.createPassiveBuilder());
 		DEATH_HARVEST = modRegistry.build("death_harvest", DeathHarvestSkill::new, PassiveSkill.createPassiveBuilder());
-		EMERGENCY_ESCAPE = modRegistry.build("emergency_escape", EmergencyEscapeSkill::new, EmergencyEscapeSkill.createEmergencyEscapeBuilder().addAvailableWeaponCategory(WeaponCategories.SWORD, WeaponCategories.UCHIGATANA, WeaponCategories.DAGGER));
+		EMERGENCY_ESCAPE = modRegistry.build("emergency_escape", EmergencyEscapeSkill::new, EmergencyEscapeSkill.createEmergencyEscapeBuilder().addAvailableWeaponCategory(WeaponCategories.FIST, WeaponCategories.SWORD, WeaponCategories.UCHIGATANA, WeaponCategories.DAGGER));
 		ENDURANCE = modRegistry.build("endurance", EnduranceSkill::new, PassiveSkill.createPassiveBuilder().setResource(Resource.COOLDOWN).setActivateType(ActivateType.DURATION));
 		FORBIDDEN_STRENGTH = modRegistry.build("forbidden_strength", ForbiddenStrengthSkill::new, PassiveSkill.createPassiveBuilder());
 		HYPERVITALITY = modRegistry.build("hypervitality", HyperVitalitySkill::new, PassiveSkill.createPassiveBuilder().setResource(Resource.COOLDOWN).setActivateType(ActivateType.TOGGLE));
 		STAMINA_PILLAGER = modRegistry.build("stamina_pillager", StaminaPillagerSkill::new, PassiveSkill.createPassiveBuilder());
 		SWORD_MASTER = modRegistry.build("swordmaster", SwordmasterSkill::new, SwordmasterSkill.createSwordMasterBuilder());
 		TECHNICIAN = modRegistry.build("technician", TechnicianSkill::new, PassiveSkill.createPassiveBuilder());
+		VENGEANCE = modRegistry.build("vengeance", VengeanceSkill::new, PassiveSkill.createPassiveBuilder().setActivateType(ActivateType.DURATION));
 		
 		METEOR_STRIKE = modRegistry.build("meteor_slam", MeteorSlamSkill::new, MeteorSlamSkill.createMeteorSlamBuilder());
 		REVELATION = modRegistry.build("revelation", RevelationSkill::new, RevelationSkill.createRevelationSkillBuilder());
 		
-		DEMOLITION_LEAP = modRegistry.build("demolition_leap", DemolitionLeapSkill::new, Skill.createMoverBuilder().setActivateType(ActivateType.CHARGING));
+		DEMOLITION_LEAP = modRegistry.build("demolition_leap", DemolitionLeapSkill::new, Skill.createMoverBuilder().setActivateType(ActivateType.HELD));
 		PHANTOM_ASCENT = modRegistry.build("phantom_ascent", PhantomAscentSkill::new, Skill.createMoverBuilder().setResource(Resource.COOLDOWN));
 		
 		WeaponInnateSkill sweepingEdge = modRegistry.build("sweeping_edge", SimpleWeaponInnateSkill::new, SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder().setAnimations(Animations.SWEEPING_EDGE));
@@ -148,7 +127,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.6F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		SWEEPING_EDGE = sweepingEdge;
 		
 		WeaponInnateSkill dancingEdge = modRegistry.build("dancing_edge", SimpleWeaponInnateSkill::new, SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder().setAnimations(Animations.DANCING_EDGE));
@@ -156,17 +135,17 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.newProperty()
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.newProperty()
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(1))
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		DANCING_EDGE = dancingEdge;
 		
 		WeaponInnateSkill theGuillotine = modRegistry.build("the_guillotine", GuillotineAxeSkill::new, SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder().setAnimations(Animations.THE_GUILLOTINE));
@@ -177,14 +156,14 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		GUILLOTINE_AXE = theGuillotine;
 		
 		WeaponInnateSkill graspingSpire = modRegistry.build("grasping_spire", GraspingSpireSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
 		graspingSpire.newProperty()
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(3))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(4.0F))
 					.newProperty()
@@ -192,7 +171,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		GRASPING_SPIRE = graspingSpire;
 		
 		WeaponInnateSkill heartpiercer = modRegistry.build("heartpiercer", SimpleWeaponInnateSkill::new, SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder().setAnimations(Animations.HEARTPIERCER));
@@ -200,26 +179,26 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(10.0F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		HEARTPIERCER = heartpiercer;
 		
-		WeaponInnateSkill steelWhirlwind = modRegistry.build("steel_whirlwind", SteelWhirlwindSkill::new, WeaponInnateSkill.createWeaponInnateBuilder().setActivateType(ActivateType.CHARGING));
+		WeaponInnateSkill steelWhirlwind = modRegistry.build("steel_whirlwind", SteelWhirlwindSkill::new, WeaponInnateSkill.createWeaponInnateBuilder().setActivateType(ActivateType.HELD));
 		steelWhirlwind.newProperty()
 					  .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.4F))
 					  .addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					  .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					  .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		STEEL_WHIRLWIND = steelWhirlwind;
 		
 		BATTOJUTSU_PASSIVE = modRegistry.build("battojutsu_passive", BattojutsuPassive::new, Skill.createBuilder().setCategory(SkillCategories.WEAPON_PASSIVE).setActivateType(ActivateType.ONE_SHOT).setResource(Resource.COOLDOWN));
 		
-		WeaponInnateSkill battojutsu = modRegistry.build("battojutsu", BattojutsuSkill::new, ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder().setSelector((executer) -> executer.getOriginal().isSprinting() ? 1 : 0).setAnimations(Animations.BATTOJUTSU, Animations.BATTOJUTSU_DASH));
+		WeaponInnateSkill battojutsu = modRegistry.build("battojutsu", BattojutsuSkill::new, ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder().setSelector((executor) -> executor.getOriginal().isSprinting() ? 1 : 0).setAnimations(Animations.BATTOJUTSU, Animations.BATTOJUTSU_DASH));
 		battojutsu.newProperty()
 					.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(50.0F))
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(6))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		BATTOJUTSU = battojutsu;
 		
 		WeaponInnateSkill rushingTempo = modRegistry.build("rushing_tempo", RushingTempoSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
@@ -229,7 +208,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.7F))
 					.addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD);
 		RUSHING_TEMPO = rushingTempo;
 		
@@ -240,7 +219,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 					.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		RELENTLESS_COMBO = relentlessCombo;
 		
 		WeaponInnateSkill sharpStab = modRegistry.build("sharp_stab", SimpleWeaponInnateSkill::new, SimpleWeaponInnateSkill.createSimpleWeaponInnateBuilder().setAnimations(Animations.SHARP_STAB));
@@ -249,7 +228,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(0.5F))
 					.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE, EpicFightDamageType.GUARD_PUNCTURE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE, EpicFightDamageTypeTags.GUARD_PUNCTURE));
 		SHARP_STAB = sharpStab;
 		
 		LIECHTENAUER = modRegistry.build("liechtenauer", LiechtenauerSkill::new, WeaponInnateSkill.createWeaponInnateBuilder().setActivateType(ActivateType.DURATION));
@@ -259,11 +238,11 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
 					.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(2.0F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.newProperty()
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
-					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create(), ExtraDamageInstance.TARGET_LOST_HEALTH.create(0.5F)))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create(), ExtraDamageInstance.EVISCERATE_LOST_HEALTH.create(0.1F)))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(50.0F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG);
 		EVISCERATE = eviscerate;
@@ -272,9 +251,9 @@ public class EpicFightSkills {
 		bladeRush.newProperty()
 					.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.newProperty()
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.EXECUTION, EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.WEAPON_INNATE, DamageTypeTags.BYPASSES_ARMOR))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NONE)
 					.addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get());
 		BLADE_RUSH = bladeRush;
@@ -288,13 +267,13 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(100.0F))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE));
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE));
 		WRATHFUL_LIGHTING = wrathfulLighting;
 		
-		WeaponInnateSkill tsunami = modRegistry.build("tsunami", ConditionalWeaponInnateSkill::new, ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder().setSelector((executer) -> executer.getOriginal().isInWaterOrRain() ? 1 : 0).setAnimations(Animations.TSUNAMI, Animations.TSUNAMI_REINFORCED));
+		WeaponInnateSkill tsunami = modRegistry.build("tsunami", ConditionalWeaponInnateSkill::new, ConditionalWeaponInnateSkill.createConditionalWeaponInnateBuilder().setSelector((executor) -> executor.getOriginal().isInWaterOrRain() ? 1 : 0).setAnimations(Animations.TSUNAMI, Animations.TSUNAMI_REINFORCED));
 		tsunami.newProperty()
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(100.0F))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN);
 		TSUNAMI = tsunami;
 		
@@ -303,7 +282,7 @@ public class EpicFightSkills {
 					.addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(30.0F))
 					.addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.4F))
 					.addProperty(AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
-					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.WEAPON_INNATE))
+					.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
 					.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD);
 		EVERLASTING_ALLEGIANCE = everlastAllegiance;
 	}

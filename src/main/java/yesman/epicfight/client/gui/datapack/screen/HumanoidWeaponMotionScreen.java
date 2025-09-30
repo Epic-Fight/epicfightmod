@@ -184,7 +184,7 @@ public class HumanoidWeaponMotionScreen extends Screen {
 																				livingMotionTag.remove(ParseUtil.nullParam(event.prevValue));
 																				livingMotionTag.putString(ParseUtil.nullOrToString(event.postValue, (livingmotion) -> livingmotion.name().toLowerCase(Locale.ROOT)), "");
 																			}).editable(true).width(100))
-															.addColumn(Grid.popup("animation", PopupBox.AnimationPopupBox::new).filter((animation) -> !(animation instanceof MainFrameAnimation))
+															.addColumn(Grid.popup("animation", PopupBox.AnimationPopupBox::new).filter((accessor) -> !(accessor.checkType(MainFrameAnimation.class)))
 																			.editWidgetCreated((popupBox) -> popupBox.setModel(armature, mesh))
 																			.valueChanged((event) -> {
 																				CompoundTag livingMotionTag = ParseUtil.getOrSupply(this.motionSetList.get(this.motionSetGrid.getRowposition()), "livingmotions", CompoundTag::new);

@@ -239,7 +239,7 @@ public class ActionAnimation extends MainFrameAnimation {
 		nextStartTime += totalTime - linkTime;
 		
 		dest.setNextStartTime(nextStartTime);
-		dest.getTransfroms().clear();
+		dest.getAnimationClip().reset();
 		dest.setTotalTime(totalTime);
 		dest.setConnectedAnimations(fromAnimation, this.getAccessor());
 		
@@ -299,13 +299,15 @@ public class ActionAnimation extends MainFrameAnimation {
 			}
 		}
 		
+		dest.loadCoord(null);
+		
 		this.getProperty(ActionAnimationProperty.COORD).ifPresent((coord) -> {
 			Keyframe[] keyframes = new Keyframe[2];
 			keyframes[0] = new Keyframe(0.0F, JointTransform.empty());
 			keyframes[1] = new Keyframe(totalTime, coord.getKeyframes()[0].transform());
 			
 			TransformSheet sheet = new TransformSheet(keyframes);
-			dest.getTransfroms().put("Coord", sheet);
+			dest.loadCoord(sheet);
 		});
 		
 		if (entitypatch.shouldMoveOnCurrentSide(this)) {

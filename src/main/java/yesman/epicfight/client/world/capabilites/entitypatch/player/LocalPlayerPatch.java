@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -55,6 +57,9 @@ import yesman.epicfight.network.client.CPModifyEntityModelYRot;
 import yesman.epicfight.network.client.CPSetPlayerTarget;
 import yesman.epicfight.network.client.CPSetStamina;
 import yesman.epicfight.network.common.AnimatorControlPacket;
+import yesman.epicfight.skill.modules.ChargeableSkill;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.ZoomInType;
@@ -106,8 +111,8 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	public void tick(LivingEvent.LivingTickEvent event) {
 		this.staminaO = this.getStamina();
 		
-		if (this.isChargingSkill()) {
-			this.prevChargingAmount = this.getChargingSkill().getChargingAmount(this);
+		if (this.isHoldingAny() && this.getHoldingSkill() instanceof ChargeableSkill) {
+			this.prevChargingAmount = this.getChargingAmount();
 		} else {
 			this.prevChargingAmount = 0;
 		}
@@ -218,6 +223,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 				if (this.targetLockedOn) {
 					this.original.setXRot(this.lockOnXRot);
 					this.original.setYRot(this.lockOnYRot);
+					this.targetLockedOn = false;
 				}
 				
 				this.rayTarget = null;
@@ -391,11 +397,16 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	}
 	
 	public void setLockOn(boolean targetLockedOn) {
+		if (this.targetLockedOn && this.rayTarget != null) {
+			this.original.setXRot(this.lockOnXRot);
+			this.original.setYRot(this.lockOnYRot);
+		}
+		
 		this.targetLockedOn = targetLockedOn;
 	}
 	
 	public void toggleLockOn() {
-		this.targetLockedOn = !this.targetLockedOn;
+		this.setLockOn(!this.targetLockedOn);
 	}
 	
 	public FirstPersonLayer getFirstPersonLayer() {
@@ -425,11 +436,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public void setModelYRot(float amount, boolean sendPacket) {
-		/**
-		if (this.isFirstPerson() && !this.useModelYRot) {
-			this.fixFpvRotation(0.0F, amount);
-		}
-		**/
 		super.setModelYRot(amount, sendPacket);
 		
 		if (sendPacket) {
@@ -629,6 +635,71 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		if (itemstack.hasTag() && itemstack.getTag().contains("skill")) {
 			Minecraft.getInstance().setScreen(new SkillBookScreen(this.original, itemstack, hand));
 		}
+	}
+	
+	@Override
+	public void resetHolding() {
+		if (this.holdingSkill != null) {
+			ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
+		}
+		
+		super.resetHolding();
+	}
+	
+	/**
+	 * Judge the next behavior depending on player's item preference and where he's looking at
+	 * @return true if the next action is swing a weapon, false if the next action is breaking a block
+	 */
+	public boolean canPlayAttackAnimation() {
+		if (this.minecraft.hitResult.getType() == HitResult.Type.ENTITY) {
+			Entity hitEntity = ((EntityHitResult)this.minecraft.hitResult).getEntity();
+			
+			if (!(hitEntity instanceof LivingEntity) && !(hitEntity instanceof PartEntity)) {
+				return false;
+			}
+		}
+		
+		if (this.targetLockedOn) {
+			return true;
+		}
+		
+		if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+			if (this.minecraft.hitResult.getType() == HitResult.Type.BLOCK && this.minecraft.level != null) {
+				BlockPos bp = ((BlockHitResult) this.minecraft.hitResult).getBlockPos();
+				BlockState bs = this.minecraft.level.getBlockState(bp);
+				return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+			}
+		} else {
+			return this.minecraft.hitResult.getType() != HitResult.Type.BLOCK;
+		}
+		
+		return true;
+	}
+	
+	public boolean shouldHighlightTarget(Entity entity) {
+		if (!ClientConfig.enableTargetEntityGuide) {
+			return false;
+		}
+		
+		if (entity == this.rayTarget) {
+			if (!EpicFightCapabilities.getUnparameterizedEntityPatch(entity, EntityPatch.class).map(entitypatch -> entitypatch.isOutlineVisible(this)).orElse(false)) {
+				return false;
+			}
+			
+			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+				if (this.minecraft.hitResult.getType() == HitResult.Type.BLOCK && this.minecraft.level != null) {
+					BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
+					BlockState bs = this.minecraft.level.getBlockState(bp);
+					return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+				}
+				
+				return true;
+			} else {
+				return this.minecraft.crosshairPickEntity == entity;
+			}
+		}
+		
+		return false;
 	}
 	
 	@OnlyIn(Dist.CLIENT)

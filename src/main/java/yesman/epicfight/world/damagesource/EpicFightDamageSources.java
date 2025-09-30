@@ -1,63 +1,59 @@
 package yesman.epicfight.world.damagesource;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.WitherSkull;
 
-public interface EpicFightDamageSources {
-	static EpicFightDamageSources of(Level level) {
-		return () -> level;
-	}
-
-	static EpicFightDamageSource copy(DamageSource damageSource) {
+public final class EpicFightDamageSources {
+	private EpicFightDamageSources() {}
+	
+	public static EpicFightDamageSource fromVanillaDamageSource(DamageSource damageSource) {
 		return new EpicFightDamageSource(damageSource);
 	}
 
-	default EpicFightDamageSource shockwave(LivingEntity owner) {
-		Holder<DamageType> damageType = getDamageTypeHolder(EpicFightDamageTypes.SHOCKWAVE);
-		return new EpicFightDamageSource(damageType, owner, owner, null);
+	public static EpicFightDamageSource shockwave(LivingEntity owner) {
+		return new EpicFightDamageSource(getDamageTypeHolder(owner, EpicFightDamageTypes.SHOCKWAVE), owner, owner, null);
 	}
 
-	default EpicFightDamageSource witherBeam(LivingEntity owner) {
-		Holder<DamageType> damageType = getDamageTypeHolder(EpicFightDamageTypes.WITHER_BEAM);
-		EpicFightDamageSource damageSource = new EpicFightDamageSource(damageType, owner, owner, null);
-		damageSource.addRuntimeTag(DamageTypes.MAGIC);
-		return damageSource;
-	}
-
-	default EpicFightDamageSource trident(Entity owner, Entity causingEntity) {
-		return copy(this.getDamageSources().trident(owner, causingEntity));
-	}
-
-	default EpicFightDamageSource mobAttack(LivingEntity owner) {
-		return copy(this.getDamageSources().mobAttack(owner));
-	}
-
-	default EpicFightDamageSource playerAttack(Player owner) {
-		return copy(this.getDamageSources().playerAttack(owner));
-	}
-
-	default EpicFightDamageSource enderDragonBreath(LivingEntity owner, Entity causingEntity) {
-		EpicFightDamageSource damageSource = copy(this.getDamageSources().indirectMagic(owner, causingEntity));
-		damageSource.addRuntimeTag(DamageTypes.MAGIC);
-		return damageSource;
+	public static EpicFightDamageSource witherBeam(LivingEntity owner) {
+		return new EpicFightDamageSource(getDamageTypeHolder(owner, EpicFightDamageTypes.WITHER_BEAM), owner, owner, null);
 	}
 	
-	default DamageSources getDamageSources() {
-		return getLevel().damageSources();
+	public static EpicFightDamageSource arrow(AbstractArrow arrow, @Nullable Entity shooter) {
+		return new EpicFightDamageSource(getDamageTypeHolder(arrow, DamageTypes.ARROW), arrow, shooter, null);
+	}
+	
+	public static EpicFightDamageSource trident(Entity trident, Entity thrower) {
+		return new EpicFightDamageSource(getDamageTypeHolder(trident, DamageTypes.TRIDENT), trident, thrower, null);
 	}
 
-	default Holder<DamageType> getDamageTypeHolder(ResourceKey<DamageType> key) {
-		return getLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
+	public static EpicFightDamageSource witherSkull(WitherSkull witherSkull, Entity shooter) {
+		return new EpicFightDamageSource(getDamageTypeHolder(witherSkull, DamageTypes.WITHER_SKULL), witherSkull, shooter, null);
+	}
+	
+	public static EpicFightDamageSource mobAttack(LivingEntity owner) {
+		return new EpicFightDamageSource(getDamageTypeHolder(owner, DamageTypes.MOB_ATTACK), owner, owner, null);
 	}
 
-	Level getLevel();
+	public static EpicFightDamageSource playerAttack(Player owner) {
+		return new EpicFightDamageSource(getDamageTypeHolder(owner, DamageTypes.PLAYER_ATTACK), owner, owner, null);
+	}
+
+	public static EpicFightDamageSource enderDragonBreath(LivingEntity owner, Entity directEntity) {
+		return fromVanillaDamageSource(owner.level().damageSources().indirectMagic(directEntity, owner));
+	}
+	
+	private static Holder<DamageType> getDamageTypeHolder(Entity entity, ResourceKey<DamageType> damageTypeKey) {
+		return entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(damageTypeKey);
+	}
 }

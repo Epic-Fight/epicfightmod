@@ -7,11 +7,16 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ForgeHooksClient;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.main.AuthenticationHelper;
+import yesman.epicfight.network.server.SPPlayUISound;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
 @OnlyIn(Dist.CLIENT)
@@ -25,19 +30,19 @@ public class ClientEngine {
 	public Minecraft minecraft;
 	public RenderEngine renderEngine;
 	public ControlEngine controlEngine;
-	/**
-	 * Kept until 20.12
-	 */
-	@Deprecated(forRemoval = true)
-	public ControlEngine controllEngine;
 	private boolean vanillaModelDebuggingMode = false;
+	private AuthenticationHelper authenticationHelper = new AuthenticationHelper() {
+		@Override
+		public boolean valid() {
+			return false;
+		}
+	};
 	
 	public ClientEngine() {
 		instance = this;
 		this.minecraft = Minecraft.getInstance();
 		this.renderEngine = new RenderEngine();
 		this.controlEngine = new ControlEngine();
-		this.controllEngine = controlEngine;
 	}
 	
 	public boolean switchVanillaModelDebuggingMode() {
@@ -52,6 +57,22 @@ public class ClientEngine {
 	@Nullable
 	public LocalPlayerPatch getPlayerPatch() {
 		return EpicFightCapabilities.getEntityPatch(this.minecraft.player, LocalPlayerPatch.class);
+	}
+	
+	public void initAuthHelper(AuthenticationHelper authHelper) {
+		this.authenticationHelper = authHelper;
+	}
+	
+	public AuthenticationHelper getAuthHelper() {
+		return this.authenticationHelper;
+	}
+	
+	public void playUISound(SPPlayUISound msg) {
+		SoundInstance soundinstance = SimpleSoundInstance.forUI(msg.sound(), msg.pitch(), msg.volume());
+		
+		// Playing a sound twice corrects volume issue...
+		Minecraft.getInstance().getSoundManager().play(soundinstance);
+		Minecraft.getInstance().getSoundManager().play(soundinstance);
 	}
 	
 	public boolean isBattleMode() {

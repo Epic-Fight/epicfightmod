@@ -24,7 +24,6 @@ import yesman.epicfight.world.capabilities.entitypatch.CustomHumanoidMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.CustomMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributeSupplier;
 
@@ -82,24 +81,9 @@ public abstract class MixinLivingEntity {
 	
 	@Inject(at = @At(value = "HEAD"), method = "getDamageAfterArmorAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F", cancellable = true)
 	private void epicfight_getDamageAfterArmorAbsorb(DamageSource source, float amount, CallbackInfoReturnable<Float> info) {
-		EpicFightDamageSource epicFightDamageSource = null;
-		LivingEntityPatch<?> attackerEntityPatch = EpicFightCapabilities.getEntityPatch(source.getEntity(), LivingEntityPatch.class);
-		
-		if (source instanceof EpicFightDamageSource instance) {
-            epicFightDamageSource = instance;
-		} else if (source.isIndirect() && source.getDirectEntity() != null) {
-			ProjectilePatch<?> projectileCap = EpicFightCapabilities.getEntityPatch(source.getDirectEntity(), ProjectilePatch.class);
-			
-			if (projectileCap != null) {
-				epicFightDamageSource = projectileCap.getEpicFightDamageSource(source);
-			}
-		} else if (attackerEntityPatch != null) {
-			epicFightDamageSource = attackerEntityPatch.getEpicFightDamageSource();
-		}
-		
-		if (epicFightDamageSource != null && !source.is(DamageTypeTags.BYPASSES_ARMOR)) {
+		if (source instanceof EpicFightDamageSource epicFightDamageSource && !source.is(DamageTypeTags.BYPASSES_ARMOR)) {
 			this.hurtArmor(source, amount);
-			float armorNegationAmount = amount * Math.min(epicFightDamageSource.getArmorNegation() * 0.01F , 1.0F);
+			float armorNegationAmount = amount * Math.min(epicFightDamageSource.calculateArmorNegation() * 0.01F , 1.0F);
 			float amountElse = amount - armorNegationAmount;
 			LivingEntity self = (LivingEntity)((Object)this);
 			amountElse = CombatRules.getDamageAfterAbsorb(amountElse, (float)self.getArmorValue(), (float)self.getAttributeValue(Attributes.ARMOR_TOUGHNESS));

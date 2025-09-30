@@ -141,7 +141,7 @@ public class CombatBehaviorScreen extends Screen {
 						String condtionName = ((CompoundTag)conditionTag).getString("predicate");
 						
 						if (!condtionName.contains(":")) {
-							condtionName = EpicFightMod.MODID + ":" + condtionName;
+							condtionName = EpicFightMod.prefix(condtionName);
 							((CompoundTag)conditionTag).putString("predicate", condtionName);
 						}
 						

@@ -438,7 +438,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 					ItemStack itemstack = new ItemStack(this.item);
 					OpenMatrix4f correction = new OpenMatrix4f().translate(0F, 0F, -0.13F).rotateDeg(-90.0F, Vec3f.X_AXIS);
-					OpenMatrix4f handTransform = correction.mulFront(this.entitypatch.getArmature().getBindedTransformFor(pose, this.getArmature().get().searchJointByName("Tool_R")));
+					OpenMatrix4f handTransform = correction.mulFront(this.entitypatch.getArmature().getBoundTransformFor(pose, this.getArmature().get().searchJointByName("Tool_R")));
 					
 					guiGraphics.pose().pushPose();
 					MathUtils.mulStack(guiGraphics.pose(), handTransform);
@@ -925,7 +925,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					fromAnimation = linkAnimation.getFromAnimation();
 				}
 				
-				this.linkAnimation.getTransfroms().clear();
+				this.linkAnimation.getAnimationClip().reset();
 				this.linkAnimation.setTotalTime(totalTime);
 				this.linkAnimation.setConnectedAnimations(fromAnimation, nextAnimation);
 				
@@ -1070,7 +1070,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					fromAnimation = linkAnimation.getFromAnimation();
 				}
 				
-				this.linkAnimation.getTransfroms().clear();
+				this.linkAnimation.getAnimationClip().reset();
 				this.linkAnimation.setTotalTime(totalTime);
 				this.linkAnimation.setConnectedAnimations(fromAnimation, nextAnimation);
 				
@@ -1200,9 +1200,9 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			Pose prevPose = this.owner.getAnimator().getPose(0.0F);
 			Pose middlePose = this.owner.getAnimator().getPose(0.5F);
 			Pose currentPose = this.owner.getAnimator().getPose(1.0F);
-			OpenMatrix4f prevJointTf = ModelPreviewer.this.entitypatch.getArmature().getBindedTransformFor(prevPose, this.joint);
-			OpenMatrix4f middleJointTf = ModelPreviewer.this.entitypatch.getArmature().getBindedTransformFor(middlePose, this.joint);
-			OpenMatrix4f currentJointTf = ModelPreviewer.this.entitypatch.getArmature().getBindedTransformFor(currentPose, this.joint);
+			OpenMatrix4f prevJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(prevPose, this.joint);
+			OpenMatrix4f middleJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(middlePose, this.joint);
+			OpenMatrix4f currentJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(currentPose, this.joint);
 			Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
 			Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
 			Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());

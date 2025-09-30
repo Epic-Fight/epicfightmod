@@ -12,6 +12,7 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.ActionEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
@@ -26,10 +27,12 @@ public class MainFrameAnimation extends StaticAnimation {
 	
 	@Override
 	public void begin(LivingEntityPatch<?> entitypatch) {
-		TypeFlexibleHashMap<StateFactor<?>> stateMap = this.stateSpectrum.getStateMap(entitypatch, 0.0F);
-		TypeFlexibleHashMap<StateFactor<?>> modifiedStateMap = new TypeFlexibleHashMap<> (false);
-		stateMap.forEach((k, v) -> modifiedStateMap.put(k, this.getModifiedLinkState(k, v, entitypatch, 0.0F)));
-		entitypatch.updateEntityState(new EntityState(modifiedStateMap));
+		if (entitypatch.getAnimator().getPlayerFor(null).getAnimation().get() == this) {
+			TypeFlexibleHashMap<StateFactor<?>> stateMap = this.stateSpectrum.getStateMap(entitypatch, 0.0F);
+			TypeFlexibleHashMap<StateFactor<?>> modifiedStateMap = new TypeFlexibleHashMap<> (false);
+			stateMap.forEach((k, v) -> modifiedStateMap.put(k, this.getModifiedLinkState(k, v, entitypatch, 0.0F)));
+			entitypatch.updateEntityState(new EntityState(modifiedStateMap));
+		}
 		
 		if (entitypatch.isLogicalClient()) {
 			entitypatch.updateMotion(false);
@@ -52,7 +55,12 @@ public class MainFrameAnimation extends StaticAnimation {
 					playerpatch.getEventListener().triggerEvents(EventType.ACTION_EVENT_CLIENT, new ActionEvent<>(playerpatch, this.getAccessor()));
 				}
 			} else {
-				playerpatch.getEventListener().triggerEvents(EventType.ACTION_EVENT_SERVER, new ActionEvent<>(playerpatch, this.getAccessor()));
+				ActionEvent<ServerPlayerPatch> actionEvent = new ActionEvent<>(playerpatch, this.getAccessor());
+				playerpatch.getEventListener().triggerEvents(EventType.ACTION_EVENT_SERVER, actionEvent);
+				
+				if (actionEvent.shouldResetActionTick()) {
+					playerpatch.resetActionTick();
+				}
 			}
 		}
 	}

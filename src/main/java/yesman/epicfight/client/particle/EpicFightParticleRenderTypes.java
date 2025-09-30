@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
 public class EpicFightParticleRenderTypes {
@@ -127,27 +126,23 @@ public class EpicFightParticleRenderTypes {
 		}
 	};
 	
-	private static final ResourceLocation WHITE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/white.png");
-	
-	public static final ParticleRenderType AFTER_IMAGE = new ParticleRenderType() {
+	public static final ParticleRenderType ENTITY_PARTICLE = new ParticleRenderType() {
 		@Override
 		public void begin(BufferBuilder bufferbuilder, TextureManager texManager) {
-			RenderSystem.enableBlend();
-			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			RenderSystem.setShaderTexture(0, WHITE);
+			RenderSystem.depthMask(true);
 			RenderSystem.setShader(GameRenderer::getParticleShader);
-			
-			bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.PARTICLE);
+			bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
 		}
 		
 		@Override
 		public void end(Tesselator tesselator) {
 			tesselator.end();
+			Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 		}
 		
 		@Override
 		public String toString() {
-			return "epicfight:AFTERIMAGE";
+			return "epicfight:ENTITY_PARTICLE";
 		}
 	};
 }

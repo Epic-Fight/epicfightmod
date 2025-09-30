@@ -15,7 +15,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class TransformSheet {
 	public static final TransformSheet EMPTY_SHEET = new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.empty()), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
-	public static final Function<Vec3, TransformSheet> EMPTY_SHEET_PROVIDER = (translation) -> {
+	public static final Function<Vec3, TransformSheet> EMPTY_SHEET_PROVIDER = translation -> {
 		return new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.translation(new Vec3f(translation))), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
 	};
 	
@@ -77,6 +77,16 @@ public class TransformSheet {
 		return this;
 	}
 	
+	public TransformSheet createInterpolated(float[] timestamp) {
+		TransformSheet interpolationCreated = new TransformSheet(timestamp.length);
+		
+		for (int i = 0; i < timestamp.length; i++) {
+			interpolationCreated.keyframes[i] = new Keyframe(timestamp[i], this.getInterpolatedTransform(timestamp[i]));
+		}
+		
+		return interpolationCreated;
+	}
+	
 	/**
 	 * Transform each joint
 	 */
@@ -95,33 +105,35 @@ public class TransformSheet {
 	public Vec3f getInterpolatedTranslation(float currentTime) {
 		InterpolationInfo interpolInfo = this.getInterpolationInfo(currentTime);
 		
-		if (interpolInfo == InterpolationInfo.EMPTY_SHEET) {
+		if (interpolInfo == InterpolationInfo.INVALID) {
 			return new Vec3f();
 		}
 		
-		Vec3f vec3f = MathUtils.lerpVector(this.keyframes[interpolInfo.prev].transform().translation(), this.keyframes[interpolInfo.next].transform().translation(), interpolInfo.zero2One);
+		Vec3f vec3f = MathUtils.lerpVector(this.keyframes[interpolInfo.prev].transform().translation(), this.keyframes[interpolInfo.next].transform().translation(), interpolInfo.delta);
 		return vec3f;
 	}
 	
 	public Quaternionf getInterpolatedRotation(float currentTime) {
 		InterpolationInfo interpolInfo = this.getInterpolationInfo(currentTime);
 		
-		if (interpolInfo == InterpolationInfo.EMPTY_SHEET) {
+		if (interpolInfo == InterpolationInfo.INVALID) {
 			return new Quaternionf();
 		}
 		
-		Quaternionf quat = MathUtils.lerpQuaternion(this.keyframes[interpolInfo.prev].transform().rotation(), this.keyframes[interpolInfo.next].transform().rotation(), interpolInfo.zero2One);
+		Quaternionf quat = MathUtils.lerpQuaternion(this.keyframes[interpolInfo.prev].transform().rotation(), this.keyframes[interpolInfo.next].transform().rotation(), interpolInfo.delta);
 		return quat;
 	}
 	
 	public JointTransform getInterpolatedTransform(float currentTime) {
-		InterpolationInfo interpolInfo = this.getInterpolationInfo(currentTime);
-		
-		if (interpolInfo == InterpolationInfo.EMPTY_SHEET) {
+		return this.getInterpolatedTransform(this.getInterpolationInfo(currentTime));
+	}
+	
+	public JointTransform getInterpolatedTransform(InterpolationInfo interpolationInfo) {
+		if (interpolationInfo == InterpolationInfo.INVALID) {
 			return JointTransform.empty();
 		}
 		
-		JointTransform trasnform = JointTransform.interpolate(this.keyframes[interpolInfo.prev].transform(), this.keyframes[interpolInfo.next].transform(), interpolInfo.zero2One);
+		JointTransform trasnform = JointTransform.interpolate(this.keyframes[interpolationInfo.prev].transform(), this.keyframes[interpolationInfo.next].transform(), interpolationInfo.delta);
 		return trasnform;
 	}
 	
@@ -270,35 +282,36 @@ public class TransformSheet {
 		return result;
 	}
 	
-	private InterpolationInfo getInterpolationInfo(float currentTime) {
+	public InterpolationInfo getInterpolationInfo(float currentTime) {
 		if (this.keyframes.length == 0) {
-			return InterpolationInfo.EMPTY_SHEET;
+			return InterpolationInfo.INVALID;
 		}
 		
 		if (currentTime < 0.0F) {
 			currentTime = this.keyframes[this.keyframes.length - 1].time() + currentTime;
 		}
 		
-		int prev = 0, next = 1;
+		// Binary search
+		int begin = 0, end = this.keyframes.length - 1;
 		
-		for (int i = 1; i < this.keyframes.length; i++) {
-			if (currentTime <= this.keyframes[i].time()) {
-				break;
-			}
+		while (end - begin > 1) {
+			int i = begin + (end - begin) / 2;
 			
-			if (this.keyframes.length > next + 1) {
-				prev++;
-				next++;
+			if (this.keyframes[i].time() <= currentTime && this.keyframes[i+1].time() > currentTime) {
+				begin = i;
+				end = i+1;
+				break;
+			} else {
+				if (this.keyframes[i].time() > currentTime) {
+					end = i;
+				} else if (this.keyframes[i+1].time() <= currentTime) {
+					begin = i;
+				}
 			}
 		}
 		
-		if (next >= this.keyframes.length) {
-			next--;
-		}
-		
-		float progression = (currentTime - this.keyframes[prev].time()) / (this.keyframes[next].time() - this.keyframes[prev].time());
-		
-		return new InterpolationInfo(prev, next, Float.isNaN(progression) ? 1.0F : progression);
+		float progression = Mth.clamp((currentTime - this.keyframes[begin].time()) / (this.keyframes[end].time() - this.keyframes[begin].time()), 0.0F, 1.0F);
+		return new InterpolationInfo(begin, end, Float.isNaN(progression) ? 1.0F : progression);
 	}
 	
 	public float maxFrameTime() {
@@ -329,7 +342,7 @@ public class TransformSheet {
 		return sb.toString();
 	}
 	
-	private static record InterpolationInfo(int prev, int next, float zero2One) {
-		private static final InterpolationInfo EMPTY_SHEET = new InterpolationInfo(-1, -1, -1.0F);
+	public static record InterpolationInfo(int prev, int next, float delta) {
+		public static final InterpolationInfo INVALID = new InterpolationInfo(-1, -1, -1.0F);
 	}
 }

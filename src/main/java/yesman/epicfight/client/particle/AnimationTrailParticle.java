@@ -40,14 +40,13 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 @OnlyIn(Dist.CLIENT)
 public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPatch<?>> {
 	protected final Joint joint;
 	protected final AssetAccessor<? extends StaticAnimation> animation;
 	protected final List<TrailEdge> invisibleTrailEdges;
-	protected Pose lastPose;
-	protected JointTransform lastTransform;
 	
 	protected AnimationTrailParticle(ClientLevel level, LivingEntityPatch<?> owner, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {
 		super(level, owner, trailInfo);
@@ -63,10 +62,6 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		Vec3 posMid = this.owner.getOriginal().getPosition(0.5F);
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		
-		this.lastPose = currentPose;
-		this.lastPos = posCur;
-		this.lastTransform = JointTransform.fromMatrix(this.owner.getModelMatrix(1.0F));
-		
 		OpenMatrix4f prvmodelTf
 			= OpenMatrix4f.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
 				.rotateDeg(180.0F, Vec3f.Y_AXIS)
@@ -80,9 +75,9 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 				.rotateDeg(180.0F, Vec3f.Y_AXIS)
 				.mulBack(this.owner.getModelMatrix(1.0F));
 		
-		OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-		OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-		OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+		OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+		OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+		OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
 		
 		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
 		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -111,7 +106,7 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 	
 	@Deprecated /** This constructor is only for {@link ModelPreviewer} **/
 	protected AnimationTrailParticle(Armature armature, LivingEntityPatch<?> owner, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {
-		super(null, owner, trailInfo);
+		super(owner, trailInfo);
 		
 		this.joint = joint;
 		this.animation = animation;
@@ -121,13 +116,9 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		Pose middlePose = this.owner.getClientAnimator().getPose(0.5F);
 		Pose currentPose = this.owner.getClientAnimator().getPose(1.0F);
 		
-		this.lastPose = currentPose;
-		this.lastPos = new Vec3(0.0D, 0.0D, 0.0D);
-		this.lastTransform = JointTransform.fromMatrix(this.owner.getModelMatrix(1.0F));
-		
-		OpenMatrix4f prevJointTf = armature.getBindedTransformFor(prevPose, this.joint);
-		OpenMatrix4f middleJointTf = armature.getBindedTransformFor(middlePose, this.joint);
-		OpenMatrix4f currentJointTf = armature.getBindedTransformFor(currentPose, this.joint);
+		OpenMatrix4f prevJointTf = armature.getBoundTransformFor(prevPose, this.joint);
+		OpenMatrix4f middleJointTf = armature.getBoundTransformFor(middlePose, this.joint);
+		OpenMatrix4f currentJointTf = armature.getBoundTransformFor(currentPose, this.joint);
 		
 		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
 		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -184,16 +175,17 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		}
 		
 		TrailInfo trailInfo = this.trailInfo;
-		Pose prevPose = this.lastPose;
+		Pose prevPose = this.owner.getAnimator().getPose(0.0F);//this.lastPose;
 		Pose currentPose = this.owner.getAnimator().getPose(1.0F);
-		Pose middlePose = Pose.interpolatePose(prevPose, currentPose, 0.5F);
+		Pose middlePose = this.owner.getAnimator().getPose(0.5F);//Pose.interpolatePose(prevPose, currentPose, 0.5F);
 		
-		Vec3 posOld = this.lastPos;
+		Vec3 posOld = this.owner.getOriginal().getPosition(0.0F);
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 		
-		OpenMatrix4f prevModelMatrix = this.lastTransform.toMatrix();
+		OpenMatrix4f prevModelMatrix = this.owner.getModelMatrix(0.0F);
 		OpenMatrix4f curModelMatrix = this.owner.getModelMatrix(1.0F);
+		JointTransform lastTransform = JointTransform.fromMatrix(curModelMatrix);
 		JointTransform currentTransform = JointTransform.fromMatrix(curModelMatrix);
 		
 		OpenMatrix4f prvmodelTf
@@ -205,16 +197,16 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 			= OpenMatrix4f
 				.createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
 				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(JointTransform.interpolate(this.lastTransform, currentTransform, 0.5F).toMatrix());
+				.mulBack(JointTransform.interpolate(lastTransform, currentTransform, 0.5F).toMatrix());
 		OpenMatrix4f curModelTf
 			= OpenMatrix4f
 				.createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
 				.rotateDeg(180.0F, Vec3f.Y_AXIS)
 				.mulBack(curModelMatrix);
 		
-		OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-		OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-		OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+		OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+		OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+		OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
 		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
 		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
 		Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
@@ -273,10 +265,6 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		}
 		
 		this.makeTrailEdges(finalStartPositions, finalEndPositions, visibleTrail ? this.trailEdges : this.invisibleTrailEdges);
-		
-		this.lastPos = posCur;
-		this.lastPose = currentPose;
-		this.lastTransform = currentTransform;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -321,6 +309,8 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 					result = renderItemBase.trailInfo().overwrite(result);
 				}
 			}
+			
+			result = entitypatch.getEntityDecorations().getModifiedTrailInfo(result, result.hand() == null ? CapabilityItem.EMPTY : entitypatch.getAdvancedHoldingItemCapability(result.hand()));
 			
 			if (result.playable()) {
 				return new AnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, result);

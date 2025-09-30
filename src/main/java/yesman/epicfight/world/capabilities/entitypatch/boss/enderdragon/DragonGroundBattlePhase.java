@@ -28,6 +28,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 
 public class DragonGroundBattlePhase extends PatchedDragonPhase {
@@ -129,7 +130,7 @@ public class DragonGroundBattlePhase extends PatchedDragonPhase {
 		
 		LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(damagesource.getEntity(), LivingEntityPatch.class);
 		
-		if (damagesource.getEntity() != null && (entitypatch == null || entitypatch.getEpicFightDamageSource() == null)) {
+		if (damagesource.getEntity() != null && (entitypatch == null || !(damagesource instanceof EpicFightDamageSource))) {
 			return 0.0F;
 		} else {
 			return super.onHurt(damagesource, amount);

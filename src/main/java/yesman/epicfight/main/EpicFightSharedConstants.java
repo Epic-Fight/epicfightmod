@@ -3,7 +3,6 @@ package yesman.epicfight.main;
 import java.util.function.Function;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.ServerAnimator;
@@ -15,9 +14,10 @@ public class EpicFightSharedConstants {
 	public static final int MAX_WEIGHTS = 3;
 	public static final int MAX_JOINTS = 1000;
 	
-	// Animation variables
+	// Ingame variables
 	public static final float A_TICK = 0.05F;
 	public static final float GENERAL_ANIMATION_TRANSITION_TIME = 0.15F;
+	public static final float EXECUTION_DAMAGE = 2147483647F;
 	
 	// Environment varables
 	public static final boolean IS_DEV_ENV = !FMLEnvironment.production;
@@ -28,19 +28,6 @@ public class EpicFightSharedConstants {
 	
 	static {
 		ANIMATOR_PROVIDER = isPhysicalClient() ? ClientAnimator::getAnimator : ServerAnimator::getAnimator;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public static AuthenticationHelper AUTH_HELPER = new AuthenticationHelper() {
-		@Override
-		public boolean valid() {
-			return false;
-		}
-	};
-	
-	@OnlyIn(Dist.CLIENT)
-	public static void initAuthHelper(AuthenticationHelper authHelper) {
-		AUTH_HELPER = authHelper;
 	}
 	
 	public static Animator getAnimator(LivingEntityPatch<?> entitypatch) {

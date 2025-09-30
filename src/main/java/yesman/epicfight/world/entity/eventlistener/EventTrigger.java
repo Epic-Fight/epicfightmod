@@ -3,7 +3,7 @@ package yesman.epicfight.world.entity.eventlistener;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class EventTrigger<T extends PlayerEvent<?>> implements Comparable<EventTrigger<?>> {
+public class EventTrigger<T extends DetachablePlayerEvent<?>> implements Comparable<EventTrigger<?>> {
 	private final UUID uuid;
 	private final Consumer<T> function;
 	private final int priority;
@@ -35,7 +35,7 @@ public class EventTrigger<T extends PlayerEvent<?>> implements Comparable<EventT
 		}
 	}
 	
-	public static <T extends PlayerEvent<?>> EventTrigger<T> makeEvent(UUID uuid, Consumer<T> function, int priority) {
+	public static <T extends DetachablePlayerEvent<?>> EventTrigger<T> makeEvent(UUID uuid, Consumer<T> function, int priority) {
 		return new EventTrigger<T>(uuid, function, priority);
 	}
 }

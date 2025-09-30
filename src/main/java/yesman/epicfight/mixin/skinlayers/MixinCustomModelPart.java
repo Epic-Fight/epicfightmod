@@ -5,23 +5,23 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import dev.tr7zw.skinlayers.versionless.render.CustomModelPart;
 
-@Mixin(value = CustomModelPart.class)
+@Mixin(value = CustomModelPart.class, remap = false)
 public interface MixinCustomModelPart {
-	@Accessor
+	@Accessor(value = "x", remap = false)
 	public float getX();
-	
-	@Accessor
+
+	@Accessor(value = "y", remap = false)
 	public float getY();
-	
-	@Accessor
+
+	@Accessor(value = "z", remap = false)
 	public float getZ();
-	
-	@Accessor
+
+	@Accessor(value = "xRot", remap = false)
 	public float getXRot();
-	
-	@Accessor
+
+	@Accessor(value = "yRot", remap = false)
 	public float getYRot();
-	
-	@Accessor
+
+	@Accessor(value = "zRot", remap = false)
 	public float getZRot();
 }

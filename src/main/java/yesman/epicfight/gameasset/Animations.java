@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -132,7 +133,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
@@ -775,36 +776,40 @@ public class Animations {
 		 **/
 		BIPED_ROLL_FORWARD = builder.nextAccessor("biped/skill/roll_forward", (accessor) ->
 			new DodgeAnimation(0.1F, accessor, 0.6F, 0.8F, Armatures.BIPED)
-				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(EpicFightSounds.ROLL.get())));
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(EpicFightSounds.ROLL.get())));
 		
 		BIPED_ROLL_BACKWARD = builder.nextAccessor("biped/skill/roll_backward", (accessor) ->
 			new DodgeAnimation(0.1F, accessor, 0.6F, 0.8F, Armatures.BIPED)
-				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(EpicFightSounds.ROLL.get())));
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(EpicFightSounds.ROLL.get())));
 		
 		BIPED_STEP_FORWARD = builder.nextAccessor("biped/skill/step_forward", (accessor) ->
 			new DodgeAnimation(0.1F, 0.35F, accessor, 0.6F, 1.65F, Armatures.BIPED)
 				.addState(EntityState.LOCKON_ROTATE, true)
 				.newTimePair(0.0F, 0.2F)
 					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
-					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_STEPPING_SOUND, AnimationEvent.Side.CLIENT)));
 		BIPED_STEP_BACKWARD = builder.nextAccessor("biped/skill/step_backward", (accessor) ->
 			new DodgeAnimation(0.1F, 0.35F, accessor, 0.6F, 1.65F, Armatures.BIPED)
 				.addState(EntityState.LOCKON_ROTATE, true)
 				.newTimePair(0.0F, 0.2F)
 					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
-					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_STEPPING_SOUND, AnimationEvent.Side.CLIENT)));
 		BIPED_STEP_LEFT = builder.nextAccessor("biped/skill/step_left", (accessor) ->
 			new DodgeAnimation(0.1F, 0.35F, accessor, 0.6F, 1.65F, Armatures.BIPED)
 				.addState(EntityState.LOCKON_ROTATE, true)
 				.newTimePair(0.0F, 0.2F)
 					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
-					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_STEPPING_SOUND, AnimationEvent.Side.CLIENT)));
 		BIPED_STEP_RIGHT = builder.nextAccessor("biped/skill/step_right", (accessor) ->
 			new DodgeAnimation(0.1F, 0.35F, accessor, 0.6F, 1.65F, Armatures.BIPED)
 				.addState(EntityState.LOCKON_ROTATE, true)
 				.newTimePair(0.0F, 0.2F)
 					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
-					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addEvents(InTimeEvent.create(0.0F, ReusableSources.PLAY_STEPPING_SOUND, AnimationEvent.Side.CLIENT)));
 		
 		BIPED_KNOCKDOWN_WAKEUP_LEFT = builder.nextAccessor("biped/skill/knockdown_wakeup_left", (accessor) -> new DodgeAnimation(0.1F, accessor, 0.8F, 0.6F, Armatures.BIPED));
 		BIPED_KNOCKDOWN_WAKEUP_RIGHT = builder.nextAccessor("biped/skill/knockdown_wakeup_right", (accessor) -> new DodgeAnimation(0.1F, accessor, 0.8F, 0.6F, Armatures.BIPED));
@@ -846,7 +851,7 @@ public class Animations {
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create((entitypatch, animation, params) -> {
 					Vec3 pos = entitypatch.getOriginal().position();
 					
-					entitypatch.playSound(EpicFightSounds.ROLL.get(), 0, 0);
+					entitypatch.playSound(EpicFightSounds.TUMBLE.get(), 0, 0);
 					entitypatch.getOriginal().level().addAlwaysVisibleParticle(EpicFightParticles.AIR_BURST.get(), pos.x, pos.y + entitypatch.getOriginal().getBbHeight() * 0.5D, pos.z, 0, -1, 2);
 				}, Side.CLIENT)));
 		BIPED_PHANTOM_ASCENT_BACKWARD = builder.nextAccessor("biped/skill/phantom_ascent_backward", (accessor) ->
@@ -857,7 +862,7 @@ public class Animations {
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create((entitypatch, animation, params) -> {
 					Vec3 pos = entitypatch.getOriginal().position();
 					
-					entitypatch.playSound(EpicFightSounds.ROLL.get(), 0, 0);
+					entitypatch.playSound(EpicFightSounds.TUMBLE.get(), 0, 0);
 					entitypatch.getOriginal().level().addAlwaysVisibleParticle(EpicFightParticles.AIR_BURST.get(), pos.x, pos.y + entitypatch.getOriginal().getBbHeight() * 0.5D, pos.z, 0, -1, 2);
 				}, Side.CLIENT)));
 		
@@ -905,7 +910,7 @@ public class Animations {
 		);
 		GREATSWORD_DASH = builder.nextAccessor("biped/combat/greatsword_dash", (accessor) ->
 			new DashAttackAnimation(0.2F, 0.2F, 0.35F, 0.6F, 1.2F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED, false)
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.FINISHER))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER))
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
 				.addProperty(ActionAnimationProperty.MOVE_VERTICAL, false)
 				.addEvents(InTimeEvent.create(0.4F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 1.1D, 0.55F))
@@ -1084,10 +1089,10 @@ public class Animations {
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.0F));
 		SPEAR_ONEHAND_AIR_SLASH = builder.nextAccessor("biped/combat/spear_onehand_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.15F, 0.26F, 0.4F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED));
 		SPEAR_TWOHAND_AIR_SLASH = builder.nextAccessor("biped/combat/spear_twohand_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.25F, 0.36F, 0.6F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.FINISHER)));
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER)));
 		LONGSWORD_AIR_SLASH = builder.nextAccessor("biped/combat/longsword_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.3F, 0.41F, 0.5F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED));
 		GREATSWORD_AIR_SLASH = builder.nextAccessor("biped/combat/greatsword_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.5F, 0.55F, 0.71F, 0.75F, false, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.FINISHER)));
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER)));
 		FIST_AIR_SLASH = builder.nextAccessor("biped/combat/fist_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.15F, 0.26F, 0.4F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 4.0F));
 		DAGGER_AIR_SLASH = builder.nextAccessor("biped/combat/dagger_airslash", (accessor) -> new AirSlashAnimation(0.1F, 0.15F, 0.26F, 0.45F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
@@ -1200,7 +1205,7 @@ public class Animations {
 		
 		METEOR_SLAM = builder.nextAccessor("biped/skill/greatsword_slam", (accessor) ->
 			new AttackAnimation(0.05F, 0.0F, 0.2F, 0.3F, 1.0F, ColliderPreset.GREATSWORD, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
-				.addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.NO_SOUND.get())
+				.removeProperty(AttackPhaseProperty.SWING_SOUND)
 				.addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
 				.addProperty(ActionAnimationProperty.STOP_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
@@ -1242,7 +1247,7 @@ public class Animations {
 				.addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
 				.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
 				.addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.COUNTER))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.COUNTER))
 				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE)
 				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
 				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.5F))
@@ -1258,7 +1263,7 @@ public class Animations {
 				.addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
 				.addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
 				.addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.COUNTER))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.COUNTER))
 				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE)
 				.addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
 				.addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.5F))
@@ -1382,15 +1387,15 @@ public class Animations {
 				))
 				.addEvents(
 					InTimeEvent.create(0.3F, ReusableSources.WING_FLAP, AnimationEvent.Side.CLIENT), InTimeEvent.create(1.1F, (entitypatch, animation, params) -> {
-						entitypatch.playSound(EpicFightSounds.GROUND_SLAM.get(), 0, 0);
+						entitypatch.playSound(EpicFightSounds.SLAM_HEAVY.get(), 0, 0);
 						LivingEntity original = entitypatch.getOriginal();
 						BlockPos blockpos = original.level().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, original.blockPosition());
 						original.level().addParticle(EpicFightParticles.GROUND_SLAM.get(), blockpos.getX(), blockpos.getY(), blockpos.getZ(), 3.0D, 100.0D, 1.0D);
 					}, AnimationEvent.Side.CLIENT),
 					InTimeEvent.create(1.1F, (entitypatch, animation, params) -> {
 						LivingEntity original = entitypatch.getOriginal();
-						EpicFightDamageSources damageSources = EpicFightDamageSources.of(original.level());
-						DamageSource extDamageSource = damageSources.mobAttack(original).setAnimation(DRAGON_FLY_TO_GROUND).setStunType(StunType.KNOCKDOWN);
+						DamageSource extDamageSource = EpicFightDamageSources.mobAttack(original).setAnimation(DRAGON_FLY_TO_GROUND).setStunType(StunType.KNOCKDOWN);
+						
 						for (Entity entity : original.level().getEntities(original, original.getBoundingBox().deflate(3.0D, 0.0D, 3.0D))) {
 							entity.hurt(extDamageSource, 6.0F);
 						}
@@ -1407,7 +1412,7 @@ public class Animations {
 					, InverseKinematicsDefinition.create(Armatures.DRAGON.get().legBackR1, Armatures.DRAGON.get().legBackR3, null, IntIntPair.of(1, 4), 0.1344F, 0, new boolean[] {true, false, true})
 				))
 				.addEvents(InTimeEvent.create(0.65F, (entitypatch, animation, params) -> {
-					entitypatch.playSound(EpicFightSounds.GROUND_SLAM.get(), 0, 0);
+					entitypatch.playSound(EpicFightSounds.SLAM_HEAVY.get(), 0, 0);
 					
 					if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 						dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
@@ -1445,7 +1450,7 @@ public class Animations {
 				))
 				.addEvents(
 					InTimeEvent.create(1.2F, (entitypatch, animation, params) -> {
-						entitypatch.playSound(EpicFightSounds.GROUND_SLAM.get(), 0, 0);
+						entitypatch.playSound(EpicFightSounds.SLAM_HEAVY.get(), 0, 0);
 						
 						if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 							dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
@@ -1535,7 +1540,7 @@ public class Animations {
 			.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
 			.addEvents(
 				InTimeEvent.create(0.15F, (entitypatch, animation, params) -> {
-					entitypatch.playSound(EpicFightSounds.GROUND_SLAM.get(), 0, 0);
+					entitypatch.playSound(EpicFightSounds.SLAM_HEAVY.get(), 0, 0);
 					
 					if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 						dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
@@ -1609,7 +1614,7 @@ public class Animations {
 				.addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN));
 		GOLEM_ATTACK2 = builder.nextAccessor("iron_golem/attack2", (accessor) ->
 			new AttackAnimation(0.34F, 0.1F, 0.4F, 0.6F, 1.3F, ColliderPreset.GOLEM_SMASHDOWN, Armatures.IRON_GOLEM.get().LA4, accessor, Armatures.IRON_GOLEM)
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.FINISHER)));
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER)));
 		GOLEM_ATTACK3 = builder.nextAccessor("iron_golem/attack3", (accessor) ->
 			new AttackAnimation(0.16F, 0.4F, 0.4F, 0.5F, 0.9F, ColliderPreset.GOLEM_SWING_ARM, Armatures.IRON_GOLEM.get().RA4, accessor, Armatures.IRON_GOLEM)
 				.addProperty(StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.COMBO_ATTACK_DIRECTION_MODIFIER));
@@ -1710,7 +1715,7 @@ public class Animations {
 						}
 					}, Side.SERVER), InTimeEvent.create(0.4F, (entitypatch, animation, params) -> {
 						Entity entity = entitypatch.getOriginal();
-						entitypatch.getOriginal().level().addParticle(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
+						entitypatch.getOriginal().level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
 					}, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create((entitypatch, animation, params) -> {
 						if (entitypatch instanceof WitherPatch witherpatch) {
@@ -1861,10 +1866,9 @@ public class Animations {
 									OBBCollider collider = new OBBCollider(0.25D, 0.25D, length * 0.5D, 0.0D, 0.0D, length * 0.5D);
 									collider.transform(OpenMatrix4f.createTranslation((float)-x, (float)y, (float)-z).rotateDeg(yRot, Vec3f.Y_AXIS).rotateDeg(-xRot, Vec3f.X_AXIS));
 									List<Entity> hitEntities = collider.getCollideEntities(witherboss);
-	
-									EpicFightDamageSources damageSources = EpicFightDamageSources.of(witherboss.level());
-									EpicFightDamageSource damagesource = damageSources.witherBeam(witherboss).setAnimation(WITHER_BEAM);
-	
+									
+									EpicFightDamageSource damagesource = EpicFightDamageSources.witherBeam(witherboss).setAnimation(WITHER_BEAM);
+									
 									hitEntities.forEach((entity) -> {
 										if (!hurted.contains(entity)) {
 											hurted.add(entity);
@@ -1941,7 +1945,7 @@ public class Animations {
 				.setResourceLocation(EpicFightMod.MODID, "biped/combat/spear_dash")
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create((entitypatch, animation, params) -> {
-						List<LivingEntity> hitEnemies = entitypatch.getCurrenltyHurtEntities();
+						List<LivingEntity> hitEnemies = entitypatch.getCurrentlyActuallyHitEntities();
 						Vec3 vec = entitypatch.getOriginal().position().add(Vec3.directionFromRotation(new Vec2(0.0F, entitypatch.getOriginal().getYRot())));
 						
 						if (animation.get() instanceof AttackAnimation attackAnimation) {
@@ -2020,7 +2024,7 @@ public class Animations {
 					InTimeEvent.create(0.05F, ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(EpicFightSounds.SWORD_IN.get()),
 					InTimeEvent.create(0.65F, (entitypatch, animation, params) -> {
 						LivingEntity entity = entitypatch.getOriginal();
-						entity.level().addParticle(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
+						entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
 						RandomSource random = entity.getRandom();
 						double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * 2.0D;
 						double y = entity.getY();
@@ -2138,7 +2142,7 @@ public class Animations {
 		
 		BLADE_RUSH_EXECUTE_BIPED = builder.nextAccessor("biped/skill/blade_rush_execute", (accessor) ->
 			new GrapplingAttackAnimation(0.5F, 1.5F, accessor, Armatures.BIPED)
-				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageType.EXECUTION))
+				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_ARMOR))
 				.addProperty(ActionAnimationProperty.COORD_UPDATE_TIME, TimePairList.create(0.0F, 0.5F))
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0F, 0.95F))
 				.addEvents(
@@ -2258,7 +2262,7 @@ public class Animations {
 		
 		public static final AnimationEvent.E4<Vec3f, Joint, Double, Float> FRACTURE_GROUND_SIMPLE = (entitypatch, animation, params) -> {
 			Vec3 position = entitypatch.getOriginal().position();
-			OpenMatrix4f modelTransform = entitypatch.getArmature().getBindedTransformFor(animation.get().getPoseByTime(entitypatch, params.fourth(), 1.0F), params.second())
+			OpenMatrix4f modelTransform = entitypatch.getArmature().getBoundTransformFor(animation.get().getPoseByTime(entitypatch, params.fourth(), 1.0F), params.second())
 													 .mulFront(
 														 OpenMatrix4f.createTranslation((float)position.x, (float)position.y, (float)position.z)
 														             .mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS)
@@ -2304,8 +2308,8 @@ public class Animations {
 			if (animation.get() instanceof AttackAnimation attackAnimation) {
 				Phase phase = attackAnimation.phases[1];
 				
-				int i = (int)phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER).orElse(ValueModifier.setter(3)).getTotalValue(0);
-				float damage = phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).orElse(ValueModifier.setter(8.0F)).getTotalValue(0);
+				int i = (int)ValueModifier.calculator().attach(phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER).orElse(ValueModifier.setter(3))).getResult(0);
+				float damage = ValueModifier.calculator().attach(phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).orElse(ValueModifier.setter(8.0F))).getResult(0);
 				
 				LivingEntity original = entitypatch.getOriginal();
 				ServerLevel level = (ServerLevel)original.level();
@@ -2328,7 +2332,7 @@ public class Animations {
 					lightningbolt.setCause(entitypatch instanceof ServerPlayerPatch serverPlayerPatch ? serverPlayerPatch.getOriginal() : null);
 					
 					DamageSource dmgSource = new DamageSource(e.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.LIGHTNING_BOLT), entitypatch.getOriginal());
-					EpicFightDamageSource damageSource = attackAnimation.getEpicFightDamageSource(dmgSource, entitypatch, e, phase).setHurtItem(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
+					EpicFightDamageSource damageSource = attackAnimation.getEpicFightDamageSource(dmgSource, entitypatch, e, phase).setUsedItem(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
 					e.hurt(damageSource, total);
 					e.thunderHit(level, lightningbolt);
 					
@@ -2493,6 +2497,11 @@ public class Animations {
 			});
 		};
 		
+		public static final AnimationEvent.E0 PLAY_STEPPING_SOUND = (entitypatch, animation, params) -> {
+			BlockState state = entitypatch.getOriginal().level().getBlockState(entitypatch.getOriginal().getOnPos());
+			entitypatch.playSound(state.getSoundType().getHitSound(), 0, 0);
+		};
+		
 		public static final AnimationProperty.PoseModifier COMBO_ATTACK_DIRECTION_MODIFIER = (self, pose, entitypatch, time, partialTicks) -> {
 			if (!self.isStaticAnimation() || entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isFirstPerson()) {
 				return;
@@ -2504,7 +2513,7 @@ public class Animations {
 			
 			if (entitypatch instanceof PlayerPatch) {
 				float xRot = MathUtils.lerpBetween(entitypatch.getOriginal().xRotO, entitypatch.getOriginal().getXRot(), partialTicks);
-				OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBindedTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
+				OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBoundTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
 				Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
 				OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(-(pitch + xRot), xAxis);
 				

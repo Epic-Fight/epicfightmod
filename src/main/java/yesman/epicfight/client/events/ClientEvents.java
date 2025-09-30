@@ -130,7 +130,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void clientLoggingInEvent(ClientPlayerNetworkEvent.LoggingIn event) {
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(ClientEngine.getInstance().controlEngine::setPlayerPatch);
-		ClientEngine.getInstance().renderEngine.init();
+		ClientEngine.getInstance().renderEngine.initHUD();
 	}
 	
 	/**
@@ -150,7 +150,8 @@ public class ClientEvents {
 		 */
 		if (oldCap != null && newCap != null) {
 			if (packet != null && packet.shouldKeep((byte)3)) {
-				newCap.copySkillsFrom(oldCap);
+				event.getNewPlayer().tickCount = event.getOldPlayer().tickCount;
+				newCap.copySkillsFrom(oldCap, false);
 			}
 			
 			packet = null;
@@ -164,7 +165,7 @@ public class ClientEvents {
 		});
 		
 		ClientEngine.getInstance().controlEngine.setPlayerPatch(newCap);
-		ClientEngine.getInstance().renderEngine.init();
+		ClientEngine.getInstance().renderEngine.initHUD();
 	}
 	
 	@SubscribeEvent

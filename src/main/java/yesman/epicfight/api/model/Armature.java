@@ -90,7 +90,15 @@ public class Armature {
 		}
 	}
 	
+	/**
+	 * Inapposite past perfect
+	 */
+	@Deprecated(forRemoval = true, since = "1.21.1")
 	public OpenMatrix4f getBindedTransformFor(Pose pose, Joint joint) {
+		return this.getBoundTransformByJointIndex(pose, this.searchPathIndex(joint.getName()).createAccessTicket(this.rootJoint));
+	}
+	
+	public OpenMatrix4f getBoundTransformFor(Pose pose, Joint joint) {
 		return this.getBoundTransformByJointIndex(pose, this.searchPathIndex(joint.getName()).createAccessTicket(this.rootJoint));
 	}
 	

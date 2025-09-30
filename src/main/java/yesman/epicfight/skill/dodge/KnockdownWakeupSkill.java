@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.network.client.CPExecuteSkill;
+import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
@@ -31,7 +31,7 @@ public class KnockdownWakeupSkill extends DodgeSkill {
 		int horizon = left + right;
 		float yRot = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
 		
-		CPExecuteSkill packet = new CPExecuteSkill(skillContainer.getSlotId());
+		CPSkillRequest packet = new CPSkillRequest(skillContainer.getSlot());
 		packet.getBuffer().writeInt(horizon >= 0 ? 0 : 1);
 		packet.getBuffer().writeFloat(yRot);
 		
@@ -39,9 +39,9 @@ public class KnockdownWakeupSkill extends DodgeSkill {
 	}
 	
 	@Override
-	public boolean isExecutableState(PlayerPatch<?> executer) {
-		EntityState playerState = executer.getEntityState();
-		float elapsedTime = executer.getAnimator().getPlayerFor(null).getElapsedTime();
-		return !(executer.isInAir() || (playerState.hurt() && !playerState.knockDown())) && !executer.getOriginal().isInWater() && !executer.getOriginal().onClimbable() && elapsedTime > 0.7F;
+	public boolean isExecutableState(PlayerPatch<?> executor) {
+		EntityState playerState = executor.getEntityState();
+		float elapsedTime = executor.getAnimator().getPlayerFor(null).getElapsedTime();
+		return !(executor.isInAir() || (playerState.hurt() && !playerState.knockDown())) && !executor.getOriginal().isInWater() && !executor.getOriginal().onClimbable() && elapsedTime > 0.7F;
 	}
 }

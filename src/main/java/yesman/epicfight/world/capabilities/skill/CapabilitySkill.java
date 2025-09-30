@@ -1,9 +1,13 @@
 package yesman.epicfight.world.capabilities.skill;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import com.google.common.collect.HashMultimap;
 
@@ -18,7 +22,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 public class CapabilitySkill {
 	public static final CapabilitySkill EMPTY = new CapabilitySkill(null);
 	public final SkillContainer[] skillContainers;
-	private final HashMultimap<SkillCategory, SkillContainer> slotByCategory = HashMultimap.create();
+	private final Map<Skill, SkillContainer> containersBySkill = new HashMap<> ();
+	private final HashMultimap<SkillCategory, SkillContainer> containersByCategory = HashMultimap.create();
 	private final HashMultimap<SkillCategory, Skill> learnedSkills = HashMultimap.create();
 	
 	public CapabilitySkill(PlayerPatch<?> playerpatch) {
@@ -28,22 +33,8 @@ public class CapabilitySkill {
 		for (SkillSlot slot : slots) {
 			SkillContainer skillContainer = new SkillContainer(playerpatch, slot);
 			this.skillContainers[slot.universalOrdinal()] = skillContainer;
-			this.slotByCategory.put(slot.category(), skillContainer);
+			this.containersByCategory.put(slot.category(), skillContainer);
 		}
-	}
-	
-	public void clear() {
-		int i = 0;
-		
-		for (SkillContainer container : this.skillContainers) {
-			if (SkillSlot.ENUM_MANAGER.getOrThrow(i).category().learnable()) {
-				container.setSkill(null);
-			}
-			
-			++i;
-		}
-		
-		this.learnedSkills.clear();
 	}
 	
 	public void addLearnedSkill(Skill skill) {
@@ -70,28 +61,76 @@ public class CapabilitySkill {
 		return false;
 	}
 	
-	public Collection<Skill> getLearnedSkills(SkillCategory skillCategory) {
-		return this.learnedSkills.get(skillCategory);
-	}
-	
 	public boolean hasCategory(SkillCategory skillCategory) {
 		return this.learnedSkills.containsKey(skillCategory);
 	}
 	
+	public boolean isEquipping(Skill skill) {
+		return this.containersBySkill.containsKey(skill);
+	}
+	
+	public boolean hasLearned(Skill skill) {
+		return this.learnedSkills.get(skill.getCategory()).contains(skill);
+	}
+	
 	public Set<SkillContainer> getSkillContainersFor(SkillCategory skillCategory) {
-		return this.slotByCategory.get(skillCategory);
+		return this.containersByCategory.get(skillCategory);
+	}
+	
+	public SkillContainer getSkillContainerFor(SkillSlot skillSlot) {
+		return this.getSkillContainerFor(skillSlot.universalOrdinal());
+	}
+	
+	public SkillContainer getSkillContainerFor(int slotIndex) {
+		return this.skillContainers[slotIndex];
+	}
+	
+	@ApiStatus.Internal
+	public void setSkillToContainer(Skill skill, SkillContainer container) {
+		this.containersBySkill.put(skill, container);
+	}
+	
+	@ApiStatus.Internal
+	public void removeSkillFromContainer(Skill skill) {
+		this.containersBySkill.remove(skill);
 	}
 	
 	public SkillContainer getSkillContainer(Skill skill) {
-		Set<SkillContainer> containers = this.slotByCategory.get(skill.getCategory());
-		
-		for (SkillContainer skillContainer : containers) {
-			if (skill.equals(skillContainer.getSkill())) {
-				return skillContainer;
+		return this.containersBySkill.get(skill);
+	}
+	
+	public Stream<SkillContainer> listSkillContainers() {
+		return Stream.of(this.skillContainers);
+	}
+	
+	public Stream<Skill> listAcquiredSkills() {
+		return this.learnedSkills.values().stream();
+	}
+	
+	public void clearContainersAndLearnedSkills() {
+		for (SkillContainer container : this.skillContainers) {
+			if (container.getSlot().category().learnable()) {
+				container.setSkill(null);
 			}
 		}
 		
-		return null;
+		this.learnedSkills.clear();
+	}
+	
+	public void copyFrom(CapabilitySkill capabilitySkill) {
+		int i = 0;
+		
+		for (SkillContainer container : this.skillContainers) {
+			Skill oldone = capabilitySkill.skillContainers[i].getSkill();
+			
+			if (oldone != null && oldone.getCategory().shouldSynchronize()) {
+				container.setSkill(capabilitySkill.skillContainers[i].getSkill());
+			}
+			
+			i++;
+		}
+		
+		this.learnedSkills.putAll(capabilitySkill.learnedSkills);
 	}
 	
 	public CompoundTag serialize() {

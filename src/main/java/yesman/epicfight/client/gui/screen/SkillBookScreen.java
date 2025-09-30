@@ -92,6 +92,7 @@ public class SkillBookScreen extends Screen {
 		ATTRIBUTE_ICONS.put(EpicFightAttributes.MAX_STAMINA.get(), new TextureInfo(SKILLBOOK_BACKGROUND, 42, 195, 10, 10));
 		ATTRIBUTE_ICONS.put(Attributes.ATTACK_DAMAGE, new TextureInfo(SKILLBOOK_BACKGROUND, 52, 195, 10, 10));
 		ATTRIBUTE_ICONS.put(EpicFightAttributes.STAMINA_REGEN.get(), new TextureInfo(SKILLBOOK_BACKGROUND, 62, 195, 10, 10));
+		ATTRIBUTE_ICONS.put(Attributes.ATTACK_SPEED, new TextureInfo(SKILLBOOK_BACKGROUND, 72, 195, 10, 10));
 		
 		WeaponCategoryIconRegisterEvent weaponCategoryIconRegisterEvent = new WeaponCategoryIconRegisterEvent(WEAPON_CATEGORY_ICONS);
 		ModLoader.get().postEvent(weaponCategoryIconRegisterEvent);
@@ -103,20 +104,20 @@ public class SkillBookScreen extends Screen {
 	protected final Player opener;
 	protected final LocalPlayerPatch playerpatch;
 	protected final Skill skill;
-	protected final InteractionHand hand;
 	protected final Screen parentScreen;
 	protected final SkillTooltipList skillTooltipList;
 	protected final AvailableItemsList availableWeaponCategoryList;
 	protected final AttributeIconList consumptionList;
 	protected final AttributeIconList providingAttributesList;
+	protected final InteractionHand hand;
 	
 	private double customScale;
 	
-	public SkillBookScreen(Player opener, ItemStack stack, InteractionHand hand) {
+	public SkillBookScreen(Player opener, ItemStack stack, @Nullable InteractionHand hand) {
 		this(opener, SkillBookItem.getContainSkill(stack), hand, null);
 	}
 	
-	public SkillBookScreen(Player opener, Skill skill, InteractionHand hand, @Nullable Screen parentScreen) {
+	public SkillBookScreen(Player opener, Skill skill, @Nullable InteractionHand hand, @Nullable Screen parentScreen) {
 		super(Component.empty());
 		
 		this.minecraft = Minecraft.getInstance();
@@ -198,7 +199,7 @@ public class SkillBookScreen extends Screen {
 			Set<SkillContainer> skillContainers = this.playerpatch.getSkillCapability().getSkillContainersFor(this.skill.getCategory());
 			
 			if (skillContainers.size() == 1) {
-				this.learnSkill(skillContainers.iterator().next());
+				this.acquireSkillTo(skillContainers.iterator().next());
 			} else {
 				SlotSelectScreen slotSelectScreen = new SlotSelectScreen(skillContainers, this);
 				this.minecraft.setScreen(slotSelectScreen);
@@ -240,13 +241,12 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	protected void learnSkill(SkillContainer skillContainer) {
+	protected void acquireSkillTo(SkillContainer skillContainer) {
 		skillContainer.setSkill(this.skill);
-		this.minecraft.setScreen(null);
 		this.playerpatch.getSkillCapability().addLearnedSkill(this.skill);
 		int i = this.hand == InteractionHand.MAIN_HAND ? this.opener.getInventory().selected : 40;
-		
-		EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillContainer.getSlot().universalOrdinal(), i, this.skill.toString(), false));
+		EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillContainer.getSlot(), i, false, this.skill));
+		this.minecraft.setScreen(null);
 	}
 	
 	@Override
@@ -288,10 +288,6 @@ public class SkillBookScreen extends Screen {
 	}
 	
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks, boolean asBackground) {
-		if (!asBackground) {
-			this.renderBackground(guiGraphics);
-		}
-		
 		guiGraphics.pose().pushPose();
 		
 		Window window = Minecraft.getInstance().getWindow();
@@ -303,6 +299,10 @@ public class SkillBookScreen extends Screen {
 			//Fix: expand extra far plane distance
 			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
 			RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
+		}
+		
+		if (!asBackground) {
+			this.renderBackground(guiGraphics);
 		}
 		
 		int posX = (this.width - 284) / 2;

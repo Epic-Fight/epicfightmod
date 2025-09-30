@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.network.client.CPExecuteSkill;
+import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -53,7 +53,7 @@ public class StepSkill extends DodgeSkill {
 			animation = vertic >= 0 ? 0 : 1;
 		}
 		
-		CPExecuteSkill packet = new CPExecuteSkill(container.getSlotId());
+		CPSkillRequest packet = new CPSkillRequest(container.getSlot());
 		packet.getBuffer().writeInt(animation);
 		packet.getBuffer().writeFloat(degree);
 		

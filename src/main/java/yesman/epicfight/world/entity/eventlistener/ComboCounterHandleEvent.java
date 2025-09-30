@@ -4,7 +4,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
-public class ComboCounterHandleEvent extends PlayerEvent<ServerPlayerPatch> {
+public class ComboCounterHandleEvent extends AbstractPlayerEvent<ServerPlayerPatch> {
 	private final ComboCounterHandleEvent.Causal causal;
 	private final AnimationAccessor<? extends StaticAnimation> animation;
 	private final int prevValue;

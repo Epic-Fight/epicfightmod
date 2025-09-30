@@ -1,0 +1,20 @@
+{
+	"xp_requirement": 5,
+	"regen_bonus": 0.5,
+	"attribute_modifiers": [
+		{
+			"attribute": "epicfight:stamina_regen",
+			"name": "bloodlust_skill_stat",
+			"uuid": "0c6efd18-199e-48a6-aa1b-51a1c1f9f613",
+			"operation": "addition",
+			"amount": 0.15
+		},
+		{
+			"attribute": "minecraft:generic.attack_damage",
+			"name": "bloodlust_skill_stat",
+			"uuid": "0c6efd18-199e-48a6-aa1b-51a1c1f9f613",
+			"operation": "multiply_total",
+			"amount": 0.1
+		}
+	]
+}

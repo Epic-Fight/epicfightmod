@@ -92,6 +92,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 				float yRotWorld = 180.0F - Mth.rotLerp(partialTicks, localPlayerPatch.getYRotO(), localPlayerPatch.getYRot());
 				float yRot = yRotWorld - yRotModel;
 				float xRot = Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot());
+
 				poseStack.mulPose(Axis.XP.rotationDegrees(xRot));
 				poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
 				poseStack.translate(0.0F, -standingEyeHeight, 0.0F);

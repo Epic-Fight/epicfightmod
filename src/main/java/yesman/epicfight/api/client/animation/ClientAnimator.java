@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -40,6 +42,7 @@ import yesman.epicfight.api.client.animation.property.JointMaskEntry;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.network.common.AnimatorControlPacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
@@ -79,6 +82,14 @@ public class ClientAnimator extends Animator {
 		layer.playAnimation(nextAnimation, this.entitypatch, transitionTimeModifier);
 	}
 	
+	/** Play an animation with specifying layer and priority **/
+	@ApiStatus.Internal
+	public void playAnimationAt(AssetAccessor<? extends StaticAnimation> nextAnimation, float transitionTimeModifier, AnimatorControlPacket.Layer layerType, AnimatorControlPacket.Priority priority) {
+		Layer layer = layerType == AnimatorControlPacket.Layer.BASE_LAYER ? this.baseLayer : this.baseLayer.compositeLayers.get(AnimatorControlPacket.getPriority(priority));
+		layer.paused = false;
+		layer.playAnimation(nextAnimation, this.entitypatch, transitionTimeModifier);
+	}
+	
 	@Override
 	public void playAnimationInstantly(AssetAccessor<? extends StaticAnimation> nextAnimation) {
 		Layer layer = nextAnimation.get().getLayerType() == Layer.LayerType.BASE_LAYER ? this.baseLayer : this.baseLayer.compositeLayers.get(nextAnimation.get().getPriority());
@@ -95,7 +106,7 @@ public class ClientAnimator extends Animator {
 				layer.animationPlayer.getAnimation().get().end(this.entitypatch, nextAnimation, false);
 			}
 			
-			layer.animationPlayer.terminate();
+			layer.animationPlayer.terminate(this.entitypatch);
 		}
 		
 		layer.nextAnimation = nextAnimation;
@@ -107,7 +118,7 @@ public class ClientAnimator extends Animator {
 		Layer layer = targetAnimation.get().getLayerType() == Layer.LayerType.BASE_LAYER ? this.baseLayer : this.baseLayer.compositeLayers.get(targetAnimation.get().getPriority());
 		
 		if (layer.animationPlayer.getRealAnimation() == targetAnimation) {
-			layer.animationPlayer.terminate();
+			layer.animationPlayer.terminate(this.entitypatch);
 			return true;
 		}
 		
@@ -202,6 +213,7 @@ public class ClientAnimator extends Animator {
 		}
 		System.out.println();
 		**/
+		
 		if (this.hardPaused) {
 			return;
 		}
@@ -459,9 +471,11 @@ public class ClientAnimator extends Animator {
 	public void resetCompositeMotion() {
 		if (this.currentCompositeMotion != this.entitypatch.currentCompositeMotion && this.compositeLivingAnimations.containsKey(this.currentCompositeMotion)) {
 			AssetAccessor<? extends StaticAnimation> currentPlaying = this.getCompositeLivingMotion(this.currentCompositeMotion);
+			AssetAccessor<? extends StaticAnimation> resetPlaying = this.getCompositeLivingMotion(LivingMotions.IDLE);
 			
-			if (currentPlaying != null) {
+			if (resetPlaying != null && currentPlaying != resetPlaying) {
 				this.getCompositeLayer(currentPlaying.get().getPriority()).off(this.entitypatch);
+				this.playAnimation(resetPlaying, 0.0F);
 			}
 		}
 		

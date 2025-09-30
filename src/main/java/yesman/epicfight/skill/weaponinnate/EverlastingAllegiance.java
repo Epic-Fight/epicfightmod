@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,8 +20,8 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.projectile.ThrownTridentPatch;
 
 public class EverlastingAllegiance extends WeaponInnateSkill {
-	public static void setThrownTridentEntityId(ServerPlayer serverPlayer, SkillContainer skillContainer, int entityId) {
-		skillContainer.getDataManager().setDataSync(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get(), entityId, serverPlayer);
+	public static void setThrownTridentEntityId(SkillContainer skillContainer, int entityId) {
+		skillContainer.getDataManager().setDataSync(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get(), entityId);
 	}
 	
 	public static int getThrownTridentEntityId(SkillContainer skillContainer) {

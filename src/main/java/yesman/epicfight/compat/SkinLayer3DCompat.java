@@ -36,7 +36,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -55,7 +54,6 @@ import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.mixin.skinlayers.MixinSkinUtil;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class SkinLayer3DCompat implements ICompatModule {
 	private static Capability<SkinLayer3DMeshes> SKIN_LAYER_3D_CAPABILITY;
@@ -82,40 +80,10 @@ public class SkinLayer3DCompat implements ICompatModule {
 		});
 	}
 	
-	private static boolean REVERT_TO_MINING = false;
-	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void onForgeEventBusClient(IEventBus eventBus) {
 		eventBus.addGenericListener(Entity.class, this::onCapabilityRegister);
-		
-		eventBus.<ScreenEvent.Opening>addListener((event) -> {
-			if (event.getScreen() instanceof dev.tr7zw.skinlayers.config.CustomConfigScreen) {
-				PlayerPatch<?> playerpatch = ClientEngine.getInstance().getPlayerPatch();
-				
-				if (playerpatch != null && playerpatch.isVanillaMode()) {
-					REVERT_TO_MINING = true;
-					playerpatch.toEpicFightMode(false);
-				}
-				
-				if (!ClientEngine.getInstance().isVanillaModelDebuggingMode()) {
-					ClientEngine.getInstance().switchVanillaModelDebuggingMode();
-				}
-			}
-		});
-		
-		eventBus.<ScreenEvent.Closing>addListener((event) -> {
-			if (event.getScreen() instanceof dev.tr7zw.skinlayers.config.CustomConfigScreen) {
-				if (ClientEngine.getInstance().isVanillaModelDebuggingMode()) {
-					ClientEngine.getInstance().switchVanillaModelDebuggingMode();
-				}
-				
-				if (REVERT_TO_MINING) {
-					ClientEngine.getInstance().getPlayerPatch().toVanillaMode(false);
-					REVERT_TO_MINING = false;
-				}
-			}
-		});
 	}
 	
 	@OnlyIn(Dist.CLIENT)

@@ -18,7 +18,9 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -26,7 +28,7 @@ import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.SkillExecuteEvent;
+import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
 public class PhantomAscentSkill extends Skill {
 	private static final UUID EVENT_UUID = UUID.fromString("051a9bb2-7541-11ee-b962-0242ac120002");
@@ -57,7 +59,7 @@ public class PhantomAscentSkill extends Skill {
 		
 		listener.addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
 			if (event.getPlayerPatch().getOriginal().getVehicle() != null || !event.getPlayerPatch().isEpicFightMode() || event.getPlayerPatch().getOriginal().getAbilities().flying 
-					|| event.getPlayerPatch().isChargingSkill() || event.getPlayerPatch().getEntityState().inaction()) {
+					|| event.getPlayerPatch().isHoldingAny() || event.getPlayerPatch().getEntityState().inaction()) {
 				return;
 			}
 			
@@ -74,8 +76,8 @@ public class PhantomAscentSkill extends Skill {
 				
 				if (jumpCounter > 0 || event.getPlayerPatch().currentLivingMotion == LivingMotions.FALL) {
 					if (jumpCounter < (this.extraJumps + 1)) {
-						SkillExecuteEvent skillexecuteevent = new SkillExecuteEvent(container.getExecutor(), container);
-						container.getExecutor().getEventListener().triggerEvents(EventType.SKILL_EXECUTE_EVENT, skillexecuteevent);
+						SkillCastEvent skillexecuteevent = new SkillCastEvent(container.getExecutor(), container, null);
+						container.getExecutor().getEventListener().triggerEvents(EventType.SKILL_CAST_EVENT, skillexecuteevent);
 						
 						if (skillexecuteevent.isCanceled()) {
 							return;
@@ -89,7 +91,7 @@ public class PhantomAscentSkill extends Skill {
 							container.getDataManager().setDataF(SkillDataKeys.JUMP_COUNT.get(), (v) -> v + 1);
 						}
 						
-						container.getDataManager().setDataSync(SkillDataKeys.PROTECT_NEXT_FALL.get(), true, event.getPlayerPatch().getOriginal());
+						container.getDataManager().setDataSync(SkillDataKeys.PROTECT_NEXT_FALL.get(), true);
 						
 						Input input = event.getMovementInput();
 						float f = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(container.getExecutor().getOriginal()), 0.0F, 1.0F);
@@ -109,6 +111,7 @@ public class PhantomAscentSkill extends Skill {
 						container.getExecutor().getOriginal().setDeltaMovement(deltaMove.x + jumpDir.x, this.jumpPower + container.getExecutor().getOriginal().getJumpBoostPower(), deltaMove.z + jumpDir.z);
 						event.getPlayerPatch().setModelYRot(container.getExecutor().getOriginal().getYRot() + degree, true);
 						event.getPlayerPatch().playAnimationInClientSide(this.animations.get(vertic < 0 ? 1 : 0), 0.0F);
+						ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
 					};
 				} else {
 					container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 1);
@@ -118,13 +121,12 @@ public class PhantomAscentSkill extends Skill {
 			container.getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), jumpPressed);
 		});
 		
-		listener.addEventListener(EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
 			if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && container.getDataManager().getDataValue(SkillDataKeys.PROTECT_NEXT_FALL.get())) { // This is not synced
-				float damage = event.getAmount();
+				float damage = event.getDamage();
 				
 				if (damage < 2.5F) {
-					event.setAmount(0.0F);
-					event.setCanceled(true);
+					event.attachValueModifier(ValueModifier.setter(0.0F));
 				}
 				
 				container.getDataManager().setData(SkillDataKeys.PROTECT_NEXT_FALL.get(), false);
@@ -145,7 +147,7 @@ public class PhantomAscentSkill extends Skill {
 		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
 		listener.removeListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
-		listener.removeListener(EventType.HURT_EVENT_PRE, EVENT_UUID);
+		listener.removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID);
 		listener.removeListener(EventType.FALL_EVENT, EVENT_UUID);
 	}
 	

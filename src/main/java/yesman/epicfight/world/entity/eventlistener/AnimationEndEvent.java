@@ -3,7 +3,7 @@ package yesman.epicfight.world.entity.eventlistener;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-public class AnimationEndEvent extends PlayerEvent<PlayerPatch<?>> {
+public class AnimationEndEvent extends AbstractPlayerEvent<PlayerPatch<?>> {
 	private StaticAnimation animation;
 	private boolean isEnd;
 	

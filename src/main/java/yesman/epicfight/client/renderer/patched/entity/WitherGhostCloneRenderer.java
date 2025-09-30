@@ -15,14 +15,14 @@ import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.client.mesh.WitherMesh;
-import yesman.epicfight.client.renderer.entity.NoopLivingEntityRenderer;
+import yesman.epicfight.client.renderer.entity.WitherGhostRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherGhostPatch;
 import yesman.epicfight.world.entity.WitherGhostClone;
 
 @OnlyIn(Dist.CLIENT)
-public class WitherGhostCloneRenderer extends PatchedEntityRenderer<WitherGhostClone, WitherGhostPatch, NoopLivingEntityRenderer<WitherGhostClone>, WitherMesh> {
+public class WitherGhostCloneRenderer extends PatchedEntityRenderer<WitherGhostClone, WitherGhostPatch, WitherGhostRenderer, WitherMesh> {
 	@Override
-	public void render(WitherGhostClone entity, WitherGhostPatch entitypatch, NoopLivingEntityRenderer<WitherGhostClone> renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+	public void render(WitherGhostClone entity, WitherGhostPatch entitypatch, WitherGhostRenderer renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		RenderType renderType = RenderType.entityTranslucent(PWitherRenderer.WITHER_INVULNERABLE_LOCATION);
 		WitherMesh mesh = this.getMeshProvider(entitypatch).get();
 		Armature armature = entitypatch.getArmature();

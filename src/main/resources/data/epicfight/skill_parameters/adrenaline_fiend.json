@@ -1,0 +1,19 @@
+{
+	"xp_requirement": 5,
+	"attribute_modifiers": [
+		{
+			"attribute": "minecraft:generic.attack_speed",
+			"name": "adrenaline_skill_stat",
+			"uuid": "678cff5d-dc70-492d-b960-f01241d1a0f9",
+			"operation": "multiply_total",
+			"amount": 0.1
+		},
+		{
+			"attribute": "minecraft:generic.attack_damage",
+			"name": "adrenaline_skill_stat",
+			"uuid": "678cff5d-dc70-492d-b960-f01241d1a0f9",
+			"operation": "multiply_total",
+			"amount": 0.075
+		}
+	]
+}

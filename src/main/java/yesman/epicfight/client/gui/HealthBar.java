@@ -37,7 +37,7 @@ public class HealthBar extends EntityUI {
 	public static final ResourceLocation HEALTHBARS1 = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png");
 	public static final ResourceLocation HEALTHBARS2 = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars2.png");
 	
-	private final Map<LivingEntity, EntityAttributeTracker> trackingEntities = Maps.newHashMap();
+	private final Map<LivingEntity, EntityAttributeTracker> trackingEntities = Maps.newConcurrentMap();
 	
 	@Override
 	public boolean shouldDraw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, float partialTicks) {

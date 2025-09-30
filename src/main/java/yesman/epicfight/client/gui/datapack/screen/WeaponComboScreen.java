@@ -160,7 +160,7 @@ public class WeaponComboScreen extends Screen {
 								.rowEditable(RowEditButton.ADD_REMOVE)
 								.transparentBackground(false)
 								.addColumn(Grid.popup("combo_animation", PopupBox.AnimationPopupBox::new)
-												.filter((animation) -> animation instanceof AttackAnimation)
+												.filter((accessor) -> accessor.checkType(AttackAnimation.class))
 												.editWidgetCreated((popupBox) -> popupBox.setModel(Armatures.BIPED, Meshes.BIPED))
 												.toDisplayText((animation) -> animation == null ? "" : animation.registryName().toString())
 												.valueChanged((event) -> {

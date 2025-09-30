@@ -18,9 +18,8 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPClearSkills;
-import yesman.epicfight.network.server.SPRemoveSkill;
+import yesman.epicfight.network.server.SPRemoveSkillAndLearn;
 import yesman.epicfight.server.commands.arguments.SkillArgument;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
@@ -77,8 +76,14 @@ public class PlayerSkillCommand {
 		int i = 0;
 		
 		for (ServerPlayer player : targets) {
-			EpicFightCapabilities.getUnparameterizedEntityPatch(player, ServerPlayerPatch.class).ifPresent(playerpatch -> playerpatch.getSkillCapability().clear());
-			EpicFightNetworkManager.sendToPlayer(new SPClearSkills(), player);
+			EpicFightCapabilities.getUnparameterizedEntityPatch(player, ServerPlayerPatch.class).ifPresent(playerpatch -> {
+				playerpatch.getSkillCapability().clearContainersAndLearnedSkills();
+				SPClearSkills clearpacket = new SPClearSkills(player.getId());
+				
+				EpicFightNetworkManager.sendToPlayer(clearpacket, player);
+				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(clearpacket, player);
+			});
+			
 			i++;
 		}
 		
@@ -100,13 +105,15 @@ public class PlayerSkillCommand {
 		
 		for (ServerPlayer player : targets) {
 			ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
+			SkillContainer skillContainer = playerpatch.getSkillCapability().getSkillContainerFor(slot);
 			
-			if (playerpatch.getSkillCapability().skillContainers[slot.universalOrdinal()].setSkill(skill)) {
+			if (skillContainer.setSkill(skill)) {
 				if (skill.getCategory().learnable()) {
 					playerpatch.getSkillCapability().addLearnedSkill(skill);
 				}
 				
-				EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(slot, skill.toString(), SPChangeSkill.State.ENABLE), player);
+				EpicFightNetworkManager.sendToPlayer(skillContainer.createSyncPacketToLocalPlayer(), player);
+				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(skillContainer.createSyncPacketToRemotePlayer(), player);
 				i++;
 			}
 		}
@@ -137,7 +144,8 @@ public class PlayerSkillCommand {
 					
 					if (skill != null) {
 						skillContainer.setSkill(null);
-						EpicFightNetworkManager.sendToPlayer(new SPRemoveSkill(skill.toString(), slot), player);
+						EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(slot, skill), player);
+						EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(skillContainer.createSyncPacketToRemotePlayer(), player);
 						i++;
 					}
 				} else {
@@ -146,7 +154,8 @@ public class PlayerSkillCommand {
 						
 						if (skillContainer.getSkill() == skill) {
 							skillContainer.setSkill(null);
-							EpicFightNetworkManager.sendToPlayer(new SPRemoveSkill(skill.toString(), slot), player);
+							EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(slot, skill), player);
+							EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(skillContainer.createSyncPacketToRemotePlayer(), player);
 							i++;
 						}
 					}

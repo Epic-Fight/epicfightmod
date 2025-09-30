@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.entity.DeathHarvestOrb;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
@@ -24,12 +24,12 @@ public class DeathHarvestSkill extends PassiveSkill {
 	public void onInitiate(SkillContainer container) {
 		super.onInitiate(container);
 		
-		container.getExecutor().getEventListener().addEventListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
+		container.getExecutor().getEventListener().addEventListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID, (event) -> {
 			PlayerPatch<?> playerpatch = container.getExecutor();
 			Player original = playerpatch.getOriginal();
-			LivingEntity target = event.getTarget();
+			LivingEntity target = event.getKilledEntity();
 			
-			if (event.getDamageSource().is(EpicFightDamageType.WEAPON_INNATE) && event.getAttackDamage() > target.getHealth()) {
+			if (event.getDamageSource().is(EpicFightDamageTypeTags.WEAPON_INNATE)) {
 				original.level().playSound(null, original.getX(), original.getY(), original.getZ(), SoundEvents.WITHER_AMBIENT, original.getSoundSource(), 0.3F, 1.25F);
 				
 				int damage = (int)original.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -43,6 +43,6 @@ public class DeathHarvestSkill extends PassiveSkill {
 	public void onRemoved(SkillContainer container) {
 		super.onRemoved(container);
 		
-		container.getExecutor().getEventListener().removeListener(EventType.DEALT_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID);
 	}
 }

@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"minecraft:magic",
+		"minecraft:indirect_magic",
+		"epicfight:wither_beam"
+	]
+}

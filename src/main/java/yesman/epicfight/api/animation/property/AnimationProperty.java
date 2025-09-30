@@ -311,11 +311,11 @@ public abstract class AnimationProperty<T> {
 		/**
 		 * This property determines a minimal distance between attacker and target.
 		 */
-		public static final AttackAnimationProperty<Double> REACH = new AttackAnimationProperty<Double> ("reach", Codec.DOUBLE);
+		public static final AttackAnimationProperty<Float> REACH = new AttackAnimationProperty<Float> ("reach", Codec.FLOAT);
 	}
 	
 	public static class AttackPhaseProperty<T> {
-		public AttackPhaseProperty(String rl, @Nullable Codec<T> codecs) {
+		public AttackPhaseProperty(String rl, @Nullable Codec<? extends T> codecs) {
 			//super(rl, codecs);
 		}
 		
@@ -323,11 +323,11 @@ public abstract class AnimationProperty<T> {
 			//this(null, null);
 		}
 		
-		public static final AttackPhaseProperty<ValueModifier> MAX_STRIKES_MODIFIER = new AttackPhaseProperty<ValueModifier> ("max_strikes", ValueModifier.CODECS);
-		public static final AttackPhaseProperty<ValueModifier> DAMAGE_MODIFIER = new AttackPhaseProperty<ValueModifier> ("damage", ValueModifier.CODECS);
+		public static final AttackPhaseProperty<ValueModifier> MAX_STRIKES_MODIFIER = new AttackPhaseProperty<ValueModifier> ("max_strikes", ValueModifier.CODEC);
+		public static final AttackPhaseProperty<ValueModifier> DAMAGE_MODIFIER = new AttackPhaseProperty<ValueModifier> ("damage", ValueModifier.CODEC);
+		public static final AttackPhaseProperty<ValueModifier> ARMOR_NEGATION_MODIFIER = new AttackPhaseProperty<ValueModifier> ("armor_negation", ValueModifier.CODEC);
+		public static final AttackPhaseProperty<ValueModifier> IMPACT_MODIFIER = new AttackPhaseProperty<ValueModifier> ("impact", ValueModifier.CODEC);
 		public static final AttackPhaseProperty<Set<ExtraDamageInstance>> EXTRA_DAMAGE = new AttackPhaseProperty<Set<ExtraDamageInstance>> ();
-		public static final AttackPhaseProperty<ValueModifier> ARMOR_NEGATION_MODIFIER = new AttackPhaseProperty<ValueModifier> ("armor_negation", ValueModifier.CODECS);
-		public static final AttackPhaseProperty<ValueModifier> IMPACT_MODIFIER = new AttackPhaseProperty<ValueModifier> ("impact", ValueModifier.CODECS);
 		public static final AttackPhaseProperty<StunType> STUN_TYPE = new AttackPhaseProperty<StunType> ();
 		public static final AttackPhaseProperty<SoundEvent> SWING_SOUND = new AttackPhaseProperty<SoundEvent> ();
 		public static final AttackPhaseProperty<SoundEvent> HIT_SOUND = new AttackPhaseProperty<SoundEvent> ();
@@ -350,7 +350,7 @@ public abstract class AnimationProperty<T> {
 	 */
 	@FunctionalInterface
 	public interface PoseModifier {
-		void modify(DynamicAnimation self, Pose pose, LivingEntityPatch<?> entitypatch, float elapsedTime, float partialTicks);
+		void modify(DynamicAnimation self, Pose pose, LivingEntityPatch<?> entitypatch, float elapsedTime, float partialTick);
 	}
 	
 	@FunctionalInterface

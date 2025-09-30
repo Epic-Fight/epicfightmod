@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.projectile;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -16,6 +17,9 @@ import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.mob.WitherSkeletonPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageSources;
+import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.entity.WitherSkeletonMinion;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
@@ -24,12 +28,12 @@ public class WitherSkullPatch extends ProjectilePatch<WitherSkull> {
 	@Override
 	public void onJoinWorld(WitherSkull projectileEntity, EntityJoinLevelEvent event) {
 		super.onJoinWorld(projectileEntity, event);
+		
 		this.impact = 1.0F;
 	}
 	
 	@Override
 	protected void setMaxStrikes(WitherSkull projectileEntity, int maxStrikes) {
-		
 	}
 	
 	@Override
@@ -65,5 +69,15 @@ public class WitherSkullPatch extends ProjectilePatch<WitherSkull> {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public EpicFightDamageSource createEpicFightDamageSource() {
+		return EpicFightDamageSources.witherSkull(this.original, this.original.getOwner())
+				.setStunType(StunType.SHORT)
+				.addRuntimeTag(DamageTypeTags.IS_PROJECTILE)
+				.setBaseArmorNegation(this.armorNegation)
+				.setBaseImpact(this.impact)
+				.setInitialPosition(this.initialFirePosition);
 	}
 }

@@ -18,6 +18,7 @@
 	
 	"attribute.name.generic.max_health.skillbook_tooltip": "Increases player's max health",
 	"attribute.name.generic.attack_damage.skillbook_tooltip": "Increases player's attack damage",
+	"attribute.name.generic.attack_speed.skillbook_tooltip": "Increases player's attack speed",
 	"attribute.name.epicfight.staminar.skillbook_tooltip": "Increases player's max stamina",
 	"attribute.name.epicfight.stamina_regen.skillbook_tooltip": "Reduces the amount of time taken for stamina to regen",
 	
@@ -156,6 +157,7 @@
 	"sfx.neutralize_bosses": "Boss suppressed",
 	"skill.rocket_jump": "Slam",
 	"skill.roll": "Rolling",
+	"skill.tumble": "Tumbling",
 	"skill.forbidden_strength": "Forbidden magic casting",
 	
 	"gameMode.epicfight.vanilla": "Vanilla",
@@ -167,7 +169,7 @@
 	"gamerule.weightPenalty": "Weight Penalty applied to Attack Speed.",
 	"gamerule.disableEntityUI": "Turn off health bar and target indicator for all players",
 	"gamerule.globalStun": "Enable Global Hitstun",
-	"gamerule.canSwitchPlayerMode": "Enable switching between Combat/Mining mode",
+	"gamerule.canSwitchPlayerMode": "Enable switching between Vanilla/EpicFight mode",
 	"gamerule.noMobsInBossfight": "Disable mob spawn during Bossfight",
 	"gamerule.stiffComboAttacks": "Disable player movement while attacking",
 	"gamerule.initialMode": "Default player mode for newcomers",
@@ -178,7 +180,7 @@
 	"gui.epicfight.graphic_options": "Epic Fight Graphics",
 	"gui.epicfight.control_options": "Epic Fight Controls",
 	
-	"gui.epicfight.skill_edit": "Skills",
+	"gui.epicfight.skill_tree": "Skill Tree",
 	
 	"gui.epicfight.health_bar_show_option.none": "Health Bar Show Option: None",
 	"gui.epicfight.health_bar_show_option.hurt": "Health Bar Show Option: Hurt",
@@ -206,8 +208,12 @@
 	"gui.epicfight.max_stuck_projectiles": "Max Stuck Projectiles: %s",
 	"gui.epicfight.first_person_model.on": "First Person Model: ON",
 	"gui.epicfight.first_person_model.off": "First Person Model: OFF",
-	"gui.epicfight.use_animation_shader.on": "Animation Shader: ON",
-	"gui.epicfight.use_animation_shader.off": "Animation Shader: OFF",
+	"gui.epicfight.enable_mine_block_guide.on": "Mine Block Guide: ON",
+	"gui.epicfight.enable_mine_block_guide.off": "Mine Block Guide: OFF",
+	"gui.epicfight.enable_target_entity_guide.on": "Target Entity Guide: ON",
+	"gui.epicfight.enable_target_entity_guide.off": "Enable Target Entity Guide: OFF",
+	"gui.epicfight.use_compute_shader.on": "Compute Shader: ON",
+	"gui.epicfight.use_compute_shader.off": "Compute Shader: OFF",
 	"gui.epicfight.enable_pov_action.on": "Pov Action: ON",
 	"gui.epicfight.enable_pov_action.off": "Pov Action: OFF",
 	"gui.epicfight.enable_cosmetics.on": "Patron Cosmetics: ON",
@@ -216,7 +222,7 @@
 	
 	"gui.epicfight.item_preferences.tooltip.find_weapon": "Automatically classify weapon items. If your datapack weapons are not listed on combat preferred items, try it agaiin after entering world.",
 	"gui.epicfight.export_custom_armor": "Export Armor Models",
-	"gui.epicfight.health_bar_show_option.tooltip": "Determines the health bar visibility?\n\nInjured: entities that have less than full health.\nTarget: the player's current target.\nNone: disable health bar.",
+	"gui.epicfight.health_bar_show_option.tooltip": "Determines the health bar\n\nInjured: entities that have less than full health.\nTarget: the player's current target.\nNone: disable health bar.",
 	"gui.epicfight.target_indicator.tooltip": "Turn on/off the target indicator",
 	"gui.epicfight.long_press_counter.tooltip": "Determines how many ticks it will take to be recognized as a long press. Used for weapon innate and dodge skills",
 	"gui.epicfight.aim_helper.tooltip": "Renders the aim helper while aiming a bow or crossbow, Incompatible with fabulous graphic setting and some shaders",
@@ -229,8 +235,10 @@
 	"gui.epicfight.item_preferences.tooltip": "Edit the list of items for mining and combat preferences",
 	"gui.epicfight.export_custom_armor.tooltip": "Export the all custom armor models as an resource pack",
 	"gui.epicfight.first_person_model.tooltip": "Turn on/off the animated model in the first person.",
-	"gui.epicfight.use_animation_shader.tooltip": "Turn on/off animation shader. Turning on animation shader enhances the frame rate but may not be compatible with some shader packs",
-	"gui.epicfight.use_animation_shader.locked.tooltip": "This option is locked because you're using shader pack that is incompatible. Please reload the shader pack to unlock this option.",
+	"gui.epicfight.enable_mine_block_guide.tooltip": "Indicate a block that you can mine",
+	"gui.epicfight.enable_target_entity_guide.tooltip": "Indicate an entity that you can attack",
+	"gui.epicfight.use_compute_shader.tooltip": "Turn on/off compute shader. Turning on compute shader enhances the frame rate but may not be compatible with some shader packs",
+	"gui.epicfight.use_compute_shader.locked.tooltip": "Compute shader is not supported in your OS or GPU. It needs to support OpenGL 4.3 or higher.",
 	"gui.epicfight.enable_pov_action.tooltip": "Enable camera movement depends on animation in first person.",
 	"gui.epicfight.enable_cosmetics.tooltip": "Turn on/off players' patron cosmetics. You have to reconnect the world to apply the change.",
 	
@@ -384,9 +392,17 @@
 	"skill.epicfight.parrying": "Parrying",
 	"skill.epicfight.parrying.tooltip": "Allows a player to time guards accordingly to prevent stamina use. Player is able to guard against ranged attacks.",
 	"skill.epicfight.impact_guard": "Impact Guard",
-	"skill.epicfight.impact_guard.tooltip": "Reduces stamina consumption on guarding. Player can now guard against explosions, fire, magic, and projectiles with %d%% efficiency.",
+	"skill.epicfight.impact_guard.tooltip": "Reduces stamina consumption and guard penalty on guarding. You can guard against explosions, fire, magic, and projectiles, taking %d%% of the original damage.",
+	"skill.epicfight.adrenaline_fiend": "Adrenaline Fiend",
+	"skill.epicfight.adrenaline_fiend.tooltip": "Starts to regenerate stamina immediately when killing a mob.",
+	"skill.epicfight.adaptive_skin": "Adaptive Skin",
+	"skill.epicfight.adaptive_skin.tooltip": "Get a damage resistance against the damage type that you've taken recently by %s%%. The damage resistance stacks up to %d.\n\nResistible damage types:\n%s",
 	"skill.epicfight.berserker": "Berserker",
 	"skill.epicfight.berserker.tooltip": "Gain %s%% additional attack damage and %s%% additional attack speed for each 1%% of missing health.\n\nAdditional attack speed can't exceed over 5.0",
+	"skill.epicfight.catharsis": "Catharsis",
+	"skill.epicfight.catharsis.tooltip": "Charges your weapon when dodging attacks.",
+	"skill.epicfight.bonebreaker": "Bonebreaker",
+	"skill.epicfight.bonebreaker.tooltip": "Gain a damage bonus against an enemy you've recently attacked by %s%%. Stacks up to %d and the stack will be reset if you strike another target.",
 	"skill.epicfight.stamina_pillager": "Stamina Pillager",
 	"skill.epicfight.stamina_pillager.tooltip": "Regain %s%% of missing stamina when killing your target.",
 	"skill.epicfight.swordmaster": "Swordmaster",
@@ -402,9 +418,11 @@
 	"skill.epicfight.endurance": "Endurance",
 	"skill.epicfight.endurance.tooltip": "Grants stun resistance as an amount of stamina consumed for %s seconds if a player is hit while preparing an attack.",
 	"skill.epicfight.emergency_escape": "Emergency Escape",
-	"skill.epicfight.emergency_escape.tooltip": "Allows a player dodging when out of stamina.\n\nAllows a player canceling attack motions and dodge. (passive)",
+	"skill.epicfight.emergency_escape.tooltip": "Allows a player dodging when being hit or out of stamina.\n\nAllows a player canceling attack motions and dodge. (Always activated)",
 	"skill.epicfight.death_harvest": "Death Harvest",
-	"skill.epicfight.death_harvest.tooltip": "Regain innate weapon charge when killing an enemy with an innate weapon skill.",
+	"skill.epicfight.death_harvest.tooltip": "Regain weapon charge when killing an enemy with an innate weapon skill.",
+	"skill.epicfight.vengeance": "Vengeance",
+	"skill.epicfight.vengeance.tooltip": "Gain a damage bonus against an enemy that recently hurt you by %s%%. You can switch the target after 4 seconds since you don't hit or get hurt by the current target. Killing the target will grant you a %s%% damage increase that gradually decreases for %d seconds.",
 	"skill.epicfight.meteor_slam": "Meteor Slam",
 	"skill.epicfight.meteor_slam.tooltip": "§oApocalypse descended from the sky.§r\n\nCrash into the ground with a powerful slam. Height increases damage done and stamina consumed. Take damage if fall damage exceeds stamina limit.",
 	"skill.epicfight.meteor_slam.consume.tooltip": "Fall damage",
@@ -420,10 +438,18 @@
 	"skill.epicfight.identity.category": "Identity",
 	"skill.epicfight.mover.category": "Mobility",
 	
+	"skill_tree.epicfight.battleborn": "Battleborn",
+	
 	"painting.epicfight.epicfight_logo.title": "The martial Herobrine",
 	"painting.epicfight.epicfight_logo.author": "Gui Brabo",
 	
 	"pack.epicfight_legacy.title": "Epic Fight Legacy",
+	
+	"tag.damage_type.epicfight.is_melee": "Melee",
+	"tag.damage_type.minecraft.is_projectile": "Projectile",
+	"tag.damage_type.minecraft.is_fire": "Fire",
+	"tag.damage_type.epicfight.is_magic": "Magic",
+	"tag.damage_type.minecraft.is_explosion": "Explosion",
 	
 	"epicfight.tip.weight": "Weight shortens stun, raises skill stamina use, and slows attack speed, especially on fast items.",
 	"epicfight.tip.stun_armor": "Stun Armor extends the time between stuns, boosting overall resilience and defense.",
@@ -628,7 +654,7 @@
 	"epicfight.messages.version_notifier": "EpicFight-%s",
 	
 	"epicfight.messages.shader_transform_fail": "Failed to create shader %s. Don't turn on animation shader in your environment...",
-	"epicfight.messages.mode_switching_disabled": "Switching vanilla/epicfight mode is disabled in this world.",
+	"epicfight.messages.mode_switching_disabled": "Switching vanilla/epicfight mode is disabled in this world. Enable the gamerule or ask for a server operator.",
 	
 	"eof": "eof"
 }

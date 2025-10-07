@@ -114,7 +114,7 @@ mixin {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-	/**
+
 	// Copy and paste dependencies you need at the below
 	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
@@ -154,7 +154,7 @@ dependencies {
     compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-    **/
+
     
     compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
     compileOnly fg.deobf("curse.maven:oculus-581495:5299671")

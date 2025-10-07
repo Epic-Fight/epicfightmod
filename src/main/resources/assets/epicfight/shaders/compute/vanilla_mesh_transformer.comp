@@ -2,19 +2,30 @@
 
 layout(local_size_x = 128) in;
 
+// struct define
 struct VertexData {
-    float px,py,pz,nx,ny,nz;
+    float px,py,pz,nx,ny,nz,u,v;
     int jts,jte;
-};
-
-// Dynamic Input Buffer
-layout(std430, binding = 0) readonly buffer PoseBuffer {
-    mat4 poses[];
 };
 
 struct ElemInfo{
     int pool_idx;
     int part_idx;
+};
+
+struct JointInfo{
+    int jtId;
+    float weight;
+};
+
+struct VertexAttr{
+    float px,py,pz, r,g,b,a, u0,v0;
+    uint nor, uv1, uv2;
+};
+
+// Dynamic Input Buffer
+layout(std430, binding = 0) readonly buffer PoseBuffer {
+    mat4 poses[];
 };
 
 // Static Buffer
@@ -27,47 +38,16 @@ layout(std430, binding = 2) readonly buffer VertexBuffer {
 };
 
 layout(std430, binding = 3) readonly buffer JointsPool {
-    int joints[];
+    JointInfo joints[];
 };
 
-layout(std430, binding = 4) readonly buffer WeightsPool {
-    float weights[];
-};
-
-layout(std430, binding = 5) readonly buffer UVsPool {
-    float uvs[];
+layout(std430, binding = 4) readonly buffer PartHiddenFlagBuffer {
+    int part_hidden[];
 };
 
 // Output Buffer
-// need calculate
-layout(std430, binding = 6) writeonly buffer OutputPositionBuffer {
-    float out_pos[];
-};
-// need calculate
-layout(std430, binding = 7) writeonly buffer OutputNormalBuffer {
-    uint out_normal[];
-};
-// need calculate
-layout(std430, binding = 8) writeonly buffer OutputColorBuffer {
-    vec4 out_color[];
-};
-
-// need store
-layout(std430, binding = 9) writeonly buffer OutputUV0Buffer {
-    float out_uv0[];
-};
-
-layout(std430, binding = 10) writeonly buffer OutputUV1Buffer {
-    uint out_uv1[];
-};
-
-layout(std430, binding = 11) writeonly buffer OutputUV2Buffer {
-    uint out_uv2[];
-};
-
-// HelpInfo Buffer
-layout(std430, binding = 14) readonly buffer PartHiddenFlagBuffer {
-    int part_hidden[];
+layout(std430, binding = 5) writeonly buffer VertexOut {
+    VertexAttr out_vert[];
 };
 
 layout(location=0) uniform vec4 colorIn;
@@ -91,35 +71,30 @@ struct VertInfo{
 };
 
 void storeElem(uint elem_idx, VertInfo vertInfo){
-    out_pos[elem_idx * 3] = vertInfo.pos.x;
-    out_pos[elem_idx * 3 + 1] = vertInfo.pos.y;
-    out_pos[elem_idx * 3 + 2] = vertInfo.pos.z;
+    out_vert[elem_idx].px = vertInfo.pos.x;
+    out_vert[elem_idx].py = vertInfo.pos.y;
+    out_vert[elem_idx].pz = vertInfo.pos.z;
 
-    out_normal[elem_idx] = packSnorm4x8(vec4(normalize(vertInfo.nor), 0.0));
+    out_vert[elem_idx].nor = packSnorm4x8(vec4(normalize(vertInfo.nor), 0.0));
 
-    out_color[elem_idx] = colorIn;
+    out_vert[elem_idx].r = colorIn.x;
+    out_vert[elem_idx].g = colorIn.y;
+    out_vert[elem_idx].b = colorIn.z;
+    out_vert[elem_idx].a = colorIn.w;
 
-    out_uv1[elem_idx] = uv1In;
-    out_uv2[elem_idx] = uv2In;
+    out_vert[elem_idx].u0 = vertInfo.uv.x;
+    out_vert[elem_idx].v0 = vertInfo.uv.y;
 
-    out_uv0[elem_idx*2] = vertInfo.uv.x;
-    out_uv0[elem_idx*2+1] = vertInfo.uv.y;
+    out_vert[elem_idx].uv1 = uv1In;
+    out_vert[elem_idx].uv2 = uv2In;
 }
 
 void storeElemEmpty(uint elem_idx){
-    out_pos[elem_idx * 3] = 0;
-    out_pos[elem_idx * 3 + 1] = 0;
-    out_pos[elem_idx * 3 + 2] = 0;
-
-    out_normal[elem_idx] = 0;
-
-    out_color[elem_idx] = vec4(0);
-
-    out_uv1[elem_idx] = uv1In;
-    out_uv2[elem_idx] = uv2In;
-
-    out_uv0[elem_idx*2] = 0;
-    out_uv0[elem_idx*2+1] = 0;
+    out_vert[elem_idx].px = 0;  out_vert[elem_idx].py = 0;  out_vert[elem_idx].pz = 0;
+    out_vert[elem_idx].nor = 0;
+    out_vert[elem_idx].r = 0;   out_vert[elem_idx].g = 0;   out_vert[elem_idx].b = 0;   out_vert[elem_idx].a = 0;
+    out_vert[elem_idx].uv1 = uv1In;     out_vert[elem_idx].uv2 = uv2In;
+    out_vert[elem_idx].u0 = 0;          out_vert[elem_idx].v0 = 0;
 }
 
 bool isPartHidden(ElemInfo elem){
@@ -134,19 +109,21 @@ VertInfo getFinalVertInfo(ElemInfo elem){
     vec4 norm = getNormInPool(elem.pool_idx);
     vec4 fpos = vec4(0.0);
     vec4 fnorm = vec4(0.0);
-	
+
+    JointInfo jtInfo;
     for (int i = vertices[elem.pool_idx].jts; i < vertices[elem.pool_idx].jte; ++i) {
-        if (weights[i] > 0.0) {
-            mat4 boneMat = poses[joints[i]] * partTransform;
-            fpos += (boneMat * pos) * weights[i];
-            fnorm += (boneMat * norm) * weights[i];
+        jtInfo = joints[i];
+        if (jtInfo.weight > 0.0) {
+            mat4 boneMat = poses[jtInfo.jtId] * partTransform;
+            fpos += (boneMat * pos) * jtInfo.weight;
+            fnorm += (boneMat * norm) * jtInfo.weight;
         }
     }
 	
     VertInfo result;
     result.pos = (model_view_matrix * fpos).xyz;
     result.nor = normalize(normal_matrix * fnorm.xyz);
-    result.uv = vec2(uvs[elem.pool_idx*2], uvs[elem.pool_idx*2+1]);
+    result.uv = vec2(vertices[elem.pool_idx].u, vertices[elem.pool_idx].v);
     return result;
 }
 

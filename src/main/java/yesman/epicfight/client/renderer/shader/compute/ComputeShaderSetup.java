@@ -1,11 +1,16 @@
 package yesman.epicfight.client.renderer.shader.compute;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.GlStateManager;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL46C;
@@ -23,21 +28,103 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
 //import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.OutputSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 @OnlyIn(Dist.CLIENT)
-public interface ComputeShaderSetup {
-    static final int WORK_GROUP_SIZE = 128;
+public abstract class ComputeShaderSetup {
+    protected static final int WORK_GROUP_SIZE = 128;
     
-	static final OpenMatrix4f[] TOTAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-	static final OpenMatrix4f[] TOTAL_NORMALS = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-    static final IArrayBufferProxy POSE_BO = ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, OpenMatrix4f::store);
+	public static final OpenMatrix4f[] TOTAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+    public static final OpenMatrix4f[] TOTAL_NORMALS = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
+    protected static final IArrayBufferProxy POSE_BO =
+            ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, OpenMatrix4f::store); // PoseBuffer
 
-	static void setShaderDefaultUniforms(Matrix4f frustumMatrix, ShaderInstance shader, VertexFormat.Mode mode, Window window) {
+    protected final StaticSSBO<VertexObj> vObjBO; // VertexBuffer
+    protected final StaticSSBO<WeightInfo> jointBO;
+    protected final StaticSSBO<ElemInfo> elementsBO; // ElementsPool
+
+    protected final OutputSSBO outVertexAttrBO;
+
+    protected final IArrayBufferProxy hiddenFlagsBO;
+    protected final Integer[] hiddenFlags;
+
+    protected final int arrayObjectId;
+    protected final int vcount;
+
+    public ComputeShaderSetup(SkinnedMesh skinnedMesh, int out_buffer_size){
+        Map<VertexBuilder, Integer> vertexBuilderMap = new HashMap<>();
+        List<ElemInfo> elements = new ArrayList<>();
+
+        this.arrayObjectId = GlStateManager._glGenVertexArrays();
+        int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
+        int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
+        GlStateManager._glBindVertexArray(this.arrayObjectId);
+
+        List<Float> uvList = Lists.newArrayList();
+        this.hiddenFlags = new Integer[(skinnedMesh.getAllParts().size() + 31) / 32];
+        this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
+
+        MutableInt partIdx = new MutableInt(0);
+
+        skinnedMesh.getAllParts().forEach(skinnedMeshPart -> {
+            skinnedMeshPart.initVBO(new PartBuffer(skinnedMeshPart.getVertices(), vertexBuilderMap, skinnedMesh.uvs(), uvList, elements, partIdx.intValue()));
+            partIdx.add(1);
+        });
+
+        VertexObj[] vertexObjs = new VertexObj[vertexBuilderMap.size()];
+        List<WeightInfo> jointList = new ArrayList<> ();
+
+        vertexBuilderMap.forEach((vb, idx) -> {
+            int startPos = jointList.size();
+
+            for (int i = 0; i < skinnedMesh.affectingJointCounts()[vb.position]; i++) {
+                int jointIndex = skinnedMesh.affectingJointIndices()[vb.position][i];
+                int weightIndex = skinnedMesh.affectingWeightIndices()[vb.position][i];
+                float weight = skinnedMesh.weights()[weightIndex];
+                jointList.add(new WeightInfo(jointIndex, weight));
+            }
+
+            vertexObjs[idx] = new VertexObj(
+                    skinnedMesh.positions()[vb.position * 3],
+                    skinnedMesh.positions()[vb.position * 3 + 1],
+                    skinnedMesh.positions()[vb.position * 3 + 2],
+                    skinnedMesh.normals()[vb.normal * 3],
+                    skinnedMesh.normals()[vb.normal * 3 + 1],
+                    skinnedMesh.normals()[vb.normal * 3 + 2],
+                    skinnedMesh.uvs()[vb.uv*2],
+                    skinnedMesh.uvs()[vb.uv*2+1],
+                    startPos,
+                    startPos + skinnedMesh.affectingJointCounts()[vb.position]
+            );
+        });
+
+        InitAttachmentSSBO(elements, uvList);
+
+        this.vcount = elements.size();
+
+        this.elementsBO = new StaticSSBO<>(elements, 2, ElemInfo::store);
+        this.vObjBO = new StaticSSBO<> (Lists.newArrayList(vertexObjs), 10, VertexObj::store);
+        this.jointBO = new StaticSSBO<> (jointList, 2, WeightInfo::store);
+
+        this.outVertexAttrBO = new OutputSSBO((short) out_buffer_size, elements.size(), DynamicSSBO.DataMode.STREAM);
+
+        GlStateManager._glBindVertexArray(currentBoundVao);
+        GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
+    }
+
+    protected void InitAttachmentSSBO(List<ElemInfo> elements, List<Float> uvList){
+
+    }
+
+	public static void setShaderDefaultUniforms(Matrix4f frustumMatrix, ShaderInstance shader, VertexFormat.Mode mode, Window window) {
         for (int i = 0; i < 12; i++) {
             int j = RenderSystem.getShaderTexture(i);
             shader.setSampler("Sampler" + i, j);
@@ -97,48 +184,36 @@ public interface ComputeShaderSetup {
 
         RenderSystem.setupShaderLights(shader);
     }
-	
-	static void bindAttrPointer(int vao, int size, int bindingPos, int glType) {
-    	GL46C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, vao);
-    	GL46C.glVertexAttribPointer(bindingPos, size, glType, false, 0, 0);
-    	GL46C.glEnableVertexAttribArray(bindingPos);
-    }
-    
-    static void bindAttrPointer(int vao, int size, int bindingPos, int glType, int stride) {
-    	GL46C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, vao);
-    	GL46C.glVertexAttribPointer(bindingPos, size, glType, false, stride, 0);
-    	GL46C.glEnableVertexAttribArray(bindingPos);
-    }
-    
-    static void bindIntAttrPointer(int vao, int size, int bindingPos, int glType, int stride) {
-    	GL46C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, vao);
-    	GL46C.glVertexAttribIPointer(bindingPos, size, glType, stride, 0);
-    	GL46C.glEnableVertexAttribArray(bindingPos);
-    }
     
     static void clearBufferState(VertexFormat vertexFormat) {
         vertexFormat.clearBufferState();
     }
-    
-	void bindBufferFormat(VertexFormat vertexFormat, int... buffers);
-	
-	void applyComputeShader(PoseStack poseStack, OpenMatrix4f partTransform, float r, float g, float b, float a, int overlay, int light, int jointCount);
-	
-	void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses);
-	
-	int vaoId();
-	
-	int vertexCount();
-	
-	void destroyBuffers();
+
+	public abstract void bindBufferFormat(VertexFormat vertexFormat);
+
+    public abstract void applyComputeShader(PoseStack poseStack, OpenMatrix4f partTransform, float r, float g, float b, float a, int overlay, int light, int jointCount);
+
+    public abstract void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses);
+
+    public abstract int vaoId();
+
+    public abstract int vertexCount();
+
+    public void destroyBuffers() {
+        this.vObjBO.close();
+        this.jointBO.close();
+        this.elementsBO.close();
+        this.hiddenFlagsBO.close();
+        RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
+    }
 	
 	@OnlyIn(Dist.CLIENT)
-	interface BufferUploadable {
+	public interface BufferUploadable {
 		public void store(FloatBuffer buffer);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	interface MeshPartBuffer {
+	public interface MeshPartBuffer {
 		// For vanilla compute shader
 		int vboId();
 		
@@ -147,7 +222,12 @@ public interface ComputeShaderSetup {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	record VertexObj(float px, float py, float pz, float nx, float ny, float nz, int jts, int jte) implements ComputeShaderSetup.BufferUploadable {
+    // VertexData
+	public record VertexObj(float px, float py, float pz,
+                     float nx, float ny, float nz,
+                     float u, float v,
+                     int jts, int jte
+    ) implements BufferUploadable {
 		@Override
 		public void store(FloatBuffer floatBuffer) {
 			floatBuffer.put(this.px);
@@ -158,17 +238,29 @@ public interface ComputeShaderSetup {
 			floatBuffer.put(this.ny);
 			floatBuffer.put(this.nz);
 
+            floatBuffer.put(this.u);
+            floatBuffer.put(this.v);
+
 			floatBuffer.put(Float.intBitsToFloat(this.jts));
 			floatBuffer.put(Float.intBitsToFloat(this.jte));
 		}
 	}
 
     @OnlyIn(Dist.CLIENT)
-    public record ElemInfo(int poolId, int partId) implements ComputeShaderSetup.BufferUploadable {
+    public record ElemInfo(int poolId, int partId) implements BufferUploadable {
         @Override
         public void store(FloatBuffer buffer) {
             buffer.put(Float.intBitsToFloat(this.poolId));
             buffer.put(Float.intBitsToFloat(this.partId));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public record WeightInfo(int jtId, float weight) implements BufferUploadable {
+        @Override
+        public void store(FloatBuffer buffer) {
+            buffer.put(Float.intBitsToFloat(this.jtId));
+            buffer.put(weight);
         }
     }
 

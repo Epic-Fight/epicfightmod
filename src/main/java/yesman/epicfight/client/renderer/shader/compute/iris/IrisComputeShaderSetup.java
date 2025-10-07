@@ -11,9 +11,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL15C;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.*;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -48,87 +46,24 @@ import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputePr
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 
 @OnlyIn(Dist.CLIENT)
-public class IrisComputeShaderSetup implements ComputeShaderSetup {
-	private final StaticSSBO<Float> uvsBO;
-	private final StaticSSBO<VertexObj> vObjBO;
-	private final StaticSSBO<Integer> jointBO;
-	private	final StaticSSBO<Float> weightBO;
-	private final StaticSSBO<ElemInfo> elementsBO;
-	private final StaticSSBO<Float> midUVBO;
-	
-	private final OutputSSBO outPos;
-	private final OutputSSBO outNormal;
-	private final OutputSSBO outColor;
-	private final OutputSSBO outUv0;
-	private final OutputSSBO outUv1;
-	private final OutputSSBO outUv2;
-	private final OutputSSBO outEntityId;
-	private final OutputSSBO outTangent;
-	
-	private final IArrayBufferProxy hiddenFlagsBO;
-	private final Integer[] hiddenFlags;
-	
-	private final int arrayObjectId;
-	private final int vcount;
-	
-	public IrisComputeShaderSetup(SkinnedMesh skinnedMesh) {
-		Map<VertexBuilder, Integer> vertexBuilderMap = new HashMap<> ();
-		List<ElemInfo> elements = new ArrayList<> ();
-		
-		this.arrayObjectId = GlStateManager._glGenVertexArrays();
-		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		
-		List<Float> uvList = Lists.newArrayList();
-		this.hiddenFlags = new Integer[(skinnedMesh.getAllParts().size() + 31) / 32];
-		this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
-		
-		MutableInt partIdx = new MutableInt(0);
-		
-		skinnedMesh.getAllParts().forEach(skinnedMeshPart -> {
-			skinnedMeshPart.initVBO(new PartBuffer(skinnedMeshPart.getVertices(), vertexBuilderMap, skinnedMesh.uvs(), uvList, elements, partIdx.intValue()));
-			partIdx.add(1);
-		});
-		
-		VertexObj[] vertexObjs = new VertexObj[vertexBuilderMap.size()];
-		List<Integer> jointList = new ArrayList<> ();
-		List<Float> weightList = new ArrayList<> ();
+public class IrisComputeShaderSetup extends ComputeShaderSetup {
+	protected StaticSSBO<Float> midUVBO;
 
-		vertexBuilderMap.forEach((vb, idx) -> {
-			int startPos = jointList.size();
-			
-			for (int i = 0; i < skinnedMesh.affectingJointCounts()[vb.position]; i++) {
-				int jointIndex = skinnedMesh.affectingJointIndices()[vb.position][i];
-				int weightIndex = skinnedMesh.affectingWeightIndices()[vb.position][i];
-				float weight = skinnedMesh.weights()[weightIndex];
-				
-				jointList.add(jointIndex);
-				weightList.add(weight);
-			}
-			
-			vertexObjs[idx] = new VertexObj(
-				skinnedMesh.positions()[vb.position * 3],
-				skinnedMesh.positions()[vb.position * 3 + 1],
-				skinnedMesh.positions()[vb.position * 3 + 2],
-				skinnedMesh.normals()[vb.normal * 3],
-				skinnedMesh.normals()[vb.normal * 3 + 1],
-				skinnedMesh.normals()[vb.normal * 3 + 2],
-				startPos,
-				startPos + skinnedMesh.affectingJointCounts()[vb.position]
-			);
-		});
-		
+	public IrisComputeShaderSetup(SkinnedMesh skinnedMesh) {
+		super(skinnedMesh, 15);
+	}
+
+	@Override
+	protected void InitAttachmentSSBO(List<ElemInfo> elements, List<Float> uvList) {
 		List<Float> midUVList = Lists.newArrayList();
 		float[] midUVs = new float[(elements.size() / 3) * 2];
-		this.vcount = elements.size();
-		
+
 		for (int i = 0; i < elements.size(); i++) {
 			int vertPoolIdx = elements.get(i).poolId();
 			float u = uvList.get(vertPoolIdx * 2);
 			float v = uvList.get(vertPoolIdx * 2 + 1);
 			int faceIdx = i / 3;
-			
+
 			if (i % 3 == 0) {
 				midUVs[faceIdx * 2] = u / 3;
 				midUVs[faceIdx * 2 + 1] = v / 3;
@@ -137,71 +72,63 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 				midUVs[faceIdx * 2 + 1] += v / 3;
 			}
 		}
-		
 		for (int i = 0; i < elements.size(); i++) {
 			int faceIdx = i / 3;
 			midUVList.add(midUVs[faceIdx * 2]);
 			midUVList.add(midUVs[faceIdx * 2 + 1]);
 		}
-		
-		this.elementsBO = new StaticSSBO<> (elements, 2, ElemInfo::store);
-		this.uvsBO = new StaticSSBO<> (uvList, 1, (v, b) -> b.put(v));
-		this.midUVBO = new StaticSSBO<> (midUVList, 1, (v, b) -> b.put(v));
-		this.vObjBO = new StaticSSBO<> (Lists.newArrayList(vertexObjs), 8, VertexObj::store);
-		this.jointBO = new StaticSSBO<> (jointList, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
-		this.weightBO = new StaticSSBO<> (weightList, 1, (v, b) -> b.put(v));
-		
-		this.outPos = new OutputSSBO((short) 3, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outNormal = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outColor = new OutputSSBO((short) 4, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv0 = new OutputSSBO((short) 2, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv1 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv2 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-		
-		this.outEntityId = new OutputSSBO((short) 2, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outTangent = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
 
-		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
+		this.midUVBO = new StaticSSBO<> (midUVList, 1, (v, b) -> b.put(v));
 	}
-	
+
 	@Override
-	public void bindBufferFormat(VertexFormat vertexFormat, int... buffers) {
+	public void bindBufferFormat(VertexFormat vertexFormat) {
 		var elems = vertexFormat.getElements();
-		
+
+		GL43C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, outVertexAttrBO.glSSBO);
+
+		int mid_uv_pos = -1;
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
-			
+
 			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
-				ComputeShaderSetup.bindAttrPointer(buffers[0], 3, i, GL11C.GL_FLOAT);
+				GL43C.glVertexAttribPointer(i, 3, GL43C.GL_FLOAT, false, 60, 0);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
-				ComputeShaderSetup.bindAttrPointer(buffers[3], 2, i, GL11C.GL_FLOAT);
+				GL43C.glVertexAttribPointer(i, 2, GL43C.GL_FLOAT, false, 60, 28);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
-				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[2]);
-				GL20C.glVertexAttribPointer(i, 4, GL11C.GL_FLOAT, true, 0, 0);
-				GL20C.glEnableVertexAttribArray(i);
+				GL43C.glVertexAttribPointer(i, 4, GL43C.GL_FLOAT, true, 60, 12);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
-				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[1]);
-				GL20C.glVertexAttribPointer(i, 3, GL11C.GL_BYTE, true, 4, 0);
-				GL20C.glEnableVertexAttribArray(i);
+				GL43C.glVertexAttribPointer(i, 3, GL43C.GL_BYTE, true, 60, 36);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
-				ComputeShaderSetup.bindIntAttrPointer(buffers[4], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
+				GL43C.glVertexAttribIPointer(i, 2, GL43C.GL_UNSIGNED_SHORT, 60, 40);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
-				ComputeShaderSetup.bindIntAttrPointer(buffers[5], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
+				GL43C.glVertexAttribIPointer(i, 2, GL43C.GL_UNSIGNED_SHORT, 60, 44);
+				GL43C.glEnableVertexAttribArray(i);
 			}
 			// iris part
 			else if (elem == IrisVertexFormats.ENTITY_ID_ELEMENT) {
-				ComputeShaderSetup.bindIntAttrPointer(buffers[6], 3, i, GL11C.GL_UNSIGNED_SHORT, 4);
+				GL43C.glVertexAttribIPointer(i, 3, GL43C.GL_UNSIGNED_SHORT, 60, 48);
+				GL43C.glEnableVertexAttribArray(i);
 			} else if (elem == IrisVertexFormats.MID_TEXTURE_ELEMENT) {
-				ComputeShaderSetup.bindAttrPointer(buffers[7], 2, i, GL11C.GL_FLOAT);
+				mid_uv_pos = i;
 			} else if (elem == IrisVertexFormats.TANGENT_ELEMENT) {
-				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[8]);
-				GL20C.glVertexAttribPointer(i, 4, GL11C.GL_BYTE, false, 0, 0);
-				GL20C.glEnableVertexAttribArray(i);
+				GL43C.glVertexAttribPointer(i, 4, GL43C.GL_BYTE, false, 60, 56);
+				GL43C.glEnableVertexAttribArray(i);
 			}
 		}
-		
-		GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
+
+		if(mid_uv_pos >= 0){
+			GL43C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, midUVBO.glSSBO);
+			GL43C.glVertexAttribPointer(mid_uv_pos, 2, GL43C.GL_FLOAT, false, 0, 0);
+			GL43C.glEnableVertexAttribArray(mid_uv_pos);
+		}
+
+		GL43C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
 	}
 	
 	private static final Matrix4f IDENTITY4X4 = new Matrix4f();
@@ -228,23 +155,12 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		}
 		
 		ComputeShaderSetup.POSE_BO.bindBufferBase(0);
-		
+
 		this.elementsBO.bindBufferBase(1);
 		this.vObjBO.bindBufferBase(2);
 		this.jointBO.bindBufferBase(3);
-		this.weightBO.bindBufferBase(4);
-		this.uvsBO.bindBufferBase(5);
-		
-		this.outPos.bindBufferBase(6);
-		this.outNormal.bindBufferBase(7);
-		this.outColor.bindBufferBase(8);
-		this.outUv0.bindBufferBase(9);
-		this.outUv1.bindBufferBase(10);
-		this.outUv2.bindBufferBase(11);
-		this.outEntityId.bindBufferBase(12);
-		this.outTangent.bindBufferBase(13);
-			
-		this.hiddenFlagsBO.bindBufferBase(14);
+		this.hiddenFlagsBO.bindBufferBase(4);
+		this.outVertexAttrBO.bindBufferBase(5);
 		
 		int workGroupCount = ((this.vcount / 3) + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
 		shader.dispatch(workGroupCount, 1, 1);
@@ -254,19 +170,8 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		this.elementsBO.unbind();
 		this.vObjBO.unbind();
 		this.jointBO.unbind();
-		this.weightBO.unbind();
-		this.uvsBO.unbind();
-		
-		this.outPos.unbind();
-		this.outNormal.unbind();
-		this.outColor.unbind();
-		this.outUv0.unbind();
-		this.outUv1.unbind();
-		this.outUv2.unbind();
-		this.outEntityId.unbind();
-		this.outTangent.unbind();
-		
 		this.hiddenFlagsBO.unbind();
+		this.outVertexAttrBO.unbind();
 	}
 	
 	@Override
@@ -310,12 +215,7 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 		ShaderInstance shader = RenderSystem.getShader();
 		var format = shader.getVertexFormat();
 		
-		this.bindBufferFormat(
-			format,
-			this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO,
-			this.outUv0.glSSBO, this.outUv1.glSSBO, this.outUv2.glSSBO,
-			this.outEntityId.glSSBO, this.midUVBO.glSSBO, this.outTangent.glSSBO
-		);
+		this.bindBufferFormat(format);
 		
 		ComputeShaderSetup.setShaderDefaultUniforms(Iris.getIrisConfig().areShadersEnabled() ? poseStack.last().pose() : RenderSystem.getModelViewMatrix(), shader, mode, Minecraft.getInstance().getWindow());
 		shader.apply();
@@ -338,12 +238,7 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 				ShaderInstance outlineshader = RenderSystem.getShader();
 				var outlineformat = outlineshader.getVertexFormat();
 				
-				this.bindBufferFormat(
-					outlineformat,
-					this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO,
-					this.outUv0.glSSBO, this.outUv1.glSSBO, this.outUv2.glSSBO,
-					this.outEntityId.glSSBO, this.midUVBO.glSSBO, this.outTangent.glSSBO
-				);
+				this.bindBufferFormat(outlineformat);
 				
 				ComputeShaderSetup.setShaderDefaultUniforms(Iris.getIrisConfig().areShadersEnabled() ? poseStack.last().pose() : RenderSystem.getModelViewMatrix(), outlineshader, outlinemode, Minecraft.getInstance().getWindow());
 				outlineshader.apply();
@@ -370,44 +265,27 @@ public class IrisComputeShaderSetup implements ComputeShaderSetup {
 	public int vaoId() {
 		return this.arrayObjectId;
 	}
-	
+
+	@Override
+	public void destroyBuffers() {
+		midUVBO.close();
+		super.destroyBuffers();
+	}
+
 	@Override
 	public int vertexCount() {
 		return this.vcount;
 	}
 	
-	@Override
-	public void destroyBuffers() {
-		this.uvsBO.close();
-		this.vObjBO.close();
-		this.jointBO.close();
-		this.weightBO.close();
-		this.elementsBO.close();
-		this.midUVBO.close();
-		
-		this.outPos.close();
-		this.outNormal.close();
-		this.outColor.close();
-		this.outUv0.close();
-		this.outUv1.close();
-		this.outUv2.close();
-		this.outEntityId.close();
-		this.outTangent.close();
-		
-		this.hiddenFlagsBO.close();
-		
-		RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
-	}
-	
-    public short getBlock() {
+    static short getBlock() {
         return (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity();
     }
-    
-    public short getEntity() {
+
+	static short getEntity() {
         return (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity();
     }
-    
-    public short getItem() {
+
+	static short getItem() {
         return (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem();
     }
 }

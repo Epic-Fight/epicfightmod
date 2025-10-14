@@ -136,6 +136,18 @@ dependencies {
     
     // First-person compatibility (optional) (Warn: this mod file will cause crash, as it references obfuscated names)
     compileOnly "local:firstperson:2.5.0"
+
+    // Shoulder Surfing Reloaded compatibility (optional)
+    compileOnly "curse.maven:shoulder-surfing-reloaded-243190:6993797" // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993797)
+    localRuntime "curse.maven:shoulder-surfing-reloaded-243190:6993795" // Full mod at runtime (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993795/)
+
+    // Uncomment to test Controllable compatibility
+    /*localRuntime "curse.maven:controllable-317269:6850105"
+    localRuntime "curse.maven:framework-549225:6531439"*/
+
+    // Uncomment to test Controlify compatibility
+    /*localRuntime "curse.maven:controlify-835847:6674779"
+    localRuntime "curse.maven:yacl-667299:6662857"*/
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

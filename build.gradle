@@ -78,12 +78,17 @@ repositories {
             includeGroup 'net.minecraftforge'
         }
     }
-    
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
+
+    exclusiveContent {
+        forRepository { maven { url "https://cursemaven.com" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "curse.maven" }
+    }
+
+    exclusiveContent {
+        forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "maven.modrinth" }
     }
     
     maven {
@@ -149,10 +154,9 @@ dependencies {
     compileOnly fg.deobf("libs:TRender:1.0.7")
     
     // Skinlayer3d compatibility (optional)
-    compileOnly fg.deobf("libs:skinlayers3d:1.9.1")
-    
+    compileOnly fg.deobf("maven.modrinth:3dskinlayers:BBnR3V86") // 1.9.2
     // First-person compatibility (optional)
-    compileOnly fg.deobf("libs:firstperson:2.5.0")
+    compileOnly fg.deobf("maven.modrinth:first-person-model:ub6wk879") // 2.5.0
     
     // KubeJS compatibility (optional)
     compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")

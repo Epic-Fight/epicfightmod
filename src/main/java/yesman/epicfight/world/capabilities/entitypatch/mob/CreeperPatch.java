@@ -8,8 +8,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.SwellGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -17,19 +17,19 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.goal.CreeperSwellStoppableGoal;
 
 public class CreeperPatch extends MobPatch<Creeper> {
-	public CreeperPatch() {
-		super(Factions.NEUTRAL);
+	public CreeperPatch(Creeper creeper) {
+		super(creeper, Factions.NEUTRAL);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.CREEPER, EpicFightAttributes.STUN_ARMOR.get(), 1.0D);
+		event.add(EntityType.CREEPER, EpicFightAttributes.STUN_ARMOR, 1.0D);
 	}
 	
 	@Override
@@ -59,8 +59,8 @@ public class CreeperPatch extends MobPatch<Creeper> {
 	}
 	
 	@Override
-	public void serverTick(LivingEvent.LivingTickEvent event) {
-		super.serverTick(event);
+	public void preTickServer(EntityTickEvent.Pre event) {
+		super.preTickServer(event);
 		
 		if (this.getEntityState().inaction()) {
 			for (WrappedGoal goal : this.original.goalSelector.getAvailableGoals()) {

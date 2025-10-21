@@ -24,8 +24,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
@@ -46,7 +46,7 @@ public final class EpicFightRenderTypes extends RenderType {
 		Util.memoize((texLocation, cullStateShard) -> {
 			return RenderType.create(
 				EpicFightMod.prefix("outline"),
-				DefaultVertexFormat.POSITION_COLOR_TEX,
+				DefaultVertexFormat.POSITION_TEX_COLOR,
 				VertexFormat.Mode.TRIANGLES,
 				256,
 				false,
@@ -534,7 +534,7 @@ public final class EpicFightRenderTypes extends RenderType {
 				, compositeRenderType.state.outlineProperty
 			);
 			
-			return new CompositeRenderType(renderType.name, renderType.format, compositeRenderType.mode(), renderType.bufferSize(), renderType.affectsCrumbling(), renderType.sortOnUpload, textureReplacedState);
+			return new CompositeRenderType(renderType.name, renderType.format, compositeRenderType.mode, renderType.bufferSize(), renderType.affectsCrumbling(), renderType.sortOnUpload, textureReplacedState);
 		} else {
 			return null;
 		}
@@ -555,7 +555,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			return renderType;
 		}
 		
-		Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.computeIfAbsent(textureReplacedRenderType.name, k -> Maps.newHashMap());
+		Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.computeIfAbsent(textureReplacedRenderType.name, k -> new HashMap<> ());
 		renderTypesByTexture.put(texLocation, textureReplacedRenderType);
 		
 		return textureReplacedRenderType;

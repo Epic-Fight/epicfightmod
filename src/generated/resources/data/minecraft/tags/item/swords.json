@@ -1,0 +1,30 @@
+{
+  "values": [
+    "epicfight:diamond_dagger",
+    "epicfight:diamond_greatsword",
+    "epicfight:diamond_longsword",
+    "epicfight:diamond_spear",
+    "epicfight:diamond_tachi",
+    "epicfight:glove",
+    "epicfight:golden_dagger",
+    "epicfight:golden_greatsword",
+    "epicfight:golden_longsword",
+    "epicfight:golden_spear",
+    "epicfight:golden_tachi",
+    "epicfight:iron_dagger",
+    "epicfight:iron_greatsword",
+    "epicfight:iron_longsword",
+    "epicfight:iron_spear",
+    "epicfight:iron_tachi",
+    "epicfight:stone_dagger",
+    "epicfight:stone_greatsword",
+    "epicfight:stone_longsword",
+    "epicfight:stone_spear",
+    "epicfight:stone_tachi",
+    "epicfight:wooden_dagger",
+    "epicfight:wooden_greatsword",
+    "epicfight:wooden_longsword",
+    "epicfight:wooden_spear",
+    "epicfight:wooden_tachi"
+  ]
+}

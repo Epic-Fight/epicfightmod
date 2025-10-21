@@ -7,7 +7,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityDimensions;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.SimpleEvent;
@@ -37,7 +37,7 @@ public class DodgeAnimation extends ActionAnimation {
 	};
 	
 	public static final Consumer<ProjectileImpactEvent> IGNORE_ALL_PROJECTILES = (event) -> {
-		event.setImpactResult(ProjectileImpactEvent.ImpactResult.SKIP_ENTITY);
+		event.setCanceled(true);
 	};
 	
 	public DodgeAnimation(float transitionTime, AnimationAccessor<? extends DodgeAnimation> accessor, float width, float height, AssetAccessor<? extends Armature> armature) {
@@ -52,8 +52,8 @@ public class DodgeAnimation extends ActionAnimation {
 			.addState(EntityState.TURNING_LOCKED, true)
 			.addState(EntityState.MOVEMENT_LOCKED, true)
 			.addState(EntityState.UPDATE_LIVING_MOTION, false)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
-			.addState(EntityState.CAN_SKILL_EXECUTION, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
+			.addState(EntityState.SKILL_EXECUTABLE, false)
 			.addState(EntityState.INACTION, true)
 			.newTimePair(0.0F, Float.MAX_VALUE)
 			.addState(EntityState.ATTACK_RESULT, DODGEABLE_SOURCE_VALIDATOR)

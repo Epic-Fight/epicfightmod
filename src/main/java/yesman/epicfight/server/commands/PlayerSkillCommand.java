@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -77,7 +78,7 @@ public class PlayerSkillCommand {
 		
 		for (ServerPlayer player : targets) {
 			EpicFightCapabilities.getUnparameterizedEntityPatch(player, ServerPlayerPatch.class).ifPresent(playerpatch -> {
-				playerpatch.getSkillCapability().clearContainersAndLearnedSkills(true);
+				playerpatch.getPlayerSkills().clearContainersAndLearnedSkills(true);
 				SPClearSkills clearpacket = new SPClearSkills(player.getId());
 				
 				EpicFightNetworkManager.sendToPlayer(clearpacket, player);
@@ -100,16 +101,16 @@ public class PlayerSkillCommand {
 		return i;
 	}
 	
-	public static int addSkill(CommandSourceStack commandSourceStack, Collection<? extends ServerPlayer> targets, SkillSlot slot, Skill skill) throws CommandSyntaxException {
+	public static int addSkill(CommandSourceStack commandSourceStack, Collection<? extends ServerPlayer> targets, SkillSlot slot, Holder<Skill> skill) throws CommandSyntaxException {
 		int i = 0;
 		
 		for (ServerPlayer player : targets) {
 			ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
-			SkillContainer skillContainer = playerpatch.getSkillCapability().getSkillContainerFor(slot);
+			SkillContainer skillContainer = playerpatch.getPlayerSkills().getSkillContainerFor(slot);
 			
-			if (skillContainer.setSkill(skill)) {
-				if (skill.getCategory().learnable()) {
-					playerpatch.getSkillCapability().addLearnedSkill(skill);
+			if (skillContainer.setSkill(skill.value())) {
+				if (skill.value().getCategory().learnable()) {
+					playerpatch.getPlayerSkills().addLearnedSkill(skill.value());
 				}
 				
 				EpicFightNetworkManager.sendToPlayer(skillContainer.createSyncPacketToLocalPlayer(), player);
@@ -120,9 +121,9 @@ public class PlayerSkillCommand {
 
 		if (i > 0) {
 			if (i == 1) {
-				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.add.success.single", skill.getDisplayName(), targets.iterator().next().getDisplayName())), true);
+				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.add.success.single", skill.getRegisteredName(), targets.iterator().next().getDisplayName())), true);
 			} else {
-				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.add.success.multiple", skill.getDisplayName(), i)), true);
+				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.add.success.multiple", skill.getRegisteredName(), i)), true);
 			}
 		} else {
 			throw ERROR_ADD_FAILED.create();
@@ -131,7 +132,7 @@ public class PlayerSkillCommand {
 		return i;
 	}
 	
-	public static int removeSkill(CommandSourceStack commandSourceStack, Collection<? extends ServerPlayer> targets, SkillSlot slot, Skill skill) throws CommandSyntaxException {
+	public static int removeSkill(CommandSourceStack commandSourceStack, Collection<? extends ServerPlayer> targets, SkillSlot slot, Holder<Skill> skill) throws CommandSyntaxException {
 		int i = 0;
 		
 		for (ServerPlayer player : targets) {
@@ -140,21 +141,20 @@ public class PlayerSkillCommand {
 			if (playerpatch != null) {
 				if (skill == null) {
 					SkillContainer skillContainer = playerpatch.getSkill(slot);
-					skill = skillContainer.getSkill();
 					
-					if (skill != null) {
+					if (skillContainer.getSkill() != null) {
 						skillContainer.setSkill(null);
-						EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(slot, skill), player);
+						EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(skill, slot), player);
 						EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(skillContainer.createSyncPacketToRemotePlayer(), player);
 						i++;
 					}
 				} else {
-					if (playerpatch.getSkillCapability().removeLearnedSkill(skill)) {
+					if (playerpatch.getPlayerSkills().removeLearnedSkill(skill.value())) {
 						SkillContainer skillContainer = playerpatch.getSkill(slot);
 						
 						if (skillContainer.getSkill() == skill) {
 							skillContainer.setSkill(null);
-							EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(slot, skill), player);
+							EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(skill, slot), player);
 							EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(skillContainer.createSyncPacketToRemotePlayer(), player);
 							i++;
 						}
@@ -165,9 +165,9 @@ public class PlayerSkillCommand {
 		
 		if (i > 0) {
 			if (i == 1) {
-				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.remove.success.single", skill.getDisplayName(), targets.iterator().next().getDisplayName())), true);
+				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.remove.success.single", skill.getRegisteredName(), targets.iterator().next().getDisplayName())), true);
 			} else {
-				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.remove.success.multiple", skill.getDisplayName(), i)), true);
+				commandSourceStack.sendSuccess(wrap(Component.translatable("commands.epicfight.skill.remove.success.multiple", skill.getRegisteredName(), i)), true);
 			}
 		} else {
 			throw ERROR_REMOVE_FAILED.create();

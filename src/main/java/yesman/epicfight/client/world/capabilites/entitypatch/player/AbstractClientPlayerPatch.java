@@ -17,11 +17,11 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -32,32 +32,36 @@ import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.client.animation.Layer;
-import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
-import yesman.epicfight.api.client.forgeevent.UpdatePlayerMotionEvent;
+import yesman.epicfight.api.client.neoevent.RenderEpicFightPlayerEvent;
+import yesman.epicfight.api.client.neoevent.UpdatePlayerMotionEvent;
 import yesman.epicfight.api.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.physics.PhysicsSimulator;
 import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.RenderAttributeModifier;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 @OnlyIn(Dist.CLIENT)
 public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends PlayerPatch<T> implements ClothSimulatable {
 	private Item prevHeldItem;
 	private Item prevHeldItemOffHand;
 	protected EpicSkins epicSkinsInformation;
+	
+	public AbstractClientPlayerPatch(T entity) {
+		super(entity);
+	}
 	
 	@Override
 	public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
@@ -123,8 +127,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 		}
 		
 		UpdatePlayerMotionEvent.BaseLayer baseLayerEvent = new UpdatePlayerMotionEvent.BaseLayer(this, this.currentLivingMotion, !this.state.updateLivingMotion() && considerInaction);
-		this.eventListeners.triggerEvents(EventType.UPDATE_BASE_LIVING_MOTION_EVENT, baseLayerEvent);
-		MinecraftForge.EVENT_BUS.post(baseLayerEvent);
+		PlayerPatchEvent.postAndFireSkillListeners(baseLayerEvent);
 		
 		this.currentLivingMotion = baseLayerEvent.getMotion();
 		
@@ -164,28 +167,19 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			}
 			
 			UpdatePlayerMotionEvent.CompositeLayer compositeLayerEvent = new UpdatePlayerMotionEvent.CompositeLayer(this, this.currentCompositeMotion);
-			this.eventListeners.triggerEvents(EventType.UPDATE_COMPOSITE_LIVING_MOTION_EVENT, compositeLayerEvent);
-			MinecraftForge.EVENT_BUS.post(compositeLayerEvent);
+			PlayerPatchEvent.postAndFireSkillListeners(compositeLayerEvent);
 			
 			this.currentCompositeMotion = compositeLayerEvent.getMotion();
 		}
 	}
 	
 	@Override
-	public void onOldPosUpdate() {
-		this.modelYRotO2 = this.modelYRotO;
-		this.xPosO2 = (float)this.original.xOld;
-		this.yPosO2 = (float)this.original.yOld;
-		this.zPosO2 = (float)this.original.zOld;
-	}
-	
-	@Override
-	protected void clientTick(LivingEvent.LivingTickEvent event) {
+	public void preTickClient(EntityTickEvent.Pre event) {
 		this.xCloakO2 = this.original.xCloakO;
 		this.yCloakO2 = this.original.yCloakO;
 		this.zCloakO2 = this.original.zCloakO;
 		
-		super.clientTick(event);
+		super.preTickClient(event);
 		
 		if (!this.getEntityState().updateLivingMotion()) {
 			this.original.yBodyRot = this.original.getYRot();
@@ -214,6 +208,14 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 		this.clothSimulator.tick(this);
 	}
 	
+	@Override
+	public void postTickClient(EntityTickEvent.Post event) {
+		this.modelYRotO2 = this.modelYRotO;
+		this.xPosO2 = (float)this.original.xOld;
+		this.yPosO2 = (float)this.original.yOld;
+		this.zPosO2 = (float)this.original.zOld;
+	}
+	
 	protected boolean isMoving() {
 		return Math.abs(this.dx) > 0.01F || Math.abs(this.dz) > 0.01F;
 	}
@@ -237,8 +239,8 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.getPairingPacketType().is(EntityPairingPacketTypes.class)) {
-			switch (packet.getPairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
+		if (packet.pairingPacketType().is(EntityPairingPacketTypes.class)) {
+			switch (packet.pairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
 			case TECHNICIAN_ACTIVATED -> {
 				this.original.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), this.original.getX(), this.original.getY(), this.original.getZ(), Double.longBitsToDouble(this.original.getId()), 0, 0);
 			}
@@ -252,7 +254,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 				this.original.level().addParticle(EpicFightParticles.ADRENALINE_PLAYER_BEATING.get(), this.original.getX(), this.original.getY(), this.original.getZ(), Double.longBitsToDouble(this.original.getId()), 0, 0);
 			}
 			case EMERGENCY_ESCAPE_ACTIVATED -> {
-				float yRot = packet.getBuffer().readFloat();
+				float yRot = packet.buffer().readFloat();
 				this.original.level().addParticle(EpicFightParticles.AIR_BURST.get(), this.original.getX(), this.original.getY() + this.original.getBbHeight() * 0.5F, this.original.getZ(), 90.0F, yRot, 0);
 				
 				this.entityDecorations.addColorModifier(EntityDecorations.EMERGENCY_ESCAPE_TRANSPARENCY_MODIFIER, new RenderAttributeModifier<> () {
@@ -274,6 +276,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 					}
 				});
 			}
+			default -> {}
 			}
 		}
 	}
@@ -281,9 +284,9 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	@Override
 	public boolean overrideRender() {
 		RenderEpicFightPlayerEvent renderepicfightplayerevent = new RenderEpicFightPlayerEvent(this, this.isEpicFightMode());
-		MinecraftForge.EVENT_BUS.post(renderepicfightplayerevent);
+		NeoForge.EVENT_BUS.post(renderepicfightplayerevent);
 		
-		return renderepicfightplayerevent.getShouldRender();
+		return renderepicfightplayerevent.shouldRender();
 	}
 	
 	@Override
@@ -345,7 +348,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			return mat;
 			
 		} else if (this.original.isSleeping()) {
-			BlockState blockstate = this.original.getFeetBlockState();
+			BlockState blockstate = this.original.getInBlockState();
 			float yRot = 0.0F;
 			
 			if (blockstate.isBed(this.original.level(), this.original.getSleepingPos().orElse(null), this.original)) {

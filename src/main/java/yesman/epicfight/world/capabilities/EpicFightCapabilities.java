@@ -2,43 +2,60 @@ package yesman.epicfight.world.capabilities;
 
 import java.util.Optional;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.ItemCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.registry.entries.EpicFightAttachmentTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
-import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
+import yesman.epicfight.world.capabilities.provider.AttachmentEntityPatchProvider;
+import yesman.epicfight.world.capabilities.provider.CommonEntityPatchProvider;
+import yesman.epicfight.world.capabilities.provider.CommonItemCapabilityProvider;
 
-@SuppressWarnings("rawtypes")
+@EventBusSubscriber(modid = EpicFightMod.MODID)
 public class EpicFightCapabilities {
-	public static final Capability<EntityPatch> CAPABILITY_ENTITY = CapabilityManager.get(new CapabilityToken<>(){});
-    public static final Capability<CapabilityItem> CAPABILITY_ITEM = CapabilityManager.get(new CapabilityToken<>(){});
-    public static final Capability<ProjectilePatch> CAPABILITY_PROJECTILE = CapabilityManager.get(new CapabilityToken<>(){});
-    public static final Capability<CapabilitySkill> CAPABILITY_SKILL = CapabilityManager.get(new CapabilityToken<>(){});
-    
+	public static final ItemCapability<CapabilityItem, Void> CAPABILITY_ITEM =
+		ItemCapability.createVoid(
+			ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "item_capability"),
+			CapabilityItem.class
+		);
+	
+	public static final CommonEntityPatchProvider ENTITY_PATCH_PROVIDER = CommonEntityPatchProvider.INSTANCE;
+	public static final CommonItemCapabilityProvider ITEM_CAPABILITY_PROVIDER = CommonItemCapabilityProvider.INSTANCE;
+	
+	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.register(CapabilityItem.class);
-		event.register(EntityPatch.class);
-		event.register(ProjectilePatch.class);
-		event.register(CapabilitySkill.class);
+		BuiltInRegistries.ITEM.forEach(item -> {
+			event.registerItem(CAPABILITY_ITEM, ITEM_CAPABILITY_PROVIDER, item);
+		});
 	}
 	
-	public static CapabilityItem getItemStackCapability(ItemStack stack) {
-		return stack.isEmpty() ? CapabilityItem.EMPTY : stack.getCapability(CAPABILITY_ITEM).orElse(CapabilityItem.EMPTY);
+	/**
+	 * This method should remain as the secondary option, especially when you can't fix local variables inside lambda expression.
+	 * 
+	 * @param stack
+	 * @return
+	 */
+	public static @Nullable CapabilityItem getItemStackCapability(ItemStack stack) {
+		return getItemCapability(stack).orElse(CapabilityItem.EMPTY);
 	}
 	
-	public static CapabilityItem getItemStackCapabilityOr(ItemStack stack, @Nullable CapabilityItem defaultCap) {
-		return stack.isEmpty() ? defaultCap : stack.getCapability(CAPABILITY_ITEM).orElse(defaultCap);
-	}
-	
+	/**
+	 * Return an optional for a given item stack
+	 * 
+	 * @param stack
+	 * @return
+	 */
 	public static Optional<CapabilityItem> getItemCapability(ItemStack stack) {
-		return stack.isEmpty() ? Optional.empty() : stack.getCapability(CAPABILITY_ITEM).resolve();
+		return Optional.ofNullable(stack.getCapability(CAPABILITY_ITEM));
 	}
 	
 	/**
@@ -49,9 +66,10 @@ public class EpicFightCapabilities {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityPatch> T getEntityPatch(Entity entity, Class<T> type) {
+	public static <T extends EntityPatch<?>> T getEntityPatch(Entity entity, Class<T> type) {
 		if (entity != null) {
-			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
+			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
 			
 			if (entitypatch != null && type.isAssignableFrom(entitypatch.getClass())) {
 				return (T)entitypatch;
@@ -72,7 +90,8 @@ public class EpicFightCapabilities {
 	@SuppressWarnings("unchecked")
 	public static <T extends EntityPatch<?>> Optional<T> getUnparameterizedEntityPatch(Entity entity, Class<T> type) {
 		if (entity != null) {
-			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
+			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
 			
 			if (entitypatch != null && type.isAssignableFrom(entitypatch.getClass())) {
 				return Optional.of((T)entitypatch);
@@ -95,7 +114,8 @@ public class EpicFightCapabilities {
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity, T extends EntityPatch<E>> Optional<T> getParameterizedEntityPatch(Entity entity, Class<E> entitytype, Class<?> patchtype) {
 		if (entity != null && entitytype.isAssignableFrom(entity.getClass())) {
-			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
+			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
 			
 			if (entitypatch != null && patchtype.isAssignableFrom(entitypatch.getClass())) {
 				return Optional.of((T)entitypatch);

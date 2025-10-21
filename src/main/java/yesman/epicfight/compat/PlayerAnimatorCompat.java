@@ -2,24 +2,24 @@ package yesman.epicfight.compat;
 
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
 import dev.kosmx.playerAnim.impl.animation.AnimationApplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import yesman.epicfight.api.client.neoevent.RenderEpicFightPlayerEvent;
 
 public class PlayerAnimatorCompat implements ICompatModule {
     @Override
     public void onModEventBus(IEventBus eventBus) {}
 
     @Override
-    public void onForgeEventBus(IEventBus eventBus) {}
+    public void onGameEventBus(IEventBus eventBus) {}
 
     @Override
     public void onModEventBusClient(IEventBus eventBus) {}
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void onForgeEventBusClient(IEventBus eventBus) {
+    public void onGameEventBusClient(IEventBus eventBus) {
         eventBus.addListener(this::renderEvent);
     }
 

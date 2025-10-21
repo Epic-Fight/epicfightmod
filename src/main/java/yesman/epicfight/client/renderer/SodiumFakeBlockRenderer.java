@@ -14,10 +14,10 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import me.jellysquid.mods.sodium.client.model.quad.BakedQuadView;
-import me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion;
+import net.caffeinemc.mods.sodium.client.model.quad.BakedQuadView;
+import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.irisshaders.batchedentityrendering.impl.FullyBufferedMultiBufferSource;
-import net.irisshaders.iris.compat.sodium.impl.vertex_format.terrain_xhfp.XHFPModelVertexType;
+import net.irisshaders.iris.vertices.sodium.terrain.XHFPModelVertexType;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -35,9 +35,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 @OnlyIn(Dist.CLIENT)
 public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
@@ -75,8 +75,8 @@ public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 		
 		this.renderPreviewBlocks(buffer, level, model.getQuads(bs, null, randomsource, ModelData.EMPTY, null), originX, originY, originZ, offset, r, g, b, a);
 		
-		RenderSystem.getModelViewStack().pushPose();
-		RenderSystem.getModelViewStack().mulPoseMatrix(poseStack.last().pose());
+		RenderSystem.getModelViewStack().pushMatrix();
+		RenderSystem.getModelViewStack().mul(poseStack.last().pose());
 		RenderSystem.applyModelViewMatrix();
 		
 		Uniform uniform = GameRenderer.getRendertypeTranslucentShader().CHUNK_OFFSET;
@@ -102,7 +102,7 @@ public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 		}
 		
 		uniform.set(0.0F, 0.0F, 0.0F);
-		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.getModelViewStack().popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 	
@@ -159,7 +159,13 @@ public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 				float f10 = bytebuffer.getFloat(20);
 				vertexConsumer.applyBakedNormals(vector3f, bytebuffer, new Matrix3f());
 				float vertexAlpha = pMulColor ? alpha * (float) (bytebuffer.get(15) & 255) / 255.0F : alpha;
-				vertexConsumer.vertex(outX, outY, outZ, f3, f4, f5, vertexAlpha, f9, f10, pCombinedOverlay, l, vector3f.x(), vector3f.y(), vector3f.z());
+				
+				vertexConsumer.addVertex(outX, outY, outZ)
+			        .setColor(f3, f4, f5, vertexAlpha)
+			        .setUv(f9, f10)
+			        .setOverlay(pCombinedOverlay)
+			        .setLight(l)
+			        .setNormal(vector3f.x(), vector3f.y(), vector3f.z());
 			}
 		}
 	}
@@ -173,11 +179,17 @@ public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 	/**
 	 * copies from {@link XHFPModelVertexType}
 	 */
+	private static final int POSITION_MAX_VALUE = 65536;
+	private static final float MODEL_ORIGIN = 8.0f;
+	private static final float MODEL_RANGE = 32.0f;
+	private static final float MODEL_SCALE = MODEL_RANGE / POSITION_MAX_VALUE;
+	private static final float MODEL_SCALE_INV = POSITION_MAX_VALUE / MODEL_RANGE;
+	
 	static short encodePosition(float v) {
-		return (short) (int) ((8.0F + v) * 2048.0F);
+		return (short) ((MODEL_ORIGIN + v) * MODEL_SCALE_INV);
 	}
-
+	
 	static float decodePosition(short raw) {
-		return (raw & 0xFFFF) * 4.8828125E-4F - 8.0F;
+		return (raw & 0xFFFF) * MODEL_SCALE - MODEL_ORIGIN;
 	}
 }

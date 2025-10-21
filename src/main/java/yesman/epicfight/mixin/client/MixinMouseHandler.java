@@ -10,9 +10,10 @@ import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerP
 
 @Mixin(value = MouseHandler.class)
 public abstract class MixinMouseHandler {
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V", shift = At.Shift.BEFORE), method = "turnPlayer()V", cancellable = true)
-	private void epicfight_turnPlayer(CallbackInfo callbackInfo) {
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V", shift = At.Shift.BEFORE), method = "turnPlayer(D)V", cancellable = true)
+	private void epicfight$turnPlayer(double movementTime, CallbackInfo callbackInfo) {
 		LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
+		
 		if (localPlayerPatch != null && localPlayerPatch.isTargetLockedOn()) {
 			callbackInfo.cancel();
 		}

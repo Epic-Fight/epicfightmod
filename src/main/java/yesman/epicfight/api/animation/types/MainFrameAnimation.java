@@ -1,7 +1,7 @@
 package yesman.epicfight.api.animation.types;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
 import yesman.epicfight.api.animation.types.EntityState.StateFactor;
@@ -9,12 +9,11 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
+import yesman.epicfight.api.neoevent.playerpatch.StartActionEvent;
+import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.ActionEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class MainFrameAnimation extends StaticAnimation {
 	public MainFrameAnimation(float convertTime, AnimationAccessor<? extends MainFrameAnimation> accessor, AssetAccessor<? extends Armature> armature) {
@@ -28,8 +27,8 @@ public class MainFrameAnimation extends StaticAnimation {
 	@Override
 	public void begin(LivingEntityPatch<?> entitypatch) {
 		if (entitypatch.getAnimator().getPlayerFor(null).getAnimation().get() == this) {
-			TypeFlexibleHashMap<StateFactor<?>> stateMap = this.stateSpectrum.getStateMap(entitypatch, 0.0F);
-			TypeFlexibleHashMap<StateFactor<?>> modifiedStateMap = new TypeFlexibleHashMap<> (false);
+			ParameterizedHashMap<StateFactor<?>> stateMap = this.stateSpectrum.getStateMap(entitypatch, 0.0F);
+			ParameterizedHashMap<StateFactor<?>> modifiedStateMap = new ParameterizedHashMap<> ();
 			stateMap.forEach((k, v) -> modifiedStateMap.put(k, this.getModifiedLinkState(k, v, entitypatch, 0.0F)));
 			entitypatch.updateEntityState(new EntityState(modifiedStateMap));
 		}
@@ -52,13 +51,12 @@ public class MainFrameAnimation extends StaticAnimation {
 		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
 			if (playerpatch.isLogicalClient()) {
 				if (playerpatch.getOriginal().isLocalPlayer()) {
-					playerpatch.getEventListener().triggerEvents(EventType.ACTION_EVENT_CLIENT, new ActionEvent<>(playerpatch, this.getAccessor()));
+					PlayerPatchEvent.postAndFireSkillListeners(new StartActionEvent(playerpatch, this.getAccessor()));
 				}
 			} else {
-				ActionEvent<ServerPlayerPatch> actionEvent = new ActionEvent<>(playerpatch, this.getAccessor());
-				playerpatch.getEventListener().triggerEvents(EventType.ACTION_EVENT_SERVER, actionEvent);
+				StartActionEvent startActionEvent = PlayerPatchEvent.postAndFireSkillListeners(new StartActionEvent(playerpatch, this.getAccessor()));
 				
-				if (actionEvent.shouldResetActionTick()) {
+				if (startActionEvent.shouldResetActionTick()) {
 					playerpatch.resetActionTick();
 				}
 			}

@@ -7,36 +7,26 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
-import top.theillusivec4.curios.api.client.ICurioRenderer.HumanoidRender;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 import top.theillusivec4.curios.client.render.CuriosLayer;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.client.model.Mesh.DrawingFunction;
 import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -60,7 +50,7 @@ public class CuriosCompat implements ICompatModule {
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
+	public void onGameEventBusClient(IEventBus eventBus) {
 	}
 	
 	@Override
@@ -68,7 +58,7 @@ public class CuriosCompat implements ICompatModule {
 	}
 	
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -116,6 +106,7 @@ public class CuriosCompat implements ICompatModule {
 							SlotContext slotContext = new SlotContext(id, livingEntity, i, cosmetic, renderable);
 							
 							CuriosRendererRegistry.getRenderer(stack.getItem()).ifPresent(curioRenderer -> {
+								/**
 								if (curioRenderer instanceof HumanoidRender humanoidRenderer) {
 									HumanoidModel<LivingEntity> curioModel = humanoidRenderer.getModel(finalStack, slotContext);
 									SkinnedMesh skinnedMesh;
@@ -126,7 +117,7 @@ public class CuriosCompat implements ICompatModule {
 										LivingEntityRenderer<?, ?> parentRenderer;
 										
 										if (livingEntity instanceof AbstractClientPlayer abstractClientPlayer) {
-											parentRenderer = (LivingEntityRenderer<?, ?>)Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(abstractClientPlayer.getModelName());
+											parentRenderer = (LivingEntityRenderer<?, ?>)Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(abstractClientPlayer.getSkin().model().id());
 										} else {
 											parentRenderer = (LivingEntityRenderer<?, ?>)Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get("default");
 										}
@@ -158,7 +149,7 @@ public class CuriosCompat implements ICompatModule {
 								} else if (curioRenderer instanceof EpicFightCurioRenderer epicfightRenderer) {
 									epicfightRenderer.draw(finalStack, slotContext, entitypatch, livingEntity, vanillaLayer, poseStack, buffers, packedLight, poses, bob, yRot, xRot, partialTicks);
 									renderedEpicFightModel.setTrue();
-								}
+								}**/
 							});
 						}
 					}

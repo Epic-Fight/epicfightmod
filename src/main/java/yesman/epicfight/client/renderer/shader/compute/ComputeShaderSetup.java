@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joml.Matrix4f;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -25,8 +24,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
@@ -122,24 +121,20 @@ public abstract class ComputeShaderSetup {
     protected void initAttachmentSSBO(List<ElemInfo> elements, List<Float> uvList) {
     }
     
-	public static void setShaderDefaultUniforms(Matrix4f frustumMatrix, ShaderInstance shader, VertexFormat.Mode mode, Window window) {
+	public static void setShaderDefaultUniforms(ShaderInstance shader, VertexFormat.Mode mode, Window window) {
         for (int i = 0; i < 12; i++) {
             int j = RenderSystem.getShaderTexture(i);
             shader.setSampler("Sampler" + i, j);
         }
         
         if (shader.MODEL_VIEW_MATRIX != null) {
-            shader.MODEL_VIEW_MATRIX.set(frustumMatrix);
+            shader.MODEL_VIEW_MATRIX.set(RenderSystem.getModelViewMatrix());
         }
         
         if (shader.PROJECTION_MATRIX != null) {
             shader.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
         }
         
-		if (shader.INVERSE_VIEW_ROTATION_MATRIX != null) {
-			shader.INVERSE_VIEW_ROTATION_MATRIX.set(RenderSystem.getInverseViewRotationMatrix());
-		}
-		
         if (shader.COLOR_MODULATOR != null) {
             shader.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
         }
@@ -205,7 +200,7 @@ public abstract class ComputeShaderSetup {
         RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
     }
 	
-    protected void draw(PoseStack poseStack, RenderType renderType, Matrix4f frustumMatrix, float r, float g, float b, float a, int overlay, int packedLight, int joints) {
+    protected void draw(PoseStack poseStack, RenderType renderType, float r, float g, float b, float a, int overlay, int packedLight, int joints) {
     	renderType.setupRenderState();
 		
 		var mode = renderType.mode();
@@ -214,7 +209,7 @@ public abstract class ComputeShaderSetup {
 		
 		this.bindBufferFormat(format);
 		
-		ComputeShaderSetup.setShaderDefaultUniforms(frustumMatrix, shader, mode, Minecraft.getInstance().getWindow());
+		ComputeShaderSetup.setShaderDefaultUniforms(shader, mode, Minecraft.getInstance().getWindow());
 		shader.apply();
 		
 		this.applyComputeShader(poseStack, r, g, b, a, overlay, packedLight, joints);

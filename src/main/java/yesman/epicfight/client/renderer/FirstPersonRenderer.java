@@ -3,8 +3,6 @@ package yesman.epicfight.client.renderer;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.joml.Matrix4f;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -24,10 +22,11 @@ import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -59,18 +58,15 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 	}
 	
 	@Override
-	public void render(LocalPlayer entity, LocalPlayerPatch localPlayerPatch, LivingEntityRenderer<LocalPlayer, PlayerModel<LocalPlayer>> renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+	public void render(LocalPlayer entity, LocalPlayerPatch localPlayerPatch, LivingEntityRenderer<LocalPlayer, PlayerModel<LocalPlayer>> renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTick) {
 		if (localPlayerPatch.getPovSettings() != null) {
-			Pose pose = localPlayerPatch.getFirstPersonLayer().getEnabledPose(localPlayerPatch, true, partialTicks);
+			Pose pose = localPlayerPatch.getFirstPersonLayer().getEnabledPose(localPlayerPatch, true, partialTick);
 			OpenMatrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
 			poseStack.pushPose();
-			Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
-			float standingEyeHeight = entity.getStandingEyeHeight(net.minecraft.world.entity.Pose.STANDING, entity.getDimensions(net.minecraft.world.entity.Pose.STANDING));
-			
-			poseStack.setIdentity();
+			float standingEyeHeight = entity.getDimensions(net.minecraft.world.entity.Pose.STANDING).eyeHeight();
 			
 			if (localPlayerPatch.hasCameraAnimation()) {
-				float time = Mth.lerp(partialTicks, localPlayerPatch.getFirstPersonLayer().animationPlayer.getPrevElapsedTime(), localPlayerPatch.getFirstPersonLayer().animationPlayer.getElapsedTime());
+				float time = Mth.lerp(partialTick, localPlayerPatch.getFirstPersonLayer().animationPlayer.getPrevElapsedTime(), localPlayerPatch.getFirstPersonLayer().animationPlayer.getElapsedTime());
 				JointTransform cameraTransform;
 				
 				if (localPlayerPatch.getFirstPersonLayer().animationPlayer.getAnimation().get().isLinkAnimation() || localPlayerPatch.getPovSettings() == null) {
@@ -85,13 +81,12 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 			switch (localPlayerPatch.getPovSettings().rootTransformation()) {
 			case CAMERA -> {
 				poseStack.translate(0.0F, -standingEyeHeight, 0.0F);
-				poseStack.mulPoseMatrix(lastPose);
 			}
 			case WORLD -> {
-				float yRotModel = 180.0F - Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
-				float yRotWorld = 180.0F - Mth.rotLerp(partialTicks, localPlayerPatch.getYRotO(), localPlayerPatch.getYRot());
+				float yRotModel = 180.0F - Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot());
+				float yRotWorld = 180.0F - Mth.rotLerp(partialTick, localPlayerPatch.getYRotO(), localPlayerPatch.getYRot());
 				float yRot = yRotWorld - yRotModel;
-				float xRot = Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot());
+				float xRot = Mth.rotLerp(partialTick, entity.xRotO, entity.getXRot());
 
 				poseStack.mulPose(Axis.XP.rotationDegrees(xRot));
 				poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
@@ -114,22 +109,19 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 					}
 				}
 				
-				RenderType renderType = RenderType.entityCutoutNoCull(entity.getSkinTextureLocation());
+				RenderType renderType = RenderType.entityCutoutNoCull(entity.getSkin().texture());
 				mesh.draw(poseStack, buffer, renderType, packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, localPlayerPatch.getArmature(), poses);
 			}
 			
 			if (!entity.isSpectator()) {
-				this.renderLayer(renderer, localPlayerPatch, entity, poses, buffer, poseStack, packedLight, partialTicks);
+				this.renderLayer(renderer, localPlayerPatch, entity, poses, buffer, poseStack, packedLight, partialTick);
 			}
 			
 			poseStack.popPose();
 		} else {
-			Pose pose = localPlayerPatch.getAnimator().getPose(partialTicks);
+			Pose pose = localPlayerPatch.getAnimator().getPose(partialTick);
 			OpenMatrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
 			poseStack.pushPose();
-			
-			Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
-			poseStack.setIdentity();
 			
 			float correction = 0.0F; 
 			
@@ -139,9 +131,9 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 				correction = 100.0F;
 			}
 			
-			float standingEyeHeight = entity.getStandingEyeHeight(net.minecraft.world.entity.Pose.STANDING, entity.getDimensions(net.minecraft.world.entity.Pose.STANDING));
+			float standingEyeHeight = entity.getDimensions(net.minecraft.world.entity.Pose.STANDING).eyeHeight();
+			
 			poseStack.translate(0.0F, -standingEyeHeight - 0.05F, correction);
-			poseStack.mulPoseMatrix(lastPose);
 			
 			HumanoidMesh mesh = this.getMeshProvider(localPlayerPatch).get();
 			this.prepareModel(mesh, entity, localPlayerPatch, renderer);
@@ -156,12 +148,12 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 				mesh.leftSleeve.setHidden(false);
 				mesh.rightSleeve.setHidden(false);
 				
-				RenderType renderType = RenderType.entityCutoutNoCull(entity.getSkinTextureLocation());
+				RenderType renderType = RenderType.entityCutoutNoCull(entity.getSkin().texture());
 				mesh.draw(poseStack, buffer, renderType, packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, localPlayerPatch.getArmature(), poses);
 			}
 			
 			if (!entity.isSpectator()) {
-				this.renderLayer(renderer, localPlayerPatch, entity, poses, buffer, poseStack, packedLight, partialTicks);
+				this.renderLayer(renderer, localPlayerPatch, entity, poses, buffer, poseStack, packedLight, partialTick);
 			}
 			
 			poseStack.popPose();
@@ -194,7 +186,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 	
 	@Override
 	public AssetAccessor<HumanoidMesh> getMeshProvider(LocalPlayerPatch entitypatch) {
-		return entitypatch.getOriginal().getModelName().equals("slim") ? Meshes.ALEX : Meshes.BIPED;
+		return PlayerSkin.Model.WIDE.equals(entitypatch.getOriginal().getSkin().model()) ? Meshes.BIPED : Meshes.ALEX;
 	}
 	
 	@Override

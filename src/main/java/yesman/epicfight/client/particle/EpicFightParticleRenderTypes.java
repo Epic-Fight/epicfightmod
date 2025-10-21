@@ -19,29 +19,23 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EpicFightParticleRenderTypes {
 	public static final ParticleRenderType PARTICLE_MODEL_NO_NORMAL = new ParticleRenderType() {
 		@Override
-		public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+		public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
 			RenderSystem.disableCull();
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.depthMask(true);
 			RenderSystem.setShader(GameRenderer::getParticleShader);
 
-			bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.PARTICLE);
+			return tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.PARTICLE);
 		}
 		
-		@Override
-		public void end(Tesselator tesselator) {
-			tesselator.end();
-			RenderSystem.enableCull();
-		}
-
 		public String toString() {
 			return "epicfight:PARTICLE_MODEL_NO_NORMAL";
 		}
@@ -49,18 +43,13 @@ public class EpicFightParticleRenderTypes {
 
 	public static final ParticleRenderType LIGHTNING = new ParticleRenderType() {
 		@Override
-		public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+		public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
 			RenderSystem.enableBlend();
 		    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
 			RenderSystem.depthMask(false);
 	        RenderSystem.setShader(GameRenderer::getRendertypeLightningShader);
 	        
-			bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		}
-		
-		@Override
-		public void end(Tesselator tesselator) {
-			tesselator.end();
+	        return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		}
 		
 		@Override
@@ -80,21 +69,14 @@ public class EpicFightParticleRenderTypes {
 		
 		return new ParticleRenderType() {
 			@Override
-			public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+			public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
 				RenderSystem.disableCull();
 				RenderSystem.enableBlend();
 			    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 				RenderSystem.depthMask(false);
 				RenderSystem.setShaderTexture(0, textureLocation);
 				
-				bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-			}
-			
-			@Override
-			public void end(Tesselator tesselator) {
-				tesselator.end();
-				
-				RenderSystem.enableCull();
+				return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
 			}
 			
 			@Override
@@ -106,20 +88,15 @@ public class EpicFightParticleRenderTypes {
 	
 	public static final ParticleRenderType TRANSLUCENT_GLOWING = new ParticleRenderType() {
 		@Override
-		public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+		public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.depthMask(true);
 	        RenderSystem.setShader(GameRenderer::getPositionColorShader);
 	        
-			bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+	        return tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 		}
 		
-		@Override
-		public void end(Tesselator tesselator) {
-			tesselator.end();
-		}
-
 		@Override
 		public String toString() {
 			return "epicfight:TRANSLUCENT_GLOWING";
@@ -128,16 +105,10 @@ public class EpicFightParticleRenderTypes {
 	
 	public static final ParticleRenderType ENTITY_PARTICLE = new ParticleRenderType() {
 		@Override
-		public void begin(BufferBuilder bufferbuilder, TextureManager texManager) {
+		public BufferBuilder begin(Tesselator tesselator, TextureManager texManager) {
 			RenderSystem.depthMask(true);
 			RenderSystem.setShader(GameRenderer::getParticleShader);
-			bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-		}
-		
-		@Override
-		public void end(Tesselator tesselator) {
-			tesselator.end();
-			Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+			return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
 		}
 		
 		@Override

@@ -1,15 +1,14 @@
 package yesman.epicfight.skill;
 
 import net.minecraft.resources.ResourceLocation;
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
-import yesman.epicfight.client.gui.screen.SkillEditScreen;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 import yesman.epicfight.main.EpicFightMod;
 
-public interface SkillCategory extends ExtendableEnum {
+public interface SkillCategory extends ExtensibleEnum {
 	ResourceLocation DEFAULT_BOOK_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook");
 	
-	ExtendableEnumManager<SkillCategory> ENUM_MANAGER = new ExtendableEnumManager<> ("skill_category");
+	ExtensibleEnumManager<SkillCategory> ENUM_MANAGER = new ExtensibleEnumManager<> ("skill_category");
 	
 	/**
 	 * Determines if the skill should be saved in NBT

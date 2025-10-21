@@ -8,25 +8,25 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Zoglin;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
 import yesman.epicfight.world.entity.ai.brain.BrainRecomposer;
 
 public class ZoglinPatch extends MobPatch<Zoglin> {
-	public ZoglinPatch() {
-		super(Factions.ZOMBIFIED_PIGLIN);
+	public ZoglinPatch(Zoglin original) {
+		super(original, Factions.ZOMBIFIED_PIGLIN);
 	}
 	
 	@Override
@@ -44,8 +44,8 @@ public class ZoglinPatch extends MobPatch<Zoglin> {
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.ZOGLIN, EpicFightAttributes.MAX_STRIKES.get(), 4.0D);
-		event.add(EntityType.ZOGLIN, EpicFightAttributes.IMPACT.get(), 5.0D);
+		event.add(EntityType.ZOGLIN, EpicFightAttributes.MAX_STRIKES, 4.0D);
+		event.add(EntityType.ZOGLIN, EpicFightAttributes.IMPACT, 5.0D);
 	}
 	
 	@Override

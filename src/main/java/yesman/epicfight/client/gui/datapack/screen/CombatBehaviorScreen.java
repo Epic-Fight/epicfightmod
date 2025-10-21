@@ -8,17 +8,17 @@ import com.google.common.collect.Lists;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -39,8 +39,9 @@ import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.data.conditions.Condition.ParameterEditor;
-import yesman.epicfight.data.conditions.EpicFightConditions;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.registry.entries.EpicFightConditions;
 
 @OnlyIn(Dist.CLIENT)
 public class CombatBehaviorScreen extends Screen {
@@ -85,7 +86,6 @@ public class CombatBehaviorScreen extends Screen {
 									.verticalSizing(VerticalSizing.TOP_BOTTOM)
 									.rowHeight(26)
 									.rowEditable(RowEditButton.ADD_REMOVE)
-									.transparentBackground(false)
 									.rowpositionChanged((rowposition, values) -> {
 										this.inputComponentsList.importTag(this.movesetList.get(rowposition));
 										this.conditionGrid._setActive(false);
@@ -127,7 +127,6 @@ public class CombatBehaviorScreen extends Screen {
 				.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
 				.rowHeight(21)
 				.rowEditable(RowEditButton.ADD_REMOVE)
-				.transparentBackground(false)
 				.rowpositionChanged((rowposition, values) -> {
 					ListTag behaviorListTag = ParseUtil.getOrDefaultTag(this.movesetList.get(this.movesetGrid.getRowposition()), "behaviors", new ListTag());
 					CompoundTag tag = behaviorListTag.getCompound(rowposition);
@@ -194,7 +193,7 @@ public class CombatBehaviorScreen extends Screen {
 				})
 				.build();
 		
-		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 28) {
+		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 28) {
 			@Override
 			public void importTag(CompoundTag tag) {
 				this.resetComponents();
@@ -227,7 +226,7 @@ public class CombatBehaviorScreen extends Screen {
 			}
 		};
 		
-		this.inputComponentsList.setLeftPos(164);
+		this.inputComponentsList.setX(164);
 		
 		final ResizableEditBox weightEditBox = new ResizableEditBox(this.font, 0, 50, 0, 15, Component.translatable("datapack_edit.mob_patch.combat_behavior.weight"), HorizontalSizing.LEFT_WIDTH, null);
 		
@@ -259,7 +258,6 @@ public class CombatBehaviorScreen extends Screen {
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.ADD_REMOVE)
-									.transparentBackground(false)
 									.rowpositionChanged((rowposition, values) -> {
 										this.parameterGrid.reset();
 										
@@ -282,15 +280,15 @@ public class CombatBehaviorScreen extends Screen {
 											this.parameterGrid._setValue(parameters);
 										}
 									})
-									.addColumn(Grid.registryPopup("condition", EpicFightConditions.REGISTRY.get())
+									.addColumn(Grid.registryPopup("condition", EpicFightRegistries.CONDITION)
 													.filter((condition) -> condition.get() instanceof EntityPatchCondition)
 													.editable(true)
-													.toDisplayText((condition) -> ParseUtil.getRegistryName(condition, EpicFightConditions.REGISTRY.get()))
+													.toDisplayText((condition) -> ParseUtil.getRegistryName(condition, EpicFightRegistries.CONDITION))
 													.valueChanged((event) -> {
 														ListTag behaviorListTag = ParseUtil.getOrDefaultTag(this.movesetList.get(this.movesetGrid.getRowposition()), "behaviors", new ListTag());
 														ListTag conditionsList = ParseUtil.getOrDefaultTag(behaviorListTag.getCompound(this.behaviorGrid.getRowposition()), "conditions", new ListTag());
 														CompoundTag comp = (CompoundTag)conditionsList.get(event.rowposition);
-														comp.putString("predicate", ParseUtil.getRegistryName(event.postValue, EpicFightConditions.REGISTRY.get()));
+														comp.putString("predicate", ParseUtil.getRegistryName(event.postValue, EpicFightRegistries.CONDITION));
 														
 														this.parameterGrid.reset();
 														
@@ -338,7 +336,6 @@ public class CombatBehaviorScreen extends Screen {
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.NONE)
-									.transparentBackground(false)
 									.addColumn(Grid.<ParameterEditor, ResizableEditBox>wildcard("parameter_key")
 													.editable(false)
 													.toDisplayText((editor) -> editor.editWidget.getMessage().getString())
@@ -468,8 +465,8 @@ public class CombatBehaviorScreen extends Screen {
 		
 		int splitPos = (int)(this.width * 0.6F);
 		
-		this.inputComponentsList.updateSize(splitPos - 70, screenRectangle.height(), screenRectangle.top() + 35, screenRectangle.bottom() - 50);
-		this.inputComponentsList.setLeftPos(70);
+		this.inputComponentsList.updateSizeAndPosition(splitPos - 70, screenRectangle.bottom() - screenRectangle.top() - 85, screenRectangle.top() + 35);
+		this.inputComponentsList.setX(70);
 		
 		this.modelPreviewer.setX1(splitPos + 6);
 		this.modelPreviewer.resize(screenRectangle);
@@ -500,24 +497,13 @@ public class CombatBehaviorScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		int yBegin = 32;
-		int yEnd = this.height - 45;
+		super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
-		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
-        guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-		
-		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
-        guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);
-		guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yEnd, this.width, yEnd + 1, 0, -16777216, 0);
-		
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
+		for (Renderable renderable : this.renderables) {
+            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
 	}
 	
 	@Override

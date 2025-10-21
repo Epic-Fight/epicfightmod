@@ -15,14 +15,14 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
-import yesman.epicfight.api.forgeevent.BattleModeSustainableEvent;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.client.neoevent.RenderEpicFightPlayerEvent;
+import yesman.epicfight.api.neoevent.BattleModeSustainableEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
@@ -37,7 +37,7 @@ public class WerewolvesCompat implements ICompatModule {
 	}
 
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 		eventBus.<BattleModeSustainableEvent>addListener((event) -> {
 			WerewolfForm form = WerewolfPlayer.get(event.getPlayerPatch().getOriginal()).getForm();
 			
@@ -59,7 +59,7 @@ public class WerewolvesCompat implements ICompatModule {
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
+	public void onGameEventBusClient(IEventBus eventBus) {
 		eventBus.<RenderEpicFightPlayerEvent>addListener((event) -> {
 			WerewolfForm form = WerewolfPlayer.get(event.getPlayerPatch().getOriginal()).getForm();
 			
@@ -75,22 +75,23 @@ public class WerewolvesCompat implements ICompatModule {
 		private SkinnedMesh slimMesh;
 		
 		@Override
-		protected void renderLayer( AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch
-				                  , AbstractClientPlayer entityliving
-				                  , HumanWerewolfLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>, A> vanillaLayer
-				                  , PoseStack poseStack
-				                  , MultiBufferSource buffer
-				                  , int packedLight
-				                  , OpenMatrix4f[] poses
-				                  , float bob
-				                  , float yRot
-				                  , float xRot
-				                  , float partialTicks
-				                  )
-		{
+		protected void renderLayer(
+			  AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch
+			, AbstractClientPlayer entityliving
+			, HumanWerewolfLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>, A> vanillaLayer
+			, PoseStack poseStack
+			, MultiBufferSource buffer
+			, int packedLight
+			, OpenMatrix4f[] poses
+			, float bob
+			, float yRot
+			, float xRot
+			, float partialTicks
+		) {
 			@SuppressWarnings("unchecked")
 			MixinHumanWerewolfLayer<AbstractClientPlayer, A> accessor = (MixinHumanWerewolfLayer<AbstractClientPlayer, A>)vanillaLayer;
-			String modelType = entityliving.getModelName();
+			String modelType = entityliving.getSkin().model().id();
+			
 			A vanillaModel = accessor.getModel();
 			
 			if (vanillaModel instanceof WerewolfEarsModel werewolfEars) {

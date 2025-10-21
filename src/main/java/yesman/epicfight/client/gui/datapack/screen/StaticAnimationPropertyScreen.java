@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.datapack.EditorAnimation;
@@ -27,11 +27,11 @@ import yesman.epicfight.api.client.animation.property.JointMaskReloadListener;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.ComboBox;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
+import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
 import yesman.epicfight.client.gui.datapack.widgets.InputComponentList;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox;
 import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.HorizontalSizing;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
-import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
 
 @OnlyIn(Dist.CLIENT)
 public class StaticAnimationPropertyScreen extends Screen {
@@ -54,7 +54,7 @@ public class StaticAnimationPropertyScreen extends Screen {
 		this.font = parentScreen.getMinecraft().font;
 		this.animation = animation;
 		
-		this.inputComponentsList = new InputComponentList<> (this, 0, 0, 0, 0, 30) {
+		this.inputComponentsList = new InputComponentList<> (this, 0, 0, 0, 30) {
 			@Override
 			public void importTag(JsonObject tag) {
 				this.clearComponents();
@@ -199,7 +199,6 @@ public class StaticAnimationPropertyScreen extends Screen {
 						.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 						.rowHeight(21)
 						.rowEditable(RowEditButton.ADD_REMOVE)
-						.transparentBackground(false)
 						.addColumn(Grid.combo("living_motion", LivingMotion.ENUM_MANAGER.universalValues())
 										.valueChanged((event) -> this.compositeLayerMasks.get(event.rowposition).setPackKey(event.postValue)).defaultVal(LivingMotions.IDLE))
 						.addColumn(Grid.popup("joint_mask", PopupBox.JointMaskPopupBox::new)
@@ -240,7 +239,6 @@ public class StaticAnimationPropertyScreen extends Screen {
 					.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 					.rowHeight(21)
 					.rowEditable(RowEditButton.ADD_REMOVE)
-					.transparentBackground(false)
 					.addColumn(Grid.combo("living_motion", LivingMotion.ENUM_MANAGER.universalValues())
 							.valueChanged((event) -> this.baseLayerMasks.get(event.rowposition).setPackKey(event.postValue)).defaultVal(LivingMotions.IDLE))
 					.addColumn(Grid.popup("joint_mask", PopupBox.JointMaskPopupBox::new)
@@ -280,7 +278,6 @@ public class StaticAnimationPropertyScreen extends Screen {
 					.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 					.rowHeight(21)
 					.rowEditable(RowEditButton.ADD_REMOVE)
-					.transparentBackground(false)
 					.addColumn(Grid.combo("living_motion", LivingMotion.ENUM_MANAGER.universalValues())
 									.valueChanged((event) -> this.compositeLayerMasks.get(event.rowposition).setPackKey(event.postValue)).defaultVal(LivingMotions.IDLE))
 					.addColumn(Grid.popup("joint_mask", PopupBox.JointMaskPopupBox::new)
@@ -300,16 +297,16 @@ public class StaticAnimationPropertyScreen extends Screen {
 			this.inputComponentsList.newRow();
 		}
 		
-		this.inputComponentsList.updateSize(screenRect.width() - 15, screenRect.height() - 68, screenRect.top() + 32, screenRect.bottom() - 48);
-		this.inputComponentsList.setLeftPos(15);
+		this.inputComponentsList.updateSizeAndPosition(screenRect.width() - 15, screenRect.bottom() - screenRect.top() - 80, screenRect.top() + 32);
+		this.inputComponentsList.setX(15);
 	}
 	
 	@Override
 	protected void init() {
 		ScreenRectangle screenRect = this.getRectangle();
 		
-		this.inputComponentsList.updateSize(screenRect.width() - 15, screenRect.height() - 68, screenRect.top() + 32, screenRect.bottom() - 48);
-		this.inputComponentsList.setLeftPos(15);
+		this.inputComponentsList.updateSizeAndPosition(screenRect.width() - 15, screenRect.bottom() - screenRect.top() - 80, screenRect.top() + 32);
+		this.inputComponentsList.setX(15);
 		
 		this.addRenderableWidget(this.inputComponentsList);
 		
@@ -452,7 +449,7 @@ public class StaticAnimationPropertyScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderDirtBackground(guiGraphics);
+		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		
 		int yBegin = 32;
 		int yEnd = this.height - 45;
@@ -460,12 +457,12 @@ public class StaticAnimationPropertyScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

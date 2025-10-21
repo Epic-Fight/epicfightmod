@@ -2,40 +2,36 @@ package yesman.epicfight.skill.dodge;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.EntityState;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class KnockdownWakeupSkill extends DodgeSkill {
-	public KnockdownWakeupSkill(Builder builder) {
+	public KnockdownWakeupSkill(DodgeSkill.Builder<?> builder) {
 		super(builder);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public Object getExecutionPacket(SkillContainer skillContainer, FriendlyByteBuf args) {
-		LocalPlayerPatch executor = skillContainer.getClientExecutor();
+	public void gatherArguments(SkillContainer container, ControlEngine controlEngine, CompoundTag arguments) {
+		LocalPlayerPatch executor = container.getClientExecutor();
 		Input input = executor.getOriginal().input;
-		float pulse = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(executor.getOriginal()), 0.0F, 1.0F);
-		input.tick(false, pulse);
+		float sneakingSpeed = (float)executor.getOriginal().getAttributeValue(Attributes.SNEAKING_SPEED);
+		input.tick(false, sneakingSpeed);
 		
         int left = input.left ? 1 : 0;
         int right = input.right ? -1 : 0;
 		int horizon = left + right;
 		float yRot = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
 		
-		CPSkillRequest packet = new CPSkillRequest(skillContainer.getSlot());
-		packet.getBuffer().writeInt(horizon >= 0 ? 0 : 1);
-		packet.getBuffer().writeFloat(yRot);
-		
-		return packet;
+		arguments.putInt("direction", horizon >= 0 ? 0 : 1);
+		arguments.putFloat("yRot", yRot);
 	}
 	
 	@Override

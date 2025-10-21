@@ -1,5 +1,6 @@
 package yesman.epicfight.world.capabilities.item;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,9 +14,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -35,15 +37,16 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPSetRemotePlayerSkill;
 import yesman.epicfight.network.server.SPSetSkillContainerValue;
-import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
@@ -51,7 +54,7 @@ import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class CapabilityItem {
 	public static CapabilityItem EMPTY = CapabilityItem.builder().build();
@@ -67,23 +70,23 @@ public class CapabilityItem {
 		commonAutoAttackMotion.add(Animations.FIST_AIR_SLASH);
 	}
 	
-	public static List<AnimationAccessor<? extends AttackAnimation>> getBasicAutoAttackMotion() {
+	public static List<AnimationAccessor<? extends AttackAnimation>> getBasicAutoAttackMotions() {
 		return commonAutoAttackMotion;
 	}
 	
-	public static List<AttributeModifier> getAttributeModifiers(Attribute attribute, EquipmentSlot slot, ItemStack itemstack, @Nullable LivingEntityPatch<?> entitypatch) {
+	public static List<AttributeModifier> getAttributeModifiersAsWeapon(Holder<Attribute> attribute, EquipmentSlot slot, ItemStack itemstack, @Nullable LivingEntityPatch<?> entitypatch) {
 		List<AttributeModifier> attributeModifiers = Lists.newArrayList();
 		
-		itemstack.getAttributeModifiers(slot).forEach((attribute$1, modifier) -> {
+		itemstack.getAttributeModifiers().forEach(slot, (attribute$1, modifier) -> {
 			if (attribute$1 == attribute) {
 				attributeModifiers.add(modifier);
 			}
 		});
 		
-		CapabilityItem itemCap = EpicFightCapabilities.getItemStackCapability(itemstack);
+		CapabilityItem itemCapability = EpicFightCapabilities.getItemStackCapability(itemstack);
 		
-		if (!itemCap.isEmpty()) {
-			itemCap.getAttributeModifiers(slot, entitypatch).forEach((attribute$1, modifier) -> {
+		if (!itemCapability.isEmpty()) {
+			itemCapability.getAttributeModifiers(entitypatch).forEach((attribute$1, modifier) -> {
 				if (attribute$1 == attribute) {
 					attributeModifiers.add(modifier);
 				}
@@ -93,16 +96,17 @@ public class CapabilityItem {
 		return attributeModifiers;
 	}
 	
-	protected Map<Style, Map<Attribute, AttributeModifier>> attributeMap;
+	protected Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
+	protected Map<Style, ItemAttributeModifiers> modifiers;
 	protected Collider collider;
 	
-	protected CapabilityItem(CapabilityItem.Builder builder) {
+	protected CapabilityItem(CapabilityItem.Builder<?> builder) {
 		this.weaponCategory = builder.category;
 		this.collider = builder.collider;
 		
-		ImmutableMap.Builder<Style, Map<Attribute, AttributeModifier>> attributeMapbuilder = ImmutableMap.builder();
+		ImmutableMap.Builder<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMapbuilder = ImmutableMap.builder();
 		
-		for (Map.Entry<Style, Map<Attribute, AttributeModifier>> entry : builder.attributeMap.entrySet()) {
+		for (Map.Entry<Style, Map<Holder<Attribute>, AttributeModifier>> entry : builder.attributeMap.entrySet()) {
 			attributeMapbuilder.put(entry.getKey(), (entry.getValue()));
 		}
 		
@@ -120,7 +124,7 @@ public class CapabilityItem {
 			Component textComp = itemTooltip.get(i);
 			index = i;
 			
-			if (this.findComponentArgument(textComp, Attributes.ATTACK_SPEED.getDescriptionId()) != null) {
+			if (this.findComponentArgument(textComp, Attributes.ATTACK_SPEED.value().getDescriptionId()) != null) {
 				modifyIn = true;
 				break;
 			}
@@ -128,7 +132,7 @@ public class CapabilityItem {
 		
 		index++;
 		
-		Map<Attribute, AttributeModifier> attribute = this.getDamageAttributesInCondition(style);
+		Map<Holder<Attribute>, AttributeModifier> attribute = this.getDamageAttributesInCondition(style);
 		
 		if (attribute != null) {
 			if (!modifyIn) {
@@ -138,36 +142,36 @@ public class CapabilityItem {
 				index++;
 			}
 
-			Attribute armorNegation = EpicFightAttributes.ARMOR_NEGATION.get();
-			Attribute impact = EpicFightAttributes.IMPACT.get();
-			Attribute maxStrikes = EpicFightAttributes.MAX_STRIKES.get();
+			Holder<Attribute> armorNegation = EpicFightAttributes.ARMOR_NEGATION;
+			Holder<Attribute> impact = EpicFightAttributes.IMPACT;
+			Holder<Attribute> maxStrikes = EpicFightAttributes.MAX_STRIKES;
 			
 			if (attribute.containsKey(armorNegation)) {
-				double value = attribute.get(armorNegation).getAmount() + entitypatch.getOriginal().getAttribute(armorNegation).getBaseValue();
+				double value = attribute.get(armorNegation).amount() + entitypatch.getOriginal().getAttribute(armorNegation).getBaseValue();
 
 				if (value > 0.0D) {
-					itemTooltip.add(index, Component.literal(" ").append(Component.translatable(armorNegation.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
+					itemTooltip.add(index, Component.literal(" ").append(Component.translatable(armorNegation.value().getDescriptionId() + ".value", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
 				}
 			}
 			
 			if (attribute.containsKey(impact)) {
-				double value = attribute.get(impact).getAmount() + entitypatch.getOriginal().getAttribute(impact).getBaseValue();
+				double value = attribute.get(impact).amount() + entitypatch.getOriginal().getAttribute(impact).getBaseValue();
 
 				if (value > 0.0D) {
-					int i = itemstack.getEnchantmentLevel(Enchantments.KNOCKBACK);
+					int i = itemstack.getEnchantmentLevel(entitypatch.getOriginal().level().holderOrThrow(Enchantments.KNOCKBACK));
 					value *= (1.0F + i * 0.12F);
-					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(impact.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
+					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(impact.value().getDescriptionId() + ".value", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
 				}
 			}
 			
 			if (attribute.containsKey(maxStrikes)) {
-				double value = attribute.get(maxStrikes).getAmount() + entitypatch.getOriginal().getAttribute(maxStrikes).getBaseValue();
+				double value = attribute.get(maxStrikes).amount() + entitypatch.getOriginal().getAttribute(maxStrikes).getBaseValue();
 
 				if (value > 0.0D) {
-					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(maxStrikes.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
+					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(maxStrikes.value().getDescriptionId() + ".value", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
 				}
 			} else {
-				itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(maxStrikes.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(maxStrikes.getDefaultValue()))));
+				itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(maxStrikes.value().getDescriptionId() + ".value", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(maxStrikes.value().getDefaultValue()))));
 			}
 		}
 	}
@@ -204,7 +208,7 @@ public class CapabilityItem {
 	}
 	
 	public List<AnimationAccessor<? extends AttackAnimation>> getAutoAttackMotion(PlayerPatch<?> playerpatch) {
-		return getBasicAutoAttackMotion();
+		return getBasicAutoAttackMotions();
 	}
 
 	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
@@ -225,7 +229,7 @@ public class CapabilityItem {
 		return this.weaponCategory;
 	}
 	
-	public void changeWeaponInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
+	public void changeWeaponInnateSkill(ServerPlayerPatch playerpatch, ItemStack itemstack) {
 		Skill weaponInnateSkill = this.getInnateSkill(playerpatch, itemstack);
 		SkillContainer weaponInnateSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_INNATE);
 		PayloadBundleBuilder toLocal = PayloadBundleBuilder.create();
@@ -236,13 +240,14 @@ public class CapabilityItem {
 				weaponInnateSkillContainer.setSkill(weaponInnateSkill);
 			}
 			
-			toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_INNATE, playerpatch.getOriginal().getId(), weaponInnateSkill));
+			toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_INNATE, playerpatch.getOriginal().getId(), weaponInnateSkill.holder()));
 		} else {
 			toLocal.and(SPSetSkillContainerValue.enable(SkillSlots.WEAPON_INNATE, true, playerpatch.getOriginal().getId()));
 		}
 		
 		weaponInnateSkillContainer.setDisabled(weaponInnateSkill == null);
-		toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_INNATE, weaponInnateSkill));
+		
+		toRemote.and(new SPSetRemotePlayerSkill(SkillSlots.WEAPON_INNATE, playerpatch.getOriginal().getId(), Skill.holderOrNull(weaponInnateSkill)));
 		
 		Skill passiveSkill = this.getPassiveSkill();
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
@@ -250,13 +255,13 @@ public class CapabilityItem {
 		if (passiveSkill != null) {
 			if (passiveSkillContainer.getSkill() != passiveSkill) {
 				passiveSkillContainer.setSkill(passiveSkill);
-				toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), passiveSkill));
-				toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_PASSIVE, passiveSkill));
+				toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), passiveSkill.holder()));
+				toRemote.and(new SPSetRemotePlayerSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), passiveSkill.holder()));
 			}
 		} else {
 			passiveSkillContainer.setSkill(null);
 			toLocal.and(new SPChangeSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), null));
-			toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_PASSIVE, passiveSkill));
+			toRemote.and(new SPSetRemotePlayerSkill(SkillSlots.WEAPON_PASSIVE, playerpatch.getOriginal().getId(), null));
 		}
 		
 		toLocal.send((first, others) -> {
@@ -286,21 +291,21 @@ public class CapabilityItem {
 		return EpicFightParticles.HIT_BLUNT.get();
 	}
 	
-	public final Map<Attribute, AttributeModifier> getDamageAttributesInCondition(Style style) {
-		Map<Attribute, AttributeModifier> attributes = this.attributeMap.getOrDefault(style, Maps.newHashMap());
+	public final Map<Holder<Attribute>, AttributeModifier> getDamageAttributesInCondition(Style style) {
+		Map<Holder<Attribute>, AttributeModifier> attributes = this.attributeMap.getOrDefault(style, Maps.newHashMap());
 		this.attributeMap.getOrDefault(Styles.COMMON, Maps.newHashMap()).forEach(attributes::putIfAbsent);
 		
 		return attributes;
 	}
 	
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot equipmentSlot, @Nullable LivingEntityPatch<?> entitypatch) {
-		Multimap<Attribute, AttributeModifier> map = HashMultimap.create();
+	public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(@Nullable LivingEntityPatch<?> entitypatch) {
+		Multimap<Holder<Attribute>, AttributeModifier> map = HashMultimap.create();
 		
 		if (entitypatch != null) {
-			Map<Attribute, AttributeModifier> modifierMap = this.getDamageAttributesInCondition(this.getStyle(entitypatch));
+			Map<Holder<Attribute>, AttributeModifier> modifierMap = this.getDamageAttributesInCondition(this.getStyle(entitypatch));
 			
 			if (modifierMap != null) {
-				for (Entry<Attribute, AttributeModifier> entry : modifierMap.entrySet()) {
+				for (Entry<Holder<Attribute>, AttributeModifier> entry : modifierMap.entrySet()) {
 					map.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -309,11 +314,11 @@ public class CapabilityItem {
 		return map;
     }
 	
-	public Multimap<Attribute, AttributeModifier> getAllAttributeModifiers(EquipmentSlot equipmentSlot) {
-		Multimap<Attribute, AttributeModifier> map = HashMultimap.create();
+	public Multimap<Holder<Attribute>, AttributeModifier> getAllAttributeModifiers() {
+		Multimap<Holder<Attribute>, AttributeModifier> map = HashMultimap.create();
 		
-		for (Map<Attribute, AttributeModifier> attrMap : this.attributeMap.values()) {
-			for (Entry<Attribute, AttributeModifier> entry : attrMap.entrySet()) {
+		for (Map<Holder<Attribute>, AttributeModifier> attrMap : this.attributeMap.values()) {
+			for (Entry<Holder<Attribute>, AttributeModifier> entry : attrMap.entrySet()) {
 				map.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -345,7 +350,7 @@ public class CapabilityItem {
 		return this == CapabilityItem.EMPTY;
 	}
 	
-	public CapabilityItem getResult(ItemStack item) {
+	public CapabilityItem findRecursive(ItemStack item) {
 		return this;
 	}
 	
@@ -431,13 +436,14 @@ public class CapabilityItem {
 		NONE, ALWAYS, USE_TICK, AIMING, CUSTOM
 	}
 	
-	public static CapabilityItem.Builder builder() {
-		return new CapabilityItem.Builder();
+	public static CapabilityItem.Builder<?> builder() {
+		return new CapabilityItem.Builder<> ();
 	}
 	
-	public static class Builder {
-		Function<Builder, CapabilityItem> constructor;
-		Map<Style, Map<Attribute, AttributeModifier>> attributeMap;
+	@SuppressWarnings("unchecked")
+	public static class Builder<T extends Builder<T>> {
+		Function<T, CapabilityItem> constructor;
+		Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
 		WeaponCategory category;
 		Collider collider;
 		
@@ -448,30 +454,30 @@ public class CapabilityItem {
 			this.collider = ColliderPreset.FIST;
 		}
 		
-		public Builder constructor(Function<Builder, CapabilityItem> constructor) {
+		public T constructor(Function<T, CapabilityItem> constructor) {
 			this.constructor = constructor;
-			return this;
+			return (T)this;
 		}
 		
-		public Builder category(WeaponCategory category) {
+		public T category(WeaponCategory category) {
 			this.category = category;
-			return this;
+			return (T)this;
 		}
 		
-		public Builder collider(Collider collider) {
+		public T collider(Collider collider) {
 			this.collider = collider;
-			return this;
+			return (T)this;
 		}
 		
-		public Builder addStyleAttibutes(Style style, Pair<Attribute, AttributeModifier> attributePair) {
-			Map<Attribute, AttributeModifier> map = this.attributeMap.computeIfAbsent(style, (key) -> Maps.newHashMap());
-			map.put(attributePair.getFirst(), attributePair.getSecond());
+		public T addStyleAttibutes(Style style, Holder<Attribute> attribute, AttributeModifier attributePair) {
+			Map<Holder<Attribute>, AttributeModifier> map = this.attributeMap.computeIfAbsent(style, (key) -> new HashMap<> ());
+			map.put(attribute, attributePair);
 			
-			return this;
+			return (T)this;
 		}
 		
 		public final CapabilityItem build() {
-			return this.constructor.apply(this);
+			return this.constructor.apply((T)this);
 		}
 		
 		public Collider getCollider() {

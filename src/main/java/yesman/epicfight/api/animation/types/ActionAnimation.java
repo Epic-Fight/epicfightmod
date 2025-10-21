@@ -8,14 +8,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.AnimationVariables;
-import yesman.epicfight.api.animation.AnimationVariables.IndependentAnimationVariableKey;
-import yesman.epicfight.api.animation.AnimationVariables.SharedAnimationVariableKey;
+import yesman.epicfight.api.animation.AnimationVariables.IndependentVariableKey;
+import yesman.epicfight.api.animation.AnimationVariables.SharedVariableKey;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.Pose;
@@ -39,14 +38,13 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPSyncPlayerAnimationPosition;
-import yesman.epicfight.network.server.SPSyncAnimationPosition;
+import yesman.epicfight.network.common.BiDirectionalSyncAnimationPositionPacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ActionAnimation extends MainFrameAnimation {
-	public static final SharedAnimationVariableKey<TransformSheet> ACTION_ANIMATION_COORD = AnimationVariables.shared((animator) -> new TransformSheet(), false);
-	public static final IndependentAnimationVariableKey<Vec3> BEGINNING_LOCATION = AnimationVariables.independent((animator) -> animator.getEntityPatch().getOriginal().position(), true);
-	public static final IndependentAnimationVariableKey<Float> INITIAL_LOOK_VEC_DOT = AnimationVariables.independent((animator) -> 1.0F, true);
+	public static final SharedVariableKey<TransformSheet> ACTION_ANIMATION_COORD = AnimationVariables.unsynchShared(animator -> new TransformSheet(), false);
+	public static final IndependentVariableKey<Vec3> BEGINNING_LOCATION = AnimationVariables.unsyncIndependent(animator -> animator.getEntityPatch().getOriginal().position(), true);
+	public static final IndependentVariableKey<Float> INITIAL_LOOK_VEC_DOT = AnimationVariables.unsyncIndependent(animator -> 1.0F, true);
 	
 	public ActionAnimation(float transitionTime, AnimationAccessor<? extends ActionAnimation> accessor, AssetAccessor<? extends Armature> armature) {
 		this(transitionTime, Float.MAX_VALUE, accessor, armature);
@@ -59,8 +57,8 @@ public class ActionAnimation extends MainFrameAnimation {
 			.newTimePair(0.0F, postDelay)
 			.addState(EntityState.MOVEMENT_LOCKED, true)
 			.addState(EntityState.UPDATE_LIVING_MOTION, false)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
-			.addState(EntityState.CAN_SKILL_EXECUTION, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
+			.addState(EntityState.SKILL_EXECUTABLE, false)
 			.addState(EntityState.TURNING_LOCKED, true)
 			.newTimePair(0.0F, Float.MAX_VALUE)
 			.addState(EntityState.INACTION, true);
@@ -78,8 +76,8 @@ public class ActionAnimation extends MainFrameAnimation {
 			.newTimePair(0.0F, postDelay)
 			.addState(EntityState.MOVEMENT_LOCKED, true)
 			.addState(EntityState.UPDATE_LIVING_MOTION, false)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
-			.addState(EntityState.CAN_SKILL_EXECUTION, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
+			.addState(EntityState.SKILL_EXECUTABLE, false)
 			.addState(EntityState.TURNING_LOCKED, true)
 			.newTimePair(0.0F, Float.MAX_VALUE)
 			.addState(EntityState.INACTION, true);
@@ -165,9 +163,9 @@ public class ActionAnimation extends MainFrameAnimation {
 			livingentity.move(MoverType.SELF, vec3);
 			
 			if (entitypatch.isLogicalClient()) {
-				EpicFightNetworkManager.sendToServer(new CPSyncPlayerAnimationPosition(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1));
+				EpicFightNetworkManager.sendToServer(new BiDirectionalSyncAnimationPositionPacket(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1));
 			} else {
-				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPSyncAnimationPosition(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1), livingentity);
+				EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new BiDirectionalSyncAnimationPositionPacket(livingentity.getId(), elapsedTime, livingentity.position(), animation.get().isLinkAnimation() ? 2 : 1), livingentity);
 			}
 		}
 	}
@@ -373,7 +371,7 @@ public class ActionAnimation extends MainFrameAnimation {
 			}
 		}, () -> {
 			if (moveVertical && move.y > 0.0F && !hasNoGravity) {
-				double gravity = livingentity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()).getValue();
+				double gravity = livingentity.getGravity();
 				livingentity.setDeltaMovement(motion.x, motion.y < 0.0D ? motion.y + gravity : 0.0D, motion.z);
 			}
 		});

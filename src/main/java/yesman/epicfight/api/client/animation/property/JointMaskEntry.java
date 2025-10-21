@@ -9,8 +9,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
 
@@ -26,7 +26,7 @@ public class JointMaskEntry {
 		JointMask.of("Elbow_L"), JointMask.of("Tool_L")
 	);
 	
-	public static final JointMaskEntry BASIC_ATTACK_MASK = JointMaskEntry.builder().defaultMask(JointMaskEntry.BIPED_UPPER_JOINTS_WITH_ROOT).create();
+	public static final JointMaskEntry COMBO_ATTACK_MASK = JointMaskEntry.builder().defaultMask(JointMaskEntry.BIPED_UPPER_JOINTS_WITH_ROOT).create();
 	
 	private final Map<LivingMotion, JointMaskSet> masks = Maps.newHashMap();
 	private final JointMaskSet defaultMask;

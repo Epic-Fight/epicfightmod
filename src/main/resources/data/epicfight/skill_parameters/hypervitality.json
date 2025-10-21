@@ -3,17 +3,15 @@
 	"consumption": 6.0,
 	"attribute_modifiers": [
 		{
-			"attribute": "epicfight:staminar",
-			"name": "hypervitality_skill_stat",
-			"uuid": "06fb3f66-b900-11ed-afa1-0242ac120002",
-			"operation": "addition",
+			"attribute": "epicfight:stamina",
+			"id": "epicfight:hypervitality_modifier",
+			"operation": "add_value",
 			"amount": 2.0
 		},
 		{
 			"attribute": "minecraft:generic.max_health",
-			"name": "hypervitality_skill_stat",
-			"uuid": "06fb3f66-b900-11ed-afa1-0242ac120002",
-			"operation": "addition",
+			"id": "epicfight:hypervitality_modifier",
+			"operation": "add_value",
 			"amount": 4.0
 		}
 	]

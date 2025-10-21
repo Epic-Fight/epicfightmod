@@ -12,12 +12,9 @@ import org.joml.Vector4f;
 
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -36,14 +33,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Animator;
@@ -62,6 +60,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.neoevent.EntityRemoveEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
 import yesman.epicfight.api.utils.EntitySnapshot;
@@ -70,7 +69,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -79,43 +78,25 @@ import yesman.epicfight.mixin.common.MixinPlayer;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.common.AnimatorControlPacket;
+import yesman.epicfight.network.common.AbstractAnimatorControl;
 import yesman.epicfight.network.server.SPAnimatorControl;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
-import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightExpandedEntityDataAccessors;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.DecorationOverlay;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.ParticleGenerator;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.RenderAttributeModifier;
+import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.TargetIndicatorCheckEvent;
+import yesman.epicfight.world.entity.data.ExpandedSyncedData;
 
 public abstract class LivingEntityPatch<T extends LivingEntity> extends HurtableEntityPatch<T> {
-	protected static EntityDataAccessor<Float> STUN_SHIELD;
-	protected static EntityDataAccessor<Float> MAX_STUN_SHIELD;
-	protected static EntityDataAccessor<Integer> EXECUTION_RESISTANCE;
-	protected static EntityDataAccessor<Boolean> AIRBORNE;
-	
-	public static void initLivingEntityDataAccessor() {
-		STUN_SHIELD = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.FLOAT);
-		MAX_STUN_SHIELD = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.FLOAT);
-		EXECUTION_RESISTANCE = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
-		AIRBORNE = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.BOOLEAN);
-	}
-	
-	public static void createSyncedEntityData(LivingEntity livingentity) {
-		livingentity.getEntityData().define(STUN_SHIELD, Float.valueOf(0.0F));
-		livingentity.getEntityData().define(MAX_STUN_SHIELD, Float.valueOf(0.0F));
-		livingentity.getEntityData().define(EXECUTION_RESISTANCE, Integer.valueOf(0));
-		livingentity.getEntityData().define(AIRBORNE, Boolean.valueOf(false));
-	}
-	
 	public static final double WEIGHT_CORRECTION = 37.037D;
 	
 	protected Armature armature;
@@ -132,16 +113,25 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	protected Entity lastTryHurtEntity;
 	protected LivingEntity grapplingTarget;
 	
+	protected ExpandedSyncedData expandedSynchedData;
+	
 	public LivingMotion currentLivingMotion = LivingMotions.IDLE;
 	public LivingMotion currentCompositeMotion = LivingMotions.IDLE;
 	
 	protected final Map<InteractionHand, Joint> parentJointOfHands = new HashMap<> ();
 	protected final EntityDecorations entityDecorations = new EntityDecorations();
 	
-	@Override
-	public void onConstructed(T entityIn) {
-		super.onConstructed(entityIn);
+	public LivingEntityPatch(T entity) {
+		super(entity);
 		
+		if (!this.isFakeEntity()) {
+			this.expandedSynchedData = new ExpandedSyncedData(this.original::getId, !this.isLogicalClient());
+			this.registerExpandedEntityDataAccessors(this.expandedSynchedData);
+		}
+	}
+	
+	@Override
+	public void onConstructed(EntityEvent.EntityConstructing event) {
 		this.armature = Armatures.getArmatureFor(this);
 		
 		Animator animator = EpicFightSharedConstants.getAnimator(this);
@@ -151,10 +141,17 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		animator.postInit();
 	}
 	
+	protected void registerExpandedEntityDataAccessors(final ExpandedSyncedData expandedSynchedData) {
+		expandedSynchedData.register(EpicFightExpandedEntityDataAccessors.AIRBORNE);
+		expandedSynchedData.register(EpicFightExpandedEntityDataAccessors.ASSASSINATION_RESISTANCE);
+		expandedSynchedData.register(EpicFightExpandedEntityDataAccessors.STUN_SHIELD);
+		expandedSynchedData.register(EpicFightExpandedEntityDataAccessors.MAX_STUN_SHIELD);
+	}
+	
 	protected void initAnimator(Animator animator) {
-		animator.getVariables().putDefaultSharedVariable(AttackAnimation.ATTACK_TRIED_ENTITIES);
-		animator.getVariables().putDefaultSharedVariable(AttackAnimation.ACTUALLY_HIT_ENTITIES);
-		animator.getVariables().putDefaultSharedVariable(ActionAnimation.ACTION_ANIMATION_COORD);
+		animator.getVariables().putSharedVariableWithDefault(AttackAnimation.ATTACK_TRIED_ENTITIES);
+		animator.getVariables().putSharedVariableWithDefault(AttackAnimation.ACTUALLY_HIT_ENTITIES);
+		animator.getVariables().putSharedVariableWithDefault(ActionAnimation.ACTION_ANIMATION_COORD);
 		
 		if (this.armature instanceof ToolHolderArmature toolArmature) {
 			this.setParentJointOfHand(InteractionHand.MAIN_HAND, toolArmature.rightToolJoint());
@@ -166,11 +163,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
 		super.onJoinWorld(entity, event);
 		
-		if (entity.getAttributeBaseValue(EpicFightAttributes.WEIGHT.get()) == 0.0D) {
+		if (entity.getAttributeBaseValue(EpicFightAttributes.WEIGHT) == 0.0D) {
 			EntityDimensions entityDimensions = entity.getDimensions(net.minecraft.world.entity.Pose.STANDING);
-			double weight = entityDimensions.width * entityDimensions.height * WEIGHT_CORRECTION;
-			
-			entity.getAttribute(EpicFightAttributes.WEIGHT.get()).setBaseValue(weight);
+			double weight = entityDimensions.width() * entityDimensions.height() * WEIGHT_CORRECTION;
+			entity.getAttribute(EpicFightAttributes.WEIGHT).setBaseValue(weight);
 		}
 	}
 	
@@ -181,8 +177,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	@Override
-	public void tick(LivingEvent.LivingTickEvent event) {
-		super.tick(event);
+	public void preTick(EntityTickEvent.Pre event) {
+		super.preTick(event);
 		
 		if (this.original.getHealth() <= 0.0F) {
 			this.original.setXRot(0);
@@ -196,26 +192,15 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		
 		this.animator.tick();
 		
-		if (this.isLogicalClient()) {
-			this.clientTick(event);
-		} else {
-			this.serverTick(event);
-		}
-		
-		if (this.original.deathTime == 19) {
-			this.aboutToDeath();
-		}
-		
-		if (!this.getEntityState().inaction() && this.original.onGround && this.isAirborneState()) {
+		if (!this.getEntityState().inaction() && this.original.onGround() && this.isAirborneState()) {
 			this.setAirborneState(false);
 		}
 	}
 	
-	protected void clientTick(LivingEvent.LivingTickEvent event) {
+	@Override
+	public void preTickClient(EntityTickEvent.Pre event) {
 		this.entityDecorations.tick();
 	}
-	
-	protected void serverTick(LivingEvent.LivingTickEvent event) {}
 	
 	public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
 		if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
@@ -232,25 +217,13 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 	}
 	
-	public void onFall(LivingFallEvent event) {
-		if (!this.getOriginal().level().isClientSide() && this.isAirborneState()) {
-			AssetAccessor<? extends StaticAnimation> fallAnimation = this.getAnimator().getLivingAnimation(LivingMotions.LANDING_RECOVERY, this.getHitAnimation(StunType.FALL));
-			
-			if (fallAnimation != null) {
-				this.playAnimationSynchronized(fallAnimation, 0);
-			}
-		}
-		
-		this.setAirborneState(false);
-	}
-	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.getPairingPacketType().is(EntityPairingPacketTypes.class)) {
-			switch (packet.getPairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
+		if (packet.pairingPacketType().is(EntityPairingPacketTypes.class)) {
+			switch (packet.pairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
 			case BONEBREAKER_BEGIN -> {
 				this.entityDecorations.addDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY, new DecorationOverlay() {
 					static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/crack_level1.png");
@@ -317,10 +290,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 				});
 			}
 			case FLASH_WHITE -> {
-				int durationTick = packet.getBuffer().readInt();
-				int maxOverlay = packet.getBuffer().readInt();
-				int maxBrightness = packet.getBuffer().readInt();
-				boolean disableRed = packet.getBuffer().readBoolean();
+				int durationTick = packet.buffer().readInt();
+				int maxOverlay = packet.buffer().readInt();
+				int maxBrightness = packet.buffer().readInt();
+				boolean disableRed = packet.buffer().readBoolean();
 				
 				this.entityDecorations.addOverlayCoordModifier(EntityDecorations.FLASH_WHITE_OVERLAY, new RenderAttributeModifier<> () {
 					private int tickCount;
@@ -379,14 +352,29 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 			case VENGEANCE_TARGET_CANCEL -> {
 				this.entityDecorations.removeColorModifier(EntityDecorations.VENGEANCE_OVERLAY);
 			}
+			default -> {}
 			}
 		}
 	}
 	
-	@Override
+	public void onFall(LivingFallEvent event) {
+		if (!this.getOriginal().level().isClientSide() && this.isAirborneState()) {
+			AssetAccessor<? extends StaticAnimation> fallAnimation = this.getAnimator().getLivingAnimation(LivingMotions.LANDING_RECOVERY, this.getHitAnimation(StunType.FALL));
+			
+			if (fallAnimation != null) {
+				this.playAnimationSynchronized(fallAnimation, 0);
+			}
+		}
+		
+		this.setAirborneState(false);
+	}
+	
 	public void onDeath(LivingDeathEvent event) {
 		this.getAnimator().playDeathAnimation();
 		this.currentLivingMotion = LivingMotions.DEATH;
+	}
+	
+	public void onRemoved(EntityRemoveEvent event) {
 	}
 	
 	public void updateEntityState() {
@@ -400,7 +388,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void cancelItemUse() {
 		if (this.original.isUsingItem()) {
 			this.original.stopUsingItem();
-			ForgeEventFactory.onUseItemStop(this.original, this.original.getUseItem(), this.original.getUseItemRemainingTicks());
+			EventHooks.onUseItemStop(this.original, this.original.getUseItem(), this.original.getUseItemRemainingTicks());
 		}
 	}
 	
@@ -530,14 +518,13 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	
 	@Override
 	public float getStunShield() {
-		return this.original.getEntityData().get(STUN_SHIELD).floatValue();
+		return this.expandedSynchedData.get(EpicFightExpandedEntityDataAccessors.STUN_SHIELD);
 	}
 	
 	@Override
 	public void setStunShield(float value) {
-		value = Math.max(value, 0);
-		value = Math.min(value, this.getMaxStunShield());
-		this.original.getEntityData().set(STUN_SHIELD, value);
+		float clamped = Mth.clamp(value, 0.0F, this.getMaxStunShield());
+		this.expandedSynchedData.set(EpicFightExpandedEntityDataAccessors.STUN_SHIELD, clamped);
 	}
 	
 	/**
@@ -548,27 +535,27 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	public float getMaxStunShield() {
-		return this.original.getEntityData().get(MAX_STUN_SHIELD).floatValue();
+		return this.expandedSynchedData.get(EpicFightExpandedEntityDataAccessors.MAX_STUN_SHIELD);
 	}
 	
 	public void setMaxStunShield(float value) {
-		value = Math.max(value, 0);
-		this.original.getEntityData().set(MAX_STUN_SHIELD, value);
+		float maximized = Math.max(value, 0.0F);
+		this.expandedSynchedData.set(EpicFightExpandedEntityDataAccessors.MAX_STUN_SHIELD, maximized);
 	}
 	
-	public int getExecutionResistance() {
-		return this.original.getEntityData().get(EXECUTION_RESISTANCE).intValue();
+	public int getAssassinationResistance() {
+		return this.expandedSynchedData.get(EpicFightExpandedEntityDataAccessors.ASSASSINATION_RESISTANCE);
 	}
 	
 	public void setExecutionResistance(int value) {
-		int maxExecutionResistance = (int)this.original.getAttributeValue(EpicFightAttributes.EXECUTION_RESISTANCE.get());
-		value = Math.min(maxExecutionResistance, value);
-		this.original.getEntityData().set(EXECUTION_RESISTANCE, value);
+		int maxExecutionResistance = (int)this.original.getAttributeValue(EpicFightAttributes.ASSASSINATION_RESISTANCE);
+		int minimized = Math.min(maxExecutionResistance, value);
+		this.expandedSynchedData.set(EpicFightExpandedEntityDataAccessors.ASSASSINATION_RESISTANCE, minimized);
 	}
 	
 	@Override
 	public float getWeight() {
-		return (float)this.original.getAttributeValue(EpicFightAttributes.WEIGHT.get());
+		return (float)this.original.getAttributeValue(EpicFightAttributes.WEIGHT);
 	}
 	
 	public void rotateTo(float degree, float limit, boolean syncPrevRot) {
@@ -608,8 +595,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		return this.original.getLastHurtMob();
 	}
 	
-	public float getAttackDirectionPitch() {
-		float partialTicks = EpicFightSharedConstants.isPhysicalClient() ? Minecraft.getInstance().getFrameTime() : 1.0F;
+	public float getAttackDirectionPitch(float partialTick) {
+		float partialTicks = EpicFightSharedConstants.isPhysicalClient() ? partialTick : 1.0F;
 		float pitch = -this.getOriginal().getViewXRot(partialTicks);
 		float correct = (pitch > 0) ? 0.03333F * (float)Math.pow(pitch, 2) : -0.03333F * (float)Math.pow(pitch, 2);
 		
@@ -642,49 +629,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	/**
-	 * Play an animation after the current animation is finished
-	 * @param animation
-	 */
-	public void reserveAnimation(AssetAccessor<? extends StaticAnimation> animation) {
-		if (this.isLogicalClient()) {
-			this.animator.reserveAnimation(animation);
-		} else {
-			this.handleAnimationPacket(AnimatorControlPacket.Action.RESERVE, animation, 0.0F, SPAnimatorControl::new);
-		}
-	}
-	
-	/**
-	 * Play an animation after the current animation is finished
-	 * @param animation
-	 * @param packetProvider
-	 */
-	public void reserveAnimation(AssetAccessor<? extends StaticAnimation> animation, ServerAnimationPacketProvider packetProvider) {
-		this.handleAnimationPacket(AnimatorControlPacket.Action.RESERVE, animation, 0.0F, packetProvider);
-	}
-	
-	/**
-	 * Play an animation without convert time
-	 * @param animation
-	 */
-	public void playAnimationInstantly(AssetAccessor<? extends StaticAnimation> animation) {
-		if (this.isLogicalClient()) {
-			this.animator.playAnimationInstantly(animation);
-		} else {
-			this.handleAnimationPacket(AnimatorControlPacket.Action.PLAY_INSTANTLY, animation, 0.0F, SPAnimatorControl::new);
-		}
-	}
-	
-	/**
-	 * Play an animation without convert time
-	 * @param animation
-	 * @param packetProvider
-	 */
-	public void playAnimationInstantly(AssetAccessor<? extends StaticAnimation> animation, ServerAnimationPacketProvider packetProvider) {
-		this.handleAnimationPacket(AnimatorControlPacket.Action.PLAY_INSTANTLY, animation, 0.0F, packetProvider);
-	}
-	
-	/**
 	 * Play an animation
+	 * This method doesn't synchronize animations between client and server
+	 * Use {@link playAnimationSynchronized} instead if you want to synchronize animations to every remote player
+	 * 
 	 * @param animation
 	 * @param transitionTimeModifier
 	 */
@@ -693,26 +641,41 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	/**
-	 * Stop playing an animation
+	 * Play an animation without convert time
 	 * @param animation
-	 * @param transitionTimeModifier
 	 */
-	public void stopPlaying(AssetAccessor<? extends StaticAnimation> animation) {
-		if (this.isLogicalClient()) {
-			this.animator.stopPlaying(animation);
-		} else {
-			this.handleAnimationPacket(AnimatorControlPacket.Action.STOP, animation, -1.0F, SPAnimatorControl::new);
+	public void playAnimationInstantly(AssetAccessor<? extends StaticAnimation> animation) {
+		this.animator.playAnimationInstantly(animation);
+		
+		if (!this.isLogicalClient()) {
+			this.handleAnimationPayload(new SPAnimatorControl(AbstractAnimatorControl.Action.PLAY_INSTANTLY, animation, this, 0.0F));
 		}
 	}
 	
 	/**
-	 * Play an animation with custom packet
+	 * Reserve an animation to be played after the current animation
+	 * @param animation
+	 */
+	public void reserveAnimation(AssetAccessor<? extends StaticAnimation> animation) {
+		this.animator.reserveAnimation(animation);
+		
+		if (!this.isLogicalClient()) {
+			this.handleAnimationPayload(new SPAnimatorControl(AbstractAnimatorControl.Action.RESERVE, animation, this, 0.0F));
+		}
+	}
+	
+	/**
+	 * Stop playing an animation
+	 * 
 	 * @param animation
 	 * @param transitionTimeModifier
-	 * @param packetProvider
 	 */
-	public void playAnimation(AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier, ServerAnimationPacketProvider packetProvider) {
-		this.handleAnimationPacket(AnimatorControlPacket.Action.PLAY, animation, transitionTimeModifier, packetProvider);
+	public void stopPlaying(AssetAccessor<? extends StaticAnimation> animation) {
+		this.animator.stopPlaying(animation);
+		
+		if (!this.isLogicalClient()) {
+			this.handleAnimationPayload(new SPAnimatorControl(AbstractAnimatorControl.Action.STOP, animation, this, -1.0F));
+		}
 	}
 	
 	/**
@@ -724,21 +687,11 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	 * @param transitionTimeModifier
 	 */
 	public void playAnimationSynchronized(AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier) {
+		this.animator.playAnimation(animation, transitionTimeModifier);
+		
 		if (!this.isLogicalClient()) {
-			this.handleAnimationPacket(AnimatorControlPacket.Action.PLAY, animation, transitionTimeModifier, SPAnimatorControl::new);
+			this.handleAnimationPayload(new SPAnimatorControl(AbstractAnimatorControl.Action.PLAY, animation, this, transitionTimeModifier));
 		}
-	}
-	
-	/**
-	 * Play an animation ensuring synchronization between client-server
-	 * Plays animation when getting response from server if it called in client side.
-	 * Do not call this in client side for non-player entities.
-	 * 
-	 * @param animation
-	 * @param transitionTimeModifier
-	 */
-	public void playAnimationSynchronized(AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier, ServerAnimationPacketProvider packetProvider) {
-		this.handleAnimationPacket(AnimatorControlPacket.Action.PLAY, animation, transitionTimeModifier, packetProvider);
 	}
 	
 	/**
@@ -750,19 +703,19 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		if (this.isLogicalClient()) {
 			this.animator.playAnimation(animation, transitionTimeModifier);
 		} else {
-			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.PLAY, animation, this.original.getId(), transitionTimeModifier, false));
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AbstractAnimatorControl.Action.PLAY, animation, this.original.getId(), transitionTimeModifier, false));
 		}
 	}
 	
 	/**
 	 * Play a shooting animation to end aim pose
-	 * Synchronized if the method is called in the server
+	 * Synchronized if the method is called in server side
 	 */
 	public void playShootingAnimation() {
-		if (this.isLogicalClient()) {
-			this.animator.playShootingAnimation();
-		} else {
-			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AnimatorControlPacket.Action.SHOT, -1, this.getOriginal().getId(), 0.0F, false));
+		this.animator.playShootingAnimation();
+		
+		if (!this.isLogicalClient()) {
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(AbstractAnimatorControl.Action.SHOT, Animations.EMPTY_ANIMATION, this.original.getId(), 0.0F, false));
 		}
 	}
 	
@@ -772,33 +725,24 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	 * @param transitionTimeModifier
 	 * @param packetProvider
 	 */
-	private void handleAnimationPacket(AnimatorControlPacket.Action action, AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier, ServerAnimationPacketProvider packetProvider) {
+	private void handleAnimationPayload(SPAnimatorControl payload) {
 		if (this.isLogicalClient()) {
-			throw new IllegalStateException("Cannot send animation play packet in client side.");
+			throw new IllegalStateException("Cannot send animation sync payload in client side.");
 		}
 		
-		switch (action) {
-		case PLAY -> {
-			this.animator.playAnimation(animation, transitionTimeModifier);
-		}
-		case PLAY_INSTANTLY -> {
-			this.animator.playAnimationInstantly(animation);
-		}
-		case STOP -> {
-			this.animator.stopPlaying(animation);
-		}
-		case RESERVE -> {
-			this.animator.reserveAnimation(animation);
-		}
-		case SHOT -> {
-			this.animator.playShootingAnimation();
-		}
-		default -> {
+		switch (payload.action()) {
+		case SOFT_PAUSE, HARD_PAUSE -> {
 			throw new UnsupportedOperationException("Only PLAY, PLAY_INSTANTLY, STOP and RESERVE are allowed");
 		}
+		default -> {
+		}
 		}
 		
-		this.sendToAllPlayersTrackingMe(packetProvider.get(action, animation, transitionTimeModifier, this));
+		if (payload.action().syncVariables()) {
+			payload.animationVariables().addAll(this.getAnimator().getVariables().createPendingVariablesPayloads(payload.animation()));
+		}
+		
+		this.sendToAllPlayersTrackingMe(payload);
 	}
 	
 	/**
@@ -807,7 +751,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	 * 				 HARD_PAUSE: resume when hard pause is set false
 	 * @param pause
 	 **/
-	public void pauseAnimator(AnimatorControlPacket.Action action, boolean pause) {
+	public void pauseAnimator(AbstractAnimatorControl.Action action, boolean pause) {
 		switch (action) {
 		case SOFT_PAUSE -> {
 			this.animator.setSoftPause(pause);
@@ -821,17 +765,14 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 		
 		if (!this.isLogicalClient()) {
-			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(action, -1, this.original.getId(), 0.0F, pause));
+			this.sendToAllPlayersTrackingMe(new SPAnimatorControl(action, Animations.EMPTY_ANIMATION, this.original.getId(), 0.0F, pause));
 		}
 	}
 	
-	public void sendToAllPlayersTrackingMe(Object packet) {
-		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(packet, this.original);
-	}
-	
-	@FunctionalInterface
-	public interface ServerAnimationPacketProvider {
-		SPAnimatorControl get(AnimatorControlPacket.Action action, AssetAccessor<? extends StaticAnimation> animation, float convertTimeModifier, LivingEntityPatch<?> entitypatch);
+	public void sendToAllPlayersTrackingMe(CustomPacketPayload packet, CustomPacketPayload... others) {
+		if (!this.isLogicalClient()) {
+			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(packet, this.original, others);
+		}
 	}
 	
 	public void resetSize(EntityDimensions size) {
@@ -839,15 +780,15 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		EntityDimensions entitysize1 = size;
 		this.original.dimensions = entitysize1;
 		
-	    if (entitysize1.width < entitysize.width) {
-	    	double d0 = (double)entitysize1.width / 2.0D;
+	    if (entitysize1.width() < entitysize.width()) {
+	    	double d0 = (double)entitysize1.width() / 2.0D;
 	    	this.original.setBoundingBox(
 	    		new AABB(
 	    			  this.original.getX() - d0
 	    			, this.original.getY()
 	    			, this.original.getZ() - d0
 	    			, this.original.getX() + d0
-	    			, this.original.getY() + (double)entitysize1.height
+	    			, this.original.getY() + (double)entitysize1.height()
 	    			, this.original.getZ() + d0
 	    		)
 	    	);
@@ -858,14 +799,14 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	    			  axisalignedbb.minX
 	    			, axisalignedbb.minY
 	    			, axisalignedbb.minZ
-	    			, axisalignedbb.minX + (double)entitysize1.width
-	    			, axisalignedbb.minY + (double)entitysize1.height
-	    			, axisalignedbb.minZ + (double)entitysize1.width
+	    			, axisalignedbb.minX + (double)entitysize1.width()
+	    			, axisalignedbb.minY + (double)entitysize1.height()
+	    			, axisalignedbb.minZ + (double)entitysize1.width()
 	    		)
 	    	);
 	    	
-	    	if (entitysize1.width > entitysize.width && !this.original.level().isClientSide()) {
-	    		float f = entitysize.width - entitysize1.width;
+	    	if (entitysize1.width() > entitysize.width() && !this.original.level().isClientSide()) {
+	    		float f = entitysize.width() - entitysize1.width();
 	        	this.original.move(MoverType.SELF, new Vec3(f, 0.0D, f));
 	    	}
 	    }
@@ -895,7 +836,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	public void updateHeldItem(CapabilityItem fromCap, CapabilityItem toCap, ItemStack from, ItemStack to, InteractionHand hand) {
 	}
 	
-	public void updateArmor(CapabilityItem fromCap, CapabilityItem toCap, EquipmentSlot slotType) {
+	public void updateArmor(ArmorCapability fromCap, ArmorCapability toCap, EquipmentSlot slotType) {
 	}
 	
 	/**
@@ -966,13 +907,19 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 
 	public int getMaxStrikes(InteractionHand hand) {
-		return (int) (hand == InteractionHand.MAIN_HAND ? this.original.getAttributeValue(EpicFightAttributes.MAX_STRIKES.get()) : 
-			this.isOffhandItemValid() ? this.original.getAttributeValue(EpicFightAttributes.OFFHAND_MAX_STRIKES.get()) : this.original.getAttribute(EpicFightAttributes.MAX_STRIKES.get()).getBaseValue());
+		return (int) (hand == InteractionHand.MAIN_HAND ?
+			this.original.getAttributeValue(EpicFightAttributes.MAX_STRIKES) : 
+				this.isOffhandItemValid() ?
+					this.original.getAttributeValue(EpicFightAttributes.OFFHAND_MAX_STRIKES) :
+						this.original.getAttribute(EpicFightAttributes.MAX_STRIKES).getBaseValue());
 	}
 	
 	public float getArmorNegation(InteractionHand hand) {
-		return (float) (hand == InteractionHand.MAIN_HAND ? this.original.getAttributeValue(EpicFightAttributes.ARMOR_NEGATION.get()) : 
-			this.isOffhandItemValid() ? this.original.getAttributeValue(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get()) : this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION.get()).getBaseValue());
+		return (float) (hand == InteractionHand.MAIN_HAND ?
+			this.original.getAttributeValue(EpicFightAttributes.ARMOR_NEGATION) : 
+				this.isOffhandItemValid() ?
+					this.original.getAttributeValue(EpicFightAttributes.OFFHAND_ARMOR_NEGATION) :
+						this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION).getBaseValue());
 	}
 	
 	public float getImpact(InteractionHand hand) {
@@ -980,14 +927,14 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		int i = 0;
 		
 		if (hand == InteractionHand.MAIN_HAND) {
-			impact = (float)this.original.getAttributeValue(EpicFightAttributes.IMPACT.get());
-			i = this.getOriginal().getMainHandItem().getEnchantmentLevel(Enchantments.KNOCKBACK);
+			impact = (float)this.original.getAttributeValue(EpicFightAttributes.IMPACT);
+			i = this.getOriginal().getMainHandItem().getEnchantmentLevel(this.getLevel().registryAccess().holderOrThrow(Enchantments.KNOCKBACK));
 		} else {
 			if (this.isOffhandItemValid()) {
-				impact = (float)this.original.getAttributeValue(EpicFightAttributes.OFFHAND_IMPACT.get());
-				i = this.getOriginal().getOffhandItem().getEnchantmentLevel(Enchantments.KNOCKBACK);
+				impact = (float)this.original.getAttributeValue(EpicFightAttributes.OFFHAND_IMPACT);
+				i = this.getOriginal().getOffhandItem().getEnchantmentLevel(this.getLevel().registryAccess().holderOrThrow(Enchantments.KNOCKBACK));
 			} else {
-				impact = (float)this.original.getAttribute(EpicFightAttributes.IMPACT.get()).getBaseValue();
+				impact = (float)this.original.getAttribute(EpicFightAttributes.IMPACT).getBaseValue();
 			}
 		}
 		
@@ -1062,12 +1009,12 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		this.lastAttackPosition = this.original.position();
 	}
 	
-	public void setAirborneState(boolean airborne) {
-		this.original.getEntityData().set(AIRBORNE, airborne);
+	public void setAirborneState(boolean flag) {
+		this.expandedSynchedData.set(EpicFightExpandedEntityDataAccessors.AIRBORNE, flag);
 	}
 	
 	public boolean isAirborneState() {
-		return this.original.getEntityData().get(AIRBORNE);
+		return this.expandedSynchedData.get(EpicFightExpandedEntityDataAccessors.AIRBORNE);
 	}
 	
 	public void setLastAttackSuccess(boolean setter) {
@@ -1178,6 +1125,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	
 	public abstract Faction getFaction();
 	
+	public final ExpandedSyncedData getExpandedSynchedData() {
+		return this.expandedSynchedData;
+	}
+	
 	public EntityDecorations getEntityDecorations() {
 		return this.entityDecorations;
 	}
@@ -1185,13 +1136,5 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	@OnlyIn(Dist.CLIENT)
 	public EntitySnapshot<?> captureEntitySnapshot() {
 		return EntitySnapshot.captureLivingEntity(this);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public boolean flashTargetIndicator(LocalPlayerPatch playerpatch) {
-		TargetIndicatorCheckEvent event = new TargetIndicatorCheckEvent(playerpatch, this);
-		playerpatch.getEventListener().triggerEvents(EventType.TARGET_INDICATOR_ALERT_CHECK_EVENT, event);
-		
-		return event.isCanceled();
 	}
 }

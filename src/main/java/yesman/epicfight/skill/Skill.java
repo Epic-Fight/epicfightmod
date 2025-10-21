@@ -1,5 +1,6 @@
 package yesman.epicfight.skill;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +8,28 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -21,43 +37,86 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
-import yesman.epicfight.api.utils.ParseUtil;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
+import yesman.epicfight.api.neoevent.playerpatch.SkillCancelEvent;
+import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.network.server.SPSetSkillContainerValue;
-import yesman.epicfight.network.server.SPSkillExecutionFeedback;
+import yesman.epicfight.network.server.SPSkillFeedback;
+import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.SkillCancelEvent;
-import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
 public abstract class Skill {
-	public static SkillBuilder<Skill> createBuilder() {
-		return new SkillBuilder<> ();
+	public static final Codec<Holder<Skill>> CODEC = EpicFightRegistries.SKILL.holderByNameCodec();
+	public static final StreamCodec<RegistryFriendlyByteBuf, Holder<Skill>> STREAM_CODEC = ByteBufCodecs.holderRegistry(EpicFightRegistries.Keys.SKILL);
+	
+	public static record ModifierEntry(Holder<Attribute> attribute, AttributeModifier modifier) {
 	}
 	
-	public static SkillBuilder<Skill> createIdentityBuilder() {
-		return (new SkillBuilder<> ()).setCategory(SkillCategories.IDENTITY).setResource(Resource.NONE);
+	public static final Codec<List<ModifierEntry>> ATTRIBUTE_ENTRY_CODEC = Codec.list(
+		RecordCodecBuilder.create(instance -> 
+			instance.group(
+				Attribute.CODEC.fieldOf("attribute").forGetter(ModifierEntry::attribute),
+				AttributeModifier.MAP_CODEC.forGetter(ModifierEntry::modifier)
+			)
+			.apply(instance, ModifierEntry::new)
+		)
+	);
+	
+	public static Holder<Skill> holderOrNull(Skill skill) {
+		return skill == null ? null : skill.holder();
 	}
 	
-	public static SkillBuilder<Skill> createMoverBuilder() {
-		return (new SkillBuilder<> ()).setCategory(SkillCategories.MOVER).setResource(Resource.STAMINA);
+	public static Skill skillOrNull(Holder<Skill> skill) {
+		return skill == null ? null : skill.value();
 	}
 	
-	private final Map<Attribute, AttributeModifier> attributes = new HashMap<> ();
+	@SuppressWarnings("unchecked")
+	public static <B extends SkillBuilder<B>> B createBuilder(Function<B, ? extends Skill> constructor) {
+		return (B)new SkillBuilder<> (constructor);
+	}
+	
+	public static <B extends SkillBuilder<B>> B createIdentityBuilder(Function<B, ? extends Skill> constructor) {
+		return new SkillBuilder<> (constructor).setCategory(SkillCategories.IDENTITY).setResource(Resource.NONE);
+	}
+	
+	public static <B extends SkillBuilder<B>> B createMoverBuilder(Function<B, ? extends Skill> constructor) {
+		return new SkillBuilder<> (constructor).setCategory(SkillCategories.MOVER).setResource(Resource.STAMINA);
+	}
+	
+	public static final Skill EMPTY = new Skill() {};
+	
+	private final Map<Holder<Attribute>, AttributeModifier> attributes = new HashMap<> ();
+	
+	/**
+	 * Skill events can be registered by both {@link SkillEvent} annotated method in skill class or by the skill builder
+	 * 
+	 * The container hierarchy looks as this:
+	 * 
+	 * caller mod id
+	 *  ㄴ event class
+	 * 	 ㄴ listener
+	 * 
+	 * See what each elements do: {@link SkillBuilder#addEventListenerBothSide}
+	 **/
+	private final Map<String, Map<Class<?>, SkillEventSubscriber>> clientEventListeners;
+	private final Map<String, Map<Class<?>, SkillEventSubscriber>> serverEventListeners;
+	
 	protected final ResourceLocation registryName;
 	protected final SkillCategory category;
 	protected final CreativeModeTab creativeTab;
@@ -67,7 +126,9 @@ public abstract class Skill {
 	protected int maxDuration;
 	protected int maxStackSize;
 	
-	public Skill(SkillBuilder<? extends Skill> builder) {
+	protected Holder<Skill> holder;
+	
+	public Skill(SkillBuilder<?> builder) {
 		if (builder.registryName == null) {
 			Exception e = new IllegalArgumentException("No registry name is given for " + this.getClass().getCanonicalName());
 			e.printStackTrace();
@@ -78,25 +139,36 @@ public abstract class Skill {
 		this.creativeTab = builder.tab;
 		this.activateType = builder.activateType;
 		this.resource = builder.resource;
+		this.clientEventListeners = ImmutableMap.copyOf(builder.clientEventListeners);
+		this.serverEventListeners = ImmutableMap.copyOf(builder.serverEventListeners);
 	}
 	
-	public void setParams(CompoundTag parameters) {
+	@ApiStatus.Internal
+	@Deprecated
+	private Skill() {
+		this.registryName = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "empty");
+		this.category = SkillCategories.EMPTY;
+		this.creativeTab = null;
+		this.activateType = ActivateType.ONE_SHOT;
+		this.resource = Resource.NONE;
+		this.clientEventListeners = ImmutableMap.of();
+		this.serverEventListeners = ImmutableMap.of();
+	}
+	
+	/**
+	 * Load parameters from datapack presented as {@link CompoundTag}
+	 * 
+	 * Previous container data(e.g. HashMap, ArrayList) must be cleared
+	 */
+	public void loadDatapackParameters(CompoundTag parameters) {
 		this.consumption = parameters.getFloat("consumption");
 		this.maxDuration = parameters.getInt("max_duration");
 		this.maxStackSize = parameters.contains("max_stacks") ? parameters.getInt("max_stacks") : 1;
 		this.attributes.clear();
 		
 		if (parameters.contains("attribute_modifiers")) {
-			ListTag attributeList = parameters.getList("attribute_modifiers", 10);
-			
-			for (Tag tag : attributeList) {
-				CompoundTag comp = (CompoundTag)tag;
-				String attribute = comp.getString("attribute");
-				Attribute attr = ForgeRegistries.ATTRIBUTES.getValue(ResourceLocation.parse(attribute));
-				AttributeModifier modifier = ParseUtil.toAttributeModifier(comp);
-				
-				this.attributes.put(attr, modifier);
-			}
+			ListTag modifierListTag = parameters.getList("attribute_modifiers", Tag.TAG_COMPOUND);
+			ATTRIBUTE_ENTRY_CODEC.parse(NbtOps.INSTANCE, modifierListTag).result().ifPresent(modifiers -> modifiers.forEach(modifierEntry -> this.attributes.put(modifierEntry.attribute, modifierEntry.modifier)));
 		}
 	}
 	
@@ -133,22 +205,21 @@ public abstract class Skill {
 	 * Get a packet to send to the server
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
+	public CustomPacketPayload getExecutionPacket(SkillContainer container, @Nullable CompoundTag args) {
 		return new CPSkillRequest(container.getSlot(), CPSkillRequest.WorkType.CAST, args);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
-		return null;
+	public void gatherArguments(SkillContainer container, ControlEngine controlEngine, CompoundTag arguments) {
 	}
 	
-	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-		SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
+	public void executeOnServer(SkillContainer container, CompoundTag args) {
+		SPSkillFeedback feedbackPacket = SPSkillFeedback.executed(container.getSlot());
 		ServerPlayerPatch executor = container.getServerExecutor();
 		
 		if (executor.isHoldingAny()) {
 			if (executor.getHoldingSkill() instanceof ChargeableSkill) {
-				feedbackPacket.getBuffer().writeInt(executor.getAccumulatedChargeAmount());
+				feedbackPacket.arguments().putInt("chargingTicks", executor.getAccumulatedChargeTicks());
 			}
 			
 			if (executor.getHoldingSkill() == this) {
@@ -163,11 +234,12 @@ public abstract class Skill {
 		EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
 	}
 	
-	public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
+	public void cancelOnServer(SkillContainer container, CompoundTag args) {
 		ServerPlayerPatch executor = container.getServerExecutor();
 		SkillCancelEvent skillCancelEvent = new SkillCancelEvent(executor, container);
-		executor.getEventListener().triggerEvents(EventType.SKILL_CANCEL_EVENT, skillCancelEvent);
-		EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.expired(container.getSlotId()), executor.getOriginal());
+		PlayerPatchEvent.postAndFireSkillListeners(skillCancelEvent);
+		
+		EpicFightNetworkManager.sendToPlayer(SPSkillFeedback.expired(container.getSlot()), executor.getOriginal());
 	}
 	
 	public final float getDefaultConsumptionAmount(PlayerPatch<?> executor) {
@@ -184,7 +256,7 @@ public abstract class Skill {
 	 * @param args
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
+	public void executeOnClient(SkillContainer container, CompoundTag args) {
 	}
 	
 	/**
@@ -193,10 +265,10 @@ public abstract class Skill {
 	 * @param args
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
+	public void cancelOnClient(SkillContainer container, CompoundTag args) {
 		LocalPlayerPatch executor = container.getClientExecutor();
 		SkillCancelEvent skillCancelEvent = new SkillCancelEvent(executor, container);
-		executor.getEventListener().triggerEvents(EventType.SKILL_CANCEL_EVENT, skillCancelEvent);
+		PlayerPatchEvent.postAndFireSkillListeners(skillCancelEvent);
 	}
 	
 	public void onTracked(SkillContainer container, EpicFightNetworkManager.PayloadBundleBuilder payloadBuilder) {
@@ -205,10 +277,10 @@ public abstract class Skill {
 	public void onInitiate(SkillContainer container) {
 		container.maxDuration = this.maxDuration;
 		
-		for (Map.Entry<Attribute, AttributeModifier> stat : this.attributes.entrySet()) {
+		for (Map.Entry<Holder<Attribute>, AttributeModifier> stat : this.attributes.entrySet()) {
 			AttributeInstance attr = container.getExecutor().getOriginal().getAttribute(stat.getKey());
 			
-			if (!attr.hasModifier(stat.getValue())) {
+			if (!attr.hasModifier(stat.getValue().id())) {
 				attr.addTransientModifier(stat.getValue());
 			}
 		}
@@ -236,10 +308,10 @@ public abstract class Skill {
 	 * @param container
 	 */
 	public void onRemoved(SkillContainer container) {
-		for (Map.Entry<Attribute, AttributeModifier> stat : this.attributes.entrySet()) {
+		for (Map.Entry<Holder<Attribute>, AttributeModifier> stat : this.attributes.entrySet()) {
 			AttributeInstance attr = container.getExecutor().getOriginal().getAttribute(stat.getKey());
 			
-			if (attr.hasModifier(stat.getValue())) {
+			if (attr.hasModifier(stat.getValue().id())) {
 				attr.removeModifier(stat.getValue());
 			}
 		}
@@ -297,9 +369,11 @@ public abstract class Skill {
 			}
 			
 			if (isEnd) {
-				if (!container.getExecutor().isLogicalClient() && this.activateType != ActivateType.HELD) {
-					this.cancelOnServer(container, null);
-				}
+				container.runOnServer(serverplayerpatch -> {
+					if (this.activateType != ActivateType.HELD) {
+						this.cancelOnServer(container, null);
+					}
+				});
 				
 				container.deactivate();
 			}
@@ -309,18 +383,32 @@ public abstract class Skill {
 			HoldableSkill holdableSkill = (HoldableSkill)this;
 			holdableSkill.holdTick(container);
 
-			if (!container.getExecutor().isLogicalClient()) {
+			container.runOnServer(serverExecutor -> {
 				container.getExecutor().resetActionTick();
 
 				if (this instanceof ChargeableSkill chargingSkill && container.getExecutor().getSkillChargingTicks(1.0F) > chargingSkill.getAllowedMaxChargingTicks()) {
-					SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
-					feedbackPacket.getBuffer().writeInt(container.getExecutor().getAccumulatedChargeAmount());
+					SPSkillFeedback feedbackPacket = SPSkillFeedback.executed(container.getSlot());
+					feedbackPacket.arguments().putInt("chargingTicks", serverExecutor.getAccumulatedChargeTicks());
 					chargingSkill.onStopHolding(container, feedbackPacket);
 					container.getExecutor().resetHolding();
-					EpicFightNetworkManager.sendToPlayer(feedbackPacket, container.getServerExecutor().getOriginal());
+					EpicFightNetworkManager.sendToPlayer(feedbackPacket, serverExecutor.getOriginal());
 				}
+			});
+		}
+	}
+	
+	public final SkillEventSubscriber getSkillEvent(String caller, Class<? extends net.neoforged.bus.api.Event> event, boolean logicalClient) {
+		Map<String, Map<Class<?>, SkillEventSubscriber>> map = logicalClient ? this.clientEventListeners : this.serverEventListeners;
+		
+		if (map.containsKey(caller)) {
+			Map<Class<?>, SkillEventSubscriber> byCaller = map.get(caller);
+			
+			if (byCaller.containsKey(event)) {
+				return byCaller.get(event);
 			}
 		}
+		
+		return null;
 	}
 	
 	public boolean isActivated(SkillContainer container) {
@@ -335,31 +423,31 @@ public abstract class Skill {
 	 * Make sure this method is called in a server side.
 	 */
 	public void setConsumptionSynchronize(SkillContainer container, float amount) {
-		if (this.equals(container.containingSkill)) {
+		if (this.equals(container.skill)) {
 			setSkillConsumptionSynchronize(container, amount);
 		}
 	}
 	
 	public void setMaxDurationSynchronize(SkillContainer container, int amount) {
-		if (this.equals(container.containingSkill)) {
+		if (this.equals(container.skill)) {
 			setSkillMaxDurationSynchronize(container, amount);
 		}
 	}
 	
 	public void setDurationSynchronize(SkillContainer container, int amount) {
-		if (this.equals(container.containingSkill)) {
+		if (this.equals(container.skill)) {
 			setSkillDurationSynchronize(container, amount);
 		}
 	}
 	
 	public void setStackSynchronize(SkillContainer container, int amount) {
-		if (this.equals(container.containingSkill)) {
+		if (this.equals(container.skill)) {
 			setSkillStackSynchronize(container, amount);
 		}
 	}
 	
 	public void setMaxResourceSynchronize(SkillContainer container, float amount) {
-		if (this.equals(container.containingSkill)) {
+		if (this.equals(container.skill)) {
 			setSkillMaxResourceSynchronize(container, amount);
 		}
 	}
@@ -421,7 +509,7 @@ public abstract class Skill {
 		return this.consumption;
 	}
 	
-	public Set<Entry<Attribute, AttributeModifier>> getModfierEntry() {
+	public Set<Entry<Holder<Attribute>, AttributeModifier>> getModfierEntry() {
 		return this.attributes.entrySet();
 	}
 	
@@ -499,6 +587,15 @@ public abstract class Skill {
 		return false;
 	}
 	
+	public Holder<Skill> holder() {
+		return this.holder;
+	}
+	
+	@ApiStatus.Internal
+	public void setHolder(Holder<Skill> holder) {
+		this.holder = holder;
+	}
+	
 	public enum ActivateType {
 		ONE_SHOT, DURATION, DURATION_INFINITE, TOGGLE, HELD
 	}
@@ -554,6 +651,13 @@ public abstract class Skill {
 		@FunctionalInterface
 		public interface ResourceConsumer {
 			void consume(SkillContainer skillContainer, ServerPlayerPatch playerpatch, float amount);
+		}
+	}
+	
+	public static record SkillEventSubscriber(int priority, BiConsumer<Event, SkillContainer> eventSubscriber, @Nullable Method reflectionMethod) implements Comparable<SkillEventSubscriber> {
+		@Override
+		public int compareTo(SkillEventSubscriber o) {
+			return Integer.compare(this.priority(), o.priority()) ;
 		}
 	}
 }

@@ -10,9 +10,9 @@ import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -21,21 +21,21 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.MoveToTargetSinkStopInaction;
 import yesman.epicfight.world.entity.ai.brain.BrainRecomposer;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 
 public class PiglinPatch extends HumanoidMobPatch<Piglin> {
-	public PiglinPatch() {
-		super(Factions.PIGLINS);
+	public PiglinPatch(Piglin original) {
+		super(original, Factions.PIGLINS);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.PIGLIN, EpicFightAttributes.IMPACT.get(), 1.0D);
+		event.add(EntityType.PIGLIN, EpicFightAttributes.IMPACT, 1.0D);
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public class PiglinPatch extends HumanoidMobPatch<Piglin> {
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.getPairingPacketType() == EntityPairingPacketTypes.PIGLIN_BABY_SPAWN) {
+		if (packet.pairingPacketType() == EntityPairingPacketTypes.PIGLIN_BABY_SPAWN) {
 			ClientAnimator animator = this.getClientAnimator();
 			animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_RUN);
 			animator.setCurrentMotionsAsDefault();

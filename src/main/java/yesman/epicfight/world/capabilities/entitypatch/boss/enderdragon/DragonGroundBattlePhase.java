@@ -123,8 +123,9 @@ public class DragonGroundBattlePhase extends PatchedDragonPhase {
 	public float onHurt(DamageSource damagesource, float amount) {
 		if (damagesource.is(DamageTypeTags.IS_PROJECTILE)) {
 			if (damagesource.getDirectEntity() instanceof AbstractArrow) {
-				damagesource.getDirectEntity().setSecondsOnFire(1);
+				damagesource.getDirectEntity().igniteForSeconds(1.0F);
 			}
+			
 			return 0.0F;
 		}
 		
@@ -142,6 +143,7 @@ public class DragonGroundBattlePhase extends PatchedDragonPhase {
 		this.recognizedPlayers.addAll(this.getPlayersNearbyWithin(within));
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean checkTargetPath(LivingEntity target) {
 		BlockPos blockpos = this.dragon.blockPosition();
 		

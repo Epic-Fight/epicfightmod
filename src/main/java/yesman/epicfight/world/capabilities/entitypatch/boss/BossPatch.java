@@ -6,9 +6,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.ClientEngine;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -21,15 +21,15 @@ public interface BossPatch<T extends Entity> {
 	
 	default void recordBossEventOwner(ServerPlayer trackingPlayer) {
 		SPEntityPairingPacket packet = new SPEntityPairingPacket(this.getOriginal().getId(), EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER);
-		packet.getBuffer().writeBoolean(true);
-		packet.getBuffer().writeUUID(this.getBossEvent().getId());
+		packet.buffer().writeBoolean(true);
+		packet.buffer().writeUUID(this.getBossEvent().getId());
 		EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
 	}
 	
 	default void removeBossEventOwner(ServerPlayer trackingPlayer) {
 		SPEntityPairingPacket packet = new SPEntityPairingPacket(this.getOriginal().getId(), EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER);
-		packet.getBuffer().writeBoolean(false);
-		packet.getBuffer().writeUUID(this.getBossEvent().getId());
+		packet.buffer().writeBoolean(false);
+		packet.buffer().writeUUID(this.getBossEvent().getId());
 		EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
 	}
 	
@@ -44,9 +44,9 @@ public interface BossPatch<T extends Entity> {
 		UUID eventUUID = buffer.readUUID();
 		
 		if (addOperation) {
-			ClientEngine.getInstance().renderEngine.addBossEventOwner(eventUUID, this);
+			RenderEngine.getInstance().addBossEventOwner(eventUUID, this);
 		} else {
-			ClientEngine.getInstance().renderEngine.removeBossEventOwner(eventUUID, this);
+			RenderEngine.getInstance().removeBossEventOwner(eventUUID, this);
 		}
 	}
 }

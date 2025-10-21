@@ -1,53 +1,56 @@
 package yesman.epicfight.skill;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.google.common.collect.Maps;
+import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPModifySkillData;
-import yesman.epicfight.network.server.SPModifySkillData;
+import yesman.epicfight.network.client.CPHandleSkillData;
+import yesman.epicfight.network.server.SPHandleSkillData;
 
 public class SkillDataManager {
-	private final Map<SkillDataKey<?>, Object> data = Maps.newHashMap();
+	private final Map<Holder<SkillDataKey<?>>, Object> data = new HashMap<> ();
 	private final SkillContainer container;
 	
 	public SkillDataManager(SkillContainer container) {
 		this.container = container;
 	}
 	
-	public <T> void registerData(SkillDataKey<T> key) {
+	public void registerData(Holder<SkillDataKey<?>> key) {
 		if (this.hasData(key)) {
 			throw new IllegalStateException(key + " is already registered!");
 		}
 		
-		this.data.put(key, key.defaultValue());
+		this.data.put(key, key.value().defaultValue());
 	}
 	
 	public void transferDataTo(SkillDataManager dest) {
 		dest.data.putAll(this.data);
 	}
 	
-	public <T> void removeData(SkillDataKey<T> key) {
+	public void removeData(Holder<SkillDataKey<?>> key) {
 		this.data.remove(key);
 	}
 	
-	public Set<SkillDataKey<?>> keySet() {
+	public Set<Holder<SkillDataKey<?>>> keySet() {
 		return this.data.keySet();
 	}
 	
 	/**
 	 * Use setData() or setDataSync() which is type-safe
 	 */
-	@Deprecated
-	public void setDataRawtype(SkillDataKey<?> key, Object data) {
+	@ApiStatus.Internal
+	public void setDataRawtype(Holder<SkillDataKey<?>> key, Object data) {
 		if (!this.data.containsKey(key)) {
 			throw new IllegalStateException(key + " is unregistered.");
 		}
@@ -55,24 +58,15 @@ public class SkillDataManager {
 		this.data.put(key, data);
 	}
 	
-	public <T> void setData(SkillDataKey<T> key, T data) {
+	public <T> void setData(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, T data) {
 		this.setDataRawtype(key, data);
 	}
 	
-	public <T> void setDataF(SkillDataKey<T> key, Function<T, T> dataManipulator) {
-		this.setDataRawtype(key, dataManipulator.apply(this.getDataValue(key)));
+	public <T> void setDataF(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, Function<T, T> dataMapper) {
+		this.setDataRawtype(key, dataMapper.apply(this.getDataValue(key)));
 	}
 	
-	/**
-	 * Use optimized version below
-	 */
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	public <T> void setDataSync(SkillDataKey<T> key, T data, ServerPlayer player) {
-		this.setData(key, data);
-		this.syncServerPlayerData(key, player);
-	}
-	
-	public <T> void setDataSync(SkillDataKey<T> key, T data) {
+	public <T> void setDataSync(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, T data) {
 		this.setData(key, data);
 		
 		if (!this.container.getExecutor().isLogicalClient()) {
@@ -82,16 +76,7 @@ public class SkillDataManager {
 		}
 	}
 	
-	/**
-	 * Use optimized version below
-	 */
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	public <T> void setDataSyncF(SkillDataKey<T> key, Function<T, T> dataManipulator, ServerPlayer serverplayer) {
-		this.setDataF(key, dataManipulator);
-		this.syncServerPlayerData(key, serverplayer);
-	}
-	
-	public <T> void setDataSyncF(SkillDataKey<T> key, Function<T, T> dataManipulator) {
+	public <T> void setDataSyncF(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, Function<T, T> dataManipulator) {
 		this.setDataF(key, dataManipulator);
 		
 		if (!this.container.getExecutor().isLogicalClient()) {
@@ -101,50 +86,51 @@ public class SkillDataManager {
 		}
 	}
 	
-	private <T> void syncServerPlayerData(SkillDataKey<T> key, ServerPlayer serverplayer) {
-		SPModifySkillData msg = new SPModifySkillData(key, this.container.getSlot(), this.getDataValue(key), serverplayer.getId());
+	private <T> void syncServerPlayerData(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, ServerPlayer serverplayer) {
+		SPHandleSkillData msg = new SPHandleSkillData(SPHandleSkillData.WorkType.MODIFY, this.container.getSlot(), serverplayer.getId(), key);
+		key.value().encode(msg.buffer(), this.getDataValue(key));
 		EpicFightNetworkManager.sendToPlayer(msg, serverplayer);
 		
-		if (key.syncronizeToTrackingPlayers()) {
+		if (key.value().syncronizeToRemotePlayers()) {
 			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(msg, serverplayer);
 		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	private <T> void syncLocalPlayerData(SkillDataKey<T> key, LocalPlayer player) {
-		CPModifySkillData msg = new CPModifySkillData(key, this.container.getSlot(), this.getDataValue(key));
+	private <T> void syncLocalPlayerData(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key, LocalPlayer player) {
+		CPHandleSkillData msg = new CPHandleSkillData(this.container.getSlot(), key);
+		key.value().encode(msg.buffer(), this.getDataValue(key));
 		EpicFightNetworkManager.sendToServer(msg);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void onTracked(EpicFightNetworkManager.PayloadBundleBuilder bundleBuilder) {
 		this.data.forEach((key, val) -> {
-			if (key.syncronizeToTrackingPlayers()) {
-				bundleBuilder.and(new SPModifySkillData(key, this.container.getSlot(), val, this.container.executor.getOriginal().getId()));
+			if (key.value().syncronizeToRemotePlayers()) {
+				SPHandleSkillData msg = new SPHandleSkillData(SPHandleSkillData.WorkType.REGISTER, this.container.getSlot(), this.container.executor.getOriginal().getId(), key);
+				((SkillDataKey<Object>)key.value()).encode(msg.buffer(), val);
+				
+				bundleBuilder.and(msg);
 			}
 		});
 	}
 	
-	/**
-	 * Use optimized version above
-	 */
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	@OnlyIn(Dist.CLIENT)
-	public <T> void setDataSync(SkillDataKey<T> key, T data, LocalPlayer player) {
-		this.setData(key, data);
-		this.syncLocalPlayerData(key, player);
+	@SuppressWarnings("unchecked")
+	public <T> T getDataValue(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key) {
+		return this.hasData(key) ? (T)this.data.get(key) : null;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T getDataValue(SkillDataKey<T> key) {
-		return (T)this.data.get(key);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> Optional<T> getDataValueOptional(SkillDataKey<T> key) {
+	public <T> Optional<T> getDataValueOptional(DeferredHolder<SkillDataKey<?>, ? extends SkillDataKey<T>> key) {
 		return Optional.ofNullable((T)this.data.get(key));
 	}
 	
-	public boolean hasData(SkillDataKey<?> key) {
+	@ApiStatus.Internal
+	public Object getRawDataValue(Holder<SkillDataKey<?>> key) {
+		return this.data.get(key);
+	}
+	
+	public boolean hasData(Holder<SkillDataKey<?>> key) {
 		return this.data.containsKey(key);
 	}
 	

@@ -8,13 +8,13 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -24,14 +24,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.AnimationVariables;
-import yesman.epicfight.api.animation.AnimationVariables.SharedAnimationVariableKey;
+import yesman.epicfight.api.animation.AnimationVariables.SharedVariableKey;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimationProperty;
@@ -41,6 +41,9 @@ import yesman.epicfight.api.animation.types.EntityState.StateFactor;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.neoevent.playerpatch.AttackEndEvent;
+import yesman.epicfight.api.neoevent.playerpatch.AttackPhaseEndEvent;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.math.MathUtils;
@@ -53,15 +56,13 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.entity.eventlistener.AttackEndEvent;
-import yesman.epicfight.world.entity.eventlistener.AttackPhaseEndEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class AttackAnimation extends ActionAnimation {
 	/** Entities that collided **/
-	public static final SharedAnimationVariableKey<List<Entity>> ATTACK_TRIED_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
+	public static final SharedVariableKey<List<Entity>> ATTACK_TRIED_ENTITIES = AnimationVariables.unsynchShared(animator -> new ArrayList<> (), false);
+	
 	/** Entities that actually hurt **/
-	public static final SharedAnimationVariableKey<List<LivingEntity>> ACTUALLY_HIT_ENTITIES = AnimationVariables.shared((animator) -> Lists.newArrayList(), false);
+	public static final SharedVariableKey<List<LivingEntity>> ACTUALLY_HIT_ENTITIES = AnimationVariables.unsynchShared(animator -> new ArrayList<> (), false);
 	
 	public final Phase[] phases;
 	
@@ -130,11 +131,11 @@ public class AttackAnimation extends ActionAnimation {
 			.newTimePair(phase.start, preDelay)
 			.addState(EntityState.PHASE_LEVEL, 1)
 			.newTimePair(phase.start, phase.contact)
-			.addState(EntityState.CAN_SKILL_EXECUTION, false)
+			.addState(EntityState.SKILL_EXECUTABLE, false)
 			.newTimePair(phase.start, phase.recovery)
 			.addState(EntityState.MOVEMENT_LOCKED, true)
 			.addState(EntityState.UPDATE_LIVING_MOTION, false)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
 			.newTimePair(phase.start, phase.end)
 			.addState(EntityState.INACTION, true)
 			.newTimePair(phase.antic, phase.end)
@@ -178,7 +179,7 @@ public class AttackAnimation extends ActionAnimation {
 		
 		if (entitypatch instanceof ServerPlayerPatch playerpatch) {
 			if (isEnd) {
-				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_ANIMATION_END_EVENT, new AttackEndEvent(playerpatch, this.getAccessor()));
+				PlayerPatchEvent.postAndFireSkillListeners(new AttackEndEvent(playerpatch, this.getAccessor()));
 			}
 			
 			AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
@@ -186,7 +187,7 @@ public class AttackAnimation extends ActionAnimation {
 			EntityState state = this.getState(entitypatch, elapsedTime);
 			
 			if (!isEnd && state.attacking()) {
-				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), this.getPhaseByTime(elapsedTime), this.getPhaseOrderByTime(elapsedTime)));
+				PlayerPatchEvent.postAndFireSkillListeners(new AttackPhaseEndEvent(playerpatch, this.getAccessor(), this.getPhaseByTime(elapsedTime), this.getPhaseOrderByTime(elapsedTime)));
 			}
 		}
 		
@@ -217,7 +218,7 @@ public class AttackAnimation extends ActionAnimation {
 			this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
 			
 			if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch playerpatch) {
-				playerpatch.getEventListener().triggerEvents(EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+				PlayerPatchEvent.postAndFireSkillListeners(new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
 			}
 		}
 	}
@@ -344,7 +345,7 @@ public class AttackAnimation extends ActionAnimation {
 	}
 	
 	protected void spawnHitParticle(ServerLevel world, LivingEntityPatch<?> attacker, Entity hit, Phase phase) {
-		Optional<RegistryObject<HitParticleType>> particleOptional = phase.getProperty(AttackPhaseProperty.PARTICLE);
+		Optional<DeferredHolder<ParticleType<?>, HitParticleType>> particleOptional = phase.getProperty(AttackPhaseProperty.PARTICLE);
 		HitParticleType particle = particleOptional.isPresent() ? particleOptional.get().get() : attacker.getWeaponHitParticle(phase.hand);
 		particle.spawnParticleWithArgument(world, null, null, hit, attacker.getOriginal());
 	}

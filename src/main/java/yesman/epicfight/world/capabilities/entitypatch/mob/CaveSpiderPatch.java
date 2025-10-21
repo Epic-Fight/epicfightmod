@@ -7,6 +7,10 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class CaveSpiderPatch<T extends PathfinderMob> extends SpiderPatch<T> {
+	public CaveSpiderPatch(T original) {
+		super(original);
+	}
+	
 	@Override
 	protected void initAI() {
 		super.initAI();

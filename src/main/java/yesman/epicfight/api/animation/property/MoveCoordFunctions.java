@@ -16,7 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
-import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimationProperty;
@@ -32,6 +31,7 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.math.Vec4f;
+import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
@@ -81,7 +81,8 @@ public class MoveCoordFunctions {
 		BlockPos blockpos = new BlockPos.MutableBlockPos(livingentity.getX(), livingentity.getBoundingBox().minY - 1.0D, livingentity.getZ());
 		BlockState blockState = livingentity.level().getBlockState(blockpos);
 		AttributeInstance movementSpeed = livingentity.getAttribute(Attributes.MOVEMENT_SPEED);
-		boolean soulboost = blockState.is(BlockTags.SOUL_SPEED_BLOCKS) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, livingentity) > 0;
+		
+		boolean soulboost = blockState.is(BlockTags.SOUL_SPEED_BLOCKS) && EnchantmentHelper.getEnchantmentLevel(livingentity.level().holderOrThrow(Enchantments.SOUL_SPEED), livingentity) > 0;
 		float speedFactor = (float)(soulboost ? 1.0D : livingentity.level().getBlockState(blockpos).getBlock().getSpeedFactor());
 		float moveMultiplier = (float)(animation.getProperty(ActionAnimationProperty.AFFECT_SPEED).orElse(false) ? (movementSpeed.getValue() / movementSpeed.getBaseValue()) : 1.0F);
 		
@@ -145,14 +146,14 @@ public class MoveCoordFunctions {
 	 * Location set by Animation Variable
 	 */
 	public static final DestLocationProvider SYNCHED_DEST_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
-		return entitypatch.getAnimator().getVariables().getOrDefault(SynchedAnimationVariableKeys.DESTINATION.get(), self.getRealAnimation());
+		return entitypatch.getAnimator().getVariables().getOrDefault(EpicFightSynchedAnimationVariableKeys.DESTINATION.get(), self.getRealAnimation());
 	};
 	
 	/**
 	 * Location of current attack target that is provided by animation variable
 	 */
 	public static final DestLocationProvider SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE = (DynamicAnimation self, LivingEntityPatch<?> entitypatch) -> {
-		Optional<Integer> targetEntityId = entitypatch.getAnimator().getVariables().get(SynchedAnimationVariableKeys.TARGET_ENTITY.get(), self.getRealAnimation());
+		Optional<Integer> targetEntityId = entitypatch.getAnimator().getVariables().get(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(), self.getRealAnimation());
 		
 		if (targetEntityId.isPresent()) {
 			Entity entity = entitypatch.getOriginal().level().getEntity(targetEntityId.get());

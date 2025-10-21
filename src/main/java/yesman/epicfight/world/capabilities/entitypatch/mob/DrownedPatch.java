@@ -13,6 +13,10 @@ import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class DrownedPatch extends ZombiePatch<Drowned> {
+	public DrownedPatch(Drowned original) {
+		super(original);
+	}
+
 	@Override
 	protected void setWeaponMotions() {
 		super.setWeaponMotions();

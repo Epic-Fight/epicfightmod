@@ -1,11 +1,11 @@
 package yesman.epicfight.world.item;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
@@ -16,28 +16,18 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.registry.entries.EpicFightDataComponentTypes;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class SkillBookItem extends Item {
-	public static void setContainingSkill(String name, ItemStack stack) {
-		stack.getOrCreateTag().put("skill", StringTag.valueOf(name));
+	public static void setContainingSkill(Holder<Skill> skill, ItemStack stack) {
+		stack.applyComponents(DataComponentPatch.builder().set(EpicFightDataComponentTypes.SKILL.get(), skill).build());
 	}
 	
-	public static void setContainingSkill(Skill skill, ItemStack stack) {
-		setContainingSkill(skill.toString(), stack);
-	}
-	
-	public static Skill getContainSkill(ItemStack stack) {
-		if (stack.getTag() == null || !stack.getTag().contains("skill")) {
-			return null;
-		}
-		
-		String skillName = stack.getTag().getString("skill");
-		
-		return SkillManager.getSkill(skillName);
+	public static Optional<Holder<Skill>> getContainSkill(ItemStack stack) {
+		return Optional.ofNullable(stack.get(EpicFightDataComponentTypes.SKILL.get()));
 	}
 	
 	public SkillBookItem(Properties properties) {
@@ -46,27 +36,27 @@ public class SkillBookItem extends Item {
 	
 	@Override
 	public boolean isFoil(ItemStack stack) {
-		return stack.getTag() != null && stack.getTag().contains("skill");
+		return stack.has(EpicFightDataComponentTypes.SKILL.get());
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-		if (stack.getTag() != null && stack.getTag().contains("skill")) {
-			ResourceLocation rl = ResourceLocation.parse(stack.getTag().getString("skill"));
-			tooltip.add(Component.translatable(String.format("skill.%s.%s", rl.getNamespace(), rl.getPath())).withStyle(ChatFormatting.DARK_GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		if (stack.has(EpicFightDataComponentTypes.SKILL.get())) {
+			Holder<Skill> skill = stack.get(EpicFightDataComponentTypes.SKILL.get());
+			ResourceLocation registryName = skill.getKey().location();
+			tooltipComponents.add(Component.translatable(String.format("skill.%s.%s", registryName.getNamespace(), registryName.getPath())).withStyle(ChatFormatting.DARK_GRAY));
 		}
 	}
 	
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand) {
-		ItemStack itemstack = playerIn.getItemInHand(hand);
-		playerIn.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((capability) -> {
-			if (capability instanceof PlayerPatch<?> playerpatch) {
-				playerpatch.openSkillBook(itemstack, hand);
-			}
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+		ItemStack itemstack = player.getItemInHand(hand);
+		
+		EpicFightCapabilities.getUnparameterizedEntityPatch(player, PlayerPatch.class).ifPresent(playerpatch -> {
+			playerpatch.openSkillBook(itemstack, hand);
 		});
 		
-		playerIn.awardStat(Stats.ITEM_USED.get(this));
+		player.awardStat(Stats.ITEM_USED.get(this));
 		
 		return InteractionResultHolder.pass(itemstack);
 	}

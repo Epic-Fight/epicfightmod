@@ -13,15 +13,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.AirSlashAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+import yesman.epicfight.api.animation.types.ComboAttackAnimation;
 import yesman.epicfight.api.animation.types.DashAttackAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.HitAnimation;
@@ -301,7 +301,7 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 		STATIC(StaticAnimation.class),
 		MOVEMENT(MovementAnimation.class),
 		ATTACK(AttackAnimation.class),
-		BASIC_ATTACK(BasicAttackAnimation.class),
+		BASIC_ATTACK(ComboAttackAnimation.class),
 		DASH_ATTACK(DashAttackAnimation.class),
 		AIR_SLASH(AirSlashAnimation.class),
 		SHORT_HIT(HitAnimation.class),

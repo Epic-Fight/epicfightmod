@@ -21,8 +21,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen.ItemCapabilityTab.ItemType;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
@@ -88,7 +88,6 @@ public class WeaponAttributeScreen extends Screen {
 									.verticalSizing(VerticalSizing.TOP_BOTTOM)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.ADD_REMOVE)
-									.transparentBackground(false)
 									.rowpositionChanged((rowposition, values) -> {
 										Grid.PackImporter packImporter = new Grid.PackImporter();
 										
@@ -124,7 +123,6 @@ public class WeaponAttributeScreen extends Screen {
 										.verticalSizing(VerticalSizing.TOP_BOTTOM)
 										.rowHeight(21)
 										.rowEditable(RowEditButton.ADD_REMOVE)
-										.transparentBackground(false)
 										.addColumn(Grid.combo("attribute", List.copyOf(this.weaponAttributeEditors.values()))
 														.toDisplayText((editor) -> ParseUtil.nullOrToString(editor, (editor$1) -> ParseUtil.snakeToSpacedCamel(editor.editWidget.getMessage().getString())))
 														.valueChanged((event) -> {
@@ -187,8 +185,6 @@ public class WeaponAttributeScreen extends Screen {
 										.verticalSizing(VerticalSizing.TOP_BOTTOM)
 										.rowHeight(21)
 										.rowEditable(RowEditButton.ADD_REMOVE)
-										.transparentBackground(false)
-										
 										.addColumn(Grid.combo("attribute", List.copyOf(this.armorAttributeEditors.values()))
 														.toDisplayText((editor) -> ParseUtil.nullOrToString(editor, (editor$1) -> ParseUtil.snakeToSpacedCamel(editor.editWidget.getMessage().getString())))
 														.valueChanged((event) -> {
@@ -311,12 +307,12 @@ public class WeaponAttributeScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

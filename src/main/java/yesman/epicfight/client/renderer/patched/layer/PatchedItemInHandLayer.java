@@ -9,10 +9,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -21,16 +20,15 @@ public class PatchedItemInHandLayer<E extends LivingEntity, T extends LivingEnti
 	@Override
 	protected void renderLayer(T entitypatch, E entityliving, RenderLayer<E, M> vanillaLayer, PoseStack postStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		ItemStack mainHandStack = entitypatch.getOriginal().getMainHandItem();
-		RenderEngine renderEngine = ClientEngine.getInstance().renderEngine;
 		
 		if (mainHandStack.getItem() != Items.AIR) {
-			renderEngine.getItemRenderer(mainHandStack).renderItemInHand(mainHandStack, entitypatch, InteractionHand.MAIN_HAND, poses, buffer, postStack, packedLight, partialTicks);
+			RenderEngine.getInstance().getItemRenderer(mainHandStack).renderItemInHand(mainHandStack, entitypatch, InteractionHand.MAIN_HAND, poses, buffer, postStack, packedLight, partialTicks);
 		}
 		
 		ItemStack offHandStack = entitypatch.getOriginal().getOffhandItem();
 		
 		if (entitypatch.isOffhandItemValid()) {
-			renderEngine.getItemRenderer(offHandStack).renderItemInHand(offHandStack, entitypatch, InteractionHand.OFF_HAND, poses, buffer, postStack, packedLight, partialTicks);
+			RenderEngine.getInstance().getItemRenderer(offHandStack).renderItemInHand(offHandStack, entitypatch, InteractionHand.OFF_HAND, poses, buffer, postStack, packedLight, partialTicks);
 		}
 	}
 }

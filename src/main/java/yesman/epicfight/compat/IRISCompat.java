@@ -1,10 +1,10 @@
 package yesman.epicfight.compat;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import yesman.epicfight.client.ClientEngine;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.SodiumFakeBlockRenderer;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 
@@ -14,7 +14,7 @@ public class IRISCompat implements ICompatModule {
 	}
 	
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -22,12 +22,12 @@ public class IRISCompat implements ICompatModule {
 	public void onModEventBusClient(IEventBus eventBus) {
 		eventBus.<FMLClientSetupEvent>addListener(event -> {
 			ComputeShaderProvider.initIris();
-			event.enqueueWork(() -> ClientEngine.getInstance().renderEngine.reloadFakeBlockRenderer(new SodiumFakeBlockRenderer()));
+			event.enqueueWork(() -> RenderEngine.getInstance().reloadFakeBlockRenderer(new SodiumFakeBlockRenderer()));
 		});
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
+	public void onGameEventBusClient(IEventBus eventBus) {
 	}
 }

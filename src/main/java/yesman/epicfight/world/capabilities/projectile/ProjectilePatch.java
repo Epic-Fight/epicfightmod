@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.projectile;
 
 import java.util.Map;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -9,23 +10,27 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.RangedWeaponCapability;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<T> {
 	protected float impact;
 	protected float armorNegation;
 	protected Vec3 initialFirePosition;
 	protected boolean hasHit;
+	
+	public ProjectilePatch(T original) {
+		super(original);
+	}
 	
 	@Override
 	public void onJoinWorld(T projectileEntity, EntityJoinLevelEvent event) {
@@ -38,21 +43,20 @@ public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<
 			CapabilityItem itemCap = EpicFightCapabilities.getItemStackCapability(heldItem);
 			
 			if (itemCap instanceof RangedWeaponCapability) {
-				Map<Attribute, AttributeModifier> modifierMap = itemCap.getDamageAttributesInCondition(Styles.RANGED);
+				Map<Holder<Attribute>, AttributeModifier> modifierMap = itemCap.getDamageAttributesInCondition(Styles.RANGED);
 				
 				if (modifierMap != null) {
 					this.armorNegation = 
-						modifierMap.containsKey(EpicFightAttributes.ARMOR_NEGATION.get()) ?
-							(float)modifierMap.get(EpicFightAttributes.ARMOR_NEGATION.get()).getAmount()
-								: (float)EpicFightAttributes.ARMOR_NEGATION.get().getDefaultValue();
+						modifierMap.containsKey(EpicFightAttributes.ARMOR_NEGATION) ?
+							(float)modifierMap.get(EpicFightAttributes.ARMOR_NEGATION).amount()
+								: (float)EpicFightAttributes.ARMOR_NEGATION.value().getDefaultValue();
+					this.impact =
+						modifierMap.containsKey(EpicFightAttributes.IMPACT) ?
+							(float)modifierMap.get(EpicFightAttributes.IMPACT).amount()
+								: (float)EpicFightAttributes.IMPACT.value().getDefaultValue();
 					
-					this.impact = 
-						modifierMap.containsKey(EpicFightAttributes.IMPACT.get()) ?
-							(float)modifierMap.get(EpicFightAttributes.IMPACT.get()).getAmount()
-								: (float)EpicFightAttributes.IMPACT.get().getDefaultValue();
-					
-					if (modifierMap.containsKey(EpicFightAttributes.MAX_STRIKES.get())) {
-						this.setMaxStrikes(projectileEntity, (int)modifierMap.get(EpicFightAttributes.MAX_STRIKES.get()).getAmount());
+					if (modifierMap.containsKey(EpicFightAttributes.MAX_STRIKES)) {
+						this.setMaxStrikes(projectileEntity, (int)modifierMap.get(EpicFightAttributes.MAX_STRIKES).amount());
 					}
 				}
 				
@@ -67,7 +71,7 @@ public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<
 	}
 	
 	@Override
-	public void onAddedToWorld() {
+	public void onAddedToLevel() {
 		if (this.getOriginal().level().isClientSide()) {
 			double entityId = Double.longBitsToDouble((long)this.getOriginal().getId());
 			this.getOriginal().level().addParticle(EpicFightParticles.PROJECTILE_TRAIL.get(), entityId, 0, 0, 0, 0, 0);

@@ -5,16 +5,14 @@
 	"attribute_modifiers": [
 		{
 			"attribute": "minecraft:generic.max_health",
-			"name": "endurance_skill_stat",
-			"uuid": "12ce9f7a-0457-11ee-be56-0242ac120002",
-			"operation": "addition",
+			"id": "epicfight:endurance_modifier",
+			"operation": "add_value",
 			"amount": 2.0
 		},
 		{
-			"attribute": "epicfight:staminar",
-			"name": "endurance_skill_stat",
-			"uuid": "12ce9f7a-0457-11ee-be56-0242ac120002",
-			"operation": "addition",
+			"attribute": "epicfight:stamina",
+			"id": "epicfight:endurance_modifier",
+			"operation": "add_value",
 			"amount": 4.0
 		}
 	]

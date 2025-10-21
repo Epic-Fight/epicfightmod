@@ -2,9 +2,8 @@
 	"attribute_modifiers": [
 		{
 			"attribute": "minecraft:generic.attack_damage",
-			"name": "death_harvest_skill_stat",
-			"uuid": "816118e6-b902-11ed-afa1-0242ac120002",
-			"operation": "multiply_total",
+			"id": "epicfight:death_harvest_modifier",
+			"operation": "add_multiplied_total",
 			"amount": 0.15
 		}
 	]

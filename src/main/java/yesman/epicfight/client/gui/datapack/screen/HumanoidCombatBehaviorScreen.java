@@ -18,8 +18,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
@@ -55,7 +55,7 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 		this.font = parentScreen.getMinecraft().font;
 		
 		this.rootTag = rootTag;
-		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 26) {
+		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 26) {
 			@Override
 			public void importTag(CompoundTag tag) {
 				this.setComponentsActive(true);
@@ -74,7 +74,7 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 				});
 			}
 		};
-		this.inputComponentsList.setLeftPos(150);
+		this.inputComponentsList.setX(150);
 		
 		this.weaponGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(12, 50)
@@ -83,7 +83,6 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 								.verticalSizing(VerticalSizing.TOP_BOTTOM)
 								.rowHeight(26)
 								.rowEditable(RowEditButton.ADD_REMOVE)
-								.transparentBackground(false)
 								.rowpositionChanged((rowposition, values) -> {
 									this.inputComponentsList.importTag(this.weaponList.get(rowposition));
 								})
@@ -117,7 +116,6 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.ADD_REMOVE)
-									.transparentBackground(false)
 									.addColumn(Grid.combo("weapon_category", List.copyOf(WeaponCategories.ENUM_MANAGER.universalValues()))
 													.editable(true)
 													.valueChanged((event) -> {
@@ -190,8 +188,8 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 	protected void init() {
 		ScreenRectangle screenRectangle = this.getRectangle();
 		
-		this.inputComponentsList.updateSize(screenRectangle.width() - 150, screenRectangle.height(), screenRectangle.top() + 45, screenRectangle.height() - 45);
-		this.inputComponentsList.setLeftPos(150);
+		this.inputComponentsList.updateSizeAndPosition(screenRectangle.width() - 150, screenRectangle.height() - screenRectangle.top() - 90, screenRectangle.top() + 45);
+		this.inputComponentsList.setX(150);
 		
 		this.weaponGrid.resize(screenRectangle);
 		
@@ -252,12 +250,12 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

@@ -1,74 +1,58 @@
 package yesman.epicfight.skill.passive;
 
 import java.util.List;
-import java.util.UUID;
 
-import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
-import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.skill.SkillEvent;
+import yesman.epicfight.skill.SkillEvent.Side;
 
 public class EnduranceSkill extends PassiveSkill {
-	private static final UUID EVENT_UUID = UUID.fromString("12ce9f7a-0457-11ee-be56-0242ac120002");
-	
 	private float staminaRatio;
 	
-	public EnduranceSkill(SkillBuilder<? extends PassiveSkill> builder) {
+	public EnduranceSkill(SkillBuilder<?> builder) {
 		super(builder);
 	}
 	
 	@Override
-	public void setParams(CompoundTag parameters) {
-		super.setParams(parameters);
+	public void loadDatapackParameters(CompoundTag parameters) {
+		super.loadDatapackParameters(parameters);
 		
 		this.staminaRatio = parameters.getFloat("stamina_ratio");
 	}
 	
-	@Override
-	public void onInitiate(SkillContainer container) {
-		super.onInitiate(container);
-		
-		PlayerEventListener listener = container.getExecutor().getEventListener();
-		
-		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event) -> {
-			if (container.getExecutor().getEntityState().getLevel() == 1 && event.getDamageSource().getEntity() != null && event.getPlayerPatch().consumeForSkill(this, this.resource)) {
-				float staminaConsumption = Math.max(container.getExecutor().getStamina() * this.staminaRatio, 1.5F);
-				
-				if (container.getExecutor().consumeForSkill(this, Skill.Resource.STAMINA, staminaConsumption)) {
-					FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-					buf.writeFloat(staminaConsumption);
-					this.executeOnServer(container, buf);
-				}
+	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
+	public void takeDamagePre(TakeDamageEvent.Income event, SkillContainer skillContainer) {
+		if (skillContainer.getExecutor().getEntityState().getLevel() == 1 && event.getDamageSource().getEntity() != null && event.getPlayerPatch().consumeForSkill(this, this.resource)) {
+			float staminaConsumption = Math.max(skillContainer.getExecutor().getStamina() * this.staminaRatio, 1.5F);
+			
+			if (skillContainer.getExecutor().consumeForSkill(this, Skill.Resource.STAMINA, staminaConsumption)) {
+				CompoundTag argument = new CompoundTag();
+				argument.putFloat("staminaConsumption", staminaConsumption);
+				this.executeOnServer(skillContainer, argument);
 			}
-		});
+		}
 	}
 	
 	@Override
-	public void onRemoved(SkillContainer container) {
-		super.onRemoved(container);
+	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+		super.executeOnServer(container, arguments);
 		
-		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
-	}
-	
-	@Override
-	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-		super.executeOnServer(container, args);
-		
-		float staminaConsume = args.readFloat();
+		float staminaConsume = arguments.getFloat("staminaConsumption");
 		container.getExecutor().setMaxStunShield(staminaConsume);
 		container.getExecutor().setStunShield(staminaConsume);
 		
@@ -78,20 +62,20 @@ public class EnduranceSkill extends PassiveSkill {
 		SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(container.getExecutor().getOriginal().getId(), EntityPairingPacketTypes.FLASH_WHITE);
 		
 		// durationTick, maxOverlay, maxBrightness
-		pairingPacket.getBuffer().writeInt(9);
-		pairingPacket.getBuffer().writeInt(15);
-		pairingPacket.getBuffer().writeInt(1);
-		pairingPacket.getBuffer().writeBoolean(true);
+		pairingPacket.buffer().writeInt(9);
+		pairingPacket.buffer().writeInt(15);
+		pairingPacket.buffer().writeInt(1);
+		pairingPacket.buffer().writeBoolean(true);
 		
 		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, container.getServerExecutor().getOriginal());
 	}
 	
 	@Override
-	public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
+	public void cancelOnServer(SkillContainer container, CompoundTag arguments) {
 		container.getExecutor().setStunShield(0.0F);
 		container.getExecutor().setMaxStunShield(0.0F);
 		
-		super.cancelOnServer(container, args);
+		super.cancelOnServer(container, arguments);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -107,10 +91,11 @@ public class EnduranceSkill extends PassiveSkill {
 		return list;
 	}
 	
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumptionList) {
-		consumptionList.add(Component.translatable("attribute.name.epicfight.cooldown.consume.tooltip"), Component.translatable("attribute.name.epicfight.cooldown.consume", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.getConsumption())), SkillBookScreen.COOLDOWN_TEXTURE_INFO);
-		consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("attribute.name.epicfight.stamina_current_ratio.consume", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.staminaRatio * 100.0F)), SkillBookScreen.STAMINA_TEXTURE_INFO);
+		consumptionList.add(Component.translatable("attribute.name.epicfight.cooldown.consume.tooltip"), Component.translatable("attribute.name.epicfight.cooldown.consume", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.getConsumption())), SkillBookScreen.COOLDOWN_TEXTURE_INFO);
+		consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("attribute.name.epicfight.stamina_current_ratio.consume", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.staminaRatio * 100.0F)), SkillBookScreen.STAMINA_TEXTURE_INFO);
 		return true;
 	}
 }

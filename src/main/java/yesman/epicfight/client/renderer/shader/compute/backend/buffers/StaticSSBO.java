@@ -11,8 +11,10 @@ import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import com.mojang.blaze3d.platform.GlStateManager;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StaticSSBO<T> implements Closeable {
@@ -30,7 +32,7 @@ public class StaticSSBO<T> implements Closeable {
         
         this.glSSBO = GL15C.glGenBuffers();
         
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
+        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
         GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, buffer, DynamicSSBO.DataMode.STATIC.glMode);
     }
     
@@ -49,7 +51,7 @@ public class StaticSSBO<T> implements Closeable {
 	@Override
 	public void close() {
 		if (this.glSSBO != 0) {
-			GL15C.glDeleteBuffers(this.glSSBO);
+			GlStateManager._glDeleteBuffers(this.glSSBO);
 		}
 	}
 }

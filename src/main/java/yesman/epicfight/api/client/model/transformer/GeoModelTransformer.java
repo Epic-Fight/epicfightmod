@@ -23,25 +23,26 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.state.BoneSnapshot;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.util.RenderUtils;
-import yesman.epicfight.api.client.forgeevent.AnimatedArmorTextureEvent;
+import software.bernie.geckolib.util.RenderUtil;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.mixin.geckolib.MixinGeoArmorRenderer;
 
 @OnlyIn(Dist.CLIENT)
 public class GeoModelTransformer extends HumanoidModelTransformer {
@@ -80,24 +81,25 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 	
 	@Override
 	public SkinnedMesh transformArmorModel(HumanoidModel<?> humanoidModel) {
-		if (!(humanoidModel instanceof GeoArmorRenderer<?> geoModel)) {
+		if (!(humanoidModel instanceof GeoArmorRenderer<?> geoArmorRenderer)) {
 			return null;
 		}
 		
 		PoseStack poseStack = new PoseStack();
 		poseStack.translate(0, 10000, 0);
-		geoModel.renderToBuffer(poseStack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.armorGlint()), 0, 0, 0, 0, 0, 0);
+		geoArmorRenderer.renderToBuffer(poseStack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.armorEntityGlint()), 0, 0, 0);
 		
 		List<GeoModelPartition> boxes = Lists.newArrayList();
+		MixinGeoArmorRenderer accessor = (MixinGeoArmorRenderer)geoArmorRenderer;
 		
-		GeoBone headBone = geoModel.getHeadBone();
-		GeoBone bodyBone = geoModel.getBodyBone();
-		GeoBone rightArmBone = geoModel.getRightArmBone();
-		GeoBone leftArmBone = geoModel.getLeftArmBone();
-		GeoBone rightLegBone = geoModel.getRightLegBone();
-		GeoBone leftLegBone = geoModel.getLeftLegBone();
-		GeoBone rightBootBone = geoModel.getRightBootBone();
-		GeoBone leftBootBone = geoModel.getLeftBootBone();
+		GeoBone headBone = accessor.getHead();
+		GeoBone bodyBone = accessor.getBody();
+		GeoBone rightArmBone = accessor.getRightArm();
+		GeoBone leftArmBone = accessor.getLeftArm();
+		GeoBone rightLegBone = accessor.getRightLeg();
+		GeoBone leftLegBone = accessor.getLeftLeg();
+		GeoBone rightBootBone = accessor.getRightBoot();
+		GeoBone leftBootBone = accessor.getLeftBoot();
 		
 		if (headBone != null) {
 			headBone.setRotX(0);
@@ -147,14 +149,14 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 			leftBootBone.setRotZ(0);
 		}
 		
-		boxes.add(new GeoModelPartition(HEAD, headBone));
-		boxes.add(new GeoModelPartition(CHEST, bodyBone));
-		boxes.add(new GeoModelPartition(RIGHT_ARM, rightArmBone));
-		boxes.add(new GeoModelPartition(LEFT_ARM, leftArmBone));
-		boxes.add(new GeoModelPartition(LEFT_LEG, leftLegBone));
-		boxes.add(new GeoModelPartition(RIGHT_LEG, rightLegBone));
-		boxes.add(new GeoModelPartition(LEFT_FEET, leftBootBone));
-		boxes.add(new GeoModelPartition(RIGHT_FEET, rightBootBone));
+		if (headBone != null) boxes.add(new GeoModelPartition(HEAD, headBone));
+		if (bodyBone != null) boxes.add(new GeoModelPartition(CHEST, bodyBone));
+		if (rightArmBone != null) boxes.add(new GeoModelPartition(RIGHT_ARM, rightArmBone));
+		if (leftArmBone != null) boxes.add(new GeoModelPartition(LEFT_ARM, leftArmBone));
+		if (leftLegBone != null) boxes.add(new GeoModelPartition(LEFT_LEG, leftLegBone));
+		if (rightLegBone != null) boxes.add(new GeoModelPartition(RIGHT_LEG, rightLegBone));
+		if (leftBootBone != null) boxes.add(new GeoModelPartition(LEFT_FEET, leftBootBone));
+		if (rightBootBone != null) boxes.add(new GeoModelPartition(RIGHT_FEET, rightBootBone));
 		
 		return bakeMeshFromCubes(boxes);
 	}
@@ -179,7 +181,7 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		
 		poseStack.pushPose();
 		
-		RenderUtils.prepMatrixForBone(poseStack, geoBone);
+		RenderUtil.prepMatrixForBone(poseStack, geoBone);
 		
 		List<String> newList = new ArrayList<>(path);
 		
@@ -191,9 +193,9 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 			for (GeoCube cube : geoBone.getCubes()) {
 				poseStack.pushPose();
 				
-				RenderUtils.translateToPivotPoint(poseStack, cube);
-				RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-				RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+				RenderUtil.translateToPivotPoint(poseStack, cube);
+				RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+				RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
 				MeshPartDefinition partDefinition = GeoMeshPartDefinition.of(partName);
 				
 				if (bindPartAnimation) {

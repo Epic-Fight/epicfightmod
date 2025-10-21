@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "item": "minecraft:golden_sword"
+    },
+    "X": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "pattern": [
+    " X ",
+    " X ",
+    "#  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "epicfight:golden_tachi"
+  }
+}

@@ -8,8 +8,8 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
 public class EvokerPatch<T extends SpellcasterIllager> extends AbstractIllagerPatch<T> {
-	public EvokerPatch() {
-		super(Factions.ILLAGER);
+	public EvokerPatch(T original) {
+		super(original, Factions.ILLAGER);
 	}
 	
 	@Override

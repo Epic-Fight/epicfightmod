@@ -15,7 +15,7 @@ public class HitParticleType extends SimpleParticleType {
 	public static final BiFunction<Entity, Entity, Vector3d> CENTER_OF_TARGET = (target, attacker) -> {
 		EntityDimensions size = target.getDimensions(target.getPose());
 		double x = target.getX();
-		double y = target.getY() + size.width * 0.5D;
+		double y = target.getY() + size.width() * 0.5D;
 		double z = target.getZ();
 		
 		return new Vector3d(x, y, z);
@@ -24,9 +24,9 @@ public class HitParticleType extends SimpleParticleType {
 	public static final BiFunction<Entity, Entity, Vector3d> RANDOM_WITHIN_BOUNDING_BOX = (target, attacker) -> {
 		EntityDimensions size = target.getDimensions(target.getPose());
 		Random random = new Random();
-		double x = target.getX() + (random.nextDouble() - 0.5D) * size.width;
-		double y = target.getY() + (random.nextDouble() + size.height) * 0.5;
-		double z = target.getZ() + (random.nextDouble() - 0.5D) * size.width;
+		double x = target.getX() + (random.nextDouble() - 0.5D) * size.width();
+		double y = target.getY() + (random.nextDouble() + size.height()) * 0.5;
+		double z = target.getZ() + (random.nextDouble() - 0.5D) * size.width();
 		
 		return new Vector3d(x, y, z);
 	};

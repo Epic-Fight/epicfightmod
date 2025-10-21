@@ -14,25 +14,20 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
-import net.irisshaders.iris.Iris;
+import net.irisshaders.iris.layer.BufferSourceWrapper;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -90,23 +85,23 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
-
-			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
+			
+			if (elem == VertexFormatElement.POSITION) {
 				glVertexAttribPointer(i, 3, GL_FLOAT, false, 60, 0);
 				glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
+			} else if (elem == VertexFormatElement.UV0) {
 				glVertexAttribPointer(i, 2, GL_FLOAT, false, 60, 28);
 				glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
+			} else if (elem == VertexFormatElement.COLOR) {
 				glVertexAttribPointer(i, 4, GL_FLOAT, true, 60, 12);
 				glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
+			} else if (elem == VertexFormatElement.NORMAL) {
 				glVertexAttribPointer(i, 3, GL_BYTE, true, 60, 36);
 				glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
+			} else if (elem == VertexFormatElement.UV1) {
 				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 60, 40);
 				glEnableVertexAttribArray(i);
-			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
+			} else if (elem == VertexFormatElement.UV2) {
 				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 60, 44);
 				glEnableVertexAttribArray(i);
 			}
@@ -131,9 +126,6 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
-	private static final Matrix4f IDENTITY4X4 = new Matrix4f();
-	private static final Matrix3f IDENTITY3X3 = new Matrix3f();
-	
 	@Override
 	public void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount) {
 		// shader setup
@@ -145,14 +137,8 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
 		shader.getUniform("entity_id_0").uploadUnsignedInt(((getEntity() << 16) & 0xFFFF0000) | (getBlock() & 0xFFFF));
 		shader.getUniform("entity_id_1").uploadUnsignedInt(getItem() << 16);
-		
-		if (!Iris.getIrisConfig().areShadersEnabled()) {
-			shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
-			shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
-		} else {
-			shader.getUniform("model_view_matrix").uploadMatrix4f(IDENTITY4X4);
-			shader.getUniform("normal_matrix").uploadMatrix3f(IDENTITY3X3);
-		}
+		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
+		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
 		
 		ComputeShaderSetup.POSE_BO.bindBufferBase(0);
 		
@@ -209,13 +195,17 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		
 		// setup state
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		Matrix4f frustumMatrix = Iris.getIrisConfig().areShadersEnabled() ? poseStack.last().pose() : RenderSystem.getModelViewMatrix();
+		this.draw(poseStack, renderType, r, g, b, a, overlay, packedLight, poses.length);
 		
-		this.draw(poseStack, renderType, frustumMatrix, r, g, b, a, overlay, packedLight, poses.length);
-		
-		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
+		if (buffers instanceof BufferSourceWrapper bufferwrapper) {
+			if (bufferwrapper.getOriginal() instanceof OutlineBufferSource outlineBufferSource) {
+				renderType.outline().ifPresent(outlineRendertype -> {
+					this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+				});
+			}
+		} else if (buffers instanceof OutlineBufferSource outlineBufferSource) {
 			renderType.outline().ifPresent(outlineRendertype -> {
-				this.draw(poseStack, outlineRendertype, frustumMatrix, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 			});
 		}
 		

@@ -10,8 +10,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.ComboBox;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
@@ -23,7 +23,7 @@ public class OffhandItemCategory extends EntityPatchCondition {
 	
 	@Override
 	public OffhandItemCategory read(CompoundTag tag) {
-		this.category = this.assertExtendableEnumTag("category", WeaponCategory.ENUM_MANAGER, tag);
+		this.category = this.assertExtensibleEnumTag("category", WeaponCategory.ENUM_MANAGER, tag);
 		return this;
 	}
 	

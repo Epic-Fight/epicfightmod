@@ -16,5 +16,5 @@ public interface MixinEntityRenderer {
 	public boolean invokeShouldShowName(Entity entity);
 	
 	@Invoker("renderNameTag")
-	public void invokeRenderNameTag(Entity entity, Component name, PoseStack poseStack, MultiBufferSource bufferSource, int i1);
+	public void invokeRenderNameTag(Entity entity, Component name, PoseStack poseStack, MultiBufferSource bufferSource, int i1, float partialTick);
 }

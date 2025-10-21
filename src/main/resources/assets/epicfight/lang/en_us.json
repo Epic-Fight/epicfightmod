@@ -4,7 +4,7 @@
 	"attribute.name.epicfight.max_strikes": "Max Strikes",
 	"attribute.name.epicfight.stun_armor": "Stun Armor",
 	"attribute.name.epicfight.weight": "Weight",
-	"attribute.name.epicfight.staminar": "Max Stamina",
+	"attribute.name.epicfight.stamina": "Max Stamina",
 	"attribute.name.epicfight.stamina_regen": "Stamina Regen",
 	"attribute.name.epicfight.execution_resistance": "Execution Resistance",
 	"attribute.name.epicfight.offhand_attack_speed": "Offhand Attack Speed",
@@ -16,10 +16,10 @@
 	"attribute.name.epicfight.armor_negation.value": "%s%% Armor Negation",
 	"attribute.name.epicfight.max_strikes.value": "Hit %s Enemies per Swing",
 	
-	"attribute.name.generic.max_health.skillbook_tooltip": "Increases player's max health",
-	"attribute.name.generic.attack_damage.skillbook_tooltip": "Increases player's attack damage",
+	"attribute.name.generic.max_health.skillbook_tooltip": "Increases a player's max health",
+	"attribute.name.generic.attack_damage.skillbook_tooltip": "Increases a player's attack damage",
 	"attribute.name.generic.attack_speed.skillbook_tooltip": "Increases player's attack speed",
-	"attribute.name.epicfight.staminar.skillbook_tooltip": "Increases player's max stamina",
+	"attribute.name.epicfight.stamina.skillbook_tooltip": "Increases a player's max stamina",
 	"attribute.name.epicfight.stamina_regen.skillbook_tooltip": "Reduces the amount of time taken for stamina to regen",
 	
 	"attribute.name.epicfight.stamina.consume": "%s Stamina",
@@ -85,6 +85,7 @@
 	"epicfight.gui.attribute": "Epic Fight Attributes:",
 	
 	"epicfight.skillNotFound": "Unknown skill: %s",
+	"epicfight.invalid_skill": "Invalid skill: %s",
 	"epicfight.animationNotFound": "Unknown animation name: %s",
 	
 	"epicfight.weapon_category.not_weapon": "Not Weapon",

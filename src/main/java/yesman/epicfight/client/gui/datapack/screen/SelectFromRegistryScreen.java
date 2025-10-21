@@ -18,14 +18,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
 
@@ -37,21 +39,22 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	private final BiConsumer<String, T> onAccept;
 	private final BiConsumer<String, T> onCancel;
 	
-	public SelectFromRegistryScreen(Screen parentScreen, IForgeRegistry<T> registry, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Predicate<T> filter) {
+	public SelectFromRegistryScreen(Screen parentScreen, Registry<T> registry, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Predicate<T> filter) {
 		this(parentScreen, registry, onAccept, onCancel, (select) -> {}, filter);
 	}
 	
-	public SelectFromRegistryScreen(Screen parentScreen, IForgeRegistry<T> registry, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Consumer<T> onPressRow, Predicate<T> filter) {
-		super(Component.translatable("gui.epicfight.select", ParseUtil.snakeToSpacedCamel(registry.getRegistryName().getPath())));
+	public SelectFromRegistryScreen(Screen parentScreen, Registry<T> registry, BiConsumer<String, T> onAccept, BiConsumer<String, T> onCancel, Consumer<T> onPressRow, Predicate<T> filter) {
+		super(Component.translatable("gui.epicfight.select", ParseUtil.snakeToSpacedCamel(registry.key().location().getPath())));
 		
 		this.parentScreen = parentScreen;
 		this.minecraft = parentScreen.getMinecraft();
 		this.font = parentScreen.getMinecraft().font;
 		
 		final Map<ResourceLocation, T> filteredItems = Maps.newHashMap();
-		registry.getValues().stream().filter(filter).forEach((value) -> filteredItems.put(registry.getKey(value), value));
 		
-		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21, filteredItems);
+		registry.holders().map(Holder::value).filter(filter).forEach((value) -> filteredItems.put(registry.getKey(value), value));
+		
+		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height - 52, 36, 21, filteredItems);
 		this.onPressRow = onPressRow;
 		this.onAccept = onAccept;
 		this.onCancel = onCancel;
@@ -62,7 +65,7 @@ public class SelectFromRegistryScreen<T> extends Screen {
 		
 		this.parentScreen = parentScreen;
 		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.font = this.minecraft.font;
 		
 		Map<ResourceLocation, T> filteredItems = entries.stream().filter((entry) -> filter.test(entry.getSecond())).reduce(Maps.newHashMap(), (map, element) -> {
 			map.put(element.getFirst(), element.getSecond());
@@ -72,7 +75,7 @@ public class SelectFromRegistryScreen<T> extends Screen {
 			return map1;
 		});
 		
-		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21, filteredItems);
+		this.registryList = new RegistryList(parentScreen.getMinecraft(), this.width, this.height - 68, 36, 21, filteredItems);
 		this.onPressRow = onPressRow;
 		this.onAccept = onAccept;
 		this.onCancel = onCancel;
@@ -80,7 +83,7 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	
 	@Override
 	protected void init() {
-		this.registryList.updateSize(this.width, this.height, 36, this.height - 32);
+		this.registryList.updateSizeAndPosition(this.width, this.height - 68, 36);
 		
 		EditBox editBox = new EditBox(this.minecraft.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal(EpicFightMod.prefix("")));
 		editBox.setResponder(this.registryList::applyFilter);
@@ -111,9 +114,12 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderDirtBackground(guiGraphics);
+		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
+		
+        for (Renderable renderable : this.renderables) {
+            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
 	}
 	
 	@Override
@@ -125,11 +131,10 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	class RegistryList extends ObjectSelectionList<RegistryList.RegistryEntry> {
 		private final Map<ResourceLocation, T> registry;
 		
-		public RegistryList(Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight, Map<ResourceLocation, T> registry) {
-			super(minecraft, width, height, y0, y1, itemHeight);
+		public RegistryList(Minecraft minecraft, int width, int height, int y, int itemHeight, Map<ResourceLocation, T> registry) {
+			super(minecraft, width, height, y, itemHeight);
 			
 			this.registry = registry;
-			
 			registry.entrySet().stream().sorted((entry1, entry2) -> entry1.getKey().toString().compareTo(entry2.getKey().toString())).forEach((entry) -> this.addEntry(new RegistryEntry(entry.getValue(), entry.getKey().toString())));
 		}
 		
@@ -146,15 +151,18 @@ public class SelectFromRegistryScreen<T> extends Screen {
 		
 		@Override
 		protected int getScrollbarPosition() {
-			return this.x1 - 6;
+			return this.getX() - 6;
 		}
 		
 		public void applyFilter(String keyward) {
 			this.setScrollAmount(0.0D);
 			this.children().clear();
 			
-			this.registry.entrySet().stream().sorted((entry1, entry2) -> entry1.getKey().toString().compareTo(entry2.getKey().toString())).filter((entry) -> StringUtil.isNullOrEmpty(keyward) ? true : entry.getKey().toString().contains(keyward))
-												.map((entry) -> new RegistryEntry(entry.getValue(), entry.getKey().toString())).forEach(this::addEntry);
+			this.registry.entrySet().stream()
+				.sorted((entry1, entry2) -> entry1.getKey().toString().compareTo(entry2.getKey().toString()))
+				.filter((entry) -> StringUtil.isNullOrEmpty(keyward) ? true : entry.getKey().toString().contains(keyward))
+				.map((entry) -> new RegistryEntry(entry.getValue(), entry.getKey().toString()))
+				.forEach(this::addEntry);
 		}
 		
 		@OnlyIn(Dist.CLIENT)

@@ -23,9 +23,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 @OnlyIn(Dist.CLIENT)
 public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
@@ -70,8 +70,8 @@ public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 		
 		poseStack2.popPose();
 		
-		RenderSystem.getModelViewStack().pushPose();
-		RenderSystem.getModelViewStack().mulPoseMatrix(poseStack.last().pose());
+		RenderSystem.getModelViewStack().pushMatrix();
+		RenderSystem.getModelViewStack().mul(poseStack.last().pose());
 		RenderSystem.applyModelViewMatrix();
 		
 		Uniform uniform = GameRenderer.getRendertypeTranslucentShader().CHUNK_OFFSET;
@@ -91,7 +91,7 @@ public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 		
 		poseStack2.popPose();
 		
-		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.getModelViewStack().popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 	

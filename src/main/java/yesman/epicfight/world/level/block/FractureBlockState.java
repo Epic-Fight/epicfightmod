@@ -1,10 +1,13 @@
 package yesman.epicfight.world.level.block;
 
-import com.google.common.collect.ImmutableMap;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
 import com.mojang.serialization.MapCodec;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -15,9 +18,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class FractureBlockState extends BlockState {
 	private Vector3f translate;
@@ -34,7 +34,7 @@ public class FractureBlockState extends BlockState {
 		ORIGINAL_BLOCK_STATE_CACHE.clear();
 	}
 	
-	public FractureBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> propertyMap, MapCodec<BlockState> mapCodec) {
+	public FractureBlockState(Block block, Reference2ObjectArrayMap<Property<?>, Comparable<?>> propertyMap, MapCodec<BlockState> mapCodec) {
 		super(block, propertyMap, mapCodec);
 	}
 	

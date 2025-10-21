@@ -1,18 +1,19 @@
 package yesman.epicfight.main;
 
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
 
 @OnlyIn(Dist.CLIENT)
 public interface AuthenticationHelper {
 	public boolean valid();
 	
 	default void initialize(
-		ForgeConfigSpec.ConfigValue<String> accessToken,
-		ForgeConfigSpec.ConfigValue<String> refreshToken,
-		ForgeConfigSpec.EnumValue<AuthenticationProvider> provider
+		ConfigValue<String> accessToken,
+		ConfigValue<String> refreshToken,
+		EnumValue<AuthenticationProvider> provider
 	) {}
 	
 	default Screen getAvatarEditorScreen(Screen parentScreen) {

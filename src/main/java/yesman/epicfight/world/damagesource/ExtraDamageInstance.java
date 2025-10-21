@@ -6,45 +6,46 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.neoforged.neoforge.common.extensions.ILevelReaderExtension;
+import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
 
 public class ExtraDamageInstance {
-	@SuppressWarnings("deprecation")
 	public static final ExtraDamage EVISCERATE_LOST_HEALTH = new ExtraDamage(
 		(attacker, itemstack, target, baseDamage, params) -> {
 			int tier = 0;
 			
 			if (itemstack.getItem() instanceof TieredItem tieredItem) {
-				tier += tieredItem.getTier().getLevel();
+				tier += WeaponCapabilityPresets.vanillaTierToLevel(tieredItem.getTier());
 			}
-		
+			
 			return (target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier);
 		},
-		(itemstack, tooltips, baseDamage, params) -> {
+		(levelReader, itemstack, tooltips, baseDamage, params) -> {
 			int tier = 0;
 			
 			if (itemstack.getItem() instanceof TieredItem tieredItem) {
-				tier += tieredItem.getTier().getLevel();
+				tier += WeaponCapabilityPresets.vanillaTierToLevel(tieredItem.getTier());
 			}
 			
-			tooltips.append(Component.translatable("damage_source.epicfight.target_lost_health", Component.literal(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format((params[0] + tier * 0.05F) * 100F) + "%").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.DARK_GRAY));
+			tooltips.append(Component.translatable("damage_source.epicfight.target_lost_health", Component.literal(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format((params[0] + tier * 0.05F) * 100F) + "%").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.DARK_GRAY));
 		});
 	
 	public static final ExtraDamage SWEEPING_EDGE_ENCHANTMENT = new ExtraDamage(
 		(attacker, itemstack, target, baseDamage, params) -> {
-			int i = itemstack.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
+			int i = itemstack.getEnchantmentLevel(attacker.level().holderOrThrow(Enchantments.SWEEPING_EDGE));
 			float modifier = (i > 0) ? (float)i / (i + 1.0F) : 0.0F;
 			
 			return baseDamage * modifier;
-		},
-		(itemstack, tooltips, baseDamage, params) -> {
-			int i = itemstack.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
+		}, (levelReader, itemstack, tooltips, baseDamage, params) -> {
+			int i = itemstack.getEnchantmentLevel(levelReader.holderOrThrow(Enchantments.SWEEPING_EDGE));
 			
 			if (i > 0) {
 				double modifier = (double)i / (i + 1.0D);
 				double damage = baseDamage * modifier;
 				
-				MutableComponent sweepedgetooltip = Component.translatable("damage_source.epicfight.sweeping_edge_enchant_level", Component.literal(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(damage)).withStyle(ChatFormatting.DARK_PURPLE), i).withStyle(ChatFormatting.DARK_GRAY);
+				MutableComponent sweepedgetooltip = Component.translatable("damage_source.epicfight.sweeping_edge_enchant_level", Component.literal(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(damage)).withStyle(ChatFormatting.DARK_PURPLE), i).withStyle(ChatFormatting.DARK_GRAY);
 				tooltips.append(sweepedgetooltip);
 			}
 		});
@@ -65,7 +66,7 @@ public class ExtraDamageInstance {
 		Object[] params = new Object[this.params.length];
 		
 		for (int i = 0; i < params.length; i++) {
-			params[i] = Component.literal(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.params[i] * 100F) + "%").withStyle(ChatFormatting.RED);
+			params[i] = Component.literal(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.params[i] * 100F) + "%").withStyle(ChatFormatting.RED);
 		}
 		
 		return params;
@@ -75,8 +76,8 @@ public class ExtraDamageInstance {
 		return this.calculator.extraDamage.getBonusDamage(attacker, hurtItem, target, baseDamage, this.params);
 	}
 	
-	public void setTooltips(ItemStack itemstack, MutableComponent tooltip, double baseDamage) {
-		this.calculator.tooltip.setTooltip(itemstack, tooltip, baseDamage, this.params);
+	public void setTooltips(ILevelReaderExtension levelReader, ItemStack itemstack, MutableComponent tooltip, double baseDamage) {
+		this.calculator.tooltip.setTooltip(levelReader, itemstack, tooltip, baseDamage, this.params);
 	}
 	
 	@FunctionalInterface
@@ -86,7 +87,7 @@ public class ExtraDamageInstance {
 	
 	@FunctionalInterface
 	public interface ExtraDamageTooltipFunction {
-		void setTooltip(ItemStack itemstack, MutableComponent tooltips, double baseDamage, float[] params);
+		void setTooltip(ILevelReaderExtension levelReader, ItemStack itemstack, MutableComponent tooltips, double baseDamage, float[] params);
 	}
 	
 	public static class ExtraDamage {

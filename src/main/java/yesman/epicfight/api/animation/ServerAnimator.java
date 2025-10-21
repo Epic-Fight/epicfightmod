@@ -151,4 +151,9 @@ public class ServerAnimator extends Animator {
 	public void setHardPause(boolean paused) {
 		this.hardPaused = paused;
 	}
+
+	@Override
+	public boolean isPlaying(AssetAccessor<? extends DynamicAnimation> animation) {
+		return this.animationPlayer.getRealAnimation().equals(animation);
+	}
 }

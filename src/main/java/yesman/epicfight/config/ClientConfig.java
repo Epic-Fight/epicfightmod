@@ -6,22 +6,23 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.Lists;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
+import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
+import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.ParseUtil;
@@ -30,15 +31,14 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
-import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.main.AuthenticationHelper.AuthenticationProvider;
 import yesman.epicfight.main.EpicFightMod;
 
-@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
 public class ClientConfig {
-	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 	
 	// Graphic Configurations
 	public static final BooleanValue SHOW_TARGET_INDICATOR = BUILDER.define("ingame.show_target_indicator", () -> true);
@@ -60,14 +60,16 @@ public class ClientConfig {
 	public static final IntValue LONG_PRESS_COUNTER = BUILDER.defineInRange("ingame.long_press_count", 2, 1, 10);
 	public static final BooleanValue AUTO_SWITCH_CAMERA = BUILDER.define("ingame.camera_auto_switch", () -> false);
 	public static final EnumValue<KeyConflictResolveScope> KEY_CONFLICT_RESOLVE_SCOPE = BUILDER.defineEnum("ingame.key_conflict_resolve_scope", KeyConflictResolveScope.INTERACTION);
-	public static final ConfigValue<List<? extends String>> BATTLE_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.combat_preferred_items", Lists.newArrayList(), (element) -> {
+	
+	public static final ConfigValue<List<? extends String>> COMBAT_PREFERRED_ITEMS = BUILDER.defineList("ingame.combat_preferred_items", Lists.newArrayList(), null, (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
 		}
 		
 		return false;
 	});
-	public static final ConfigValue<List<? extends String>> MINING_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.mining_preferred_items", Lists.newArrayList(), (element) -> {
+	
+	public static final ConfigValue<List<? extends String>> MINING_PREFERRED_ITEMS = BUILDER.defineListAllowEmpty("ingame.mining_preferred_items", Lists.newArrayList(), null, (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
 		}
@@ -97,13 +99,13 @@ public class ClientConfig {
 	public static final EnumValue<HorizontalBasis> CHARGING_BAR_BASE_X = BUILDER.defineEnum("ingame.ui.charging_bar_x_base", HorizontalBasis.CENTER);
 	public static final EnumValue<VerticalBasis> CHARGING_BAR_BASE_Y = BUILDER.defineEnum("ingame.ui.charging_bar_y_base", VerticalBasis.CENTER);
 	
-	// Epic Skins Tokens
-	public static final ForgeConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
-	public static final ForgeConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
-	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
+	//Epic Skins Tokens
+	public static final ModConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
+	public static final ModConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
+	public static final ModConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
 	
 	// Config Spec
-	public static final ForgeConfigSpec SPEC = BUILDER.build();
+	public static final ModConfigSpec SPEC = BUILDER.build();
 	
 	// Graphic Config Values
 	public static int maxStuckProjectiles;
@@ -149,7 +151,7 @@ public class ClientConfig {
 	public static VerticalBasis chargingBarBaseY;
 	
 	@SubscribeEvent
-    static void onLoad(final ModConfigEvent event) {
+    static void epicfight$modConfigLoading(final ModConfigEvent.Loading event) {
 		if (event.getConfig().getType() != ModConfig.Type.CLIENT) {
 			return;
 		}
@@ -171,16 +173,12 @@ public class ClientConfig {
 		longPressCounter = LONG_PRESS_COUNTER.get();
 		authSwitchCamera = AUTO_SWITCH_CAMERA.get();
 		keyConflictResolveScope = KEY_CONFLICT_RESOLVE_SCOPE.get();
-		combatPreferredItems = BATTLE_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+		combatPreferredItems = COMBAT_PREFERRED_ITEMS.get().stream()
+				.map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet());
-		miningPreferredItems = MINING_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+		miningPreferredItems = MINING_PREFERRED_ITEMS.get().stream()
+				.map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet());
-		
-		if (combatPreferredItems.isEmpty() && miningPreferredItems.isEmpty()) {
-			ItemsPreferenceScreen.resetItems();
-		}
 		
 		showTargetIndicator = SHOW_TARGET_INDICATOR.get();
 		healthBarVisibility = HEALTH_BAR_VISIBILITY.get();
@@ -231,61 +229,63 @@ public class ClientConfig {
 		if (enableAnimatedFirstPersonModel != ENABLE_ANIMATED_FIRST_PERSON_MODEL.get()) ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel);
 		if (mineBlockGuideOption != MINE_BLOCK_GUIDE_OPTION.get()) MINE_BLOCK_GUIDE_OPTION.set(mineBlockGuideOption);
 		if (enableTargetEntityGuide != ENABLE_TARGET_ENTITY_GUIDE.get()) ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide);
-		if (enablePovAction != ENABLE_POV_ACTION.get()) ENABLE_POV_ACTION.set(enablePovAction);
-		if (enableCosmetics != ENABLE_COSMETICS.get()) ENABLE_COSMETICS.set(enableCosmetics);
+		if (enablePovAction != ENABLE_POV_ACTION.get()) { ENABLE_POV_ACTION.set(enablePovAction); ENABLE_POV_ACTION.save(); }
+		if (enableCosmetics != ENABLE_COSMETICS.get()) { ENABLE_COSMETICS.set(enableCosmetics); ENABLE_COSMETICS.save(); }
 		
 		if (longPressCounter != LONG_PRESS_COUNTER.get()) LONG_PRESS_COUNTER.set(longPressCounter);
 		if (authSwitchCamera != AUTO_SWITCH_CAMERA.get()) AUTO_SWITCH_CAMERA.set(authSwitchCamera);
 		if (keyConflictResolveScope != KEY_CONFLICT_RESOLVE_SCOPE.get()) KEY_CONFLICT_RESOLVE_SCOPE.set(keyConflictResolveScope);
-		if (!combatPreferredItems.equals(BATTLE_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+		if (!combatPreferredItems.equals(COMBAT_PREFERRED_ITEMS.get().stream()
+				.map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet()))
 		) {
-			BATTLE_MODE_SWITCHING_ITEMS.set(combatPreferredItems.stream().map((item) -> ForgeRegistries.ITEMS.getKey(item).toString()).collect(Collectors.toList()));
+			COMBAT_PREFERRED_ITEMS.set(combatPreferredItems.stream().map((item) -> BuiltInRegistries.ITEM.getKey(item).toString()).collect(Collectors.toList()));
+			COMBAT_PREFERRED_ITEMS.save();
 		}
-		if (!miningPreferredItems.equals(MINING_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+		if (!miningPreferredItems.equals(MINING_PREFERRED_ITEMS.get().stream()
+				.map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet()))
 		) {
-			MINING_MODE_SWITCHING_ITEMS.set(miningPreferredItems.stream().map((item) -> ForgeRegistries.ITEMS.getKey(item).toString()).collect(Collectors.toList()));
+			MINING_PREFERRED_ITEMS.set(miningPreferredItems.stream().map((item) -> BuiltInRegistries.ITEM.getKey(item).toString()).collect(Collectors.toList()));
+			MINING_PREFERRED_ITEMS.save();
 		}
 		
-		if (showTargetIndicator != SHOW_TARGET_INDICATOR.get()) SHOW_TARGET_INDICATOR.set(showTargetIndicator);
-		if (healthBarVisibility != HEALTH_BAR_VISIBILITY.get()) HEALTH_BAR_VISIBILITY.set(healthBarVisibility);
-		if (staminaBarX != STAMINA_BAR_X.get()) STAMINA_BAR_X.set(staminaBarX);
-		if (staminaBarY != STAMINA_BAR_Y.get()) STAMINA_BAR_Y.set(staminaBarY);
-		if (staminaBarBaseX != STAMINA_BAR_BASE_X.get()) STAMINA_BAR_BASE_X.set(staminaBarBaseX);
-		if (staminaBarBaseY != STAMINA_BAR_BASE_Y.get()) STAMINA_BAR_BASE_Y.set(staminaBarBaseY);
-		if (weaponInnateX != WEAPON_INNATE_X.get()) WEAPON_INNATE_X.set(weaponInnateX);
-		if (weaponInnateX != WEAPON_INNATE_Y.get()) WEAPON_INNATE_Y.set(weaponInnateY);
-		if (weaponInnateBaseX != WEAPON_INNATE_BASE_X.get()) WEAPON_INNATE_BASE_X.set(weaponInnateBaseX);
-		if (weaponInnateBaseY != WEAPON_INNATE_BASE_Y.get()) WEAPON_INNATE_BASE_Y.set(weaponInnateBaseY);
-		if (passiveX != PASSIVE_X.get()) PASSIVE_X.set(passiveX);
-		if (passiveY != PASSIVE_Y.get()) PASSIVE_Y.set(passiveY);
-		if (passiveBaseX != PASSIVE_BASE_X.get()) PASSIVE_BASE_X.set(passiveBaseX);
-		if (passiveBaseY != PASSIVE_BASE_Y.get()) PASSIVE_BASE_Y.set(passiveBaseY);
-		if (passiveAlignDirection != PASSIVE_ALIGN_DIRECTION.get()) PASSIVE_ALIGN_DIRECTION.set(passiveAlignDirection);
-		if (chargingBarX != CHARGING_BAR_X.get()) CHARGING_BAR_X.set(chargingBarX);
-		if (chargingBarY != CHARGING_BAR_Y.get()) CHARGING_BAR_Y.set(chargingBarY);
-		if (chargingBarBaseX != CHARGING_BAR_BASE_X.get()) CHARGING_BAR_BASE_X.set(chargingBarBaseX);
-		if (chargingBarBaseY != CHARGING_BAR_BASE_Y.get()) CHARGING_BAR_BASE_Y.set(chargingBarBaseY);
+		if (showTargetIndicator != SHOW_TARGET_INDICATOR.get()) { SHOW_TARGET_INDICATOR.set(showTargetIndicator); SHOW_TARGET_INDICATOR.save(); }
+		if (healthBarVisibility != HEALTH_BAR_VISIBILITY.get()) { HEALTH_BAR_VISIBILITY.set(healthBarVisibility); HEALTH_BAR_VISIBILITY.save(); }
+		if (staminaBarX != STAMINA_BAR_X.get()) { STAMINA_BAR_X.set(staminaBarX); STAMINA_BAR_X.save(); }
+		if (staminaBarY != STAMINA_BAR_Y.get()) { STAMINA_BAR_Y.set(staminaBarY); STAMINA_BAR_Y.save(); }
+		if (staminaBarBaseX != STAMINA_BAR_BASE_X.get()) { STAMINA_BAR_BASE_X.set(staminaBarBaseX); STAMINA_BAR_BASE_X.save(); }
+		if (staminaBarBaseY != STAMINA_BAR_BASE_Y.get()) { STAMINA_BAR_BASE_Y.set(staminaBarBaseY); STAMINA_BAR_BASE_Y.save(); }
+		if (weaponInnateX != WEAPON_INNATE_X.get()) { WEAPON_INNATE_X.set(weaponInnateX); WEAPON_INNATE_X.save(); }
+		if (weaponInnateX != WEAPON_INNATE_Y.get()) { WEAPON_INNATE_Y.set(weaponInnateY); WEAPON_INNATE_Y.save(); }
+		if (weaponInnateBaseX != WEAPON_INNATE_BASE_X.get()) { WEAPON_INNATE_BASE_X.set(weaponInnateBaseX); WEAPON_INNATE_BASE_X.save(); }
+		if (weaponInnateBaseY != WEAPON_INNATE_BASE_Y.get()) { WEAPON_INNATE_BASE_Y.set(weaponInnateBaseY); WEAPON_INNATE_BASE_Y.save(); }
+		if (passiveX != PASSIVE_X.get()) { PASSIVE_X.set(passiveX); PASSIVE_X.save(); }
+		if (passiveY != PASSIVE_Y.get()) { PASSIVE_Y.set(passiveY); PASSIVE_Y.save(); }
+		if (passiveBaseX != PASSIVE_BASE_X.get()) { PASSIVE_BASE_X.set(passiveBaseX); PASSIVE_BASE_X.save(); }
+		if (passiveBaseY != PASSIVE_BASE_Y.get()) { PASSIVE_BASE_Y.set(passiveBaseY); PASSIVE_BASE_Y.save(); }
+		if (passiveAlignDirection != PASSIVE_ALIGN_DIRECTION.get()) { PASSIVE_ALIGN_DIRECTION.set(passiveAlignDirection); PASSIVE_ALIGN_DIRECTION.save(); }
+		if (chargingBarX != CHARGING_BAR_X.get()) { CHARGING_BAR_X.set(chargingBarX); CHARGING_BAR_X.save(); }
+		if (chargingBarY != CHARGING_BAR_Y.get()) { CHARGING_BAR_Y.set(chargingBarY); CHARGING_BAR_Y.save(); }
+		if (chargingBarBaseX != CHARGING_BAR_BASE_X.get()) { CHARGING_BAR_BASE_X.set(chargingBarBaseX); CHARGING_BAR_BASE_X.save(); }
+		if (chargingBarBaseY != CHARGING_BAR_BASE_Y.get()) { CHARGING_BAR_BASE_Y.set(chargingBarBaseY); CHARGING_BAR_BASE_Y.save(); }
 	}
 	
-	public static Vec2i getStaminaPosition(int width, int height) {
-		int posX = staminaBarBaseX.positionGetter.apply(width, staminaBarX);
-		int posY = staminaBarBaseY.positionGetter.apply(height, staminaBarY);
+	public static Vec2i getStaminaPosition() {
+		int posX = staminaBarBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), staminaBarX);
+		int posY = staminaBarBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), staminaBarY);
 		return new Vec2i(posX, posY);
 	}
 	
-	public static Vec2i getWeaponInnatePosition(int width, int height) {
-		int posX = weaponInnateBaseX.positionGetter.apply(width, weaponInnateX);
-		int posY = weaponInnateBaseY.positionGetter.apply(height, weaponInnateY);
+	public static Vec2i getWeaponInnatePosition() {
+		int posX = weaponInnateBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), weaponInnateX);
+		int posY = weaponInnateBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), weaponInnateY);
 		return new Vec2i(posX, posY);
 	}
 	
-	public static Vec2i getChargingBarPosition(int width, int height) {
-		int posX = chargingBarBaseX.positionGetter.apply(width, chargingBarX);
-		int posY = chargingBarBaseY.positionGetter.apply(height, chargingBarY);
+	public static Vec2i getChargingBarPosition() {
+		int posX = chargingBarBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), chargingBarX);
+		int posY = chargingBarBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), chargingBarY);
 		return new Vec2i(posX, posY);
 	}
 	

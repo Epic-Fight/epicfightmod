@@ -48,8 +48,8 @@ public class DashAttackAnimation extends AttackAnimation {
 			.newTimePair(phase.start, phase.preDelay)
 			.addState(EntityState.PHASE_LEVEL, 1)
 			.newTimePair(phase.start, phase.contact)
-			.addState(EntityState.CAN_SKILL_EXECUTION, false)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
+			.addState(EntityState.SKILL_EXECUTABLE, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
 			.newTimePair(phase.start, phase.recovery)
 			.addState(EntityState.MOVEMENT_LOCKED, true)
 			.addState(EntityState.UPDATE_LIVING_MOTION, false)
@@ -61,14 +61,14 @@ public class DashAttackAnimation extends AttackAnimation {
 			.addState(EntityState.ATTACKING, true)
 			.addState(EntityState.PHASE_LEVEL, 2)
 			.newTimePair(phase.contact, phase.recovery)
-			.addState(EntityState.CAN_BASIC_ATTACK, false)
+			.addState(EntityState.COMBO_ATTACKS_DOABLE, false)
 			.newTimePair(phase.contact, phase.end)
 			.addState(EntityState.PHASE_LEVEL, 3)
 			;
 	}
 	
 	@Override
-	public boolean isBasicAttackAnimation() {
+	public boolean isComboAttackAnimation() {
 		return true;
 	}
 }

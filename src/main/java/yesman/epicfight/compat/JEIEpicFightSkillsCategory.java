@@ -20,11 +20,6 @@ public class JEIEpicFightSkillsCategory implements IRecipeCategory<SkillCategori
 	}
 	
 	@Override
-	public IDrawable getBackground() {
-		return null;
-	}
-	
-	@Override
 	public IDrawable getIcon() {
 		return null;
 	}

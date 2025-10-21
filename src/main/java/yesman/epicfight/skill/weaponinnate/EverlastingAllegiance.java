@@ -2,18 +2,17 @@ package yesman.epicfight.skill.weaponinnate;
 
 import java.util.List;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -21,16 +20,16 @@ import yesman.epicfight.world.capabilities.projectile.ThrownTridentPatch;
 
 public class EverlastingAllegiance extends WeaponInnateSkill {
 	public static void setThrownTridentEntityId(SkillContainer skillContainer, int entityId) {
-		skillContainer.getDataManager().setDataSync(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get(), entityId);
+		skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID, entityId);
 	}
 	
 	public static int getThrownTridentEntityId(SkillContainer skillContainer) {
-		return skillContainer.getDataManager().getDataValue(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get());
+		return skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID);
 	}
 	
 	private AnimationAccessor<? extends StaticAnimation> callingAnimation;
 	
-	public EverlastingAllegiance(SkillBuilder<? extends WeaponInnateSkill> builder) {
+	public EverlastingAllegiance(WeaponInnateSkill.Builder<?> builder) {
 		super(builder);
 		
 		this.callingAnimation = Animations.EVERLASTING_ALLEGIANCE_CALL;
@@ -42,7 +41,7 @@ public class EverlastingAllegiance extends WeaponInnateSkill {
 	
 	@Override
 	public boolean checkExecuteCondition(SkillContainer container) {
-		return container.getDataManager().getDataValue(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get()) >= 0;
+		return container.getDataManager().getDataValue(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID) >= 0;
 	}
 	
 	@Override
@@ -51,24 +50,24 @@ public class EverlastingAllegiance extends WeaponInnateSkill {
 	}
 	
 	@Override
-	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-		super.executeOnServer(container, args);
+	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+		super.executeOnServer(container, arguments);
 		
-		if (container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get())) instanceof ThrownTrident trident) {
+		if (container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID)) instanceof ThrownTrident trident) {
 			ThrownTridentPatch tridentPatch = EpicFightCapabilities.getEntityPatch(trident, ThrownTridentPatch.class);
 			tridentPatch.recalledBySkill();
 			container.getExecutor().playAnimationSynchronized(this.callingAnimation, 0.0F);
 			
-			this.cancelOnServer(container, args);
+			this.cancelOnServer(container, arguments);
 		}
 	}
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
-		super.cancelOnClient(container, args);
+	public void cancelOnClient(SkillContainer container, CompoundTag arguments) {
+		super.cancelOnClient(container, arguments);
 		
-		if (container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get())) instanceof ThrownTrident trident) {
+		if (container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID)) instanceof ThrownTrident trident) {
 			EpicFightCapabilities.getUnparameterizedEntityPatch(trident, ThrownTridentPatch.class).ifPresent(ThrownTridentPatch::recalledBySkill);
 		}
 	}
@@ -77,7 +76,7 @@ public class EverlastingAllegiance extends WeaponInnateSkill {
 	public void updateContainer(SkillContainer container) {
 		super.updateContainer(container);
 		
-		int thrownTrident = container.getDataManager().getDataValue(SkillDataKeys.THROWN_TRIDENT_ENTITY_ID.get());
+		int thrownTrident = container.getDataManager().getDataValue(EpicFightSkillDataKeys.THROWN_TRIDENT_ENTITY_ID);
 		
 		if (container.isDisabled() && thrownTrident >= 0) {
 			container.setDisabled(false);

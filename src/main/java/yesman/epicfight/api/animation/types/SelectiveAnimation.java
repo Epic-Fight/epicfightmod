@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationVariables;
-import yesman.epicfight.api.animation.AnimationVariables.IndependentAnimationVariableKey;
+import yesman.epicfight.api.animation.AnimationVariables.IndependentVariableKey;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.SimpleEvent;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -16,7 +16,7 @@ import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class SelectiveAnimation extends StaticAnimation {
-	public static final IndependentAnimationVariableKey<Integer> PREVIOUS_STATE = AnimationVariables.independent((animator) -> 0, true);
+	public static final IndependentVariableKey<Integer> PREVIOUS_STATE = AnimationVariables.unsyncIndependent((animator) -> 0, true);
 
 	private final Function<LivingEntityPatch<?>, Integer> selector;
 	private final List<AssetAccessor<? extends StaticAnimation>> animationsInEachState;

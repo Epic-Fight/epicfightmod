@@ -18,8 +18,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -58,7 +58,7 @@ public class WeaponComboScreen extends Screen {
 		this.font = parentScreen.getMinecraft().font;
 		this.parentScreen = parentScreen;
 		
-		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 20) {
+		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 20) {
 			@Override
 			public void importTag(ListTag tag) {
 				this.setComponentsActive(true);
@@ -93,8 +93,11 @@ public class WeaponComboScreen extends Screen {
 				}
 			}
 		};
-		this.inputComponentsList.setLeftPos(parentScreen.width - 205);
+		
+		this.inputComponentsList.setX(parentScreen.width - 205);
+		
 		this.rootTag = ParseUtil.getOrDefaultTag(rootTag, "combos", new CompoundTag());
+		
 		this.stylesGrid = Grid.builder(this, parentScreen.getMinecraft())
 								.xy1(12, 60)
 								.xy2(85, 50)
@@ -102,7 +105,6 @@ public class WeaponComboScreen extends Screen {
 								.verticalSizing(VerticalSizing.TOP_BOTTOM)
 								.rowHeight(21)
 								.rowEditable(RowEditButton.ADD_REMOVE)
-								.transparentBackground(false)
 								.rowpositionChanged((rowposition, values) -> {
 									this.inputComponentsList.importTag(this.styles.get(rowposition).getValue());
 									this.reloadAnimationPlayer();
@@ -158,7 +160,6 @@ public class WeaponComboScreen extends Screen {
 								.horizontalSizing(HorizontalSizing.WIDTH_RIGHT)
 								.rowHeight(21)
 								.rowEditable(RowEditButton.ADD_REMOVE)
-								.transparentBackground(false)
 								.addColumn(Grid.popup("combo_animation", PopupBox.AnimationPopupBox::new)
 												.filter((accessor) -> accessor.checkType(AttackAnimation.class))
 												.editWidgetCreated((popupBox) -> popupBox.setModel(Armatures.BIPED, Meshes.BIPED))
@@ -258,8 +259,8 @@ public class WeaponComboScreen extends Screen {
 		
 		this.stylesGrid.resize(this.getRectangle());
 		
-		this.inputComponentsList.updateSize(205, screenRectangle.height(), screenRectangle.top() + 34, screenRectangle.height() - 45);
-		this.inputComponentsList.setLeftPos(this.width - 205);
+		this.inputComponentsList.updateSizeAndPosition(205, screenRectangle.height() - 79 - screenRectangle.top(), screenRectangle.top() + 34);
+		this.inputComponentsList.setX(this.width - 205);
 		this.modelPreviewer.resize(screenRectangle);
 		
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
@@ -353,12 +354,12 @@ public class WeaponComboScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

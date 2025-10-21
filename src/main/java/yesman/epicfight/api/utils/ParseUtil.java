@@ -9,12 +9,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -30,16 +31,15 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.IForgeRegistry;
 import yesman.epicfight.api.utils.math.Vec3f;
 
-public class ParseUtil {
+public abstract class ParseUtil {
 	public static Integer[] toIntArray(JsonArray array) {
 		List<Integer> result = Lists.newArrayList();
 		
@@ -154,12 +154,6 @@ public class ParseUtil {
 		return new Vec3(result.getDouble(0), result.getDouble(1), result.getDouble(2));
 	}
 	
-	public static AttributeModifier toAttributeModifier(CompoundTag tag) {
-		AttributeModifier.Operation operation = AttributeModifier.Operation.valueOf(tag.getString("operation").toUpperCase(Locale.ROOT));
-		
-		return new AttributeModifier(UUID.fromString(tag.getString("uuid")), tag.getString("name"), tag.getDouble("amount"), operation);
-	}
-	
 	public static <T> String nullOrToString(T obj, Function<T, String> toString) {
 		return obj == null ? "" : toString.apply(obj);
 	}
@@ -178,6 +172,23 @@ public class ParseUtil {
 	
 	public static <T> T nvl(T a, T b) {
 		return a == null ? b : a;
+	}
+	
+	/**
+	 * Tries to get a value from the first supplier. If failed, it returns a result from the second supplier
+	 * @param tryTask: A supplier that has a chance to throw an error or return null value
+	 * @param or: A supplier that always return non-null value
+	 */
+	public static <T> T tryGetOr(Supplier<T> tryTask, Supplier<T> or) {
+		try {
+			T t = tryTask.get();
+			Objects.requireNonNull(t);
+			return t;
+		} catch (Exception e) {
+			T t = or.get();
+			Objects.requireNonNull(t);
+			return t;
+		}
 	}
 	
 	public static String snakeToSpacedCamel(Object obj) {
@@ -222,7 +233,7 @@ public class ParseUtil {
 		return obj == null ? "" : obj.toString();
 	}
 	
-	public static <T> String getRegistryName(T obj, IForgeRegistry<T> registry) {
+	public static <T> String getRegistryName(T obj, Registry<T> registry) {
 		return obj == null ? "" : registry.getKey(obj).toString();
 	}
 	
@@ -298,14 +309,16 @@ public class ParseUtil {
 	}
 	
 	public static JsonObject convertToJsonObject(CompoundTag compoundtag) {
-		JsonObject root = CompoundTag.CODEC.encodeStart(JsonOps.INSTANCE, compoundtag).get().left().get().getAsJsonObject();
+		JsonObject root = CompoundTag.CODEC.encodeStart(JsonOps.INSTANCE, compoundtag).getOrThrow().getAsJsonObject();
 		
-		for (Map.Entry<String, Tag> entry : compoundtag.tags.entrySet()) {
-			if (entry.getValue() instanceof ByteTag byteTag && (byteTag.getAsByte() == 0 || byteTag.getAsByte() == 1)) {
-				root.remove(entry.getKey());
-				root.addProperty(entry.getKey(), byteTag.getAsByte() == 1);
+		compoundtag.getAllKeys().forEach(key -> {
+			Tag val = compoundtag.get(key);
+			
+			if (val instanceof ByteTag byteTag && (byteTag.getAsByte() == 0 || byteTag.getAsByte() == 1)) {
+				root.remove(key);
+				root.addProperty(key, byteTag.getAsByte() == 1);
 			}
-		}
+		});
 		
 		return root;
 	}
@@ -360,6 +373,19 @@ public class ParseUtil {
 		} catch (CommandSyntaxException e) {
 			throw new RuntimeException("Can't parse element:", e);
 		}
+	}
+	
+	public static String packListString(List<String> strings, String separator) {
+		StringBuilder sb = new StringBuilder();
+		MutableInt mi = new MutableInt(1);
+		
+		strings.forEach(string -> {
+			sb.append(string);
+			if (mi.intValue() < strings.size()) sb.append(separator);
+			mi.add(1);
+		});
+		
+		return sb.toString();
 	}
 	
 	private ParseUtil() {}

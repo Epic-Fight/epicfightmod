@@ -1,11 +1,11 @@
 package yesman.epicfight.compat;
 
-import mod.azure.azurelib.event.GeoRenderEvent;
+import mod.azure.azurelib.neoforge.event.GeoRenderEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.client.model.transformer.AzureModelTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.ClientEngine;
@@ -22,7 +22,7 @@ public class AzureLibCompat implements ICompatModule {
 	}
 	
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
+	public void onGameEventBus(IEventBus eventBus) {
 	}
 	
 	@Override
@@ -33,7 +33,7 @@ public class AzureLibCompat implements ICompatModule {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void onForgeEventBusClient(IEventBus eventBus) {
+	public void onGameEventBusClient(IEventBus eventBus) {
 		eventBus.addListener(AzureModelTransformer::getGeoArmorTexturePath);
 		eventBus.addListener(this::geoEntityRenderPreEvent);
 		eventBus.addListener(this::geoEntityRenderPostEvent);
@@ -48,7 +48,7 @@ public class AzureLibCompat implements ICompatModule {
 		}
 		
 		if (entity instanceof LivingEntity livingentity) {
-			RenderEngine renderEngine = ClientEngine.getInstance().renderEngine;
+			RenderEngine renderEngine = RenderEngine.getInstance();
 			
 			if (renderEngine.hasRendererFor(livingentity)) {
 				LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
@@ -91,7 +91,7 @@ public class AzureLibCompat implements ICompatModule {
 		}
 		
 		if (entity instanceof LivingEntity livingentity) {
-			RenderEngine renderEngine = ClientEngine.getInstance().renderEngine;
+			RenderEngine renderEngine = RenderEngine.getInstance();
 			
 			if (ClientEngine.getInstance().getPlayerPatch() != null && !renderEngine.minecraft.options.hideGui && !EpicFightGameRules.DISABLE_ENTITY_UI.getRuleValue(livingentity.level())) {
 				LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);

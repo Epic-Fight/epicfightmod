@@ -1,10 +1,10 @@
 package yesman.epicfight.skill;
 
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
-public interface SkillSlot extends ExtendableEnum {
-	ExtendableEnumManager<SkillSlot> ENUM_MANAGER = new ExtendableEnumManager<> ("skill_slot");
+public interface SkillSlot extends ExtensibleEnum {
+	ExtensibleEnumManager<SkillSlot> ENUM_MANAGER = new ExtensibleEnumManager<> ("skill_slot");
 	
 	SkillCategory category();
 }

@@ -15,15 +15,15 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import mod.azure.azurelib.animatable.client.RenderProvider;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.cache.object.GeoQuad;
-import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.common.api.client.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.common.internal.client.RenderProvider;
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoCube;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoQuad;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoVertex;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.state.BoneSnapshot;
-import mod.azure.azurelib.renderer.GeoArmorRenderer;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
@@ -31,14 +31,14 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.forgeevent.AnimatedArmorTextureEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.GeoModelTransformer.GeoMeshPartDefinition;
+import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -143,14 +143,14 @@ public class AzureModelTransformer extends HumanoidModelTransformer {
 			leftBootBone.setRotZ(0);
 		}
 		
-		boxes.add(new GeoModelPartition(HEAD, headBone));
-		boxes.add(new GeoModelPartition(CHEST, bodyBone));
-		boxes.add(new GeoModelPartition(RIGHT_ARM, rightArmBone));
-		boxes.add(new GeoModelPartition(LEFT_ARM, leftArmBone));
-		boxes.add(new GeoModelPartition(LEFT_LEG, leftLegBone));
-		boxes.add(new GeoModelPartition(RIGHT_LEG, rightLegBone));
-		boxes.add(new GeoModelPartition(LEFT_FEET, leftBootBone));
-		boxes.add(new GeoModelPartition(RIGHT_FEET, rightBootBone));
+		if (headBone != null) boxes.add(new GeoModelPartition(HEAD, headBone));
+		if (bodyBone != null) boxes.add(new GeoModelPartition(CHEST, bodyBone));
+		if (rightArmBone != null) boxes.add(new GeoModelPartition(RIGHT_ARM, rightArmBone));
+		if (leftArmBone != null) boxes.add(new GeoModelPartition(LEFT_ARM, leftArmBone));
+		if (leftLegBone != null) boxes.add(new GeoModelPartition(LEFT_LEG, leftLegBone));
+		if (rightLegBone != null) boxes.add(new GeoModelPartition(RIGHT_LEG, rightLegBone));
+		if (leftBootBone != null) boxes.add(new GeoModelPartition(LEFT_FEET, leftBootBone));
+		if (rightBootBone != null) boxes.add(new GeoModelPartition(RIGHT_FEET, rightBootBone));
 		
 		return bakeMeshFromCubes(boxes);
 	}

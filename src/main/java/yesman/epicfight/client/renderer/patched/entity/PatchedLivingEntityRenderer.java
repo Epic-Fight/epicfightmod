@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -31,12 +32,12 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.client.neoevent.PrepareModelEvent;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -88,7 +89,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 		List<RenderLayer<E, M>> vanillaLayers = null;
 		
 		if (entityType == EntityType.PLAYER) {
-			if (context.getEntityRenderDispatcher().playerRenderers.get("default") instanceof LivingEntityRenderer livingentityrenderer) {
+			if (context.getEntityRenderDispatcher().playerRenderers.get(PlayerSkin.Model.WIDE) instanceof LivingEntityRenderer livingentityrenderer) {
 				vanillaLayers = livingentityrenderer.layers;
 			}
 		} else {
@@ -120,12 +121,11 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 	public void render(E entity, T entitypatch, R renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		super.render(entity, entitypatch, renderer, buffer, poseStack, packedLight, partialTicks);
 		
-		Minecraft mc = Minecraft.getInstance();
 		MixinLivingEntityRenderer livingEntityRendererAccessor = (MixinLivingEntityRenderer)renderer;
 		
 		boolean isVisible = livingEntityRendererAccessor.invokeIsBodyVisible(entity);
-		boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(mc.player);
-		boolean isGlowing = mc.shouldEntityAppearGlowing(entity);
+		boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(Minecraft.getInstance().player);
+		boolean isGlowing = Minecraft.getInstance().shouldEntityAppearGlowing(entity);
 		RenderType renderType = livingEntityRendererAccessor.invokeGetRenderType(entity, isVisible, isVisibleToPlayer, isGlowing);
 		Armature armature = entitypatch.getArmature();
 		poseStack.pushPose();
@@ -136,10 +136,9 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 		if (renderType != null) {
 			AM mesh = this.getMeshProvider(entitypatch).get();
 			this.prepareModel(mesh, entity, entitypatch, renderer);
-			
 			PrepareModelEvent prepareModelEvent = new PrepareModelEvent(this, mesh, entitypatch, buffer, poseStack, packedLight, partialTicks);
 			
-			if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
+			if (!NeoForge.EVENT_BUS.post(prepareModelEvent).isCanceled()) {
 				Vector4f color = new Vector4f(1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F);
 				entitypatch.getEntityDecorations().modifyColor(color, partialTicks);
 				

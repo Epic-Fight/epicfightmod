@@ -22,8 +22,8 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
@@ -32,7 +32,7 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
@@ -50,7 +50,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 			}
 			
 			entitypatch.getClothSimulator().getRunningObject(ClothSimulator.PLAYER_CLOAK).ifPresent(clothObj -> {
-				ResourceLocation capeTexture = entitypatch.isEpicSkinsLoaded() ? entitypatch.getEpicSkinsInformation().cloakTexture().get() : entityliving.getCloakTextureLocation();
+				ResourceLocation capeTexture = entitypatch.isEpicSkinsLoaded() ? entitypatch.getEpicSkinsInformation().capeTexture().get() : entityliving.getSkin().capeTexture();
 				
 				if (capeTexture != null) {
 					Function<Float, OpenMatrix4f> partialColliderTransformProvider = (partialFrame) -> {
@@ -67,9 +67,10 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 					double entityZ = Mth.lerp((double)partialTick, entityliving.zOld, entityliving.getZ());
 					
 					PoseStack posestack$2 = new PoseStack();
-					var renderer = ClientEngine.getInstance().renderEngine.getEntityRenderer(EntityType.PLAYER);
+					var renderer = RenderEngine.getInstance().getEntityRenderer(EntityType.PLAYER);
 					renderer.mulPoseStack(posestack$2, entitypatch.getArmature(), entitypatch.getOriginal(), entitypatch, partialTick);
 					Matrix4f renderLocalPose = posestack$2.last().pose();
+
 					float bodyYRot = Mth.rotLerp(partialTick, entitypatch.getYRotO(), entitypatch.getYRot());
 					
 					if (entitypatch.isEpicSkinsLoaded()) {
@@ -81,7 +82,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 				}
 			});
 		} else {
-			if (entityliving.isCapeLoaded() && !entityliving.isInvisible() && entityliving.isModelPartShown(PlayerModelPart.CAPE) && entityliving.getCloakTextureLocation() != null) {
+			if (entityliving.getSkin().capeTexture() != null && !entityliving.isInvisible() && entityliving.isModelPartShown(PlayerModelPart.CAPE)) {
 				ItemStack itemstack = entityliving.getItemBySlot(EquipmentSlot.CHEST);
 				
 				if (itemstack.getItem() != Items.ELYTRA) {
@@ -131,7 +132,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 		poseStack.pushPose();
 		renderLocalMatrix = renderLocalMatrix.invert(new Matrix4f());
 		
-		poseStack.mulPoseMatrix(renderLocalMatrix);
+		poseStack.mulPose(renderLocalMatrix);
 		poseStack.translate(-renderLocalMatrix.m30() - x, -renderLocalMatrix.m31() - y, -renderLocalMatrix.m32() - z);
 		poseStack.last().normal().rotate(QuaternionUtils.YP.rotationDegrees(yBodyRot));
 		

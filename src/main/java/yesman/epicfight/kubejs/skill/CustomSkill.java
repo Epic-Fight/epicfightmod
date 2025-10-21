@@ -1,29 +1,35 @@
 package yesman.epicfight.kubejs.skill;
 
-import dev.latvian.mods.kubejs.registry.BuilderBase;
-import dev.latvian.mods.kubejs.registry.RegistryInfo;
-import dev.latvian.mods.kubejs.typings.Info;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.kubejs.CallbackUtils;
-import yesman.epicfight.kubejs.EpicFightKubeJSPlugin;
-import yesman.epicfight.skill.*;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.item.EpicFightCreativeTabs;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import com.mojang.datafixers.util.Pair;
+
+import dev.latvian.mods.kubejs.registry.BuilderBase;
+import dev.latvian.mods.kubejs.typings.Info;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.Event;
+import yesman.epicfight.client.gui.BattleModeGui;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.kubejs.CallbackUtils;
+import yesman.epicfight.registry.entries.EpicFightCreativeTabs;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class CustomSkill extends Skill {
     public record DrawOnGuiContext(BattleModeGui getGui, SkillContainer getContainer, GuiGraphics getGuiGraphics, float getX, float getY) {}
@@ -32,10 +38,10 @@ public class CustomSkill extends Skill {
 
     private final Consumer<SkillContainer> onInitiate;
     private final Consumer<SkillContainer> onRemoved;
-    private final BiConsumer<SkillContainer, FriendlyByteBuf> executeOnServer;
-    private final BiConsumer<SkillContainer, FriendlyByteBuf> executeOnClient;
-    private final BiConsumer<SkillContainer, FriendlyByteBuf> cancelOnServer;
-    private final BiConsumer<SkillContainer, FriendlyByteBuf> cancelOnClient;
+    private final BiConsumer<SkillContainer, CompoundTag> executeOnServer;
+    private final BiConsumer<SkillContainer, CompoundTag> executeOnClient;
+    private final BiConsumer<SkillContainer, CompoundTag> cancelOnServer;
+    private final BiConsumer<SkillContainer, CompoundTag> cancelOnClient;
     private final Consumer<DrawOnGuiContext> drawOnGui;
     private final Predicate<SkillContainer> shouldDraw;
     private final Predicate<SkillContainer> canExecute;
@@ -56,13 +62,14 @@ public class CustomSkill extends Skill {
 
     public CustomSkill(CustomSkillBuilder builder) {
         super(
-                new SkillBuilder<>()
-                        .setCategory(builder.category)
-                        .setCreativeTab(BuiltInRegistries.CREATIVE_MODE_TAB.get(builder.tab))
-                        .setActivateType(builder.activateType)
-                        .setResource(builder.resource)
-                        .setRegistryName(builder.id)
+	        new SkillBuilder<SkillBuilder<?>> (null)
+	            .setCategory(builder.category)
+	            .setCreativeTab(BuiltInRegistries.CREATIVE_MODE_TAB.get(builder.tab))
+	            .setActivateType(builder.activateType)
+	            .setResource(builder.resource)
+	            .setRegistryName(builder.id)
         );
+        
         this.onInitiate = builder.onInitiate;
         this.onRemoved = builder.onRemoved;
         this.executeOnServer = builder.executeOnServer;
@@ -82,9 +89,11 @@ public class CustomSkill extends Skill {
         this.onScreen = builder.onScreen;
         this.getTooltipOnItem = builder.getTooltipOnItem;
         this.getTooltipArgsOfScreen = builder.getTooltipArgsOfScreen;
+        
         if (builder.textureLocation != null) {
             this.textureLocation = builder.textureLocation;
         }
+        
         this.tab = builder.tab;
     }
 
@@ -108,27 +117,27 @@ public class CustomSkill extends Skill {
 
 
     @Override
-    public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-        if (executeOnServer != null) CallbackUtils.biSafeCallback(executeOnServer, container, args, "Error while executing executeOnServer for skill: " + getRegistryName());
-        super.executeOnServer(container, args);
+    public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+        if (executeOnServer != null) CallbackUtils.biSafeCallback(executeOnServer, container, arguments, "Error while executing executeOnServer for skill: " + getRegistryName());
+        super.executeOnServer(container, arguments);
     }
 
     @Override
-    public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
-        if (executeOnClient != null) CallbackUtils.biSafeCallback(executeOnClient, container, args, "Error while executing executeOnClient for skill: " + getRegistryName());
-        super.executeOnClient(container, args);
+    public void executeOnClient(SkillContainer container, CompoundTag arguments) {
+        if (executeOnClient != null) CallbackUtils.biSafeCallback(executeOnClient, container, arguments, "Error while executing executeOnClient for skill: " + getRegistryName());
+        super.executeOnClient(container, arguments);
     }
 
     @Override
-    public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
-        if (cancelOnServer != null) CallbackUtils.biSafeCallback(cancelOnServer, container, args, "Error while executing cancelOnServer for skill: " + getRegistryName());
-        super.cancelOnServer(container, args);
+    public void cancelOnServer(SkillContainer container, CompoundTag arguments) {
+        if (cancelOnServer != null) CallbackUtils.biSafeCallback(cancelOnServer, container, arguments, "Error while executing cancelOnServer for skill: " + getRegistryName());
+        super.cancelOnServer(container, arguments);
     }
 
     @Override
-    public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
-        if (cancelOnClient != null) CallbackUtils.biSafeCallback(cancelOnClient, container, args, "Error while executing cancelOnClient for skill: " + getRegistryName());
-        super.cancelOnClient(container, args);
+    public void cancelOnClient(SkillContainer container, CompoundTag arguments) {
+        if (cancelOnClient != null) CallbackUtils.biSafeCallback(cancelOnClient, container, arguments, "Error while executing cancelOnClient for skill: " + getRegistryName());
+        super.cancelOnClient(container, arguments);
     }
 
     @Override
@@ -226,7 +235,6 @@ public class CustomSkill extends Skill {
         return EpicFightCreativeTabs.ITEMS.get();
     }
 
-    @SuppressWarnings("unused")
     @Info("""
             Creates a custom skill. The builder requires one of each of the following to function:
             - category
@@ -242,10 +250,10 @@ public class CustomSkill extends Skill {
 
         private Consumer<SkillContainer> onInitiate;
         private Consumer<SkillContainer> onRemoved;
-        private BiConsumer<SkillContainer, FriendlyByteBuf> executeOnServer;
-        private BiConsumer<SkillContainer, FriendlyByteBuf> executeOnClient;
-        private BiConsumer<SkillContainer, FriendlyByteBuf> cancelOnServer;
-        private BiConsumer<SkillContainer, FriendlyByteBuf> cancelOnClient;
+        private BiConsumer<SkillContainer, CompoundTag> executeOnServer;
+        private BiConsumer<SkillContainer, CompoundTag> executeOnClient;
+        private BiConsumer<SkillContainer, CompoundTag> cancelOnServer;
+        private BiConsumer<SkillContainer, CompoundTag> cancelOnClient;
         private Consumer<DrawOnGuiContext> drawOnGui;
         private Predicate<SkillContainer> shouldDraw;
         private Predicate<SkillContainer> canExecute;
@@ -259,13 +267,35 @@ public class CustomSkill extends Skill {
         private Consumer<OnScreenContext> onScreen;
         private Function<GetTooltipOnItem, List<Component>> getTooltipOnItem;
         private Function<List<Object>, List<Object>> getTooltipArgsOfScreen;
-
+        
+        private List<Pair<String, SkillEventSubscriber>> clientEventListeners = new ArrayList<> ();
+        private List<Pair<String, SkillEventSubscriber>> serverEventListeners = new ArrayList<> ();
+        
         private ResourceLocation textureLocation;
 
         public CustomSkillBuilder(ResourceLocation id) {
             super(id);
         }
-
+        
+        public CustomSkillBuilder newClientEventListener(String caller, int priority, BiConsumer<Event, SkillContainer> eventSubscriber) {
+            this.clientEventListeners.add(Pair.of(caller, new SkillEventSubscriber(priority, eventSubscriber, null)));
+            
+            return this;
+        }
+        
+        public CustomSkillBuilder newServerEventListener(String caller, int priority, BiConsumer<Event, SkillContainer> eventSubscriber) {
+            this.serverEventListeners.add(Pair.of(caller, new SkillEventSubscriber(priority, eventSubscriber, null)));
+            
+            return this;
+        }
+        
+        public CustomSkillBuilder newCommonEventListener(String caller, int priority, BiConsumer<Event, SkillContainer> eventSubscriber) {
+            this.newClientEventListener(caller, priority, eventSubscriber);
+            this.newServerEventListener(caller, priority, eventSubscriber);
+            
+            return this;
+        }
+        
         @Info("""
                 Sets the creative tab that the skill book for this skill will be in.
                 Optional.
@@ -331,7 +361,7 @@ public class CustomSkill extends Skill {
                 This is called when the skill is executed on the server. This is where you should put your skill logic.
                 The second argument is the buffer that is sent from the client. It's used for data synchronization.
                 """)
-        public CustomSkillBuilder executeOnServer(BiConsumer<SkillContainer, FriendlyByteBuf> consumer) {
+        public CustomSkillBuilder executeOnServer(BiConsumer<SkillContainer, CompoundTag> consumer) {
             this.executeOnServer = consumer;
             return this;
         }
@@ -340,7 +370,7 @@ public class CustomSkill extends Skill {
                 This is called when the skill is executed on the client. Best to use this in sync with the server if it is a skill that moves the player.
                 The second argument is the buffer that is sent from the server. It's used for data synchronization.
                 """)
-        public CustomSkillBuilder executeOnClient(BiConsumer<SkillContainer, FriendlyByteBuf> consumer) {
+        public CustomSkillBuilder executeOnClient(BiConsumer<SkillContainer, CompoundTag> consumer) {
             this.executeOnClient = consumer;
             return this;
         }
@@ -348,7 +378,7 @@ public class CustomSkill extends Skill {
         @Info("""
                 Called when the skill is cancelled on the server.
                 """)
-        public CustomSkillBuilder cancelOnServer(BiConsumer<SkillContainer, FriendlyByteBuf> consumer) {
+        public CustomSkillBuilder cancelOnServer(BiConsumer<SkillContainer, CompoundTag> consumer) {
             this.cancelOnServer = consumer;
             return this;
         }
@@ -356,7 +386,7 @@ public class CustomSkill extends Skill {
         @Info("""
                 Called when the skill is cancelled on the client.
                 """)
-        public CustomSkillBuilder cancelOnClient(BiConsumer<SkillContainer, FriendlyByteBuf> consumer) {
+        public CustomSkillBuilder cancelOnClient(BiConsumer<SkillContainer, CompoundTag> consumer) {
             this.cancelOnClient = consumer;
             return this;
         }
@@ -464,12 +494,7 @@ public class CustomSkill extends Skill {
             this.getTooltipArgsOfScreen = function;
             return this;
         }
-
-        @Override
-        public RegistryInfo<Skill> getRegistryType() {
-            return EpicFightKubeJSPlugin.SKILL_REGISTRY;
-        }
-
+        
         @Override
         public Skill createObject() {
             return new CustomSkill(this);

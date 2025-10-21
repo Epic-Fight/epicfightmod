@@ -34,8 +34,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.model.CompositeMesh;
 import yesman.epicfight.api.client.model.Mesh;
@@ -239,7 +239,7 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 					}
 				}
 				
-				float deltaFrameTime = Minecraft.getInstance().getDeltaFrameTime();
+				float deltaFrameTime = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
 				float subStebInvert = 1.0F / SUB_STEPS;
 				float subSteppingDeltaTime = deltaFrameTime * subStebInvert;
 				float gravity = simulatableObj.getGravity() * subSteppingDeltaTime * EpicFightSharedConstants.A_TICK;

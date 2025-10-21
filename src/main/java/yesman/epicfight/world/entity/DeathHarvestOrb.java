@@ -2,15 +2,14 @@ package yesman.epicfight.world.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -26,7 +25,7 @@ public class DeathHarvestOrb extends Entity {
 	}
 	
 	public DeathHarvestOrb(Player dest, double x, double y, double z, int value) {
-		this(EpicFightEntities.DEATH_HARVEST_ORB.get(), dest.level());
+		this(EpicFightEntityTypes.DEATH_HARVEST_ORB.get(), dest.level());
 		this.setPos(x, y, z);
 		this.dest = dest;
 		this.value = value;
@@ -72,11 +71,6 @@ public class DeathHarvestOrb extends Entity {
 	}
 	
 	@Override
-	protected void defineSynchedData() {
-	}
-
-	@Override
-	public Packet<ClientGamePacketListener> getAddEntityPacket() {
-		return new ClientboundAddEntityPacket(this);
+	protected void defineSynchedData(Builder builder) {
 	}
 }

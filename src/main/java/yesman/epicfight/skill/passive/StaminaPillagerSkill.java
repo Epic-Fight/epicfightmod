@@ -1,67 +1,56 @@
 package yesman.epicfight.skill.passive;
 
 import java.util.List;
-import java.util.UUID;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.gameasset.EpicFightSounds;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerKilledEvent;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.skill.SkillEvent;
+import yesman.epicfight.skill.SkillEvent.Side;
 
 public class StaminaPillagerSkill extends PassiveSkill {
-	private static final UUID EVENT_UUID = UUID.fromString("20807880-fd30-11eb-9a03-0242ac130003");
+	protected float regenRate;
 	
-	protected float regenPercentage;
-	
-	public StaminaPillagerSkill(SkillBuilder<? extends PassiveSkill> builder) {
+	public StaminaPillagerSkill(SkillBuilder<?> builder) {
 		super(builder);
 	}
 	
 	@Override
-	public void setParams(CompoundTag parameters) {
-		super.setParams(parameters);
-		this.regenPercentage = parameters.getFloat("regen_rate");
+	public void loadDatapackParameters(CompoundTag parameters) {
+		super.loadDatapackParameters(parameters);
+		this.regenRate = parameters.getFloat("regen_rate");
 	}
 	
-	@Override
-	public void onInitiate(SkillContainer container) {
-		super.onInitiate(container);
+	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
+	public void playerKilled(PlayerKilledEvent event, SkillContainer skillContainer) {
+		float currentStamina = event.getPlayerPatch().getStamina();
+		float staminaLoss = event.getPlayerPatch().getMaxStamina() - currentStamina;
+		event.getPlayerPatch().setStamina(currentStamina + Math.min(staminaLoss * this.regenRate * 0.01F, 2.0F));
+		event.getKilledEntity().playSound(EpicFightSounds.STAMINA_PILLAGER_DEATH.get());
+		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPEntityPairingPacket(event.getKilledEntity().getId(), EntityPairingPacketTypes.STAMINA_PILLAGER_BODY_ASHES), event.getKilledEntity());
 		
-		container.getExecutor().getEventListener().addEventListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID, (event) -> {
-			float currentStamina = event.getPlayerPatch().getStamina();
-			float staminaLoss = event.getPlayerPatch().getMaxStamina() - currentStamina;
-			event.getPlayerPatch().setStamina(currentStamina + Math.min(staminaLoss * this.regenPercentage * 0.01F, 2.0F));
-			event.getKilledEntity().playSound(EpicFightSounds.STAMINA_PILLAGER_DEATH.get());
-			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPEntityPairingPacket(event.getKilledEntity().getId(), EntityPairingPacketTypes.STAMINA_PILLAGER_BODY_ASHES), event.getKilledEntity());
-			
-			SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(event.getPlayerPatch().getOriginal().getId(), EntityPairingPacketTypes.FLASH_WHITE);
-			
-			// durationTick, maxOverlay, maxBrightness, disableRedOverlay
-			pairingPacket.getBuffer().writeInt(8);
-			pairingPacket.getBuffer().writeInt(3);
-			pairingPacket.getBuffer().writeInt(6);
-			pairingPacket.getBuffer().writeBoolean(false);
-			
-			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, event.getPlayerPatch().getOriginal());
-		});
-	}
-	
-	@Override
-	public void onRemoved(SkillContainer container) {
-		super.onRemoved(container);
+		SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(event.getPlayerPatch().getOriginal().getId(), EntityPairingPacketTypes.FLASH_WHITE);
 		
-		container.getExecutor().getEventListener().removeListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID);
+		// durationTick, maxOverlay, maxBrightness, disableRedOverlay
+		pairingPacket.buffer().writeInt(8);
+		pairingPacket.buffer().writeInt(3);
+		pairingPacket.buffer().writeInt(6);
+		pairingPacket.buffer().writeBoolean(false);
+		
+		EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, event.getPlayerPatch().getOriginal());
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public List<Object> getTooltipArgsOfScreen(List<Object> list) {
-		list.add(String.format("%.0f", this.regenPercentage));
+		list.add(String.format("%.0f", this.regenRate));
 		
 		return list;
 	}

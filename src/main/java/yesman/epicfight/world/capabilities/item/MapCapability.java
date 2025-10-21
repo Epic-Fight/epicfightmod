@@ -11,7 +11,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class MapCapability extends CapabilityItem {
-	public MapCapability(CapabilityItem.Builder builder) {
+	public MapCapability(CapabilityItem.Builder<?> builder) {
 		super(builder);
 	}
 	
@@ -48,7 +48,7 @@ public class MapCapability extends CapabilityItem {
 		return livingModifier;
 	}
 	
-	public static CapabilityItem.Builder builder() {
-		return new CapabilityItem.Builder().constructor(MapCapability::new);
+	public static CapabilityItem.Builder<?> builder() {
+		return CapabilityItem.builder().constructor(MapCapability::new);
 	}
 }

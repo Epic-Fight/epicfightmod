@@ -13,7 +13,8 @@ public enum SkillCategories implements SkillCategory {
 	GUARD(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_guard")),
 	KNOCKDOWN_WAKEUP(false, false, false),
 	MOVER(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_mover")),
-	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
+	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity")),
+	EMPTY(false, false, false);
 	
 	
 	boolean shouldSave;

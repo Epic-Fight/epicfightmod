@@ -8,7 +8,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class GloveCapability extends WeaponCapability {
 
-	protected GloveCapability(CapabilityItem.Builder builder) {
+	protected GloveCapability(WeaponCapability.Builder builder) {
 		super(builder);
 	}
 	

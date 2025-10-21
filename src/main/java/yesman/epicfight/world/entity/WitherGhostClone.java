@@ -8,12 +8,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 
 public class WitherGhostClone extends FlyingMob {
 	public WitherGhostClone(EntityType<? extends FlyingMob> entityType, Level level) {
@@ -23,7 +23,7 @@ public class WitherGhostClone extends FlyingMob {
 	}
 	
 	public WitherGhostClone(ServerLevel level, Vec3 position, LivingEntity target) {
-		this(EpicFightEntities.WITHER_GHOST_CLONE.get(), level);
+		this(EpicFightEntityTypes.WITHER_GHOST_CLONE.get(), level);
 		this.setPos(position);
 		this.lookAt(Anchor.FEET, target.position());
 		this.setTarget(target);
@@ -39,7 +39,7 @@ public class WitherGhostClone extends FlyingMob {
 	}
 	
 	public static AttributeSupplier.Builder createAttributes() {
-		return Mob.createMobAttributes().add(EpicFightAttributes.WEIGHT.get()).add(EpicFightAttributes.ARMOR_NEGATION.get()).add(EpicFightAttributes.IMPACT.get()).add(EpicFightAttributes.MAX_STRIKES.get()).add(Attributes.ATTACK_DAMAGE);
+		return Mob.createMobAttributes().add(EpicFightAttributes.WEIGHT).add(EpicFightAttributes.ARMOR_NEGATION).add(EpicFightAttributes.IMPACT).add(EpicFightAttributes.MAX_STRIKES).add(Attributes.ATTACK_DAMAGE);
 	}
 	
 	@Override
@@ -47,10 +47,5 @@ public class WitherGhostClone extends FlyingMob {
 		if (this.tickCount >= 40) {
 			this.remove(RemovalReason.DISCARDED);
 		}
-	}
-	
-	@Override
-	public MobType getMobType() {
-		return MobType.UNDEAD;
 	}
 }

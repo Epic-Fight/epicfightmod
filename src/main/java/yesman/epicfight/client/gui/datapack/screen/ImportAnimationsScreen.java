@@ -28,8 +28,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.animation.types.datapack.DatapackAnimation;
@@ -88,7 +88,6 @@ public class ImportAnimationsScreen extends Screen {
 									.xy2(split - 10, screenRect.height() - 21)
 									.rowHeight(26)
 									.rowEditable(RowEditButton.NONE)
-									.transparentBackground(true)
 									.rowpositionChanged((rowposition, values) -> {
 										this.inputComponentsList.importTag(this.fakeAnimations.get(rowposition));
 										this.modelPreviewer.setTrailInfo();
@@ -141,13 +140,13 @@ public class ImportAnimationsScreen extends Screen {
 										}
 									})
 									.addColumn(Grid.editbox("animation_name")
-													.editWidgetCreated((editbox) -> editbox.setFilter(ResourceLocation::isValidResourceLocation))
+													.editWidgetCreated((editbox) -> editbox.setFilter(rl -> ResourceLocation.isValidNamespace(rl) && ResourceLocation.isValidPath(rl)))
 													.editable(true)
 													.valueChanged((event) -> this.fakeAnimations.get(event.rowposition).setParameter("path", event.postValue))
 													.width(180))
 									.build();
 		
-		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 30) {
+		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 30) {
 			@Override
 			public void importTag(EditorAnimation fakeAnim) {
 				ImportAnimationsScreen.this.rearrangeComponents(fakeAnim.getAnimationClass());
@@ -393,7 +392,6 @@ public class ImportAnimationsScreen extends Screen {
 										.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 										.rowHeight(26)
 										.rowEditable(RowEditButton.ADD_REMOVE)
-										.transparentBackground(false)
 										.rowpositionChanged((rowposition, values) -> {
 											EditorAnimation fakeAnimation = this.fakeAnimations.get(this.animationGrid.getRowposition());
 											ListTag phases = fakeAnimation.getParameter("phases");
@@ -781,8 +779,8 @@ public class ImportAnimationsScreen extends Screen {
 		this.inputComponentsList.newRow();
 		this.inputComponentsList.newRow();
 		
-		this.inputComponentsList.updateSize(screenRect.width() - (split + 8), screenRect.height() - 21, screenRect.top() + 14, screenRect.bottom() - 36);
-		this.inputComponentsList.setLeftPos(split + 2);
+		this.inputComponentsList.updateSizeAndPosition(screenRect.width() - (split + 8), screenRect.bottom() - screenRect.top() - 50, screenRect.top() + 14);
+		this.inputComponentsList.setX(split + 2);
 	}
 	
 	@Override
@@ -790,11 +788,11 @@ public class ImportAnimationsScreen extends Screen {
 		ScreenRectangle screenRect = this.getRectangle();
 		int split = screenRect.width() / 2 - 60;
 		
-		this.animationGrid.updateSize(split - 10, screenRect.height() - 21, screenRect.top() + 14, screenRect.bottom() - 36);
-		this.animationGrid.setLeftPos(8);
+		this.animationGrid.updateSizeAndPosition(split - 10, screenRect.bottom() - screenRect.top() - 50, screenRect.top() + 14);
+		this.animationGrid.setX(8);
 		this.animationGrid.resize(screenRect);
-		this.inputComponentsList.updateSize(screenRect.width() - (split + 8), screenRect.height() - 21, screenRect.top() + 14, screenRect.bottom() - 36);
-		this.inputComponentsList.setLeftPos(split + 2);
+		this.inputComponentsList.updateSizeAndPosition(screenRect.width() - (split + 8), screenRect.bottom() - screenRect.top() - 50, screenRect.top() + 14);
+		this.inputComponentsList.setX(split + 2);
 		
 		this.addRenderableWidget(this.animationGrid);
 		this.addRenderableWidget(this.inputComponentsList);
@@ -821,7 +819,6 @@ public class ImportAnimationsScreen extends Screen {
 	
 	@Override
 	public void tick() {
-		this.animationGrid._tick();
 		this.inputComponentsList.tick();
 	}
 	
@@ -885,7 +882,7 @@ public class ImportAnimationsScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderDirtBackground(guiGraphics);
+		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	

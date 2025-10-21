@@ -20,12 +20,12 @@ import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class SkeletonPatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
-	public SkeletonPatch() {
-		super(Factions.UNDEAD);
+	public SkeletonPatch(T original) {
+		super(original, Factions.UNDEAD);
 	}
 	
-	public SkeletonPatch(Faction faction) {
-		super(faction);
+	public SkeletonPatch(T original, Faction faction) {
+		super(original, faction);
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.joml.Math;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -295,14 +294,11 @@ public class MathUtils {
 		poseStack.scale(vector.x(), vector.y(), vector.z());
 	}
 	
-	private static final Matrix4f MATRIX4F = new Matrix4f();
-	private static final Matrix3f MATRIX3F = new Matrix3f();
+	private static final Matrix4f BUFFER = new Matrix4f();
 	
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.exportToMojangMatrix(mat, MATRIX4F);
-		MATRIX3F.set(MATRIX4F);
-		poseStack.mulPoseMatrix(MATRIX4F);
-		poseStack.last().normal().mul(MATRIX3F);
+		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER);
+		poseStack.mulPose(BUFFER);
 	}
 	
 	public static double getAngleBetween(Vec3f a, Vec3f b) {

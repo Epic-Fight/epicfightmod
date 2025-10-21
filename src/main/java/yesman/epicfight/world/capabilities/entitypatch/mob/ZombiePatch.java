@@ -4,9 +4,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.client.animation.ClientAnimator;
@@ -14,13 +14,13 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class ZombiePatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
-	public ZombiePatch() {
-		super(Factions.UNDEAD);
+	public ZombiePatch(T original) {
+		super(original, Factions.UNDEAD);
 	}
 	
 	@Override
@@ -38,7 +38,7 @@ public class ZombiePatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.getPairingPacketType() == EntityPairingPacketTypes.ZOMBIE_SPAWN) {
+		if (packet.pairingPacketType() == EntityPairingPacketTypes.ZOMBIE_SPAWN) {
 			ClientAnimator animator = this.getClientAnimator();
 			animator.addLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
 			animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_WALK);
@@ -48,7 +48,7 @@ public class ZombiePatch<T extends PathfinderMob> extends HumanoidMobPatch<T> {
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.ZOMBIE, EpicFightAttributes.IMPACT.get(), 1.0D);
+		event.add(EntityType.ZOMBIE, EpicFightAttributes.IMPACT, 1.0D);
 	}
 	
 	@Override

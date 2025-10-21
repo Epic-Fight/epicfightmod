@@ -3,15 +3,15 @@ package yesman.epicfight.api.client.model.transformer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -20,26 +20,26 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
 public class HumanoidModelBaker {
-	static final Map<ResourceLocation, SkinnedMesh> BAKED_MODELS = Maps.newHashMap();
-	static final List<HumanoidModelTransformer> MODEL_TRANSFORMERS = Lists.newArrayList();
+	static final Map<ResourceLocation, SkinnedMesh> BAKED_MODELS = new HashMap<> ();
+	static final List<HumanoidModelTransformer> MODEL_TRANSFORMERS = new ArrayList<> ();
 	
-	static final Set<ArmorItem> EXCEPTIONAL_MODELS = Sets.newHashSet();
-	static final Set<ModelPart> MODEL_PARTS = Sets.newHashSet();
+	static final Set<ArmorItem> EXCEPTIONAL_MODELS = new HashSet<> ();
+	static final Set<ModelPart> MODEL_PARTS = new HashSet<> ();
 	
 	public static final HumanoidModelTransformer VANILLA_TRANSFORMER = new VanillaModelTransformer();
 	
@@ -90,7 +90,7 @@ public class HumanoidModelBaker {
 				try {
 					skinnedArmorModel = modelTransformer.transformArmorModel(humanoidModel);
 				} catch (Exception e) {
-					EpicFightMod.LOGGER.warn("Can't transform the model of " + ForgeRegistries.ITEMS.getKey(armorItem) + " because of :");
+					EpicFightMod.LOGGER.warn("Can't transform the model of " + BuiltInRegistries.ITEM.getKey(armorItem) + " because of :");
 					e.printStackTrace();
 					EXCEPTIONAL_MODELS.add(armorItem);
 				}
@@ -105,7 +105,7 @@ public class HumanoidModelBaker {
 			}
 		}
 		
-		BAKED_MODELS.put(ForgeRegistries.ITEMS.getKey(armorItem), skinnedArmorModel);
+		BAKED_MODELS.put(BuiltInRegistries.ITEM.getKey(armorItem), skinnedArmorModel);
 		
 		return skinnedArmorModel;
 	}

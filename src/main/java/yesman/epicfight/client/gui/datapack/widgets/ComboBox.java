@@ -17,8 +17,8 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<T, T> {
@@ -83,9 +83,9 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 	}
 	
 	@Override
-	public boolean mouseScrolled(double x, double y, double amount) {
+	public boolean mouseScrolled(double x, double y, double xScroll, double yScroll) {
 		if (this.listOpened) {
-			return this.comboItemList.mouseScrolled(x, y, amount);
+			return this.comboItemList.mouseScrolled(x, y, xScroll, yScroll);
 		}
 		
 		return false;
@@ -132,9 +132,9 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 	public void setWidth(int width) {
 		this.width = width;
 		
-		int left = this.comboItemList.getLeft();
-		this.comboItemList.updateSize(width, this.comboItemList.getHeight(), this.comboItemList.getTop(), this.comboItemList.getBottom());
-		this.comboItemList.setLeftPos(left);
+		int left = this.comboItemList.getX();
+		this.comboItemList.updateSizeAndPosition(width, this.comboItemList.getBottom() - this.comboItemList.getY(), this.comboItemList.getY());
+		this.comboItemList.setX(left);
 	}
 	
 	private void relocateComboList() {
@@ -145,12 +145,12 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		int topSpace = possibleTopPosition;
 		
 		if (bottomSpace < topSpace) {
-			this.comboItemList.updateSize(this.width, entryHeight * this.maxRows, this._getY() - (entryHeight * this.maxRows + 1), this._getY() - 1);
+			this.comboItemList.updateSizeAndPosition(this.width, entryHeight * this.maxRows, this._getY() - (entryHeight * this.maxRows + 1));
 		} else {
-			this.comboItemList.updateSize(this.width, entryHeight * this.maxRows, this._getY() + this.height + 1, this._getY() + this.height + entryHeight * this.maxRows + 1);
+			this.comboItemList.updateSizeAndPosition(this.width, entryHeight * this.maxRows, this._getY() + this.height + 1);
 		}
 		
-		this.comboItemList.setLeftPos(this._getX());
+		this.comboItemList.setX(this._getX());
 	}
 	
 	@Override
@@ -218,12 +218,17 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		private final Map<T, ComboItemEntry> entryMap = Maps.newHashMap();
 		
 		public ComboItemList(Minecraft minecraft, int maxRows, int itemHeight) {
-			super(minecraft, ComboBox.this.width, ComboBox.this.height, 0, itemHeight * maxRows, itemHeight);
-			
-			this.setRenderTopAndBottom(false);
+			super(minecraft, ComboBox.this.width, itemHeight * maxRows, 0, itemHeight);
 			this.setRenderHeader(false, 0);
-			this.setRenderBackground(false);
 		}
+		
+		@Override
+	    protected void renderListBackground(GuiGraphics guiGraphics) {
+	    }
+
+	    @Override
+	    protected void renderListSeparators(GuiGraphics guiGraphics) {
+	    }
 		
 		public void addEntry(T item, String displayName) {
 			ComboItemEntry entry = new ComboItemEntry(item, displayName);
@@ -232,11 +237,11 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		}
 		
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-			guiGraphics.fill(this.x0 - 1, this.y0 - 1, this.x1 + 1, this.y1 + 1, -1);
-			guiGraphics.fill(this.x0, this.y0, this.x1, this.y1, -16777216);
+		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+			guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getRight() + 1, this.getBottom() + 1, -1);
+			guiGraphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), -16777216);
 			
-			super.render(guiGraphics, mouseX, mouseY, partialTicks);
+			super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		
 		public void setSelected(T item) {
@@ -250,17 +255,17 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		
 		@Override
 		protected int getScrollbarPosition() {
-			return this.x1 - 6;
+			return this.getRight() - 6;
 		}
 		
 		@Override
 		public int getMaxScroll() {
-			return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0));
+			return Math.max(0, this.getMaxPosition() - (this.getBottom() - this.getY()));
 		}
 		
 		@Override
 		protected int getRowTop(int row) {
-			return this.y0 + 2 - (int) this.getScrollAmount() + row * this.itemHeight;
+			return this.getY() + 2 - (int) this.getScrollAmount() + row * this.itemHeight;
 		}
 		
 		@OnlyIn(Dist.CLIENT)
@@ -398,10 +403,6 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		this.comboItemList.setSelected((T)null);
 	}
 	
-	@Override
-	public void _tick() {
-	}
-
 	@Override
 	public int _getX() {
 		return this.getX();

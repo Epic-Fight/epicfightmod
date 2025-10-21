@@ -2,9 +2,9 @@ package yesman.epicfight.client.gui.screen.overlay;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.ClientEngine;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.client.events.engine.RenderEngine;
 
 @OnlyIn(Dist.CLIENT)
 public class FlickeringOverlay extends OverlayManager.Overlay {
@@ -24,7 +24,8 @@ public class FlickeringOverlay extends OverlayManager.Overlay {
 	public boolean render(int xResolution, int yResolution) {
 		this.time += this.deltaTime;
 		float darkenAmount = Mth.clamp((float)Math.sin(this.time), -1.0F, 0.0F);
-		OverlayManager overlayManager = ClientEngine.getInstance().renderEngine.getOverlayManager();
+		
+		OverlayManager overlayManager = RenderEngine.getInstance().getOverlayManager();
 		float gamma = (float)Math.max(this.initialGamma + darkenAmount * this.strength, 0.0F);
 		overlayManager.setModifiedGamma(gamma);
 

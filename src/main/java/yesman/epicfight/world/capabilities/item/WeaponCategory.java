@@ -1,8 +1,8 @@
 package yesman.epicfight.world.capabilities.item;
 
-import yesman.epicfight.api.utils.ExtendableEnum;
-import yesman.epicfight.api.utils.ExtendableEnumManager;
+import yesman.epicfight.api.utils.ExtensibleEnum;
+import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
-public interface WeaponCategory extends ExtendableEnum {
-	ExtendableEnumManager<WeaponCategory> ENUM_MANAGER = new ExtendableEnumManager<> ("weapon_category");
+public interface WeaponCategory extends ExtensibleEnum {
+	ExtensibleEnumManager<WeaponCategory> ENUM_MANAGER = new ExtensibleEnumManager<> ("weapon_category");
 }

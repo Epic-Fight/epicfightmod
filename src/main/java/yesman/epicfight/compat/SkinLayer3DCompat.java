@@ -26,7 +26,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -36,20 +35,20 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.SkinLayer3DTransformer;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.neoevent.EntityRemoveEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
@@ -57,22 +56,28 @@ import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClie
 import yesman.epicfight.main.EpicFightMod;
 
 public class SkinLayer3DCompat implements ICompatModule {
-	private static Capability<SkinLayer3DMeshes> SKIN_LAYER_3D_CAPABILITY;
+	public static final DeferredRegister<AttachmentType<?>> REGISTRY = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, EpicFightMod.MODID);
+	
+	public static final DeferredHolder<AttachmentType<?>, AttachmentType<SkinLayer3DMeshes>> SKINLAYER_MESH = REGISTRY.register(
+            "skinlayer_mesh",
+            () ->
+            	AttachmentType
+                    .builder(SkinLayer3DMeshes::new)
+                    .build()
+    );
 	
 	@Override
 	public void onModEventBus(IEventBus eventBus) {
-		
 	}
 
 	@Override
-	public void onForgeEventBus(IEventBus eventBus) {
-		
+	public void onGameEventBus(IEventBus eventBus) {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void onModEventBusClient(IEventBus eventBus) {
-		SKIN_LAYER_3D_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+		REGISTRY.register(eventBus);
 		
 		eventBus.<PatchedRenderersEvent.Modify>addListener((event) -> {
 			if (event.get(EntityType.PLAYER) instanceof PPlayerRenderer playerrenderer) {
@@ -83,34 +88,24 @@ public class SkinLayer3DCompat implements ICompatModule {
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public void onForgeEventBusClient(IEventBus eventBus) {
-		eventBus.addGenericListener(Entity.class, this::onCapabilityRegister);
+	public void onGameEventBusClient(IEventBus eventBus) {
+		eventBus.<EntityRemoveEvent>addListener(event -> {
+			event.getEntity().getExistingData(SKINLAYER_MESH).ifPresent(skinlayerMesh -> {
+				skinlayerMesh.partMeshes.forEach((k, v) -> v.destroy());
+				skinlayerMesh.partMeshes.clear();
+			});
+		});
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void onCapabilityRegister(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject().level().isClientSide() && event.getObject().getType() == EntityType.PLAYER) {
-			event.addCapability(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "animated_3d_skinlayer_mesh"), new ICapabilityProvider() {
-				final SkinLayer3DMeshes epicFight3dSkinLayerCapability = new SkinLayer3DMeshes();
-				
-				@Override
-				public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-					return cap == SKIN_LAYER_3D_CAPABILITY ? LazyOptional.of(() -> this.epicFight3dSkinLayerCapability).cast() :  LazyOptional.empty();
-				}
-			});
-			
-			event.addListener(() -> {
-				event.getObject().getCapability(SKIN_LAYER_3D_CAPABILITY).ifPresent((skinlayers3dMeshes) -> {
-					skinlayers3dMeshes.partMeshes.forEach((k, v) -> v.destroy());
-					skinlayers3dMeshes.partMeshes.clear();
-				});
-			});
-		}
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public static class SkinLayer3DMeshes {
+	public static final class SkinLayer3DMeshes {
 		private final Map<PlayerModelPart, SkinnedMesh> partMeshes = Maps.newHashMap();
+		
+		public SkinLayer3DMeshes(IAttachmentHolder attachmentHolder) {
+			if (!(attachmentHolder instanceof Entity)) {
+				throw new IllegalArgumentException(attachmentHolder + " is not a subtype of Entity");
+			}
+		}
 		
 		public void put(PlayerModelPart playerModelPart, SkinnedMesh animatedMesh) {
 			if (this.partMeshes.containsKey(playerModelPart)) {
@@ -134,7 +129,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 			
 			this.partVisibilities.put(PlayerModelPart.HAT, (player) -> {
 				Item item = player.getItemBySlot(EquipmentSlot.HEAD).getItem();
-				return !(item instanceof BlockItem && ((BlockItem)item).getBlock() instanceof AbstractSkullBlock) && SkinLayersModBase.config.enableHat;
+				return !(item instanceof BlockItem blockItem && blockItem.getBlock() instanceof AbstractSkullBlock) && SkinLayersModBase.config.enableHat;
 			});
 			this.partVisibilities.put(PlayerModelPart.LEFT_PANTS_LEG, (player) -> SkinLayersModBase.config.enableLeftPants);
 			this.partVisibilities.put(PlayerModelPart.RIGHT_PANTS_LEG, (player) -> SkinLayersModBase.config.enableRightPants);
@@ -145,7 +140,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 		
 		@Override
 		protected void renderLayer(AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch, AbstractClientPlayer player, CustomLayerFeatureRenderer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
-			if (!player.isSkinLoaded() || player.isInvisible()) {
+			if (SkinLayersModBase.config.compatibilityMode || player.isInvisible()) {
 				return;
 	        }
 			
@@ -153,12 +148,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 	            return;
 			}
 			
-			SkinLayer3DMeshes skin3dlayerMeshes = player.getCapability(SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY, null).orElse(null);
-			
-			if (skin3dlayerMeshes == null) {
-				return;
-			}
-			
+			SkinLayer3DMeshes skin3dlayerMeshes = player.getData(SKINLAYER_MESH);
 			int overlay = LivingEntityRenderer.getOverlayCoords(player, 0.0f);
 			
 			for (PlayerModelPart playerModelPart : PlayerModelPart.values()) {
@@ -168,7 +158,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 				
 				boolean noModel = !skin3dlayerMeshes.partMeshes.containsKey(playerModelPart);
 				
-				if (noModel || ClientEngine.getInstance().renderEngine.shouldRenderVanillaModel()) {
+				if (noModel || RenderEngine.getInstance().shouldRenderVanillaModel()) {
 					if (player instanceof PlayerSettings playerSettings) {
 						switch (playerModelPart) {
 						case JACKET -> {
@@ -195,9 +185,9 @@ public class SkinLayer3DCompat implements ICompatModule {
 						}
 					}
 					
-					//Initialize model
+					// Initialize timer
 					if (noModel) {
-						ClientEngine.getInstance().renderEngine.setModelInitializerTimer(60);
+						RenderEngine.getInstance().setModelInitializerTimer(20);
 					}
 				}
 				
@@ -205,26 +195,26 @@ public class SkinLayer3DCompat implements ICompatModule {
 					SkinnedMesh mesh = skin3dlayerMeshes.partMeshes.get(playerModelPart);
 					
 					if (mesh != null) {
-						mesh.draw(poseStack, buffer, RenderType.entityTranslucent(player.getSkinTextureLocation(), true), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, overlay, entitypatch.getArmature(), poses);
+						mesh.draw(poseStack, buffer, RenderType.entityTranslucent(player.getSkin().texture(), true), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, overlay, entitypatch.getArmature(), poses);
 					}
 				}
 			}
 		}
 		
 		private static SkinnedMesh createEpicFight3DSkinLayer(AbstractClientPlayer player, PlayerModelPart playerModelPart, Mesh skinlayerModelPart, ModelPart vanillaModelPart, int width, int height, int depth, int textureU, int textureV, boolean topPivot, float rotationOffset) {
-            CustomizableCubeListBuilder builder = new CustomizableCubeListBuilder();
+			CustomizableCubeListBuilder builder = new CustomizableCubeListBuilder();
             ResourceLocation skinLocation = PlayerUtil.getPlayerSkin(player);
 			NativeImage skinImage = SkinUtil.getTexture(skinLocation, null);
             
             if (SolidPixelWrapper.wrapBox(builder, new WrappedNativeImage(skinImage), width, height, depth, textureU, textureV, topPivot, rotationOffset) != null) {
                 return SkinLayer3DTransformer.transformMesh(
-	                			player
-	                		 , (skinlayerModelPart == null) ? new CustomizableModelPart(builder.getVanillaCubes(), builder.getCubes(), Collections.emptyMap()) : (CustomizableModelPart)skinlayerModelPart
-	                		 , vanillaModelPart
-	                		 , playerModelPart
-	                		 , builder.getVanillaCubes()
-	                		 , builder.getCubes()
-                	   );
+            			player
+            		 , (skinlayerModelPart == null) ? new CustomizableModelPart(builder.getVanillaCubes(), builder.getCubes(), Collections.emptyMap()) : (CustomizableModelPart)skinlayerModelPart
+            		 , vanillaModelPart
+            		 , playerModelPart
+            		 , builder.getVanillaCubes()
+            		 , builder.getCubes()
+        	   );
             }
             
             return null;

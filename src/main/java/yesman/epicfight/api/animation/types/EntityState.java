@@ -4,12 +4,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
+import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
 
 public class EntityState {
-	public static class StateFactor<T> implements TypeFlexibleHashMap.TypeKey<T> {
+	public static class StateFactor<T> implements ParameterizedHashMap.ParameterizedKey<T> {
 		private final String name;
 		private final T defaultValue;
 		
@@ -27,39 +27,35 @@ public class EntityState {
 		}
 	}
 	
-	public static final EntityState DEFAULT_STATE = new EntityState(new TypeFlexibleHashMap<>(true));
+	public static final EntityState DEFAULT_STATE = new EntityState(new ParameterizedHashMap<StateFactor<?>> ());
 	
 	public static final StateFactor<Boolean> TURNING_LOCKED = new StateFactor<>("turningLocked", false);
 	public static final StateFactor<Boolean> MOVEMENT_LOCKED = new StateFactor<>("movementLocked", false);
 	public static final StateFactor<Boolean> ATTACKING = new StateFactor<>("attacking", false);
-	public static final StateFactor<Boolean> CAN_BASIC_ATTACK = new StateFactor<>("canBasicAttack", true);
-	public static final StateFactor<Boolean> CAN_SKILL_EXECUTION = new StateFactor<>("canExecuteSkill", true);
+	public static final StateFactor<Boolean> COMBO_ATTACKS_DOABLE = new StateFactor<>("comboAttacksDoable", true);
+	public static final StateFactor<Boolean> SKILL_EXECUTABLE = new StateFactor<>("skillExecutable", true);
 	public static final StateFactor<Boolean> CAN_USE_ITEM = new StateFactor<>("canUseItem", true);
 	public static final StateFactor<Boolean> CAN_SWITCH_HAND_ITEM = new StateFactor<>("canSwitchHandItem", true);
 	public static final StateFactor<Boolean> INACTION = new StateFactor<>("takingAction", false);
 	public static final StateFactor<Boolean> KNOCKDOWN = new StateFactor<>("knockdown", false);
-	public static final StateFactor<Boolean> LOCKON_ROTATE = new StateFactor<>("lockonRotate", false);
+	public static final StateFactor<Boolean> LOOK_TARGET = new StateFactor<>("lookTarget", false);
 	public static final StateFactor<Boolean> UPDATE_LIVING_MOTION = new StateFactor<>("updateLivingMotion", true);
 	public static final StateFactor<Integer> HURT_LEVEL = new StateFactor<>("hurtLevel", 0);
 	public static final StateFactor<Integer> PHASE_LEVEL = new StateFactor<>("phaseLevel", 0);
 	public static final StateFactor<Function<DamageSource, AttackResult.ResultType>> ATTACK_RESULT = new StateFactor<>("attackResultModifier", (damagesource) -> AttackResult.ResultType.SUCCESS);
 	public static final StateFactor<Consumer<ProjectileImpactEvent>> PROJECTILE_IMPACT_RESULT = new StateFactor<>("projectileImpactResult", (event) -> {});
 	
-	private final TypeFlexibleHashMap<StateFactor<?>> stateMap;
+	private final ParameterizedHashMap<StateFactor<?>> stateMap;
 	
-	public EntityState(TypeFlexibleHashMap<StateFactor<?>> states) {
+	public EntityState(ParameterizedHashMap<StateFactor<?>> states) {
 		this.stateMap = states;
-	}
-	
-	public <T> void setState(StateFactor<T> stateFactor, T val) {
-		this.stateMap.put(stateFactor, (Object)val);
 	}
 	
 	public <T> T getState(StateFactor<T> stateFactor) {
 		return this.stateMap.getOrDefault(stateFactor);
 	}
 	
-	public TypeFlexibleHashMap<StateFactor<?>> getStateMap() {
+	public ParameterizedHashMap<StateFactor<?>> getStateMap() {
 		return this.stateMap;
 	}
 	
@@ -84,11 +80,11 @@ public class EntityState {
 	}
 	
 	public boolean canBasicAttack() {
-		return this.getState(EntityState.CAN_BASIC_ATTACK);
+		return this.getState(EntityState.COMBO_ATTACKS_DOABLE);
 	}
 	
 	public boolean canUseSkill() {
-		return this.getState(EntityState.CAN_SKILL_EXECUTION);
+		return this.getState(EntityState.SKILL_EXECUTABLE);
 	}
 	
 	public boolean canUseItem() {
@@ -119,8 +115,8 @@ public class EntityState {
 		return this.getState(EntityState.KNOCKDOWN);
 	}
 	
-	public boolean lockonRotate() {
-		return this.getState(EntityState.LOCKON_ROTATE);
+	public boolean lookTarget() {
+		return this.getState(EntityState.LOOK_TARGET);
 	}
 	
 	/**

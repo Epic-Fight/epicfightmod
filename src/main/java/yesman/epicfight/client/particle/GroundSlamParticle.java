@@ -12,8 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.level.block.FractureBlockState;
@@ -35,7 +35,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 			}
 		}
 		
-		if (!bs.shouldSpawnParticlesOnBreak()) {
+		if (!bs.shouldSpawnTerrainParticles()) {
 			return;
 		}
 		
@@ -53,7 +53,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 			Particle smokeParticle = mc.particleEngine.createParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x + positionVec.x * 0.5D, y + 1.5D, z + positionVec.z * 0.5D, 0, 0, 0); 
 			smokeParticle.setParticleSpeed(moveVec.x * 0.1D, Math.random() * 0.05D, moveVec.z * 0.1D);
 			smokeParticle.scale(3.0F);
-			smokeParticle.setAlpha(0.33F);
+			smokeParticle.alpha = 0.33F;
 			mc.particleEngine.add(blockParticle);
 			mc.particleEngine.add(smokeParticle);
 		}

@@ -4,12 +4,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.function.Function;
 
 import org.joml.Vector4f;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
@@ -18,29 +17,34 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
-import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
+import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillDataKeys;
+import yesman.epicfight.skill.SkillEvent;
+import yesman.epicfight.skill.SkillEvent.Side;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.DecorationOverlay;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class AdaptiveSkinSkill extends PassiveSkill {
-	private static final UUID EVENT_UUID = UUID.fromString("e9cd15f0-72cc-474b-bfee-66276d06157d");
-	
-	public static class Builder extends SkillBuilder<AdaptiveSkinSkill> {
+	public static class Builder extends SkillBuilder<AdaptiveSkinSkill.Builder> {
 		protected final Map<TagKey<DamageType>, Vec3f> protectableDamageTypeTags = new LinkedHashMap<> ();
+		
+		public Builder(Function<AdaptiveSkinSkill.Builder, ? extends Skill> constructor) {
+			super(constructor);
+		}
 		
 		public Builder addProtectableDamageTypeTags(Map<TagKey<DamageType>, Vec3f> tags) {
 			this.protectableDamageTypeTags.putAll(tags);
@@ -49,7 +53,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 	}
 	
 	public static AdaptiveSkinSkill.Builder createAdaptiveSkinBuilder() {
-		return new AdaptiveSkinSkill.Builder()
+		return new AdaptiveSkinSkill.Builder(AdaptiveSkinSkill::new)
 				.addProtectableDamageTypeTags(
 					ImmutableMap.of(
 						EpicFightDamageTypeTags.IS_MELEE, new Vec3f(227 / 255.0F, 127 / 255.0F, 127 / 255.0F),
@@ -64,77 +68,70 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 	}
 	
 	private final Map<TagKey<DamageType>, Vec3f> protectableDamageTypeTags;
-	
 	private float damageResistance;
 	private int maxResistanceStack;
 	
-	public AdaptiveSkinSkill(Builder builder) {
+	public AdaptiveSkinSkill(AdaptiveSkinSkill.Builder builder) {
 		super(builder);
 		
 		this.protectableDamageTypeTags = Collections.unmodifiableMap(builder.protectableDamageTypeTags);
 	}
 	
 	@Override
-	public void setParams(CompoundTag parameters) {
-		super.setParams(parameters);
+	public void loadDatapackParameters(CompoundTag parameters) {
+		super.loadDatapackParameters(parameters);
 		
 		this.damageResistance = parameters.getFloat("damage_resistance");
 		this.maxResistanceStack = parameters.getInt("max_resistance_stack");
 	}
 	
-	@Override
-	public void onInitiate(SkillContainer container) {
-		super.onInitiate(container);
+	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
+	public void takeDamagePost(TakeDamageEvent.Pre event, SkillContainer container) {
+		TagKey<DamageType> currentResisting = container.getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE);
+		int stacks = container.getDataManager().getDataValueOptional(EpicFightSkillDataKeys.STACKS).orElse(0);
 		
-		PlayerEventListener listener = container.getExecutor().getEventListener();
-		
-		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
-			TagKey<DamageType> currentResisting = container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
-			int stacks = container.getDataManager().getDataValueOptional(SkillDataKeys.STACKS.get()).orElse(0);
+		if (event.getDamageSource().is(currentResisting)) {
+			event.attachValueModifier(ValueModifier.multiplier(1.0F - this.damageResistance * stacks));
 			
-			if (event.getDamageSource().is(currentResisting)) {
-				event.attachValueModifier(ValueModifier.multiplier(1.0F - this.damageResistance * stacks));
+			if (stacks < this.maxResistanceStack) {
+				container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_INCREASE, 1.0F, 0.0F, 0.0F);
+				container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.STACKS, v -> v + 1);
+			}
+			
+			container.getDataManager().setDataSync(EpicFightSkillDataKeys.TICK_RECORD, container.getExecutor().getOriginal().tickCount);
+		} else {
+			if (stacks <= 1) {
+				for (TagKey<DamageType> protectableTag : this.protectableDamageTypeTags.keySet()) {
+					if (event.getDamageSource().is(protectableTag)) {
+						container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 1);
+						container.getDataManager().setDataSync(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE, protectableTag);
+						container.getDataManager().setDataSync(EpicFightSkillDataKeys.TICK_RECORD, container.getExecutor().getOriginal().tickCount);
+						
+						if (stacks == 0) {
+							container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_INCREASE, 1.0F, 0.0F, 0.0F);
+						} else {
+							container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_DECREASE, 1.0F, 0.0F, 0.0F);
+						}
+						
+						break;
+					}
+				}
+			} else {
+				boolean adaptableType = false;
 				
-				if (stacks < this.maxResistanceStack) {
-					container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_INCREASE.get(), 1.0F, 0.0F, 0.0F);
-					container.getDataManager().setDataSyncF(SkillDataKeys.STACKS.get(), v -> v + 1);
+				for (TagKey<DamageType> protectableTag : this.protectableDamageTypeTags.keySet()) {
+					if (event.getDamageSource().is(protectableTag)) {
+						adaptableType = true;
+						break;
+					}
 				}
 				
-				container.getDataManager().setDataSync(SkillDataKeys.TICK_RECORD.get(), container.getExecutor().getOriginal().tickCount);
-			} else {
-				if (stacks <= 1) {
-					for (TagKey<DamageType> protectableTag : this.protectableDamageTypeTags.keySet()) {
-						if (event.getDamageSource().is(protectableTag)) {
-							container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 1);
-							container.getDataManager().setDataSync(SkillDataKeys.RESISTING_DAMAGE_TYPE.get(), protectableTag);
-							container.getDataManager().setDataSync(SkillDataKeys.TICK_RECORD.get(), container.getExecutor().getOriginal().tickCount);
-							
-							if (stacks == 0) {
-								container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_INCREASE.get(), 1.0F, 0.0F, 0.0F);
-							} else {
-								container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_DECREASE.get(), 1.0F, 0.0F, 0.0F);
-							}
-							
-							break;
-						}
-					}
-				} else {
-					boolean adaptableType = false;
-					
-					for (TagKey<DamageType> protectableTag : this.protectableDamageTypeTags.keySet()) {
-						if (event.getDamageSource().is(protectableTag)) {
-							adaptableType = true;
-							break;
-						}
-					}
-					
-					if (adaptableType) {
-						container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_DECREASE.get(), 1.0F, 0.0F, 0.0F);
-						container.getDataManager().setDataSyncF(SkillDataKeys.STACKS.get(), v -> v - 1);
-					}
+				if (adaptableType) {
+					container.getExecutor().playSound(EpicFightSounds.ADAPTIVE_SKIN_DECREASE.get(), 1.0F, 0.0F, 0.0F);
+					container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.STACKS, v -> v - 1);
 				}
 			}
-		});
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -143,14 +140,14 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		container.getExecutor().getEntityDecorations().addDecorationOverlay(EntityDecorations.ADAPTIVE_SKIN_OVERLAY, new DecorationOverlay() {
 			@Override
 			public RenderType getRenderType() {
-				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
+				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE);
 				Vec3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
 				return EpicFightRenderTypes.coloredGlintWorldRendertype(container.getExecutor().getOriginal(), color.x, color.y, color.z);
 			}
 			
 			@Override
 			public boolean shouldRender() {
-				return container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValueOptional(SkillDataKeys.RESISTING_DAMAGE_TYPE.get()).orElse(EpicFightDamageTypeTags.NONE) != EpicFightDamageTypeTags.NONE;
+				return container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValueOptional(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE).orElse(EpicFightDamageTypeTags.NONE) != EpicFightDamageTypeTags.NONE;
 			}
 			
 			@Override
@@ -162,7 +159,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		container.getExecutor().getEntityDecorations().addColorModifier(EntityDecorations.ADAPTIVE_SKIN_COLOR, new yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.RenderAttributeModifier<> () {
 			@Override
 			public void modifyValue(Vector4f val, float partialTick) {
-				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
+				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE);
 				
 				if (!EpicFightDamageTypeTags.NONE.equals(resistingDamageTypeTagKey)) {
 					Vec3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
@@ -180,23 +177,15 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 	}
 	
 	@Override
-	public void onRemoved(SkillContainer container) {
-		super.onRemoved(container);
-		
-		PlayerEventListener listener = container.getExecutor().getEventListener();
-		listener.removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID);
-	}
-	
-	@Override
 	public void updateContainer(SkillContainer container) {
 		super.updateContainer(container);
 		
-		TagKey<DamageType> resistingDamageTypeTag = container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
+		TagKey<DamageType> resistingDamageTypeTag = container.getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE);
 		
 		if (!EpicFightDamageTypeTags.NONE.equals(resistingDamageTypeTag)) {
-			if (container.getExecutor().getOriginal().tickCount - container.getDataManager().getDataValueOptional(SkillDataKeys.TICK_RECORD.get()).orElse(0) > 300) {
-				container.getDataManager().setDataSync(SkillDataKeys.RESISTING_DAMAGE_TYPE.get(), EpicFightDamageTypeTags.NONE);
-				container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0);
+			if (container.getExecutor().getOriginal().tickCount - container.getDataManager().getDataValueOptional(EpicFightSkillDataKeys.TICK_RECORD).orElse(0) > 300) {
+				container.getDataManager().setDataSync(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE, EpicFightDamageTypeTags.NONE);
+				container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 0);
 			}
 		}
 	}
@@ -208,39 +197,33 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public boolean shouldDraw(SkillContainer container) {
-		TagKey<DamageType> resistingDamageTypeTag = container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
+		TagKey<DamageType> resistingDamageTypeTag = container.getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE);
 		return !EpicFightDamageTypeTags.NONE.equals(resistingDamageTypeTag) && this.protectableDamageTypeTags.containsKey(resistingDamageTypeTag);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
-		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
-		
-		Vec3f color = this.protectableDamageTypeTags.get(container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get()));
+		Vec3f color = this.protectableDamageTypeTags.get(container.getDataManager().getDataValue(EpicFightSkillDataKeys.RESISTING_DAMAGE_TYPE));
 		guiGraphics.innerBlit(this.getSkillTexture(), (int)x, (int)x + 24, (int)y, (int)y + 24, 0, 0.0F, 1.0F, 0.0F, 1.0F, color.x, color.y, color.z, 1.0F);
-		int stacks = container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
+		int stacks = container.getDataManager().getDataValue(EpicFightSkillDataKeys.STACKS);
 		
 		if (stacks > 1) {
 			guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 16, 16777215, true);
 		}
 		
-		int lastHitTick = container.getDataManager().getDataValueOptional(SkillDataKeys.TICK_RECORD.get()).orElse(0);
+		int lastHitTick = container.getDataManager().getDataValueOptional(EpicFightSkillDataKeys.TICK_RECORD).orElse(0);
 		
 		if (container.getExecutor().getOriginal().tickCount - lastHitTick > 200) {
 			int remainseconds = 1 + (100 - (container.getExecutor().getOriginal().tickCount - lastHitTick - 200)) / 20;
 			guiGraphics.drawString(gui.getFont(), String.valueOf(remainseconds), x + 8, y + 8, 16777215, true);
 		}
-		
-		poseStack.popPose();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public List<Object> getTooltipArgsOfScreen(List<Object> list) {
-		list.add(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.damageResistance * 100.0F));
+		list.add(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.damageResistance * 100.0F));
 		list.add(this.maxResistanceStack);
 		
 		StringBuilder sb = new StringBuilder();

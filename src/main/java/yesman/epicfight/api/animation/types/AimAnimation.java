@@ -3,11 +3,10 @@ package yesman.epicfight.api.animation.types;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.JointTransform;
@@ -96,7 +95,7 @@ public class AimAnimation extends StaticAnimation {
 				
 				return pose;
 			} else {
-				float pitch = entitypatch.getOriginal().getViewXRot(Minecraft.getInstance().getFrameTime());
+				float pitch = entitypatch.getOriginal().getViewXRot(partialTicks);
 				StaticAnimation interpolateAnimation;
 				interpolateAnimation = (pitch > 0) ? this.lookDown : this.lookUp;
 				Pose pose1 = super.getPoseByTime(entitypatch, time, partialTicks);	

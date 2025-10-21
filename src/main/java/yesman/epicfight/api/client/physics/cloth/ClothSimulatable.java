@@ -3,8 +3,8 @@ package yesman.epicfight.api.client.physics.cloth;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.SimulatableObject;

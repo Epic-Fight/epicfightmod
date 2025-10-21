@@ -16,8 +16,8 @@ import java.util.function.BiConsumer;
 import javax.net.ssl.SSLContext;
 
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
@@ -69,11 +69,19 @@ public class EpicFightServerConnectionHelper {
 				boolean shouldCreate;
 				
 				if (file.exists()) {
+					InputStream inputStream = null;
+					
 					try {
-						String sha256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(file).readAllBytes());
+						inputStream = new FileInputStream(file);
+						String sha256 = ParseUtil.getBytesSHA256Hash(inputStream.readAllBytes());
 						shouldCreate = !sha256.equals(os.SHA256());
 					} catch (IOException e) {
 						shouldCreate = true;
+					} finally {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
 					}
 				} else {
 					shouldCreate = true;

@@ -9,22 +9,25 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.WitherSkull;
-import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.mob.WitherSkeletonPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.entity.WitherSkeletonMinion;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 public class WitherSkullPatch extends ProjectilePatch<WitherSkull> {
+	public WitherSkullPatch(WitherSkull original) {
+		super(original);
+	}
+	
 	@Override
 	public void onJoinWorld(WitherSkull projectileEntity, EntityJoinLevelEvent event) {
 		super.onJoinWorld(projectileEntity, event);
@@ -47,16 +50,16 @@ public class WitherSkullPatch extends ProjectilePatch<WitherSkull> {
 				Vec3 location = event.getRayTraceResult().getLocation();
 				BlockPos blockpos = new BlockPos.MutableBlockPos(location.x, location.y, location.z);
 				Projectile projectile = event.getProjectile();
-				EntityType<?> entityType = EpicFightEntities.WITHER_SKELETON_MINION.get();
+				EntityType<?> entityType = EpicFightEntityTypes.WITHER_SKELETON_MINION.get();
 				
 				if (
-					NaturalSpawner.isSpawnPositionOk(SpawnPlacements.getPlacementType(entityType), serverLevel, blockpos, entityType) &&
+					SpawnPlacements.isSpawnPositionOk(entityType, serverLevel, blockpos) &&
 					SpawnPlacements.checkSpawnRules(entityType, serverLevel, MobSpawnType.REINFORCEMENT, blockpos, serverLevel.random) &&
 					!EpicFightGameRules.NO_MOBS_IN_BOSSFIGHT.getRuleValue(serverLevel)
 				) {
 					WitherBoss summoner = (projectile.getOwner() instanceof WitherBoss) ? ((WitherBoss)projectile.getOwner()) : null;
 					WitherSkeletonMinion witherskeletonminion = new WitherSkeletonMinion(serverLevel, summoner, projectile.getX(), projectile.getY() + 0.1D, projectile.getZ());
-					witherskeletonminion.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(blockpos), MobSpawnType.REINFORCEMENT, null, null);
+					witherskeletonminion.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(blockpos), MobSpawnType.REINFORCEMENT, null);
 					witherskeletonminion.setYRot(projectile.getYRot() - 180.0F);
 					serverLevel.addFreshEntity(witherskeletonminion);
 					

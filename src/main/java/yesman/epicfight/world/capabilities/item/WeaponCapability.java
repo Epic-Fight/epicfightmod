@@ -7,12 +7,9 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -21,11 +18,10 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.collider.Collider;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -45,7 +41,7 @@ public class WeaponCapability extends CapabilityItem {
 	protected final ZoomInType zoomInType;
 	protected final float reach;
 	
-	protected WeaponCapability(CapabilityItem.Builder builder) {
+	protected WeaponCapability(WeaponCapability.Builder builder) {
 		super(builder);
 		
 		WeaponCapability.Builder weaponBuilder = (WeaponCapability.Builder)builder;
@@ -172,7 +168,7 @@ public class WeaponCapability extends CapabilityItem {
 		return new WeaponCapability.Builder();
 	}
 	
-	public static class Builder extends CapabilityItem.Builder {
+	public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
 		Function<LivingEntityPatch<?>, Style> styleProvider;
 		Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
 		Skill passiveSkill;
@@ -204,12 +200,6 @@ public class WeaponCapability extends CapabilityItem {
 			this.reach = 0.2F;
 		}
 		
-		@Override
-		public Builder category(WeaponCategory category) {
-			super.category(category);
-			return this;
-		}
-		
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
 			return this;
@@ -232,11 +222,6 @@ public class WeaponCapability extends CapabilityItem {
 		
 		public Builder hitParticle(HitParticleType hitParticle) {
 			this.hitParticle = hitParticle;
-			return this;
-		}
-		
-		public Builder collider(Collider collider) {
-			this.collider = collider;
 			return this;
 		}
 		
@@ -266,11 +251,6 @@ public class WeaponCapability extends CapabilityItem {
 			
 			this.livingMotionModifiers.get(wieldStyle).put(livingMotion, animation);
 			
-			return this;
-		}
-		
-		public Builder addStyleAttibutes(Style style, Pair<Attribute, AttributeModifier> attributePair) {
-			super.addStyleAttibutes(style, attributePair);
 			return this;
 		}
 		

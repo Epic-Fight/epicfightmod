@@ -9,14 +9,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillContainer;
 
@@ -140,8 +141,8 @@ public class SlotSelectScreen extends Screen {
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if (delta > 0) this.scrollUp();
+	public boolean mouseScrolled(double mouseX, double mouseY, double xScroll, double yScroll) {
+		if (yScroll > 0) this.scrollUp();
 		else this.scrollDown();
 		return true;
 	}
@@ -163,6 +164,7 @@ public class SlotSelectScreen extends Screen {
 		int top = (this.height - boxHeight) / 2;
 		
 		this.parent.render(guiGraphics, mouseX, mouseY, partialTick, true);
+		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		
 		// move z level, to prevent the button text displayed above the screen.
 		guiGraphics.pose().translate(0, 0, 5000);
@@ -177,7 +179,9 @@ public class SlotSelectScreen extends Screen {
 			lineHeight += 10;
 		}
 		
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
+		for (Renderable renderable : this.renderables) {
+            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -213,7 +217,7 @@ public class SlotSelectScreen extends Screen {
 		}
 		
 		@Override
-		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
 			
 			RenderSystem.enableBlend();

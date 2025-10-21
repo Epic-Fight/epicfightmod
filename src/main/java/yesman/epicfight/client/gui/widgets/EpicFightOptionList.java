@@ -12,15 +12,15 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EpicFightOptionList extends ContainerObjectSelectionList<EpicFightOptionList.OptionEntry> {
-	public EpicFightOptionList(Minecraft minecraft, int p_94466_, int p_94467_, int p_94468_, int p_94469_, int p_94470_) {
-		super(minecraft, p_94466_, p_94467_, p_94468_, p_94469_, p_94470_);
-		this.centerListVertically = false;
-	}
+	public EpicFightOptionList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+        super(minecraft, width, height, y, itemHeight);
+        this.centerListVertically = false;
+    }
 	
 	public int addBig(AbstractWidget button1) {
 		return this.addEntry(EpicFightOptionList.OptionEntry.big(this.width, button1));

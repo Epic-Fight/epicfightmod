@@ -118,13 +118,6 @@ public interface ControllerBinding {
      */
     float getAnalogueNow();
 
-    // TODO: (INPUT_SYSTEM_REFACTOR): We need to add a new method that perform functionality equivalent to setKeyBind in ControlEngine:
-    //  https://github.com/Epic-Fight/epicfight/blob/432ecafe79a025322e3492a02c57eda95f6385d0/src/main/java/yesman/epicfight/client/events/engine/ControlEngine.java#L509-L511
-    //  However, the Controlify mod only provides fakePress() AFAIK (so we only added emulatePress), other controller mods do provide them.
-    //  The real question is: why are these even needed, and what purpose do they serve?
-    //  It appears it's used to just disable sprint. We should explore alternative
-    //  approaches to achieve this without relying on these vanilla APIs.
-
     /**
      * Simulates a press of this binding.
      * <p>

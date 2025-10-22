@@ -5,9 +5,6 @@ import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.client.input.MovementDirection;
-import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 
 /**
@@ -17,18 +14,6 @@ import yesman.epicfight.api.client.input.handlers.InputManager;
 @ApiStatus.Internal
 public final class InputUtils {
     private InputUtils() {
-    }
-
-    public static boolean isJumpActionPressed() {
-        return InputManager.isActionActive(EpicFightInputActions.JUMP);
-    }
-
-    public static MovementDirection getMovementDirection(LocalPlayer localPlayer) {
-        return MovementDirection.fromInputState(getInputState(localPlayer));
-    }
-
-    public static PlayerInputState getInputState(LocalPlayer localPlayer) {
-        return InputManager.getInputState(localPlayer.input);
     }
 
     public static void sneakingTick(boolean isSneaking, float sneakingSpeedMultiplier) {

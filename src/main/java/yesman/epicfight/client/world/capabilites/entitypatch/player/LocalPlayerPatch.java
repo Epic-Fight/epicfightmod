@@ -43,9 +43,10 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.ViewLimit;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
@@ -364,7 +365,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public boolean shouldBlockMoving() {
-		return ControlEngine.isKeyDown(this.minecraft.options.keyDown) || ControlEngine.isKeyDown(this.minecraft.options.keyShift);
+		return InputManager.isActionActive(EpicFightInputActions.MOVE_BACKWARD) || InputManager.isActionActive(EpicFightInputActions.SNEAK);
 	}
 	
 	@Override

@@ -77,6 +77,8 @@ import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.ViewLimit;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.forgeevent.RenderEnderDragonEvent;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -691,7 +693,7 @@ public class RenderEngine {
 					CapabilityItem cap = EpicFightCapabilities.getItemStackCapabilityOr(event.getItemStack(), null);
 					
 					if (cap != null) {
-						if (ControlEngine.isKeyDown(EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP)) {
+						if (InputManager.isActionActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
 							Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, event.getItemStack());
 
 							if (weaponInnateSkill != null) {

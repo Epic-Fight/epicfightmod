@@ -3,7 +3,7 @@ package yesman.epicfight.skill.dodge;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +13,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.input.MovementDirection;
+import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.utils.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.Skill;
@@ -49,16 +52,13 @@ public class DodgeSkill extends Skill {
 	@Override
 	public Object getExecutionPacket(SkillContainer skillContainer, FriendlyByteBuf args) {
 		LocalPlayerPatch executor = skillContainer.getClientExecutor();
-		Input input = executor.getOriginal().input;
+		LocalPlayer localPlayer = executor.getOriginal();
 		float pulse = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(executor.getOriginal()), 0.0F, 1.0F);
-		input.tick(false, pulse);
+        InputUtils.sneakingTick(localPlayer, false, pulse);
 		
-        int forward = input.up ? 1 : 0;
-        int backward = input.down ? -1 : 0;
-        int left = input.left ? 1 : 0;
-        int right = input.right ? -1 : 0;
-		int vertic = forward + backward;
-		int horizon = left + right;
+        final MovementDirection movementDirection = MovementDirection.fromInputState(InputManager.getInputState(localPlayer.input));
+		final int vertic = movementDirection.vertical();
+		final int horizon = movementDirection.horizontal();
 		float yRot = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
 		float degree = Mth.wrapDegrees(-(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon) + yRot);
 		

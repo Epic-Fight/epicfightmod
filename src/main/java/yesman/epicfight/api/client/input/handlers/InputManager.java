@@ -68,7 +68,7 @@ public final class InputManager {
      * This is usually useful for continuous actions.
      *
      * @param action the input action to check
-     * @return true if the action is currently this tick active; false otherwise
+     * @return true if the action is currently active in this tick; false otherwise
      * @see InputType
      */
     public static boolean isActionActive(@NotNull EpicFightInputActions action) {
@@ -152,6 +152,7 @@ public final class InputManager {
      * @return an immutable {@link PlayerInputState} representing the current input state.
      * @see InputManager#setInputState
      */
+    @NotNull
     public static PlayerInputState getInputState(@NotNull Input vanillaInput) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
@@ -159,6 +160,18 @@ public final class InputManager {
         }
 
         return PlayerInputState.fromVanillaInput(vanillaInput);
+    }
+
+    /**
+     * Convenience overload of {@link #getInputState(Input)} that requires the full {@link LocalPlayer},
+     * which is needed to read the vanilla {@link Input} used for non-controller inputs.
+     *
+     * @param localPlayer the player whose vanilla {@link Input} will be read; ignored when using a controller.
+     * @return an immutable {@link PlayerInputState} representing the current input state.
+     */
+    @NotNull
+    public static PlayerInputState getInputState(@NotNull LocalPlayer localPlayer) {
+        return getInputState(localPlayer.input);
     }
 
     /**

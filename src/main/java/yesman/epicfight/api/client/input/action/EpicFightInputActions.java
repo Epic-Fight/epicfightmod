@@ -12,10 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: (INPUT_SYSTEM_REFACTOR) EpicFightInputActions must be registered
-//  in the EpicFightMod class constructor. Registration is not done yet because
-//  any modifications to the Epic Fight existing files must not be done in the first commit.
-
 /**
  * Represents a default set of input actions used in the Epic Fight mod.
  * <p>

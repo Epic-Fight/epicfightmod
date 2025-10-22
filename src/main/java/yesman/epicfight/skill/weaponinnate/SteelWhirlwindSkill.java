@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -14,6 +13,8 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.input.PlayerInputState;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.gameasset.Animations;
@@ -48,10 +49,12 @@ public class SteelWhirlwindSkill extends WeaponInnateSkill implements Chargeable
 				LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
 				clientPlayer.setSprinting(false);
 				clientPlayer.sprintTriggerTime = -1;
-				Minecraft mc = Minecraft.getInstance();
-				ControlEngine.setKeyBind(mc.options.keySprint, false);
-				
-				event.getMovementInput().forwardImpulse *= 1.0F - 0.8F * event.getPlayerPatch().getSkillChargingTicks() / 30.0F;
+                ControlEngine.setSprintingKeyStateNotDown();
+
+                final PlayerInputState current = event.getInputState();
+                final PlayerInputState updated = current
+                        .withForwardImpulse(current.forwardImpulse() * (1.0F - 0.8F * event.getPlayerPatch().getSkillChargingTicks() / 30.0F));
+                InputManager.setInputState(updated);
 			}
 		});
 	}

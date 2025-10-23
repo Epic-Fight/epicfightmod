@@ -525,12 +525,7 @@ public class ControlEngine {
 	public void lockHotkeys() {
 		this.hotbarLocked = true;
 		this.lastHotbarLockedTime = this.player.tickCount;
-
-		for (int i = 0; i < 9; ++i) {
-            // TODO: (INPUT_SYSTEM_REFACTOR) This only works for key inputs (the usage of keyHotbarSlots).
-            //  Explore a universal solution that also supports controllers and other input systems.
-			while (this.options.keyHotbarSlots[i].consumeClick());
-		}
+        consumeHotbarSlotKeyClicks();
 	}
 	
 	public void unlockHotkeys() {

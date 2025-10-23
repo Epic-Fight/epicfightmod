@@ -76,7 +76,7 @@ public class ClientEvents {
 	public static void presssKeyInGui(ScreenEvent.KeyPressed.Pre event) {
 		CapabilityItem itemCapability = CapabilityItem.EMPTY;
 
-        // TODO: (INPUT_SYSTEM_REFACTOR) This only disables swaping off hand item for key inputs.
+        // TODO: (INPUT_SYSTEM_REFACTOR) This only disables putting the item to offhand inventory slot for key inputs (defaults to F).
         //  Explore a universal solution that also supports controllers and other input systems.
 		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.getKey().getValue()) {
 			if (event.getScreen() instanceof AbstractContainerScreen) {

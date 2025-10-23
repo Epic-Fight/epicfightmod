@@ -11,7 +11,6 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -30,6 +29,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.input.PlayerInputState;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
@@ -140,10 +141,13 @@ public class GuardSkill extends Skill implements HoldableSkill {
 			if (container.isActivated() && event.getPlayerPatch().getHoldingSkill() == this) {
 				event.getPlayerPatch().getOriginal().setSprinting(false);
 				event.getPlayerPatch().getOriginal().sprintTriggerTime = -1;
-				
-				ControlEngine.setKeyBind(Minecraft.getInstance().options.keySprint, false);
-				event.getMovementInput().forwardImpulse *= 0.5f;
-				event.getMovementInput().leftImpulse *= 0.5f;
+
+                ControlEngine.setSprintingKeyStateNotDown();
+                final PlayerInputState current = event.getInputState();
+                final PlayerInputState updated = current
+                        .withForwardImpulse(current.forwardImpulse() * 0.5f)
+                        .withLeftImpulse(current.leftImpulse() * 0.5f);
+                InputManager.setInputState(updated);
 			}
 		});
 		

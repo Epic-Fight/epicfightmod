@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
@@ -17,6 +15,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.input.MovementDirection;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -63,8 +64,8 @@ public class PhantomAscentSkill extends Skill {
 				return;
 			}
 			
-			// Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
-			boolean jumpPressed = Minecraft.getInstance().options.keyJump.isDown();
+			// Check directly from the input bind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
+            boolean jumpPressed = isJumpActionPressed();
 			boolean jumpPressedPrev = container.getDataManager().getDataValue(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get());
 			
 			if (jumpPressed && !jumpPressedPrev) {
@@ -93,16 +94,16 @@ public class PhantomAscentSkill extends Skill {
 						
 						container.getDataManager().setDataSync(SkillDataKeys.PROTECT_NEXT_FALL.get(), true);
 						
-						Input input = event.getMovementInput();
 						float f = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(container.getExecutor().getOriginal()), 0.0F, 1.0F);
-						input.tick(false, f);
-						
-				        int forward = event.getMovementInput().up ? 1 : 0;
-				        int backward = event.getMovementInput().down ? -1 : 0;
-				        int left = event.getMovementInput().left ? 1 : 0;
-				        int right = event.getMovementInput().right ? -1 : 0;
-						int vertic = forward + backward;
-						int horizon = left + right;
+                        event.sneakingTick(false, f);
+
+                        final MovementDirection movementDirection = MovementDirection.fromInputState(event.getInputState());
+                        final int forward = movementDirection.forward();
+                        final int backward = movementDirection.backward();
+                        final int left = movementDirection.left();
+                        final int right = movementDirection.right();
+                        final int vertic = movementDirection.vertical();
+                        final int horizon = movementDirection.horizontal();
 						int degree = -(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon);
 						int scale = forward == 0 && backward == 0 && left == 0 && right == 0 ? 0 : (vertic < 0 ? -1 : 1);
 						Vec3 forwardHorizontal = Vec3.directionFromRotation(new Vec2(0, container.getExecutor().getOriginal().getViewYRot(1.0F)));
@@ -163,4 +164,8 @@ public class PhantomAscentSkill extends Skill {
 		
 		return list;
 	}
+
+    private static boolean isJumpActionPressed() {
+        return InputManager.isActionActive(EpicFightInputActions.JUMP);
+    }
 }

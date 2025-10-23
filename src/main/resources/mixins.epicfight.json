@@ -21,6 +21,7 @@
 		"client.MixinMouseHandler",
 		"client.MixinParticleEngine",
 		"client.MixinThrownTridentRenderer",
+        "client.MixinInventory",
 		"skinlayers.MixinCustomModelPart",
 		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube",
 		"teamlapen.MixinVampirePlayerHeadLayer",

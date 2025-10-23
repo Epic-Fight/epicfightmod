@@ -38,6 +38,8 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.client.animation.property.JointMaskReloadListener;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.model.ItemSkinsReloadListener;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
@@ -218,6 +220,7 @@ public class EpicFightMod {
     	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, WeaponCategories.class);
     	Faction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Factions.class);
     	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
+    	InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputActions.class);
     	
     	EpicFightMobEffects.EFFECTS.register(bus);
     	EpicFightPotions.POTIONS.register(bus);

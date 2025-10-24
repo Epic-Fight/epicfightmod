@@ -4,14 +4,17 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.api.utils.FakeLevel;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.data.loot.SkillBookLootModifier;
 import yesman.epicfight.main.EpicFightMod;
@@ -101,5 +104,26 @@ public class WorldEvents {
 		EpicFightNetworkManager.sendToPlayer(weaponPacket, player);
 		EpicFightNetworkManager.sendToPlayer(mobCapabilityPacket, player);
 		EpicFightNetworkManager.sendToPlayer(itemKeywordPacket, player);
+	}
+	
+	@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+	public static class WorldEventsClient {
+		@SubscribeEvent
+		public static void loadLevel(LevelEvent.Load event) {
+			if (event.getLevel() instanceof FakeLevel) {
+				return;
+			}
+			
+			try {
+				FakeLevel.getFakeLevel(event.getLevel().registryAccess());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@SubscribeEvent
+		public static void unloadLevel(LevelEvent.Unload event) {
+			FakeLevel.unloadFakeLevel();
+		}
 	}
 }

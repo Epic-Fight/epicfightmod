@@ -138,6 +138,26 @@ import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
  *  
  *  Players now follow camera when they're taking specific Epic Fight actions (attacks, blocking)
  *  
+ *  ***************************************************************
+ *  20.13.2
+ *  
+ *  Bugfix
+ *  
+ *  Fixed the 'resolve_key_conflicts' option not to be applied when the player is vanilla mode
+ *  Fixed the 'resolve_key_conflicts' messing up the door state
+ *  Fixed the Ender dragon can't hurt the player
+ *  
+ *  Configuration
+ *  
+ *  Added a new config option that you can disable Minecraft model while in vanilla mode (Same as old 'filter animation' option)
+ *  Added a new config option that determines how 'item_preference' works
+ *  - Adaptive: same as current work
+ *  - Switch mode: like the old Epic Fight's 'auto_switching' items, it switches the player mode when the player changes a main hand item, forcing the next behavior depending on the player mode
+ *  
+ *  Changes
+ *  
+ *  Made the stun shield persistent
+ *  
  *  --- Future list ---
  *  
  *  Update language files (always)

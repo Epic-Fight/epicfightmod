@@ -41,16 +41,47 @@ public class EpicFightAttributes {
 	static {
 		Attributes.ATTACK_DAMAGE.setSyncable(true);
 	}
-	
+    
 	public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, EpicFightMod.MODID);
 	
+	/**
+	 * Maximum stamina that the player can reach. Stamina is mainly used to cast skills
+	 */
     public static final RegistryObject<Attribute> MAX_STAMINA = ATTRIBUTES.register("staminar", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.staminar"), 15.0D, 0.0D, 1024.0D).setSyncable(true));
+    
+    /**
+     * Stamina regeneration
+     */
     public static final RegistryObject<Attribute> STAMINA_REGEN = ATTRIBUTES.register("stamina_regen", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.stamina_regen"), 1.0D, 0.0D, 30.0D).setSyncable(true));
+    
+    /**
+     * 
+     */
     public static final RegistryObject<Attribute> STUN_ARMOR = ATTRIBUTES.register("stun_armor", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.stun_armor"), 0.0D, 0.0D, 1024.0D).setSyncable(true));
+    
+    /**
+     * A penalty attribute when the player equips heavy armors (Increases the stamina cost and decreases the attack speed)
+     */
     public static final RegistryObject<Attribute> WEIGHT = ATTRIBUTES.register("weight", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.weight"), 0.0D, 0.0D, 1024.0).setSyncable(true));
+    
+    /**
+     * The number of entities you can strike in one swing
+     */
     public static final RegistryObject<Attribute> MAX_STRIKES = ATTRIBUTES.register("max_strikes", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.max_strikes"), 1.0D, 1.0D, 1024.0).setSyncable(true));
-	public static final RegistryObject<Attribute> ARMOR_NEGATION = ATTRIBUTES.register("armor_negation", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.armor_negation"), 0.0D, 0.0D, 100.0D).setSyncable(true));
+	
+    /**
+     * The percentage expressed as this amount of attribute from the total damage will ignore the defense points of an entity (0% ~ 100%)
+     */
+    public static final RegistryObject<Attribute> ARMOR_NEGATION = ATTRIBUTES.register("armor_negation", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.armor_negation"), 0.0D, 0.0D, 100.0D).setSyncable(true));
+	
+	/**
+	 * An attribute that usually contributes the stun & guard and their resource consumption (stability & stamina)
+	 */
 	public static final RegistryObject<Attribute> IMPACT = ATTRIBUTES.register("impact", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.impact"), 0.5D, 0.0D, 1024.0).setSyncable(true));
+	
+	/**
+	 * The number of chances that you can resist the damage typed {@link EpicFightDamageTypeTags#EXECUTION}
+	 */
 	public static final RegistryObject<Attribute> EXECUTION_RESISTANCE = ATTRIBUTES.register("execution_resistance", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.execution_resistance"), 0.0D, 0.0D, 10.0D).setSyncable(true));
 	
 	public static final RegistryObject<Attribute> OFFHAND_ATTACK_SPEED = ATTRIBUTES.register("offhand_attack_speed", () -> new RangedAttribute(EpicFightMod.format("attribute.name.%s.offhand_attack_speed"), 4.0D, 0.0D, 1024.0D).setSyncable(true));

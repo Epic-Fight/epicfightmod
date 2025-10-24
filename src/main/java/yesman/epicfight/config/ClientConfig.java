@@ -55,11 +55,13 @@ public class ClientConfig {
 	public static final BooleanValue ENABLE_TARGET_ENTITY_GUIDE = BUILDER.define("ingame.enable_target_entity_guide", () -> true);
 	public static final BooleanValue ENABLE_POV_ACTION = BUILDER.define("ingame.enable_pov_action", () -> true);
 	public static final BooleanValue ENABLE_COSMETICS = BUILDER.define("ingame.enable_cosmetics", () -> true);
+	public static final BooleanValue ENABLE_PLAYER_VANILLA_MODEL = BUILDER.define("ingame.enable_player_vanilla_model", () -> true);
 	
 	// Control Configurations
 	public static final IntValue LONG_PRESS_COUNTER = BUILDER.defineInRange("ingame.long_press_count", 2, 1, 10);
 	public static final BooleanValue AUTO_SWITCH_CAMERA = BUILDER.define("ingame.camera_auto_switch", () -> false);
 	public static final EnumValue<KeyConflictResolveScope> KEY_CONFLICT_RESOLVE_SCOPE = BUILDER.defineEnum("ingame.key_conflict_resolve_scope", KeyConflictResolveScope.INTERACTION);
+	public static final EnumValue<PreferenceWork> PREFERENCE_WORK = BUILDER.defineEnum("ingame.preference_work", PreferenceWork.ADAPTIVE);
 	public static final ConfigValue<List<? extends String>> BATTLE_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.combat_preferred_items", Lists.newArrayList(), (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
@@ -119,11 +121,14 @@ public class ClientConfig {
 	public static boolean enableTargetEntityGuide;
 	public static boolean enablePovAction;
 	public static boolean enableCosmetics;
+	public static boolean enableOriginalModel;
 	
 	// Control Config Values
 	public static int longPressCounter;
 	public static boolean authSwitchCamera;
 	public static KeyConflictResolveScope keyConflictResolveScope;
+	public static PreferenceWork preferenceWork;
+	
 	public static Set<Item> combatPreferredItems;
 	public static Set<Item> miningPreferredItems;
 	
@@ -167,10 +172,13 @@ public class ClientConfig {
 		enableTargetEntityGuide = ENABLE_TARGET_ENTITY_GUIDE.get();
 		enablePovAction = ENABLE_POV_ACTION.get();
 		enableCosmetics = ENABLE_COSMETICS.get();
+		enableOriginalModel = ENABLE_PLAYER_VANILLA_MODEL.get();
 		
 		longPressCounter = LONG_PRESS_COUNTER.get();
 		authSwitchCamera = AUTO_SWITCH_CAMERA.get();
 		keyConflictResolveScope = KEY_CONFLICT_RESOLVE_SCOPE.get();
+		preferenceWork = PREFERENCE_WORK.get();
+		
 		combatPreferredItems = BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet());
@@ -233,10 +241,13 @@ public class ClientConfig {
 		if (enableTargetEntityGuide != ENABLE_TARGET_ENTITY_GUIDE.get()) ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide);
 		if (enablePovAction != ENABLE_POV_ACTION.get()) ENABLE_POV_ACTION.set(enablePovAction);
 		if (enableCosmetics != ENABLE_COSMETICS.get()) ENABLE_COSMETICS.set(enableCosmetics);
+		if (enableOriginalModel != ENABLE_PLAYER_VANILLA_MODEL.get()) ENABLE_PLAYER_VANILLA_MODEL.set(enableOriginalModel);
 		
 		if (longPressCounter != LONG_PRESS_COUNTER.get()) LONG_PRESS_COUNTER.set(longPressCounter);
 		if (authSwitchCamera != AUTO_SWITCH_CAMERA.get()) AUTO_SWITCH_CAMERA.set(authSwitchCamera);
 		if (keyConflictResolveScope != KEY_CONFLICT_RESOLVE_SCOPE.get()) KEY_CONFLICT_RESOLVE_SCOPE.set(keyConflictResolveScope);
+		if (preferenceWork != PREFERENCE_WORK.get()) PREFERENCE_WORK.set(preferenceWork);
+		
 		if (!combatPreferredItems.equals(BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet()))
@@ -387,6 +398,37 @@ public class ClientConfig {
 		@Override
 		public String getSerializedName() {
 			return ParseUtil.toLowerCase(this.name());
+		}
+	}
+	
+	/**
+	 * Determines how item preference works
+	 * 
+	 * ADAPTIVE: Decides the next action based on crosshair hit result and target
+	 * SWITCH_MODE: Switches the player mode to each categorized preference, forcing the player to do only mine or attack.
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public enum PreferenceWork implements CirculatableEnum<PreferenceWork>, StringRepresentable {
+		ADAPTIVE(true), SWITCH_MODE(false);
+		
+		boolean checkHitResult;
+		
+		PreferenceWork(boolean checkHitResult) {
+			this.checkHitResult = checkHitResult;
+		}
+		
+		public boolean checkHitResult() {
+			return this.checkHitResult;
+		}
+		
+		@Override
+		public String getSerializedName() {
+			return ParseUtil.toLowerCase(this.name());
+		}
+		
+		@Override
+		public PreferenceWork nextEnum() {
+			return PreferenceWork.values()[(this.ordinal() + 1) % 2];
 		}
 	}
 }

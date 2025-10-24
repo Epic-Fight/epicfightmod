@@ -70,6 +70,13 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 	public void setStunShield(float value) {
 	}
 	
+	/**
+	 * Define custom actions when stun shield gets damage
+	 */
+	public void damageStunShield(float damage, float impact) {
+		this.setStunShield(this.getStunShield() - impact);
+	}
+	
 	public void setStunReductionOnHit(StunType stunType) {
 		this.stunReductionDecreases = true;
 		

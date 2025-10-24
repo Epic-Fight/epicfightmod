@@ -43,6 +43,7 @@ import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -280,7 +281,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	
 	@Override
 	public boolean overrideRender() {
-		RenderEpicFightPlayerEvent renderepicfightplayerevent = new RenderEpicFightPlayerEvent(this, this.isEpicFightMode());
+		RenderEpicFightPlayerEvent renderepicfightplayerevent = new RenderEpicFightPlayerEvent(this, !ClientConfig.enableOriginalModel || this.isEpicFightMode());
 		MinecraftForge.EVENT_BUS.post(renderepicfightplayerevent);
 		
 		return renderepicfightplayerevent.getShouldRender();

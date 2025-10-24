@@ -240,7 +240,7 @@ public class AttackAnimation extends ActionAnimation {
 					if (target instanceof LivingEntity || target instanceof PartEntity) {
 						AABB aabb = target.getBoundingBox();
 						
-						if (MathUtils.canBeSeen(target, entity, target.distanceTo(entity) + aabb.getCenter().distanceTo(new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ)))) {
+						if (MathUtils.canBeSeen(target, entity, target.position().distanceTo(entity.getEyePosition()) + aabb.getCenter().distanceTo(new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ)))) {
 							EpicFightDamageSource damagesource = this.getEpicFightDamageSource(entitypatch, target, phase);
 							int prevInvulTime = target.invulnerableTime;
 							target.invulnerableTime = 0;

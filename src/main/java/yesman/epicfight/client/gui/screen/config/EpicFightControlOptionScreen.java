@@ -77,6 +77,34 @@ public class EpicFightControlOptionScreen extends EpicFightOptionSubScreen {
 		this.optionsList.addSmall(longPressCounterButton, cameraAutoSwitchButton);
 		buttonHeight += 24;
 		
+		Button itemPreferenceButton =
+			Button.builder(
+				Component.translatable(EpicFightMod.format("gui.%s.item_preferences")),
+				button -> {
+					this.minecraft.setScreen(new ItemsPreferenceScreen(this));
+				}
+			)
+			.pos(this.width / 2 + 5, this.height / 4 + buttonHeight)
+			.size(160, 20)
+			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.item_preferences.tooltip"))))
+			.build();
+		
+		Button preferenceWorkButton =
+			Button.builder(
+				Component.translatable(EpicFightMod.format("gui.%s.preference_work." + ClientConfig.preferenceWork.getSerializedName())),
+				button -> {
+					ClientConfig.preferenceWork = ClientConfig.preferenceWork.nextEnum();
+					button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.preference_work." + ClientConfig.preferenceWork.getSerializedName())));
+				}
+			)
+			.pos(this.width / 2 - 165, this.height / 4 + buttonHeight)
+			.size(160, 20)
+			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.preference_work.tooltip"))))
+			.build();
+		
+		this.optionsList.addSmall(itemPreferenceButton, preferenceWorkButton);
+		buttonHeight += 24;
+		
 		Button resolveKeyConflictsButton =
 			Button.builder(
 				Component.translatable(EpicFightMod.format("gui.%s.key_conflict_resolve_scope." + ClientConfig.keyConflictResolveScope.getSerializedName())),
@@ -90,19 +118,9 @@ public class EpicFightControlOptionScreen extends EpicFightOptionSubScreen {
 			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.key_conflict_resolve_scope.tooltip"))))
 			.build();
 		
-		Button itemPreferenceButton =
-			Button.builder(
-				Component.translatable(EpicFightMod.format("gui.%s.item_preferences")),
-				button -> {
-					this.minecraft.setScreen(new ItemsPreferenceScreen(this));
-				}
-			)
-			.pos(this.width / 2 + 5, this.height / 4 + buttonHeight)
-			.size(160, 20)
-			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.item_preferences.tooltip"))))
-			.build();
+		this.optionsList.addSmall(resolveKeyConflictsButton, null);
+		buttonHeight += 24;
 		
-		this.optionsList.addSmall(resolveKeyConflictsButton, itemPreferenceButton);
 		this.addWidget(this.optionsList);
 	}
 	

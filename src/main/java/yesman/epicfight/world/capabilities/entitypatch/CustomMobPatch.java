@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.entitypatch;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
@@ -48,7 +49,10 @@ public class CustomMobPatch<T extends PathfinderMob> extends MobPatch<T> {
 		}
 	}
 	
-	public void initAttributes() {
+	@Override
+	public void initAttributesFromCompound(CompoundTag compoundTag) {
+		super.initAttributesFromCompound(compoundTag);
+		
 		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES.get()));
 		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION.get()));
 		this.original.getAttribute(EpicFightAttributes.IMPACT.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT.get()));

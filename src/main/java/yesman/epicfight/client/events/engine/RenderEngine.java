@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -625,6 +626,14 @@ public class RenderEngine {
 		}
 	}
 	
+	public static boolean hitResultEquals(@Nullable HitResult hitResult, HitResult.Type hitType) {
+		return hitResult == null ? false : hitType.equals(hitResult.getType());
+	}
+	
+	public static boolean hitResultNotEquals(@Nullable HitResult hitResult, HitResult.Type hitType) {
+		return hitResult == null ? true : !hitType.equals(hitResult.getType());
+	}
+	
 	@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 	public static class Events {
 		static RenderEngine renderEngine;
@@ -845,7 +854,7 @@ public class RenderEngine {
 		@SubscribeEvent
 		public static void renderWorldLast(RenderLevelStageEvent event) {
 			if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS) {
-				if (ClientConfig.mineBlockGuideOption.showBlockHighlight() && renderEngine.minecraft.hitResult.getType() == HitResult.Type.BLOCK) {
+				if (ClientConfig.mineBlockGuideOption.showBlockHighlight() && hitResultEquals(renderEngine.minecraft.hitResult, HitResult.Type.BLOCK)) {
 					EpicFightCapabilities.getUnparameterizedEntityPatch(renderEngine.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
 						if (!playerpatch.canPlayAttackAnimation()) {
 							renderEngine.fakeBlockRenderer.render(event.getCamera(), event.getPoseStack(), renderEngine.minecraft.renderBuffers().bufferSource(), renderEngine.minecraft.level, ((BlockHitResult)renderEngine.minecraft.hitResult).getBlockPos(), 1.0F, 1.0F, 1.0F, 0.4F);					

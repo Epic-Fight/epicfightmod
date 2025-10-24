@@ -15,6 +15,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -178,6 +180,21 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	
 	public Armature getArmature() {
 		return this.armature;
+	}
+	
+	public void initAttributesFromCompound(CompoundTag compoundTag) {
+		if (compoundTag.contains("max_stun_shield", Tag.TAG_FLOAT)) {
+			this.setMaxStunShield(compoundTag.getFloat("max_stun_shield"));
+		}
+		
+		if (compoundTag.contains("stun_shield", Tag.TAG_FLOAT)) {
+			this.setStunShield(compoundTag.getFloat("stun_shield"));
+		}
+	}
+	
+	public void saveData(CompoundTag compoundTag) {
+		compoundTag.putFloat("max_stun_shield", this.getMaxStunShield());
+		compoundTag.putFloat("stun_shield", this.getStunShield());
 	}
 	
 	@Override
@@ -529,22 +546,14 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	@Override
-	public float getStunShield() {
+	public final float getStunShield() {
 		return this.original.getEntityData().get(STUN_SHIELD).floatValue();
 	}
 	
 	@Override
-	public void setStunShield(float value) {
-		value = Math.max(value, 0);
-		value = Math.min(value, this.getMaxStunShield());
+	public final void setStunShield(float value) {
+		value = Mth.clamp(value, 0, this.getMaxStunShield());
 		this.original.getEntityData().set(STUN_SHIELD, value);
-	}
-	
-	/**
-	 * Unlike to {@link LivingEntityPatch#setStunShield}, 
-	 */
-	public void deflateStunShield(float amount) {
-		
 	}
 	
 	public float getMaxStunShield() {

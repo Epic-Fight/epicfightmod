@@ -216,6 +216,33 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.first_person_model.tooltip"))))
 			.build();
 		
+		Button enablePlayerVanillaModelButton =
+			Button.builder(Component.translatable(EpicFightMod.format("gui.%s.enable_player_vanilla_model." + (ClientConfig.enableOriginalModel ? "on" : "off"))),
+				button -> {
+					ClientConfig.enableOriginalModel = !ClientConfig.enableOriginalModel;
+					button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.enable_player_vanilla_model." + (ClientConfig.enableOriginalModel ? "on" : "off"))));
+				}
+			)
+			.pos(this.width / 2 + 5, this.height / 4 + buttonHeight)
+			.size(160, 20)
+			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.enable_player_vanilla_model.tooltip"))))
+			.build();
+		
+		this.optionsList.addSmall(firstPersonModelButton, enablePlayerVanillaModelButton);
+		buttonHeight += 24;
+		
+		Button enableCosmetics =
+			Button.builder(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics." + (ClientConfig.enableCosmetics ? "on" : "off"))),
+				button -> {
+					ClientConfig.enableCosmetics = !ClientConfig.enableCosmetics;
+					button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics." + (ClientConfig.enableCosmetics ? "on" : "off"))));
+				}
+			)
+			.pos(this.width / 2 - 165, this.height / 4 + buttonHeight)
+			.size(160, 20)
+			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics.tooltip"))))
+			.build();
+		
 		Button useComputeShaderButton =
 			Button.builder(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader." + (ClientConfig.activateComputeShader ? "on" : "off"))),
 				button -> {
@@ -233,22 +260,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			useComputeShaderButton.setTooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader.locked.tooltip"))));
 		}
 		
-		this.optionsList.addSmall(firstPersonModelButton, useComputeShaderButton);
-		buttonHeight += 24;
-		
-		Button enableCosmetics =
-			Button.builder(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics." + (ClientConfig.enableCosmetics ? "on" : "off"))),
-				button -> {
-					ClientConfig.enableCosmetics = !ClientConfig.enableCosmetics;
-					button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics." + (ClientConfig.enableCosmetics ? "on" : "off"))));
-				}
-			)
-			.pos(this.width / 2 - 165, this.height / 4 + buttonHeight)
-			.size(160, 20)
-			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics.tooltip"))))
-			.build();
-		
-		this.optionsList.addSmall(enableCosmetics, null);
+		this.optionsList.addSmall(enableCosmetics, useComputeShaderButton);
 		buttonHeight += 30;
 		
 		this.optionsList.addBig(

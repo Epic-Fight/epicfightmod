@@ -213,7 +213,7 @@ public class EntityEvents {
 					return;
 				}
 				
-				hitentitypatch.setStunShield(stunShield - impact);
+				hitentitypatch.damageStunShield(event.getAmount(), impact);
 				
 				switch (stunType) {
 				case SHORT:

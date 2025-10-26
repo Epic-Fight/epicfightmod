@@ -4,6 +4,8 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
+import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
@@ -15,11 +17,11 @@ import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.compat.vanilla.AbstractButtonComponentProcessor;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
+import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -33,6 +35,7 @@ import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
@@ -485,15 +488,14 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     }
 
     private static void registerScreenProcessors() {
-        // TODO: (Controlify) Add support for skill editor screen
-//        ScreenProcessorProvider.registerProvider(
-//                SkillEditScreen.class,
-//                SkillEditScreenProcessor::new
-//        );
-//        ComponentProcessorProvider.REGISTRY.register(
-//                SkillEditScreen.SlotButton.class,
-//                SkillEditScreenProcessor.SlotButtonProcessor::new
-//        );
+        ScreenProcessorProvider.registerProvider(
+                SkillEditScreen.class,
+                SkillEditScreenProcessor::new
+        );
+        ScreenProcessorProvider.registerProvider(
+                SkillBookScreen.class,
+                SkillBookScreenProcessor::new
+        );
     }
 
     private static class SkillEditScreenProcessor extends ScreenProcessor<SkillEditScreen> {
@@ -501,10 +503,48 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             super(screen);
         }
 
-        private static class SlotButtonProcessor extends AbstractButtonComponentProcessor {
-            public SlotButtonProcessor(AbstractButton button) {
-                super(button);
+        @Override
+        public VirtualMouseBehaviour virtualMouseBehaviour() {
+            // The skill edit screen does not natively support controllers.
+            // To save development time, we work around this issue by enforcing the virtual mouse.
+            return VirtualMouseBehaviour.ENABLED;
+        }
+    }
+
+    private static class SkillBookScreenProcessor extends ScreenProcessor<SkillBookScreen> {
+        public SkillBookScreenProcessor(SkillBookScreen screen) {
+            super(screen);
+        }
+
+        private static final InputBindingSupplier LEARN_SKILL = ControlifyBindings.GUI_PRESS;
+
+        @Override
+        protected void handleButtons(ControllerEntity controller) {
+            if (LEARN_SKILL.on(controller).guiPressed().get()) {
+                screen.learnButton.onPress();
             }
+            super.handleButtons(controller);
+        }
+
+        @Override
+        protected void setInitialFocus() {
+            // No-op
+        }
+
+        @Override
+        protected void handleComponentNavigation(ControllerEntity controller) {
+            // No-op
+        }
+
+        @Override
+        public void onWidgetRebuild() {
+            super.onWidgetRebuild();
+
+            ButtonGuideApi.addGuideToButton(
+                    this.screen.learnButton,
+                    LEARN_SKILL,
+                    ButtonGuidePredicate.always()
+            );
         }
     }
 }

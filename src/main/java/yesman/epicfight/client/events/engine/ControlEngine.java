@@ -734,7 +734,7 @@ public class ControlEngine implements IEventBasedEngine {
     /**
      * Previously used to temporarily disable the vanilla swap-offhand key while the player
      * was performing an action or attacking, but this is now handled by
-     * {@link yesman.epicfight.mixin.client.MixinClientPacketListener#onBeforeSendPacket}.
+     * {@link yesman.epicfight.mixin.client.MixinClientCommonPacketListenerImpl#onBeforeSendPacket}.
      * <p>
      * This method now only decrements the internal counter of the vanilla {@link KeyMapping#clickCount}
      * to prevent potential conflicts with other mods. It serves as a safety measure;

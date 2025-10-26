@@ -364,6 +364,18 @@
 	"key.epicfight.mover_skill": "Mobility Skill",
 	"key.epicfight.config": "Open Configuration Screen",
 	"key.epicfight.switch_vanilla_model_debug": "Switch Vanilla Model Debugging",
+
+    "key.epicfight.show_tooltip.description": "Displays the tooltip of your weapon's innate skill when the inventory screen is open",
+    "key.epicfight.switch_mode.description": "Switches between combat and mining modes",
+    "key.epicfight.attack.description": "Performs a basic attack with your equipped weapon",
+    "key.epicfight.weapon_innate_skill.description": "Activates the innate skill of your equipped weapon",
+    "key.epicfight.skill_gui.description": "Opens the skill editor GUI to customize your skills",
+    "key.epicfight.dodge.description": "Performs a dodge maneuver to avoid attacks",
+    "key.epicfight.guard.description": "Blocks incoming attacks with your weapon",
+    "key.epicfight.lock_on.description": "Locks onto the nearest target for easier combat",
+    "key.epicfight.mover_skill.description": "Uses a skill that enhances movement or mobility",
+    "key.epicfight.config.description": "Opens the mod configuration screen",
+    "key.epicfight.switch_vanilla_model_debug.description": "Toggles debugging for vanilla player models",
 	
 	"skill.epicfight.dancing_edge": "Dancing Edge",
 	"skill.epicfight.dancing_edge.tooltip": "Cut down enemies with a lethal flourish! It strikes 3 times",

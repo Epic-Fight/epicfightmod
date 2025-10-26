@@ -55,6 +55,13 @@ repositories {
             includeGroup "dev.latvian.mods"
         }
     }
+
+    // TODO: Use Controlify from Modrinth maven once this PR is published: https://github.com/isXander/Controlify/pull/689
+    //  and then remove this temporary Maven.
+    exclusiveContent {
+        forRepository { maven { url "https://echoellet.github.io/Controlify/" } }
+        filter { includeGroup "dev.echoellet" }
+    }
 }
 
 base {
@@ -156,6 +163,9 @@ dependencies {
 
     compileOnly "curse.maven:shoulder-surfing-reloaded-243190:6993797" // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993792)
     //compileOnly "curse.maven:shoulder-surfing-reloaded-243190:6993795" // Actual mod file (for test)
+
+    // Change "compileOnly" to "implementation" for testing in-game.
+    compileOnly "dev.echoellet:controlify:2.4.2-1.21.1-neoforge"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

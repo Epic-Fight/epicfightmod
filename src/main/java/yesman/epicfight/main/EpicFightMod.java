@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +38,7 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -409,4 +411,8 @@ public class EpicFightMod {
 				event.accept(stack);
 			});
 	}
+
+    public static @NotNull ResourceLocation rl(@NotNull String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
 }

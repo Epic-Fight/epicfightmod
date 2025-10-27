@@ -317,7 +317,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         registry.registerDynamicRule(
                 Rule.builder().binding(dodge)
                         .where(ActionLocation.RIGHT)
-                        .then(ComponentConstants.KEY_GUARD)
+                        .then(ComponentConstants.KEY_DODGE)
                         .build()
         );
         registry.registerDynamicRule(

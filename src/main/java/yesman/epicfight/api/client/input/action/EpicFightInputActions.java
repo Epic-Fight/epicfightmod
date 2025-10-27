@@ -8,9 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a default set of input actions used in the Epic Fight mod.
@@ -135,5 +133,20 @@ public enum EpicFightInputActions implements InputAction {
      */
     public static @Nullable EpicFightInputActions fromKeyMapping(@NotNull KeyMapping keyMapping) {
         return BY_KEY_MAPPING.get(keyMapping);
+    }
+
+    /**
+     * Returns a set of all Epic Fight actions that are not part of the vanilla
+     * Minecraft key mappings.
+     *
+     * @return a set containing all non-vanilla {@link EpicFightInputActions}
+     * @see EpicFightInputActions#isVanilla
+     */
+    public static @NotNull Set<EpicFightInputActions> nonVanillaActions() {
+        Set<EpicFightInputActions> result = EnumSet.noneOf(EpicFightInputActions.class);
+        for (EpicFightInputActions action : EpicFightInputActions.values()) {
+            if (!action.isVanilla()) result.add(action);
+        }
+        return result;
     }
 }

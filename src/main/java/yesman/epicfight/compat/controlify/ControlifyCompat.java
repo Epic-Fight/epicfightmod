@@ -158,17 +158,9 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     }
 
     private static void registerInputBindings(ControlifyBindApi registrar) {
-        for (EpicFightInputActions action : nonVanillaActions()) {
+        for (EpicFightInputActions action : EpicFightInputActions.nonVanillaActions()) {
             registerInputBinding(registrar, action);
         }
-    }
-
-    public static Set<EpicFightInputActions> nonVanillaActions() {
-        Set<EpicFightInputActions> result = EnumSet.noneOf(EpicFightInputActions.class);
-        for (EpicFightInputActions action : EpicFightInputActions.values()) {
-            if (!action.isVanilla()) result.add(action);
-        }
-        return result;
     }
 
     /**

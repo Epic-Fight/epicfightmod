@@ -278,6 +278,7 @@ public class EpicFightMod {
     	event.enqueueWork(WeaponCategory.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(Faction.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(EntityPairingPacketType.ENUM_MANAGER::loadEnum);
+    	event.enqueueWork(InputAction.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(() -> {
     		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();

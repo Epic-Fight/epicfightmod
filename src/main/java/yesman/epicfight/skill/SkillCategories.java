@@ -5,7 +5,6 @@ import yesman.epicfight.main.EpicFightMod;
 
 public enum SkillCategories implements SkillCategory {
 	BASIC_ATTACK(false, false, false),
-	AIR_ATTACK(false, false, false),
 	DODGE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_dodge")),
 	PASSIVE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_passive")),
 	WEAPON_PASSIVE(false, false, false),
@@ -16,10 +15,10 @@ public enum SkillCategories implements SkillCategory {
 	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
 	
 	
-	boolean shouldSave;
-	boolean shouldSyncronize;
-	boolean modifiable;
-	int id;
+	final boolean shouldSave;
+	final boolean shouldSyncronize;
+	final boolean modifiable;
+	final int id;
 	ResourceLocation bookIcon;
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable) {

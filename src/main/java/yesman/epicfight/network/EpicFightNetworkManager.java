@@ -134,11 +134,9 @@ public class EpicFightNetworkManager {
 		}
 		
 		public void send(BiConsumer<Object, Object[]> sendTo) {
-			if (this.payloads.size() == 0) {
-				return;
-			} else if (this.payloads.size() == 1) {
+            if (this.payloads.size() == 1) {
 				sendTo.accept(this.payloads.get(0), new Object[0]);
-			} else {
+			} else if (!payloads.isEmpty()) {
 				sendTo.accept(this.payloads.get(0), this.payloads.subList(1, this.payloads.size()).toArray(new Object[0]));
 			}
 		}

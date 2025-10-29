@@ -20,7 +20,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> GLOBAL_STUN = create(
 			  "globalStun"
 			, GameRules.Category.MOBS
-			, (configBuilder) -> configBuilder.define("default_gamerule.globalStun", true)
+			, configBuilder -> configBuilder.define("default_gamerule.globalStun", true)
 			, RuleType.BOOLEAN
 			, false
 	);
@@ -28,7 +28,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> KEEP_SKILLS = create(
 			  "keepSkills"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.define("default_gamerule.keepSkills", true)
+			, configBuilder -> configBuilder.define("default_gamerule.keepSkills", true)
 			, RuleType.BOOLEAN
 			, false
 	);
@@ -36,7 +36,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> HAS_FALL_ANIMATION = create(
 			  "hasFallAnimation"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.define("default_gamerule.hasFallAnimation", true)
+			, configBuilder -> configBuilder.define("default_gamerule.hasFallAnimation", true)
 			, RuleType.BOOLEAN
 			, true
 	);
@@ -44,7 +44,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> DISABLE_ENTITY_UI = create(
 			  "disableEntityUI"
 			, GameRules.Category.MISC
-			, (configBuilder) -> configBuilder.define("default_gamerule.disapleEntityUI", false)
+			, configBuilder -> configBuilder.define("default_gamerule.disapleEntityUI", false)
 			, RuleType.BOOLEAN
 			, true
 	);
@@ -52,7 +52,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> CAN_SWITCH_PLAYER_MODE = create(
 			  "canSwitchPlayerMode"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.define("default_gamerule.canSwitchPlayerMode", true)
+			, configBuilder -> configBuilder.define("default_gamerule.canSwitchPlayerMode", true)
 			, RuleType.BOOLEAN
 			, true
 	);
@@ -60,7 +60,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> STIFF_COMBO_ATTACKS = create(
 			  "stiffComboAttacks"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.define("default_gamerule.stiffComboAttacks", true)
+			, configBuilder -> configBuilder.define("default_gamerule.stiffComboAttacks", true)
 			, RuleType.BOOLEAN
 			, true
 	);
@@ -68,7 +68,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> NO_MOBS_IN_BOSSFIGHT = create(
 			  "noMobsInBossfight"
 			, GameRules.Category.SPAWNING
-			, (configBuilder) -> configBuilder.define("default_gamerule.noMobsInBossfight", true)
+			, configBuilder -> configBuilder.define("default_gamerule.noMobsInBossfight", true)
 			, RuleType.BOOLEAN
 			, true
 	);
@@ -76,7 +76,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> INITIAL_PLAYER_MODE = create(
 			  "initialMode"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.comment("0 = vanilla, 1 = epicfight").defineInRange("default_gamerule.initialMode", 1, 0, 1)
+			, configBuilder -> configBuilder.comment("0 = vanilla, 1 = epicfight").defineInRange("default_gamerule.initialMode", 1, 0, 1)
 			, RuleType.INTEGER
 			, true
 	);
@@ -84,7 +84,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> WEIGHT_PENALTY = EpicFightGameRules.create(
 			  "weightPenalty"
 			, GameRules.Category.PLAYER
-			, (configBuilder) -> configBuilder.defineInRange("default_gamerule.weightPenalty", 100, 0, 100)
+			, configBuilder -> configBuilder.defineInRange("default_gamerule.weightPenalty", 100, 0, 100)
 			, RuleType.INTEGER
 			, true
 	);
@@ -92,8 +92,16 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> EPIC_DROP = EpicFightGameRules.create(
 			  "epicDrop"
 			, GameRules.Category.DROPS
-			, (configBuilder) -> configBuilder.define("default_gamerule.epicDrop", false)
+			, configBuilder -> configBuilder.define("default_gamerule.epicDrop", false)
 			, RuleType.BOOLEAN
+			, true
+	);
+	
+	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> SKILL_REPLACE_COOLDOWN = EpicFightGameRules.create(
+			  "skillReplaceCooldown"
+			, GameRules.Category.PLAYER
+			, configBuilder -> configBuilder.defineInRange("default_gamerule.skillReplaceCooldown", 6000, 0, Integer.MAX_VALUE)
+			, RuleType.INTEGER
 			, true
 	);
 	
@@ -108,6 +116,7 @@ public class EpicFightGameRules {
 			.put("initialMode", INITIAL_PLAYER_MODE)
 			.put("weightPenalty", WEIGHT_PENALTY)
 			.put("epicDrop", EPIC_DROP)
+			.put("skillReplaceCooldown", SKILL_REPLACE_COOLDOWN)
 			.build();
 	
 	public static void registerGameRules() {

@@ -2,16 +2,17 @@ package yesman.epicfight.world.capabilities.entitypatch;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.UseAnim;
+import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
@@ -60,7 +61,10 @@ public class CustomHumanoidMobPatch<T extends PathfinderMob> extends HumanoidMob
 		}
 	}
 	
-	public void initAttributes() {
+	@Override
+	public void initAttributesFromCompound(CompoundTag compoundTag) {
+		super.initAttributesFromCompound(compoundTag);
+		
 		this.original.getAttribute(EpicFightAttributes.MAX_STRIKES.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.MAX_STRIKES.get()));
 		this.original.getAttribute(EpicFightAttributes.ARMOR_NEGATION.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.ARMOR_NEGATION.get()));
 		this.original.getAttribute(EpicFightAttributes.IMPACT.get()).setBaseValue(this.provider.getAttributeValues().getDouble(EpicFightAttributes.IMPACT.get()));

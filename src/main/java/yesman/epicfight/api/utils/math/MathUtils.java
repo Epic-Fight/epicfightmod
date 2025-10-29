@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.joml.Math;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -17,6 +18,10 @@ import org.joml.Vector4i;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class MathUtils {
@@ -153,6 +158,27 @@ public class MathUtils {
 		return Mth.lerp(progression, from, to);
 	}
 	
+	public static float findNearestRotation(float src, float rotation) {
+		float diff = Math.abs(src - rotation);
+		float idealRotation = rotation;
+		int sign = Mth.sign(src - rotation);
+		
+		if (sign == 0) {
+			return rotation;
+		}
+		
+		while (true) {
+			float next = idealRotation + sign * 360.0F;
+			
+			if (Math.abs(src - next) > diff) {
+				return idealRotation;
+			}
+			
+			idealRotation = next;
+			diff = Math.abs(src - next);
+		}
+	}
+	
 	public static Vec3 getNearestVector(Vec3 from, Vec3... vectors) {
 		double minLength = 1000000.0D;
 		int index = 0;
@@ -249,30 +275,34 @@ public class MathUtils {
 		return min;
 	}
 	
-	private static final Matrix4f BUFFER = new Matrix4f();
-	private static final OpenMatrix4f OPEN_MATRIX_BUFFER = new OpenMatrix4f();
-	
-	@Deprecated(forRemoval = true)
+	@Deprecated(forRemoval = true, since = "1.21.1")
 	public static void translateStack(PoseStack poseStack, OpenMatrix4f mat) {
 		poseStack.translate(mat.m30, mat.m31, mat.m32);
 	}
 	
-	@Deprecated(forRemoval = true)
+	private static final OpenMatrix4f OPEN_MATRIX_BUFFER = new OpenMatrix4f();
+	
+	@Deprecated(forRemoval = true, since = "1.21.1")
 	public static void rotateStack(PoseStack poseStack, OpenMatrix4f mat) {
 		OpenMatrix4f.transpose(mat, OPEN_MATRIX_BUFFER);
 		poseStack.mulPose(getQuaternionFromMatrix(OPEN_MATRIX_BUFFER));
 	}
 	
-	@Deprecated(forRemoval = true)
+	@Deprecated(forRemoval = true, since = "1.21.1")
 	public static void scaleStack(PoseStack poseStack, OpenMatrix4f mat) {
 		OpenMatrix4f.transpose(mat, OPEN_MATRIX_BUFFER);
 		Vector3f vector = getScaleVectorFromMatrix(OPEN_MATRIX_BUFFER);
 		poseStack.scale(vector.x(), vector.y(), vector.z());
 	}
 	
+	private static final Matrix4f MATRIX4F = new Matrix4f();
+	private static final Matrix3f MATRIX3F = new Matrix3f();
+	
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER);
-		poseStack.mulPoseMatrix(BUFFER);
+		OpenMatrix4f.exportToMojangMatrix(mat, MATRIX4F);
+		MATRIX3F.set(MATRIX4F);
+		poseStack.mulPoseMatrix(MATRIX4F);
+		poseStack.last().normal().mul(MATRIX3F);
 	}
 	
 	public static double getAngleBetween(Vec3f a, Vec3f b) {
@@ -472,6 +502,25 @@ public class MathUtils {
 		return candidates[getLeastAngleVectorIdx(src, candidates)];
 	}
 	
+	public static boolean canBeSeen(Entity target, Entity watcher, double maxDistance) {
+		if (target.level() != watcher.level()) {
+			return false;
+		}
+		
+		double sqr = maxDistance * maxDistance;
+		Level level = target.level();
+		Vec3 vec1 = watcher.getEyePosition();
+		
+		double height = target.getBoundingBox().maxY - target.getBoundingBox().minY;
+		Vec3 vec2 = target.position().add(0.0D, height * 0.15D, 0.0D);
+		Vec3 vec3 = target.position().add(0.0D, height * 0.5D, 0.0D);
+		Vec3 vec4 = target.position().add(0.0D, height * 0.95D, 0.0D);
+		
+		return vec1.distanceToSqr(vec2) < sqr && level.clip(new ClipContext(vec1, vec2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, watcher)).getType() == HitResult.Type.MISS ||
+				vec1.distanceToSqr(vec3) < sqr && level.clip(new ClipContext(vec1, vec3, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, watcher)).getType() == HitResult.Type.MISS ||
+				vec1.distanceToSqr(vec4) < sqr && level.clip(new ClipContext(vec1, vec4, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, watcher)).getType() == HitResult.Type.MISS;
+	}
+	
 	public static int packColor(int r, int g, int b, int a) {
 		int ir = r << 16;
 		int ig = g << 8;
@@ -492,7 +541,7 @@ public class MathUtils {
 		result.z = b;
 		result.w = a;
 	}
-
+	
 	public static byte normalIntValue(float pNum) {
 		return (byte)((int)(Mth.clamp(pNum, -1.0F, 1.0F) * 127.0F) & 255);
 	}

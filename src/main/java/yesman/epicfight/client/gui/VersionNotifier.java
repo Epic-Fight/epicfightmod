@@ -39,13 +39,13 @@ public class VersionNotifier {
 		int width = sr.getGuiScaledWidth();
 		
 		if (inWorld) {
-			String l1 = Component.translatable("epicfight.messages.test_version_warning_line1").getString();
-			String l2 = Component.translatable("epicfight.messages.test_version_warning_line2", ModList.get().getModFileById("epicfight").versionString()).getString();
+			String l1 = Component.translatable(EpicFightMod.format("%s.messages.test_version_warning_line1")).getString();
+			String l2 = Component.translatable(EpicFightMod.format("%s.messages.test_version_warning_line2"), ModList.get().getModFileById(EpicFightMod.MODID).versionString()).getString();
 			
 			guiGraphics.drawString(this.minecraft.font, l1, (width - this.minecraft.font.width(l1) - 2), 8, 16777215);
 			guiGraphics.drawString(this.minecraft.font, l2, (width - this.minecraft.font.width(l2) - 2), 20, 16777215);
 		} else {
-			String l1 = Component.translatable("epicfight.messages.version_notifier", ModList.get().getModFileById("epicfight").versionString()).getString();
+			String l1 = Component.translatable(EpicFightMod.format("%s.messages.version_notifier"), ModList.get().getModFileById(EpicFightMod.MODID).versionString()).getString();
 			guiGraphics.drawString(this.minecraft.font, l1, (width - this.minecraft.font.width(l1) - 2), 8, 16777215);
 		}
 	}

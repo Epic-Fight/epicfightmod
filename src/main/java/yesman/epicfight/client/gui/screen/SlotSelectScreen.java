@@ -1,19 +1,20 @@
 package yesman.epicfight.client.gui.screen;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
@@ -21,9 +22,16 @@ import yesman.epicfight.skill.SkillContainer;
 
 @OnlyIn(Dist.CLIENT)
 public class SlotSelectScreen extends Screen {
-	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/screen/slot_select.png");
+	private static final int MAX_ROWS = 2;
+	private static final int MAX_COLUMNS = 3;
+	private static final int STRIDE = 60;
+	
 	private final SkillBookScreen parent;
 	private final List<SkillContainer> containers;
+	private final List<SlotButton> slotButtons = new ArrayList<> ();
+	
+	private int maxScroll;
+	private int scroll = 0;
 	
 	public SlotSelectScreen(Set<SkillContainer> containers, SkillBookScreen parent) {
 		super(Component.empty());
@@ -42,25 +50,100 @@ public class SlotSelectScreen extends Screen {
 	@Override
 	protected void init() {
 		this.parent.init(this.minecraft, this.width, this.height);
-		int k = this.width / 2 - 80;
-		int l = this.height / 2 - 45;
+		int buttonX = this.width / 2 - 84;
+		int buttonY = this.height / 2 - 40;
+		int columns = 0;
+		
+		this.maxScroll = Math.max((this.containers.size() / MAX_COLUMNS + 1) - MAX_ROWS, 0);
+		
+		if (this.maxScroll > 0) {
+			this.addRenderableWidget(new ScrollArrow(this.width / 2 - 8, this.height / 2 - 98, 16, 16, button -> this.scrollUp(), true));
+			this.addRenderableWidget(new ScrollArrow(this.width / 2 - 8, this.height / 2 + 82, 16, 16, button -> this.scrollDown(), false));
+		}
+		
+		this.slotButtons.clear();
 		
 		for (SkillContainer container : this.containers) {
 			String slotName = container.getSlot().toString().toLowerCase(Locale.ROOT);
 			String skillName = container.getSkill() == null ? "Empty" : Component.translatable(container.getSkill().getTranslationKey()).getString();
 			
-			SlotButton slotbutton = new SlotButton(k, l, 167, 17, Component.literal(slotName + ": "+ skillName), (button) -> {
-				this.parent.acquireSkillTo(container);
-				
-				if (Minecraft.getInstance().screen == this) {
-					this.onClose();
-				}
-			});
+			SlotButton slotbutton =
+				new SlotButton(
+					buttonX,
+					buttonY,
+					48,
+					48,
+					Component.literal(slotName + ": "+ skillName),
+					container.getSkill() == null ? SkillEditScreen.EMPTY_SKILL_SLOT_ICON : container.getSkill().getSkillTexture(),
+					button -> {
+						this.parent.acquireSkillTo(container);
+						
+						if (this.minecraft.screen == this) {
+							this.onClose();
+						}
+					}
+				);
 			
-			l+=22;
+			if (!this.parent.consumesItem() && container.onReplaceCooldown()) {
+				slotbutton.active = false;
+				slotbutton.setTooltip(Tooltip.create(Component.literal(slotName + ": "+ skillName + "\n").append(Component.translatable(EpicFightMod.format("gui.%s.container_on_cooldown"), container.getReplaceCooldown() / 20))));
+			}
 			
+			buttonX+=STRIDE;
+			columns++;
+			
+			if (columns >= MAX_COLUMNS) {
+				buttonX = this.width / 2 - 84;
+				buttonY += STRIDE;
+				columns = 0;
+			}
+			
+			this.slotButtons.add(slotbutton);
 			this.addRenderableWidget(slotbutton);
 		}
+		
+		this.scroll = 0;
+		this.setScrollVisibilities();
+	}
+	
+	protected void scrollUp() {
+		int nextScroll = Mth.clamp(this.scroll - 1, 0, this.maxScroll);
+		
+		if (this.scroll != nextScroll) {
+			this.scroll = nextScroll;
+			this.slotButtons.forEach(button -> button.setY(button.getY() + STRIDE));
+			this.setScrollVisibilities();
+		}
+	}
+	
+	protected void scrollDown() {
+		int nextScroll = Mth.clamp(this.scroll + 1, 0, this.maxScroll);
+		
+		if (this.scroll != nextScroll) {
+			this.scroll = nextScroll;
+			this.slotButtons.forEach(button -> button.setY(button.getY() - STRIDE));
+			this.setScrollVisibilities();
+		}
+	}
+	
+	protected void setScrollVisibilities() {
+		int i = 0;
+		
+		for (SlotButton slotButton : this.slotButtons) {
+			if (i / MAX_COLUMNS >= this.scroll && i / MAX_COLUMNS < this.scroll + MAX_ROWS) 
+				slotButton.visible = true;
+			else
+				slotButton.visible = false;
+			
+			i++;
+		}
+	}
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if (delta > 0) this.scrollUp();
+		else this.scrollDown();
+		return true;
 	}
 	
 	@Override
@@ -71,44 +154,73 @@ public class SlotSelectScreen extends Screen {
 			super.onClose();
 		}
 	}
-
+	
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		int posX = (this.width - 184) / 2;
-		int posY = (this.height - 150) / 2;
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		int boxWidth = 192;
+		int boxHeight = 160;
+		int left = (this.width - boxWidth) / 2;
+		int top = (this.height - boxHeight) / 2;
 		
-		this.parent.render(guiGraphics, mouseX, mouseY, partialTicks, true);
+		this.parent.render(guiGraphics, mouseX, mouseY, partialTick, true);
 		
 		// move z level, to prevent the button text displayed above the screen.
 		guiGraphics.pose().translate(0, 0, 5000);
+		guiGraphics.fill(left, top, left + boxWidth, top + boxHeight, -6250336);
+		guiGraphics.fill(left + 1, top + 1, left + boxWidth - 1, top + boxHeight - 1, -16777215);
 		
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-		guiGraphics.blit(BACKGROUND, posX, posY, 0, 0, 191, 154);
-		
-		Component component = Component.translatable("gui.epicfight.select_slot_tooltip");
+		Component component = Component.translatable(EpicFightMod.format("gui.%s.select_slot_tooltip"));
 		int lineHeight = 0;
 		
 		for (FormattedCharSequence s : this.font.split(component, 250)) {
-			guiGraphics.drawString(font, s, this.width / 2 - 84, this.height / 2 - 66 + lineHeight, 3158064, false);
-			
+			guiGraphics.drawString(font, s, (this.width - boxWidth) / 2 + 8, this.height / 2 - 70 + lineHeight, 0xFFE8E8E8, false);
 			lineHeight += 10;
 		}
 		
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		super.render(guiGraphics, mouseX, mouseY, partialTick);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	class ScrollArrow extends Button {
+		final boolean up;
+		
+		protected ScrollArrow(int x, int y, int width, int height, Button.OnPress onPress, boolean up) {
+			super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
+			
+			this.up = up;
+		}
+		
+		@Override
+		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			if (this.up && scroll != 0) guiGraphics.blit(SkillEditScreen.SCROLL_ARROW_UP, this.getX(), this.getY(), this.width, this.height, 0, 0, 16, 16, 16, 16);
+			else if (!this.up && scroll != maxScroll) guiGraphics.blit(SkillEditScreen.SCROLL_ARROW_DOWN, this.getX(), this.getY(), this.width, this.height, 0, 0, 16, 16, 16, 16);
+		}
+		
+		@Override
+		protected boolean clicked(double mouseX, double mouseY) {
+			return super.clicked(mouseX, mouseY) && (this.up && scroll != 0 || !this.up && scroll != maxScroll);
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	class SlotButton extends Button {
-		public SlotButton(int x, int y, int width, int height, Component title, OnPress pressedAction) {
-			super(x, y, width, height, title, pressedAction, Button.DEFAULT_NARRATION);
+		final ResourceLocation texture;
+		
+		protected SlotButton(int x, int y, int width, int height, Component tooltip, ResourceLocation textureLocation, Button.OnPress onPress) {
+			super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
+			this.texture = textureLocation;
+			this.setTooltip(Tooltip.create(tooltip));
 		}
 		
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-			this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-			int y = (this.isHovered || !this.active) ? 171 : 154;
-			guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, y, this.width, this.height);
-			guiGraphics.drawString(SlotSelectScreen.this.font, this.getMessage(), this.getX()+3, this.getY()+3, -1, false);
+		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+			
+			RenderSystem.enableBlend();
+			if (!this.active) RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+			guiGraphics.blit(this.texture, this.getX() + 2, this.getY() + 2, this.width - 4, this.height - 4, 0, 0, 32, 32, 32, 32);
+			if (!this.active) RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.disableBlend();
 		}
 	}
 }

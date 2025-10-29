@@ -6,7 +6,6 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -109,7 +108,7 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 				LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
 				clientPlayer.setSprinting(false);
 				clientPlayer.sprintTriggerTime = -1;
-				ControlEngine.setKeyBind(Minecraft.getInstance().options.keySprint, false);
+                ControlEngine.setSprintingKeyStateNotDown();
 			}
 		});
 	}

@@ -24,9 +24,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags.EntityTypes;
 import net.minecraftforge.registries.ForgeRegistries;
-import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
+import yesman.epicfight.config.ClientConfig.HealthBarVisibility;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -304,20 +304,6 @@ public class HealthBar extends EntityUI {
 					}
 				}
 			}
-		}
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public enum HealthBarVisibility {
-		NONE, HURT, TARGET, TARGET_AND_HURT;
-		
-		@Override
-		public String toString() {
-			return ParseUtil.toLowerCase(this.name());
-		}
-		
-		public HealthBarVisibility nextEnum() {
-			return HealthBarVisibility.values()[(this.ordinal() + 1) % 4];
 		}
 	}
 }

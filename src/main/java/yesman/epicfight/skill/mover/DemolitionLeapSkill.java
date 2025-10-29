@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -49,7 +50,7 @@ public class DemolitionLeapSkill extends Skill implements ChargeableSkill {
 		
 		listener.addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
 			if (event.getPlayerPatch().isHoldingSkill(this)) {
-				event.getMovementInput().jumping = false;
+                InputManager.setInputState(event.getInputState().withJumping(false));
 			}
 		});
 

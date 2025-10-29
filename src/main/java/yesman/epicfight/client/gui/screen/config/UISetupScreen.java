@@ -23,7 +23,7 @@ public class UISetupScreen extends Screen {
 	private UIComponent draggingButton;
 
 	public UISetupScreen(Screen parentScreen) {
-		super(Component.literal(EpicFightMod.MODID + ".gui.configuration.ui_setup"));
+		super(Component.literal(EpicFightMod.format("%s.gui.configuration.ui_setup")));
 		
 		this.parentScreen = parentScreen;
 	}

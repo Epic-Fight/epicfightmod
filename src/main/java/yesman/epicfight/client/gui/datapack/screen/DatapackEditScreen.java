@@ -236,7 +236,7 @@ public class DatapackEditScreen extends Screen {
 	};
 	
 	public DatapackEditScreen(Screen parentScreen) {
-		super(Component.translatable("gui." + EpicFightMod.MODID + ".datapack_edit"));
+		super(Component.translatable(EpicFightMod.format("gui.%s.datapack_edit")));
 		
 		this.parentScreen = parentScreen;
 		this.minecraft = parentScreen.getMinecraft();
@@ -816,7 +816,7 @@ public class DatapackEditScreen extends Screen {
 		private final ModelPreviewer modelPreviewer;
 		
 		public WeaponTypeTab() {
-			super(Component.translatable("gui." + EpicFightMod.MODID + ".tab.datapack.weapon_type"), WeaponTypeReloadListener.DIRECTORY, null);
+			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.weapon_type")), WeaponTypeReloadListener.DIRECTORY, null);
 			
 			Screen parentScreen = DatapackEditScreen.this;
 			Font font = DatapackEditScreen.this.font;
@@ -1252,7 +1252,7 @@ public class DatapackEditScreen extends Screen {
 		}
 		
 		public ItemCapabilityTab() {
-			super(Component.translatable("gui." + EpicFightMod.MODID + ".tab.datapack.item_capability"), ItemCapabilityReloadListener.DIRECTORY, ForgeRegistries.ITEMS);
+			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.item_capability")), ItemCapabilityReloadListener.DIRECTORY, ForgeRegistries.ITEMS);
 			
 			Screen parentScreen = DatapackEditScreen.this;
 			
@@ -2218,7 +2218,7 @@ public class DatapackEditScreen extends Screen {
 		private PopupBox.ArmaturePopupBox armaturePopupBox;
 		
 		public MobCapabilityTab() {
-			super(Component.translatable("gui." + EpicFightMod.MODID + ".tab.datapack.mob_patch"), MobPatchReloadListener.DIRECTORY, ForgeRegistries.ENTITY_TYPES, (entityType) -> {
+			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.mob_patch")), MobPatchReloadListener.DIRECTORY, ForgeRegistries.ENTITY_TYPES, (entityType) -> {
 				return entityType.getCategory() != MobCategory.MISC && entityType != EntityType.ENDER_DRAGON;
 			});
 			
@@ -2517,7 +2517,7 @@ public class DatapackEditScreen extends Screen {
 																						attributesTag.putString(ParseUtil.nullOrToString(event.postValue, (stunType) -> stunType.name().toLowerCase(Locale.ROOT)), "");
 																					}).editable(true).width(100))
 																	.addColumn(Grid.popup("animation", PopupBox.AnimationPopupBox::new)
-																					.filter((animation) -> animation instanceof HitAnimation || animation instanceof LongHitAnimation)
+																					.filter(animation -> animation.checkType(HitAnimation.class) || animation.checkType(LongHitAnimation.class))
 																					.editWidgetCreated((popupBox) -> popupBox.setModel(this.armaturePopupBox._getValue(), this.meshPopupBox._getValue()))
 																					.valueChanged((event) -> {
 																						CompoundTag stunTypeTag = ParseUtil.getOrSupply(this.packList.get(this.packListGrid.getRowposition()).getValue(), "stun_animations", CompoundTag::new);

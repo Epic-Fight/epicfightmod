@@ -19,21 +19,21 @@ public class IngameConfigurationScreen extends Screen {
 	protected final Screen parentScreen;
 	
 	public IngameConfigurationScreen(Screen screen) {
-		super(Component.translatable("gui." + EpicFightMod.MODID + ".configurations"));
+		super(Component.translatable(EpicFightMod.format("gui.%s.configurations")));
 		this.parentScreen = screen;
 	}
 	
 	@Override
 	protected void init() {
-		this.addRenderableWidget(Button.builder(Component.translatable("gui." + EpicFightMod.MODID + ".button.graphics"), (button) -> {
+		this.addRenderableWidget(Button.builder(Component.translatable(EpicFightMod.format("gui.%s.button.graphics")), (button) -> {
 			Minecraft.getInstance().setScreen(new EpicFightGraphicOptionScreen(this));
 		}).pos(this.width / 2 - 165, 42).size(160, 20).build());
 		
-		this.addRenderableWidget(Button.builder(Component.translatable("gui." + EpicFightMod.MODID + ".button.controls"), (button) -> {
+		this.addRenderableWidget(Button.builder(Component.translatable(EpicFightMod.format("gui.%s.button.controls")), (button) -> {
 			Minecraft.getInstance().setScreen(new EpicFightControlOptionScreen(this));
 		}).pos(this.width / 2 + 5, 42).size(160, 20).build());
 		
-		this.addRenderableWidget(Button.builder(Component.translatable("gui." + EpicFightMod.MODID + ".button.datapack_edit"), (button) -> {
+		this.addRenderableWidget(Button.builder(Component.translatable(EpicFightMod.format("gui.%s.button.datapack_edit")), (button) -> {
 			Minecraft.getInstance().setScreen(new DatapackEditScreen(this));
 		}).pos(this.width / 2 - 165, 68).size(160, 20).build());
 		

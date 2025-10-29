@@ -5,9 +5,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import software.bernie.geckolib.event.GeoRenderEvent;
-import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.client.model.transformer.GeoModelTransformer;
+import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.EntityUI;
@@ -20,7 +21,7 @@ public class GeckolibCompat implements ICompatModule {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void onModEventBusClient(IEventBus eventBus) {
-		HumanoidModelBaker.registerNewTransformer(new GeoModelTransformer());
+		eventBus.<FMLClientSetupEvent>addListener(event -> event.enqueueWork(() -> HumanoidModelBaker.registerNewTransformer(new GeoModelTransformer())));
 	}
 	
 	@Override

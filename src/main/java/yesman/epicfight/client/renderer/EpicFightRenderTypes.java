@@ -497,6 +497,24 @@ public final class EpicFightRenderTypes extends RenderType {
 				.createCompositeState(false)
 		);
 	
+	private static final RenderType.CompositeRenderType BLOCK_HIGHLIGHT =
+		create(
+			EpicFightMod.prefix("block_highlight"),
+			DefaultVertexFormat.BLOCK,
+			VertexFormat.Mode.QUADS,
+			256,
+			false,
+			true,
+			RenderType.CompositeState.builder()
+				.setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/common/white.png"), false, false))
+				.setLightmapState(LIGHTMAP)
+				.setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+				.setDepthTestState(EQUAL_DEPTH_TEST)
+				//.setDepthTestState(NO_DEPTH_TEST)
+				.createCompositeState(false)
+		);
+
 	private static RenderType replaceTextureShard(ResourceLocation texToReplace, RenderType renderType) {
 		if (renderType instanceof CompositeRenderType compositeRenderType && compositeRenderType.state.textureState instanceof TextureStateShard texStateShard) {
 			CompositeState textureReplacedState = new CompositeState(
@@ -589,6 +607,10 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	public static RenderType itemAfterimageWhite() {
 		return ITEM_AFTERIMAGE_WHITE;
+	}
+	
+	public static RenderType blockHighlight() {
+		return BLOCK_HIGHLIGHT;
 	}
 	
 	private static final Map<Entity, CompositeRenderType> WORLD_RENDERTYPES_COLORED_GLINT = new HashMap<> ();

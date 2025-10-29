@@ -29,8 +29,8 @@ import yesman.epicfight.api.forgeevent.InnateSkillChangeEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
-import yesman.epicfight.network.server.SPAddLearnedSkill;
 import yesman.epicfight.network.server.SPChangeLivingMotion;
+import yesman.epicfight.network.server.SPInitSkills;
 import yesman.epicfight.network.server.SPModifyPlayerData;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.SkillContainer;
@@ -38,7 +38,6 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.DodgeSuccessEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -52,13 +51,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	@Override
 	public void onJoinWorld(ServerPlayer player, EntityJoinLevelEvent event) {
 		super.onJoinWorld(player, event);
-		
-		CapabilitySkill skillCapability = this.getSkillCapability();
-		PayloadBundleBuilder payloadBundleBuilder = PayloadBundleBuilder.create();
-		
-		skillCapability.listSkillContainers().filter(skillContainer -> !skillContainer.isEmpty() && skillContainer.getSkill().getCategory().shouldSynchronize()).forEach(skillContainer -> {
-			payloadBundleBuilder.and(skillContainer.createSyncPacketToLocalPlayer());
-		});
+		EpicFightNetworkManager.sendToPlayer(new SPInitSkills(this.getSkillCapability()), player);
 		
 		this.eventListeners.addEventListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, PLAYER_EVENT_UUID, (playerevent) -> {
 			if (playerevent.getDamageSource().isBasicAttack()) {
@@ -74,13 +67,6 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 				}
 			}
 		}, 10);
-		
-		payloadBundleBuilder.and(new SPAddLearnedSkill(skillCapability.listAcquiredSkills().map(skill -> skill.getRegistryName().toString()).toList().toArray(new String[0])));
-		payloadBundleBuilder.and(SPModifyPlayerData.setPlayerMode(this.getOriginal().getId(), this.playerMode));
-		
-		payloadBundleBuilder.send((start, others) -> {
-			EpicFightNetworkManager.sendToPlayer(start, this.original, others);
-		});
 	}
 	
 	@Override

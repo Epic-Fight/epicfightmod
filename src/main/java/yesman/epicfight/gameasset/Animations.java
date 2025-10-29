@@ -893,7 +893,7 @@ public class Animations {
 			new BasicAttackAnimation(0.1F, 0.05F, 0.15F, 0.6F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F));
 		SWORD_DASH = builder.nextAccessor("biped/combat/sword_dash", (accessor) ->
-			new DashAttackAnimation(0.1F, 0.1F, 0.1F, 0.2F, 0.65F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED, true)
+			new DashAttackAnimation(0.1F, 0.1F, 0.15F, 0.25F, 0.65F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED, true)
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F));
 		
 		GREATSWORD_AUTO1 = builder.nextAccessor("biped/combat/greatsword_auto1", (accessor) ->

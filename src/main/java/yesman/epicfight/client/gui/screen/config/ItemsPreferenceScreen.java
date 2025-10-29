@@ -115,10 +115,10 @@ public class ItemsPreferenceScreen extends Screen {
 		WEAPON_CATEGORIZED_ITEM_CLASSES.add(cls);
 	}
 	
-	private static final Component RESET_TOOLTIP = Component.translatable("gui." + EpicFightMod.MODID + ".item_preferences.tooltip.find_weapon");
-	private static final Component SWAP_ALL = Component.translatable("epicfight.gui.item_preferences.swap_all");
+	private static final Component RESET_TOOLTIP = Component.translatable(EpicFightMod.format("gui.%s.item_preferences.tooltip.find_weapon"));
+	private static final Component SWAP_ALL = Component.translatable(EpicFightMod.format("%s.gui.item_preferences.swap_all"));
 	
-	public static final Component GUI_FIND_WEAPONS = Component.translatable("gui." + EpicFightMod.MODID + ".find_weapon");
+	public static final Component GUI_FIND_WEAPONS = Component.translatable(EpicFightMod.format("gui.%s.find_weapon"));
 	
 	protected final Screen parentScreen;
 	private ItemsPreferenceScreen.ItemList combatPreferredItems;

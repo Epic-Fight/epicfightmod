@@ -1,5 +1,4 @@
 {
-	"xp_requirement": 5,
 	"max_duration": 200,
 	"damage_bonus": 0.3,
 	"attribute_modifiers": [

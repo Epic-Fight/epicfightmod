@@ -19,6 +19,7 @@ import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 import yesman.epicfight.world.entity.eventlistener.SkillConsumeEvent;
 
@@ -27,12 +28,13 @@ public class SkillContainer {
 	protected int prevDuration;
 	protected int duration;
 	protected int maxDuration;
+	protected int stack;
+	protected int replaceCooldown;
 	protected float resource;
 	protected float prevResource;
 	protected float maxResource;
 	protected boolean isActivated;
 	protected boolean disabled;
-	protected int stack;
 	
 	protected final SkillSlot slot;
 	protected final PlayerPatch<?> executor;
@@ -231,6 +233,10 @@ public class SkillContainer {
 		this.maxResource = maxResource;
 	}
 	
+	public void setReplaceCooldown(int replaceCooldown) {
+		this.replaceCooldown = Mth.clamp(replaceCooldown, 0, EpicFightGameRules.SKILL_REPLACE_COOLDOWN.getRuleValue(this.executor.getOriginal().level()));
+	}
+	
 	@OnlyIn(Dist.CLIENT)
 	public SkillCastEvent sendCastRequest(LocalPlayerPatch executor, ControlEngine controlEngine) {
 		SkillCastEvent event = new SkillCastEvent(executor, this, this.containingSkill == null ? null : this.containingSkill.gatherArguments(this, controlEngine));
@@ -241,14 +247,11 @@ public class SkillContainer {
 
 		Object packet;
 		
-		if (this.containingSkill instanceof HoldableSkill holdableSkill && this.containingSkill.getActivateType() == ActivateType.HELD)
-		{
+		if (this.containingSkill instanceof HoldableSkill holdableSkill && this.containingSkill.getActivateType() == ActivateType.HELD) {
 			if (executor.isHoldingSkill(this.containingSkill)) {
 				packet = this.containingSkill.getExecutionPacket(this, event.getArguments());
 				executor.resetHolding();
-			}
-			else
-			{
+			} else {
 				if (!this.canUse(executor, event)) {
 					this.containingSkill.validationFeedback(this);
 					return event;
@@ -373,9 +376,8 @@ public class SkillContainer {
 	}
 	
 	public void update() {
-		if (this.containingSkill != null) {
-			this.containingSkill.updateContainer(this);
-		}
+		if (this.replaceCooldown > 0) this.replaceCooldown = Mth.clamp(this.replaceCooldown - 1, 0, EpicFightGameRules.SKILL_REPLACE_COOLDOWN.getRuleValue(this.executor.getOriginal().level()));
+		if (this.containingSkill != null) this.containingSkill.updateContainer(this);
 	}
 	
 	public int getStack() {
@@ -436,6 +438,14 @@ public class SkillContainer {
 
 	public float getDurationRatio(float partialTicks) {
 		return this.containingSkill != null && this.maxDuration > 0 ? (this.prevDuration + ((this.duration - this.prevDuration) * partialTicks)) / this.maxDuration : 0;
+	}
+	
+	public boolean onReplaceCooldown() {
+		return this.replaceCooldown > 0 && !this.executor.getOriginal().isCreative();
+	}
+	
+	public int getReplaceCooldown() {
+		return this.replaceCooldown;
 	}
 	
 	public SPChangeSkill createSyncPacketToLocalPlayer() {

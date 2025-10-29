@@ -1,31 +1,43 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.program;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
+import static org.lwjgl.opengl.GL20.glCompileShader;
+import static org.lwjgl.opengl.GL20.glCreateShader;
+import static org.lwjgl.opengl.GL20.glDeleteShader;
+import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
+import static org.lwjgl.opengl.GL20.glGetShaderi;
+import static org.lwjgl.opengl.GL20.glShaderSource;
+import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
 public class ComputeShader {
-    public final int shaderHandle;
+    public final int shaderId;
 
     public ComputeShader() {
-        this.shaderHandle = glCreateShader(GL_COMPUTE_SHADER);
+        this.shaderId = glCreateShader(GL_COMPUTE_SHADER);
     }
 
     public void setShaderSource(String source) {
-        glShaderSource(shaderHandle, source);
+        glShaderSource(this.shaderId, source);
     }
 
     public void compileShader() {
-        glCompileShader(shaderHandle);
+        glCompileShader(this.shaderId);
     }
 
     public boolean isCompiled() {
-        return glGetShaderi(shaderHandle, GL_COMPILE_STATUS) == GL_TRUE;
+        return glGetShaderi(this.shaderId, GL_COMPILE_STATUS) == GL_TRUE;
     }
 
     public String getInfoLog() {
-        return glGetShaderInfoLog(shaderHandle);
+        return glGetShaderInfoLog(this.shaderId);
     }
 
     public void delete() {
-        glDeleteShader(shaderHandle);
+        glDeleteShader(this.shaderId);
     }
 }

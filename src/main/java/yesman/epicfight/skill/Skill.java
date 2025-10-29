@@ -66,7 +66,6 @@ public abstract class Skill {
 	protected float consumption;
 	protected int maxDuration;
 	protected int maxStackSize;
-	protected int requiredXp;
 	
 	public Skill(SkillBuilder<? extends Skill> builder) {
 		if (builder.registryName == null) {
@@ -85,8 +84,6 @@ public abstract class Skill {
 		this.consumption = parameters.getFloat("consumption");
 		this.maxDuration = parameters.getInt("max_duration");
 		this.maxStackSize = parameters.contains("max_stacks") ? parameters.getInt("max_stacks") : 1;
-		this.requiredXp = parameters.getInt("xp_requirement");
-		
 		this.attributes.clear();
 		
 		if (parameters.contains("attribute_modifiers")) {
@@ -422,10 +419,6 @@ public abstract class Skill {
 
 	public float getConsumption() {
 		return this.consumption;
-	}
-	
-	public int getRequiredXp() {
-		return this.requiredXp;
 	}
 	
 	public Set<Entry<Attribute, AttributeModifier>> getModfierEntry() {

@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -69,13 +70,15 @@ public class ParryingSkill extends GuardSkill {
 	public void guard(SkillContainer container, CapabilityItem itemCapability, TakeDamageEvent.Attack event, float knockback, float impact, boolean advanced) {
 		if (this.isHoldingWeaponAvailable(event.getPlayerPatch(), itemCapability, BlockType.ADVANCED_GUARD)) {
 			DamageSource damageSource = event.getDamageSource();
+			Entity offender = getOffender(damageSource);
 			
-			if (this.isBlockableSource(damageSource, true)) {
+			if (offender != null && this.isBlockableSource(damageSource, true)) {
 				ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
 				boolean successParrying = serverPlayer.tickCount - container.getDataManager().getDataValue(SkillDataKeys.LAST_ACTIVE.get()) < PARRY_WINDOW;
 				float penalty = container.getDataManager().getDataValue(SkillDataKeys.PENALTY.get());
 				event.getPlayerPatch().playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
-				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverPlayer.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, damageSource.getDirectEntity());
+				
+				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverPlayer.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, offender);
 				
 				if (successParrying) {
 					event.setParried(true);
@@ -89,12 +92,12 @@ public class ParryingSkill extends GuardSkill {
 					container.getDataManager().setDataSync(SkillDataKeys.PENALTY.get(), penalty);
 				}
 				
-				if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
+				if (offender instanceof LivingEntity livingentity) {
 					knockback += EnchantmentHelper.getKnockbackBonus(livingentity) * 0.1F;
 				}
 
-                assert damageSource.getDirectEntity() != null;
-                event.getPlayerPatch().knockBackEntity(damageSource.getDirectEntity().position(), knockback);
+                assert offender != null;
+                event.getPlayerPatch().knockBackEntity(offender.position(), knockback);
 				float consumeAmount = penalty * impact;
 				boolean canAfford = event.getPlayerPatch().consumeForSkill(this, Skill.Resource.STAMINA, consumeAmount);
 				

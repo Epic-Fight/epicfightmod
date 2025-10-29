@@ -33,6 +33,8 @@ public class EpicFightServerConnectionHelper {
 	}
 	
 	public static boolean init(String configPath) {
+		EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Initialize");
+		
 		SupportedOS os = SupportedOS.getOS();
 		boolean supported = false;
 		
@@ -48,6 +50,11 @@ public class EpicFightServerConnectionHelper {
 			return false;
 		} catch (KeyManagementException e) {
 			EpicFightMod.LOGGER.warn("Failed at initializing SSL context");
+			HTTP_CLIENT = null;
+			SUPPORTED = false;
+			return false;
+		} catch (Exception e) {
+			EpicFightMod.LOGGER.warn("Failed at initializing " + e);
 			HTTP_CLIENT = null;
 			SUPPORTED = false;
 			return false;
@@ -97,8 +104,8 @@ public class EpicFightServerConnectionHelper {
 				try {
 					System.load(file.toString());
 				} catch (UnsatisfiedLinkError e) {
-					//e.printStackTrace();
 					exceptionOccurred = true;
+					EpicFightMod.LOGGER.warn("Failed at loading library file");
 				}
 				
 				supported = !exceptionOccurred;
@@ -106,6 +113,8 @@ public class EpicFightServerConnectionHelper {
 				supported = false;
 				EpicFightMod.LOGGER.info("Can't read library file: " + libpath);
 			}
+		} else {
+			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Unsupported OS: " + Util.getPlatform().name());
 		}
 		
 		SUPPORTED = supported;

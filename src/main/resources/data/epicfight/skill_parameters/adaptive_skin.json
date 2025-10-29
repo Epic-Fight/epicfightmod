@@ -1,5 +1,4 @@
 {
-	"xp_requirement": 5,
 	"damage_resistance": 0.15,
 	"max_resistance_stack": 3,
 	"attribute_modifiers": [

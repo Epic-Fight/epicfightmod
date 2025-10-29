@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -138,6 +139,11 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.IMPACT.get(), 8.0D);
 		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.MAX_STRIKES.get(), Double.MAX_VALUE);
 		event.add(EntityType.ENDER_DRAGON, Attributes.ATTACK_DAMAGE, 10.0D);
+	}
+	
+	@Override
+	public void saveData(CompoundTag compoundTag) {
+		// We do not save stun shield here
 	}
 	
 	@Override
@@ -288,10 +294,10 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public void setStunShield(float value) {
-		super.setStunShield(value);
+	public void damageStunShield(float damage, float impact) {
+		super.damageStunShield(damage, impact);
 		
-		if (value <= 0) {
+		if (this.getStunShield() <= 0) {
 			DragonPhaseInstance currentPhase = this.original.getPhaseManager().getCurrentPhase();
 			
 			if (currentPhase.getPhase() == PatchedPhases.CRYSTAL_LINK && ((DragonCrystalLinkPhase)currentPhase).getChargingCount() > 0) {

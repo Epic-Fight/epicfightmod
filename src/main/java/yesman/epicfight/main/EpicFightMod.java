@@ -39,11 +39,14 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.client.animation.property.JointMaskReloadListener;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.model.ItemSkinsReloadListener;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
@@ -110,117 +113,64 @@ import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
  *  ***************************************************************
  *  Major version changes
  *  ***************************************************************
- *  20.12.1 Created
+ *  20.13.1 Created
  *  
- *  A version that first compatible with skill tree addon
+ *  Bugfix
  *  
- *  New skills
- *  - Catharsis: Fills weapon charge when dodge in time
- *  - Vengeance: Get damage bonus against your last attacker
- *  - Adaptive skin: Get damage resistance against the damage types that a player has taken recently
- *  - Bonebreaker: Get damage bonus against the enemy you attacked last
- *  - Adrenaline: reset stamina regen counter when kill enemies
+ *  Fixed the players unable to turn camera in first-person on ladders when y rotation is 180 (or -180)
+ *  Fixed the Technician not rewarding stamina
  *  
- *  Skill sound & visual enhancements
- *  - Roll
- *  - Forbidden strength
- *  - Hypervitality
- *  - Berserker
- *  - Stamina pillager
- *  - Swordmaster
- *  - Emergency escape
- *  - Technician
+ *  Configuration
  *  
- *  Emergency escape rework
- *  - Cooldown decreased 15 -> 5
- *  - Now players can cast dodge skills when being hit (Affected by cooldown)
+ *  Expanded the mining block guide option to configure both crosshair and block highlight overlay
+ *  The config option 'resolve_key_conflicts' has been changed to `key_conflict_resolve_scope` which can cancel the vanilla actions when guard key conflicts with item use key
  *  
- *  Endurance sscape rework
- *  - Stun shield duration increased 3 -> 8
+ *  Skill and Skill UI
  *  
- *  Eviscerate nerf
- *  - Deal 50% > (10%|15%|20%|25%|30%) of target's lost health (based on an item tier)
+ *  Added a replace cooldown for each skill slot (#2021)
+ *  Added scrolling to the skill editor and slot selector to further enhance addon extensibility
  *  
- *  Afterimage particle enhanced
- *  - Now it shows held weapon, equipped armors, and cape
+ *  Etc
+ *  
+ *  Now players can suppress movements of combo attacks by pressing the sneak key
+ *  Enhanced the block highlight so that it only stains an opaque part
+ *  
+ *  Shoulder surfing compatibility
+ *  
+ *  Players now follow camera when they're taking specific Epic Fight actions (attacks, blocking)
  *  
  *  ***************************************************************
- *  20.12.2
+ *  20.13.2
  *  
- *  Fixed the bug that players can't eat or drink any food items (#2048)
- *  Fixed the crash when hit by arrows from other mods (#2047)
- *  Fixed the bug that players can't disarm guard after attacking while guarding
+ *  Bugfix
  *  
- *  ***************************************************************
- *  20.12.3
+ *  Fixed the 'resolve_key_conflicts' option not to be applied when the player is vanilla mode
+ *  Fixed the 'resolve_key_conflicts' messing up the door state
+ *  Fixed the Ender dragon can't hurt the player
  *  
- *  Fixed the Vex crashing game when the target is dead before attacking
- *  Fixed the laser particle transform issue
- *  Fixed the crash when Wither afterimage is created
- *  Fixed the Wither swirl animation when Wither armor is activated
- *  Fixed the crash when trail particle is loaded in datapack editor (#2053)
+ *  Configuration
  *  
- *  ***************************************************************
- *  20.12.4
+ *  Added a new config option that you can disable Minecraft model while in vanilla mode (Same as old 'filter animation' option)
+ *  Added a new config option that determines how 'item_preference' works
+ *  - Adaptive: same as current work
+ *  - Switch mode: like the old Epic Fight's 'auto_switching' items, it switches the player mode when the player changes a main hand item, forcing the next behavior depending on the player mode
  *  
- *  Fixed the players can't attack after charging the Greatsword innate skill (#2060)
- *  Fixed the Ender dragon turns back when attacking (#2054)
- *  Fixed the afterimage particle doesn't reflect entity's scale
+ *  Changes
+ *  
+ *  Made the stun shield persistent
  *  
  *  ***************************************************************
- *  20.12.5
  *  
- *  Fixed the weapon innate skill icon not being white when it's unavailable
- *  Fixed the leg animation being reset when stiffComboAttack is false
- *  Removed the Animation shader option. Instead Compute shader has been implemented, which boosts frame rate and expand compatibility with shaderpacks for Iris
- *  Internal changes
- *  - ChareableSkill now inherits HoldableSkill. Since their work quite similar all if-else branch for ChareableSkill and HoldableSkill are merged.
+ *  20.13.3
  *  
- *  ***************************************************************
- *  20.12.6
+ *  Bugfix
  *  
- *  Fixed the afterimage having a wrong main hand item transform when holding any offhand item
- *  Fixed the player's equipping armors are all broken when hurt by the Axe's innate skill (#2068)
- *  Internal changes
- *  - Compute shader optimization: Made it use Persistent buffer (by jvn, #2070)
- *  - Added a variable tickSinceLastJump in ControlEngine to enhance air slash check
+ *  Fixed the player not to edit the sign when 'resolve_key_conflicts' is set to 'interaction'
+ *  Fixed the player can't take blocking when holding weapons from Simplyswords
+ *  Fixed the player's blocking and digging animations not removing under certain conditions (usually when it's combined with dodge skills)
+ *  Optimized texture files so that save 23% of size from the original
  *  
- *  ***************************************************************
- *  20.12.7
- *  
- *  -Player's following action UI-
- *  Added adaptive crosshair for mining and combat
- *  Added a block overlay to indicate your next mining action
- *  Added a reset button on Ingame UI Setup screen
- *  Added config options for enable/disable both block and entity target
- *  
- *  -Graphic fixes-
- *  Fixed the entity outline rendering abnormally
- *  Fixed so that compute shader can render entity outline
- *  Fixed the incorrect normal tweak of compute shader for Iris shaderpacks
- *  Fixed Phantom ascent crash (#2084)
- *  
- *  -Internal changes-
- *  Added a method that developers can determine a skill book item texture
- *  {@link SkillCategory#bookIcon}
- *  
- *  ***************************************************************
- *  20.12.8
- *  
- *  The default value of canSwitchPlayerMode gamerule changed from false to true
- *  Fixed the Trident innate skill icon with channel enchantment is broken
- *  Fixed the animation entries not showing up in the list in the datapack editor
- *  Fixed the crash when ground slam particle generated
- *  Fixed the trail particle being dark when afterimage particle is in the screen
- *  Optimized animation keyframes to accelerate the fps, especially when rendering a model with massive joints
- *  
- *  ***************************************************************
- *  20.12.9
- *  
- *  Fixed the normal shading issue both vanilla render pipeline and compute shader
- *  Added {@link InnateSkillChangeEvent.class} event that is fired after weapon innate skill is changed
- *  
- *  --- TO DO ---
+ *  --- Future list ---
  *  
  *  Update language files (always)
  *  Add an alert function when an entity targeting the player tries grappling or execution attack
@@ -239,6 +189,10 @@ public class EpicFightMod {
 	
 	public static String prefix(String s) {
 		return String.format("%s:%s", MODID, s);
+	}
+	
+	public static String format(String s) {
+		return String.format(s, MODID);
 	}
 	
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
@@ -298,6 +252,7 @@ public class EpicFightMod {
     	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, WeaponCategories.class);
     	Faction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Factions.class);
     	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
+    	InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputActions.class);
     	
     	EpicFightMobEffects.EFFECTS.register(bus);
     	EpicFightPotions.POTIONS.register(bus);
@@ -442,6 +397,7 @@ public class EpicFightMod {
     		event.enqueueWork(EntityPatchProvider::registerEntityPatchesClient);
     		event.enqueueWork(SkillBookScreen::registerIconItems);
     		event.enqueueWork(EpicFightItemProperties::registerItemProperties);
+    		event.enqueueWork(ClientEngine.getInstance().renderEngine::initialize);
         }
         
         @SubscribeEvent

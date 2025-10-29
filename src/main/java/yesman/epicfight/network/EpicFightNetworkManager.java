@@ -114,6 +114,7 @@ public class EpicFightNetworkManager {
 		INSTANCE.registerMessage(id++, SPSyncAnimationPosition.class, SPSyncAnimationPosition::toBytes, SPSyncAnimationPosition::fromBytes, SPSyncAnimationPosition::handle);
 		INSTANCE.registerMessage(id++, SPPlayUISound.class, SPPlayUISound::toBytes, SPPlayUISound::fromBytes, SPPlayUISound::handle);
 		INSTANCE.registerMessage(id++, SPSetRemotePlayerSkill.class, SPSetRemotePlayerSkill::toBytes, SPSetRemotePlayerSkill::fromBytes, SPSetRemotePlayerSkill::handle);
+		INSTANCE.registerMessage(id++, SPInitSkills.class, SPInitSkills::toBytes, SPInitSkills::fromBytes, SPInitSkills::handle);
 	}
 	
 	public static class PayloadBundleBuilder {

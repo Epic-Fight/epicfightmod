@@ -193,7 +193,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	protected static final Vector4f POSITION = new Vector4f();
 	protected static final Vector3f NORMAL = new Vector3f();
-	protected static final Matrix3f NORMAL_TRANSFORMER = new Matrix3f();
 	
 	/**
 	 * Draws the model to vanilla buffer
@@ -226,14 +225,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 					this.getVertexNormal(vi.position, vi.normal, NORMAL, ComputeShaderSetup.TOTAL_NORMALS);
 					
 					POSITION.mul(pose);
-					
-					if (ClientConfig.computeNormalInShader.get()) {
-						// Iris assumes normals are in view-space 
-						NORMAL_TRANSFORMER.set(pose);
-						NORMAL.mul(NORMAL_TRANSFORMER);
-					} else {
-						NORMAL.mul(normal);
-					}
+					NORMAL.mul(normal);
 					
 					drawingFunction.draw(bufferbuilder, POSITION.x, POSITION.y, POSITION.z, NORMAL.x, NORMAL.y, NORMAL.z, packedLight, r, g, b, a, this.uvs[vi.uv * 2], this.uvs[vi.uv * 2 + 1], overlay);
 				}
@@ -309,15 +301,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 				getVertexPosition(vi.position, POSITION);
 				getVertexNormal(vi.normal, NORMAL);
 				POSITION.mul(pose);
-				
-				if (ClientConfig.computeNormalInShader.get()) {
-					// Iris assumes normals are in view-space 
-					NORMAL_TRANSFORMER.set(pose);
-					NORMAL.mul(NORMAL_TRANSFORMER);
-				} else {
-					NORMAL.mul(normal);
-				}
-				
+				NORMAL.mul(normal);
 				drawingFunction.draw(bufferBuilder, POSITION.x(), POSITION.y(), POSITION.z(), NORMAL.x(), NORMAL.y(), NORMAL.z(), packedLight, color.x, color.y, color.z, color.w, uvs[vi.uv * 2], uvs[vi.uv * 2 + 1], overlay);
 			}
 		}

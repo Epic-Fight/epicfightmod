@@ -1,5 +1,4 @@
 {
-	"xp_requirement": 5,
 	"damage_bonus": 0.1,
 	"max_damage_bonus_stacks": 8,
 	"attribute_modifiers": [

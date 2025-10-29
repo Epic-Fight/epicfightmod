@@ -1,19 +1,18 @@
 package yesman.epicfight.client.renderer.shader.compute;
 
-import java.util.ArrayList;
+import static org.lwjgl.opengl.GL11C.GL_BYTE;
+import static org.lwjgl.opengl.GL11C.GL_FLOAT;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_SHORT;
+import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15C.glBindBuffer;
+import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30C.glVertexAttribIPointer;
+
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL15C;
-import org.lwjgl.opengl.GL20C;
-
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -21,148 +20,63 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
-import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.OutputSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 
 @OnlyIn(Dist.CLIENT)
-public class VanillaComputeShaderSetup implements ComputeShaderSetup {
-	private final StaticSSBO<Float> uvsBO;
-	private final StaticSSBO<VertexObj> vObjBO;
-	private final StaticSSBO<Integer> jointBO;
-	private	final StaticSSBO<Float> weightBO;
-	private final StaticSSBO<ElemInfo> elementsBO;
-
-	private final OutputSSBO outPos;
-	private final OutputSSBO outNormal;
-	private final OutputSSBO outColor;
-	private final OutputSSBO outUv0;
-	private final OutputSSBO outUv1;
-	private final OutputSSBO outUv2;
-
-	private final IArrayBufferProxy hiddenFlagsBO;
-	private final Integer[] hiddenFlags;
-	
-	private final int arrayObjectId;
-	private final int vcount;
+public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 	
 	public VanillaComputeShaderSetup(SkinnedMesh skinnedMesh) {
-		Map<VertexBuilder, Integer> vertexBuilderMap = new HashMap<> ();
-		List<ElemInfo> elements = new ArrayList<> ();
-
-		this.arrayObjectId = GlStateManager._glGenVertexArrays();
-		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-
-		List<Float> uvList = Lists.newArrayList();
-		this.hiddenFlags = new Integer[(skinnedMesh.getAllParts().size() + 31) / 32];
-		this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
-
-		MutableInt partIdx = new MutableInt(0);
-
-		skinnedMesh.getAllParts().forEach(skinnedMeshPart -> {
-			skinnedMeshPart.initVBO(new PartBuffer(skinnedMeshPart.getVertices(), vertexBuilderMap, skinnedMesh.uvs(), uvList, elements, partIdx.intValue()));
-			partIdx.add(1);
-		});
-
-		VertexObj[] vertexObjs = new VertexObj[vertexBuilderMap.size()];
-		List<Integer> jointList = new ArrayList<> ();
-		List<Float> weightList = new ArrayList<> ();
-
-		vertexBuilderMap.forEach((vb, idx) -> {
-			int startPos = jointList.size();
-
-			for (int i = 0; i < skinnedMesh.affectingJointCounts()[vb.position]; i++) {
-				int jointIndex = skinnedMesh.affectingJointIndices()[vb.position][i];
-				int weightIndex = skinnedMesh.affectingWeightIndices()[vb.position][i];
-				float weight = skinnedMesh.weights()[weightIndex];
-
-				jointList.add(jointIndex);
-				weightList.add(weight);
-			}
-
-			vertexObjs[idx] = new VertexObj(
-					skinnedMesh.positions()[vb.position * 3],
-					skinnedMesh.positions()[vb.position * 3 + 1],
-					skinnedMesh.positions()[vb.position * 3 + 2],
-					skinnedMesh.normals()[vb.normal * 3],
-					skinnedMesh.normals()[vb.normal * 3 + 1],
-					skinnedMesh.normals()[vb.normal * 3 + 2],
-					startPos,
-					startPos + skinnedMesh.affectingJointCounts()[vb.position]
-			);
-		});
-
-		this.vcount = elements.size();
-
-		this.elementsBO = new StaticSSBO<> (elements, 2, ElemInfo::store);
-		this.uvsBO = new StaticSSBO<> (uvList, 1, (v, b) -> b.put(v));
-		this.vObjBO = new StaticSSBO<> (Lists.newArrayList(vertexObjs), 8, VertexObj::store);
-		this.jointBO = new StaticSSBO<> (jointList, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
-		this.weightBO = new StaticSSBO<> (weightList, 1, (v, b) -> b.put(v));
-
-		this.outPos = new OutputSSBO((short) 3, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outNormal = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outColor = new OutputSSBO((short) 4, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv0 = new OutputSSBO((short) 2, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv1 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-		this.outUv2 = new OutputSSBO((short) 1, elements.size(), DynamicSSBO.DataMode.STREAM);
-
-		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
-	}
-
+        super(skinnedMesh, 12);
+    }
+	
 	@Override
-	public void bindBufferFormat(VertexFormat vertexFormat, int... buffers) {
+	public void bindBufferFormat(VertexFormat vertexFormat) {
 		var elems = vertexFormat.getElements();
+		glBindBuffer(GL_ARRAY_BUFFER, this.outVertexAttrBO.glSSBO);
 		
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
 			
 			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
-				ComputeShaderSetup.bindAttrPointer(buffers[0], 3, i, GL11C.GL_FLOAT);
+				glVertexAttribPointer(i, 3, GL_FLOAT, false, 48, 0);
+				glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
-				ComputeShaderSetup.bindAttrPointer(buffers[3], 2, i, GL11C.GL_FLOAT);
+				glVertexAttribPointer(i, 2, GL_FLOAT, false, 48, 28);
+				glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
-				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[2]);
-				GL20C.glVertexAttribPointer(i, 4, GL11C.GL_FLOAT, true, 0, 0);
-				GL20C.glEnableVertexAttribArray(i);
+				glVertexAttribPointer(i, 4, GL_FLOAT, true, 48, 12);
+				glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
-				GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, buffers[1]);
-				GL20C.glVertexAttribPointer(i, 3, GL11C.GL_BYTE, true, 4, 0);
-				GL20C.glEnableVertexAttribArray(i);
+				glVertexAttribPointer(i, 3, GL_BYTE, true, 48, 36);
+				glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
-				ComputeShaderSetup.bindIntAttrPointer(buffers[4], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
+				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 40);
+				glEnableVertexAttribArray(i);
 			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
-				ComputeShaderSetup.bindIntAttrPointer(buffers[5], 2, i, GL11C.GL_UNSIGNED_SHORT, 0);
+				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 44);
+				glEnableVertexAttribArray(i);
 			}
 		}
 		
-		GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
 	@Override
-	public void applyComputeShader(PoseStack poseStack, OpenMatrix4f partTransform, float r, float g, float b, float a, int overlay, int light, int jointCount) {
+	public void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount) {
 		ComputeProgram shader = ComputeShaderProvider.meshComputeVanilla;
 		shader.useProgram();
-		shader.getUniform("colorIn").uploadVec4(r,g,b,a);
+		shader.getUniform("colorIn").uploadVec4(r, g, b, a);
 		shader.getUniform("uv1In").uploadUnsignedInt(overlay);
 		shader.getUniform("uv2In").uploadUnsignedInt(light);
 		shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
@@ -174,17 +88,8 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 		this.elementsBO.bindBufferBase(1);
 		this.vObjBO.bindBufferBase(2);
 		this.jointBO.bindBufferBase(3);
-		this.weightBO.bindBufferBase(4);
-		this.uvsBO.bindBufferBase(5);
-
-		this.outPos.bindBufferBase(6);
-		this.outNormal.bindBufferBase(7);
-		this.outColor.bindBufferBase(8);
-		this.outUv0.bindBufferBase(9);
-		this.outUv1.bindBufferBase(10);
-		this.outUv2.bindBufferBase(11);
-
-		this.hiddenFlagsBO.bindBufferBase(14);
+		this.hiddenFlagsBO.bindBufferBase(4);
+		this.outVertexAttrBO.bindBufferBase(5);
 
 		int workGroupCount = (this.vcount + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
 		shader.dispatch(workGroupCount, 1, 1);
@@ -194,17 +99,8 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 		this.elementsBO.unbind();
 		this.vObjBO.unbind();
 		this.jointBO.unbind();
-		this.weightBO.unbind();
-		this.uvsBO.unbind();
-
-		this.outPos.unbind();
-		this.outNormal.unbind();
-		this.outColor.unbind();
-		this.outUv0.unbind();
-		this.outUv1.unbind();
-		this.outUv2.unbind();
-
 		this.hiddenFlagsBO.unbind();
+		this.outVertexAttrBO.unbind();
 	}
 	
 	@Override
@@ -242,83 +138,17 @@ public class VanillaComputeShaderSetup implements ComputeShaderSetup {
 
 		// setup state
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		renderType.setupRenderState();
-
-		var mode = renderType.mode();
 		
-		ShaderInstance shader = RenderSystem.getShader();
-		var format = shader.getVertexFormat();
-
-		this.bindBufferFormat(
-			format,
-			this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO, this.outUv0.glSSBO,
-			this.outUv1.glSSBO, this.outUv2.glSSBO
-		);
-
-		ComputeShaderSetup.setShaderDefaultUniforms(RenderSystem.getModelViewMatrix(), shader, mode, Minecraft.getInstance().getWindow());
-		shader.apply();
-		
-		this.applyComputeShader(poseStack, null, r, g, b, a, overlay, packedLight, poses.length);
-		
-		// draw call
-		GL20C.glUseProgram(RenderSystem.getShader().getId());
-		GL11C.glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, vcount);
-		
-		// state restore
-		RenderSystem.getShader().clear();
-		renderType.clearRenderState();
+		this.draw(poseStack, renderType, RenderSystem.getModelViewMatrix(), r, g, b, a, overlay, packedLight, poses.length);
 		
 		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
 			renderType.outline().ifPresent(outlineRendertype -> {
-				outlineRendertype.setupRenderState();
-				
-				var outlinemode = outlineRendertype.mode();
-				ShaderInstance outlineshader = RenderSystem.getShader();
-				var outlineformat = outlineshader.getVertexFormat();
-				
-				this.bindBufferFormat(
-					outlineformat,
-					this.outPos.glSSBO, this.outNormal.glSSBO, this.outColor.glSSBO, this.outUv0.glSSBO,
-					this.outUv1.glSSBO, this.outUv2.glSSBO
-				);
-				
-				ComputeShaderSetup.setShaderDefaultUniforms(RenderSystem.getModelViewMatrix(), outlineshader, outlinemode, Minecraft.getInstance().getWindow());
-				outlineshader.apply();
-				
-				this.applyComputeShader(poseStack, null, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
-				
-				// draw call
-				GL20C.glUseProgram(RenderSystem.getShader().getId());
-				GL11C.glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, this.vcount);
-				
-				// state restore
-				RenderSystem.getShader().clear();
-				
-				outlineRendertype.clearRenderState();
+				this.draw(poseStack, outlineRendertype, RenderSystem.getModelViewMatrix(), outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 			});
 		}
 		
-		format.clearBufferState();
-
 		GlStateManager._glBindVertexArray(currentBoundVao);
 		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
-	}
-	
-	@Override
-	public void destroyBuffers() {
-		this.vObjBO.close();
-		this.uvsBO.close();
-		this.weightBO.close();
-		this.jointBO.close();
-		
-		this.outNormal.close();
-		this.outPos.close();
-		
-		this.outColor.close();
-		this.outUv1.close();
-		this.outUv2.close();
-		
-		RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
 	}
 	
 	@Override

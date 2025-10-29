@@ -2,6 +2,10 @@ package yesman.epicfight.client.renderer.shader.compute.backend.program;
 
 import org.lwjgl.opengl.GL46C;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
 public enum BarrierFlags {
     SHADER_STORAGE	(GL46C.GL_SHADER_STORAGE_BARRIER_BIT),
     ATOMIC_COUNTER	(GL46C.GL_ATOMIC_COUNTER_BARRIER_BIT),

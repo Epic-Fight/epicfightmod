@@ -3,11 +3,12 @@ package yesman.epicfight.network.server;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public record SPClearSkills(int entityId) {
 	public static SPClearSkills fromBytes(FriendlyByteBuf buf) {
@@ -22,8 +23,8 @@ public record SPClearSkills(int entityId) {
 		ctx.get().enqueueWork(() -> {
 			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
 			
-			EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> {
-				playerpatch.getSkillCapability().clearContainersAndLearnedSkills();
+			EpicFightCapabilities.<AbstractClientPlayer, AbstractClientPlayerPatch<AbstractClientPlayer>>getParameterizedEntityPatch(entity, AbstractClientPlayer.class, AbstractClientPlayerPatch.class).ifPresent(playerpatch -> {
+				playerpatch.getSkillCapability().clearContainersAndLearnedSkills(playerpatch.getOriginal().isLocalPlayer());
 			});
 		});
 		ctx.get().setPacketHandled(true);

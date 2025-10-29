@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -67,7 +66,7 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 	
 	public int assign(T value) {
 		int lastOrdinal = this.lastOrdinal;
-		String enumName = value.toString().toLowerCase(Locale.ROOT);
+		String enumName = ParseUtil.toLowerCase(value.toString());
 		
 		if (this.enumMapByName.containsKey(enumName)) {
 			throw new IllegalArgumentException("Enum name " + enumName + " already exists in " + this.enumName);
@@ -89,7 +88,7 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 	}
 	
 	public T getOrThrow(String name) throws NoSuchElementException {
-		String key = name.toLowerCase(Locale.ROOT);
+		String key = ParseUtil.toLowerCase(name);
 		
 		if (!this.enumMapByName.containsKey(key)) {
 			throw new NoSuchElementException("Enum name " + key + " does not exist in " + this.enumName);
@@ -103,7 +102,7 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 	}
 	
 	public T get(String name) {
-		return this.enumMapByName.get(name.toLowerCase(Locale.ROOT));
+		return this.enumMapByName.get(ParseUtil.toLowerCase(name));
 	}
 	
 	public Collection<T> universalValues() {
@@ -111,6 +110,6 @@ public class ExtendableEnumManager<T extends ExtendableEnum> {
 	}
 	
 	public String toTranslated(ExtendableEnum e) {
-		return Component.translatable(EpicFightMod.MODID + "." + this.enumName + "." + e.toString().toLowerCase(Locale.ROOT)).getString();
+		return Component.translatable(EpicFightMod.MODID + "." + this.enumName + "." + ParseUtil.toLowerCase(e.toString())).getString();
 	}
 }

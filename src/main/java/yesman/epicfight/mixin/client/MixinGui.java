@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.client.gui.EntityUI;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
 @Mixin(value = Gui.class)
@@ -38,9 +39,11 @@ public abstract class MixinGui {
 	public void epicfight$renderCrosshair(GuiGraphics pGuiGraphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight) {
 		MutableBoolean itemAction = new MutableBoolean(true); // true: combat, false: mine
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
-			itemAction.setValue(playerpatch.canPlayAttackAnimation());
-		});
+		if (ClientConfig.mineBlockGuideOption.switchCrosshair()) {
+			EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
+				itemAction.setValue(playerpatch.canPlayAttackAnimation());
+			});
+		}
 		
 		if (itemAction.booleanValue()) {
 			pGuiGraphics.blit(GUI_ICONS_LOCATION, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);

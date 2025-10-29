@@ -148,13 +148,31 @@ public class SkillBookScreen extends Screen {
 					
 				}
 				case COOLDOWN -> {
-					this.consumptionList.add(Component.translatable("attribute.name.epicfight.cooldown.consume.tooltip"), Component.translatable("attribute.name.epicfight.cooldown.consume", String.format("%.1f", this.skill.getConsumption())), COOLDOWN_TEXTURE_INFO);
+					this.consumptionList.add(
+						Component.translatable(EpicFightMod.format("attribute.name.%s.cooldown.consume.tooltip")),
+						Component.translatable(
+							EpicFightMod.format("attribute.name.%s.cooldown.consume"),
+							String.format("%.1f", this.skill.getConsumption())
+						),
+						COOLDOWN_TEXTURE_INFO
+					);
 				}
 				case STAMINA -> {
-					this.consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("attribute.name.epicfight.stamina.consume", String.format("%.1f", this.skill.getConsumption())), STAMINA_TEXTURE_INFO);
+					this.consumptionList.add(
+						Component.translatable(EpicFightMod.format("attribute.name.%s.stamina.consume.tooltip")),
+						Component.translatable(
+							EpicFightMod.format("attribute.name.%s.stamina.consume"),
+							String.format("%.1f", this.skill.getConsumption())
+						),
+						STAMINA_TEXTURE_INFO
+					);
 				}
 				case HEALTH -> {
-					this.consumptionList.add(Component.translatable("attribute.name.epicfight.health.consume.tooltip"), Component.translatable("attribute.name.epicfight.health.consume"), HEALTH_TEXTURE_INFO);
+					this.consumptionList.add(
+						Component.translatable(EpicFightMod.format("attribute.name.%s.health.consume.tooltip")),
+						Component.translatable(EpicFightMod.format("attribute.name.%s.health.consume")),
+						HEALTH_TEXTURE_INFO
+					);
 				}
 				default -> {
 				}
@@ -168,20 +186,20 @@ public class SkillBookScreen extends Screen {
 	
 	@Override
 	protected void init() {
-		Optional<SkillContainer> thisSkill = this.playerpatch.getSkillContainerFor(this.skill);
-		Optional<SkillContainer> priorSkill = this.skill == null ? null : this.playerpatch.getSkillContainerFor(this.skill.getPriorSkill());
+		Optional<SkillContainer> skillContainer = this.playerpatch.getSkillContainerFor(this.skill);
+		Optional<SkillContainer> priorSkillContainer = this.skill == null ? null : this.playerpatch.getSkillContainerFor(this.skill.getPriorSkill());
 		
-		boolean isUsing = thisSkill.isPresent();
-		boolean condition = this.skill == null ? false : this.skill.getPriorSkill() == null || priorSkill.isPresent();
+		boolean isUsing = skillContainer.isPresent();
+		boolean meetsCondition = this.skill == null ? false : this.skill.getPriorSkill() == null || priorSkillContainer.isPresent();
 		Component tooltip = CommonComponents.EMPTY;
 		
 		if (!isUsing) {
-			if (condition) {
-				if (thisSkill.isPresent()) {
-					tooltip = Component.translatable("gui." + EpicFightMod.MODID + ".replace", Component.translatable(this.skill.getTranslationKey()).getString());
+			if (meetsCondition) {
+				if (skillContainer.isPresent()) {
+					tooltip = Component.translatable(EpicFightMod.format("gui.%s.replace"), Component.translatable(this.skill.getTranslationKey()).getString());
 				}
 			} else {
-				tooltip = Component.translatable("gui." + EpicFightMod.MODID + ".require_learning", Component.translatable(this.skill.getPriorSkill().getTranslationKey()).getString());
+				tooltip = Component.translatable(EpicFightMod.format("gui.%s.require_to_learn"), Component.translatable(this.skill.getPriorSkill().getTranslationKey()).getString());
 			}
 		}
 		
@@ -195,18 +213,25 @@ public class SkillBookScreen extends Screen {
 			this.customScale = window.getGuiScale();
 		}
 		
-		Button learnButton = Button.builder(Component.translatable("gui." + EpicFightMod.MODID + (isUsing ? ".applied" : condition ? ".learn" : ".unusable")), (button) -> {
-			Set<SkillContainer> skillContainers = this.playerpatch.getSkillCapability().getSkillContainersFor(this.skill.getCategory());
-			
-			if (skillContainers.size() == 1) {
-				this.acquireSkillTo(skillContainers.iterator().next());
-			} else {
-				SlotSelectScreen slotSelectScreen = new SlotSelectScreen(skillContainers, this);
-				this.minecraft.setScreen(slotSelectScreen);
-			}
-		}).bounds((this.width) / 2 + 54, (this.height) / 2 + 90, 67, 21).tooltip(Tooltip.create(tooltip, null)).build(LearnButton::new);
+		Button learnButton =
+			Button.builder(
+				Component.translatable(EpicFightMod.format("gui.%s") + (isUsing ? ".applied" : meetsCondition ? ".learn" : ".unusable")),
+				button -> {
+					Set<SkillContainer> skillContainers = this.playerpatch.getSkillCapability().getSkillContainersFor(this.skill.getCategory());
+					
+					if (skillContainers.size() == 1) {
+						this.acquireSkillTo(skillContainers.iterator().next());
+					} else {
+						SlotSelectScreen slotSelectScreen = new SlotSelectScreen(skillContainers, this);
+						this.minecraft.setScreen(slotSelectScreen);
+					}
+				}
+			)
+			.bounds(this.width / 2 + 54, this.height / 2 + 90, 67, 21)
+			.tooltip(Tooltip.create(tooltip, null))
+			.build(LearnButton::new);
 		
-		if (isUsing || !condition) {
+		if (isUsing || !meetsCondition) {
 			learnButton.active = false;
 		}
 		
@@ -245,8 +270,12 @@ public class SkillBookScreen extends Screen {
 		skillContainer.setSkill(this.skill);
 		this.playerpatch.getSkillCapability().addLearnedSkill(this.skill);
 		int i = this.hand == InteractionHand.MAIN_HAND ? this.opener.getInventory().selected : 40;
-		EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillContainer.getSlot(), i, false, this.skill));
+		EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillContainer.getSlot(), i, this.skill));
 		this.minecraft.setScreen(null);
+	}
+	
+	protected boolean consumesItem() {
+		return true;
 	}
 	
 	@Override
@@ -348,7 +377,7 @@ public class SkillBookScreen extends Screen {
 		int width = this.font.width(skillName);
 		guiGraphics.drawString(this.font, skillName, posX + 56 - width / 2, posY + 75, 0, false);
 		
-		String skillCategory = String.format("(%s)", Component.translatable("skill." + EpicFightMod.MODID + "." + this.skill.getCategory().toString().toLowerCase() + ".category").getString());
+		String skillCategory = String.format("(%s)", Component.translatable(EpicFightMod.format("skill.%s") + "." + this.skill.getCategory().toString().toLowerCase() + ".category").getString());
 		width = this.font.width(skillCategory);
 		
 		guiGraphics.drawString(this.font, skillCategory, posX + 56 - width / 2, posY + 90, 0, false);
@@ -416,7 +445,7 @@ public class SkillBookScreen extends Screen {
 		private int size;
 		
 		private AvailableItemsList(int x, int y) {
-			super(x, y, 0, 0, Component.translatable("gui.epicfight.available_weapon_types"));
+			super(x, y, 0, 0, Component.translatable(EpicFightMod.format("gui.%s.available_weapon_types")));
 			
 			this.width = 0;
 			this.height = 28;
@@ -454,7 +483,7 @@ public class SkillBookScreen extends Screen {
 				}
 				
 				if (mouseX >= x && mouseX <= x + ICON_LENGTH && mouseY >= y && mouseY <= y + ICON_LENGTH) {
-					this.setTooltip(Tooltip.create(Component.translatable("epicfight.weapon_category." + category.toString().toLowerCase(Locale.ROOT))));
+					this.setTooltip(Tooltip.create(Component.translatable(EpicFightMod.format("%s.weapon_category.") + category.toString().toLowerCase(Locale.ROOT))));
 					updatedTooltip = true;
 				}
 				

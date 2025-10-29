@@ -11,7 +11,6 @@ import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,11 +24,15 @@ public class GroundSlamParticle extends NoRenderParticle {
 		super(level, x, y, z, dx, dy, dz);
 		
 		if (bs.isAir()) {
-			bs = level.getBlockState(bp.below());
+			bs = level.getBlockState(bp.below()); // one more step chance
 		}
 		
 		if (bs instanceof FractureBlockState fractureBlockState) {
 			bs = fractureBlockState.getOriginalBlockState(bp);
+			
+			if (bs == null) {
+				bs = level.getBlockState(bp);
+			}
 		}
 		
 		if (!bs.shouldSpawnParticlesOnBreak()) {
@@ -62,7 +65,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 			BlockPos blockpos = new BlockPos.MutableBlockPos(x, y, z);
 			BlockState blockstate = level.getBlockState(blockpos);
-			if (blockstate == null) blockstate = Blocks.AIR.defaultBlockState(); 
+			if (blockstate == null) return null; 
 			
 			return new GroundSlamParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, blockpos, blockstate);
 		}

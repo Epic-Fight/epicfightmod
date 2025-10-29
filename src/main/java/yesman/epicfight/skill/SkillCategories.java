@@ -15,6 +15,7 @@ public enum SkillCategories implements SkillCategory {
 	MOVER(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_mover")),
 	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
 	
+	
 	boolean shouldSave;
 	boolean shouldSyncronize;
 	boolean modifiable;

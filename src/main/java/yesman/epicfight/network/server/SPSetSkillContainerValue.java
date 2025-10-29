@@ -39,6 +39,10 @@ public record SPSetSkillContainerValue(Target target, SkillSlot skillSlot, float
 		return new SPSetSkillContainerValue(Target.MAX_DURATION, skillSlot, value, false, entityId);
 	}
 	
+	public static SPSetSkillContainerValue replaceCooldown(SkillSlot skillSlot, int value, int entityId) {
+		return new SPSetSkillContainerValue(Target.REPLACE_COOLDOWN, skillSlot, value, false, entityId);
+	}
+	
 	public static SPSetSkillContainerValue fromBytes(FriendlyByteBuf buf) {
 		return new SPSetSkillContainerValue(buf.readEnum(Target.class), SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readFloat(), buf.readBoolean(), buf.readInt());
 	}
@@ -64,6 +68,7 @@ public record SPSetSkillContainerValue(Target target, SkillSlot skillSlot, float
 				case MAX_DURATION -> container.setMaxDuration((int)msg.floatVal());
 				case STACKS -> container.setStack((int)msg.floatVal());
 				case MAX_RESOURCE -> container.setMaxResource(msg.floatVal());
+				case REPLACE_COOLDOWN -> container.setReplaceCooldown((int)msg.floatVal());
 				}
 			});
 		});
@@ -72,6 +77,6 @@ public record SPSetSkillContainerValue(Target target, SkillSlot skillSlot, float
 	}
 	
 	public enum Target {
-		ENABLE, ACTIVATE, RESOURCE, DURATION, STACKS, MAX_RESOURCE, MAX_DURATION;
+		ENABLE, ACTIVATE, RESOURCE, DURATION, STACKS, MAX_RESOURCE, MAX_DURATION, REPLACE_COOLDOWN;
 	}
 }

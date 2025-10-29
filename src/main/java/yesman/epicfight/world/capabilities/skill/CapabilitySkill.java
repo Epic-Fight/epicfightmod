@@ -2,10 +2,11 @@ package yesman.epicfight.world.capabilities.skill;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -13,6 +14,7 @@ import com.google.common.collect.HashMultimap;
 
 import net.minecraft.nbt.CompoundTag;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
@@ -65,6 +67,26 @@ public class CapabilitySkill {
 		return this.learnedSkills.containsKey(skillCategory);
 	}
 	
+	public boolean hasEmptyContainer(SkillCategory skillCategory) {
+		for (SkillContainer container : this.containersByCategory.get(skillCategory)) {
+			if (container.isEmpty()) return true; 
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @return null if there is not empty container
+	 */
+	@Nullable
+	public SkillContainer getFirstEmptyContainer(SkillCategory skillCategory) {
+		for (SkillContainer container : this.containersByCategory.get(skillCategory)) {
+			if (container.isEmpty()) return container; 
+		}
+		
+		return null;
+	}
+	
 	public boolean isEquipping(Skill skill) {
 		return this.containersBySkill.containsKey(skill);
 	}
@@ -107,10 +129,11 @@ public class CapabilitySkill {
 		return this.learnedSkills.values().stream();
 	}
 	
-	public void clearContainersAndLearnedSkills() {
+	public void clearContainersAndLearnedSkills(boolean isLocalOrServerPlayer) {
 		for (SkillContainer container : this.skillContainers) {
 			if (container.getSlot().category().learnable()) {
-				container.setSkill(null);
+				if (isLocalOrServerPlayer) { container.setSkill(null); container.setReplaceCooldown(0); }
+				else { container.setSkillRemote(null); container.setReplaceCooldown(0); }
 			}
 		}
 		
@@ -125,6 +148,7 @@ public class CapabilitySkill {
 			
 			if (oldone != null && oldone.getCategory().shouldSynchronize()) {
 				container.setSkill(capabilitySkill.skillContainers[i].getSkill());
+				container.setReplaceCooldown(capabilitySkill.skillContainers[i].getReplaceCooldown());
 			}
 			
 			i++;
@@ -134,13 +158,21 @@ public class CapabilitySkill {
 	}
 	
 	public CompoundTag serialize() {
-		CompoundTag nbt = new CompoundTag();
+		CompoundTag compound = new CompoundTag();
 		
 		for (SkillContainer container : this.skillContainers) {
 			if (container.getSkill() != null && container.getSkill().getCategory().shouldSave()) {
-				nbt.putString(container.getSlot().toString().toLowerCase(Locale.ROOT), container.getSkill().toString());
+				compound.putString(ParseUtil.toLowerCase(container.getSlot().toString()), container.getSkill().toString());
 			}
 		}
+		
+		CompoundTag replaceCooldownNbt = new CompoundTag();
+		
+		for (SkillContainer container : this.skillContainers) {
+			replaceCooldownNbt.putInt(ParseUtil.toLowerCase(container.getSlot().toString()), container.getReplaceCooldown());
+		}
+		
+		compound.put("replace_cooldowns", replaceCooldownNbt);
 		
 		for (Map.Entry<SkillCategory, Collection<Skill>> entry : this.learnedSkills.asMap().entrySet()) {
 			CompoundTag learnedNBT = new CompoundTag();
@@ -150,34 +182,47 @@ public class CapabilitySkill {
 				learnedNBT.putString(String.valueOf(i++), skill.toString());
 			}
 			
-			nbt.put("learned:" + entry.getKey().toString().toLowerCase(Locale.ROOT), learnedNBT);
+			compound.put("learned:" + ParseUtil.toLowerCase(entry.getKey().toString()), learnedNBT);
 		}
 		
-		nbt.putString("playerMode", this.skillContainers[0].getExecutor().getPlayerMode().toString());
+		compound.putString("playerMode", this.skillContainers[0].getExecutor().getPlayerMode().toString());
 		
-		return nbt;
+		return compound;
 	}
 	
 	public void deserialize(CompoundTag compound) {
 		for (SkillContainer container : this.skillContainers) {
-			String key = container.getSlot().toString().toLowerCase(Locale.ROOT);
+			String key = ParseUtil.toLowerCase(container.getSlot().toString());
 			
 			if (compound.contains(key)) {
 				Skill skill = SkillManager.getSkill(compound.getString(key));
 				
 				if (skill != null) {
 					container.setSkill(skill);
+					container.setReplaceCooldown(0);
 					this.addLearnedSkill(skill);
 				}
 			}
 		}
 		
-		for (SkillCategory category : SkillCategory.ENUM_MANAGER.universalValues()) {
-			if (compound.contains("learned:" + category.toString().toLowerCase(Locale.ROOT))) {
-				CompoundTag learnedNBT = compound.getCompound("learned:" + category.toString().toLowerCase(Locale.ROOT));
+		if (compound.contains("replace_cooldowns")) {
+			CompoundTag replaceCooldownCompound = compound.getCompound("replace_cooldowns");
+			
+			for (SkillContainer container : this.skillContainers) {
+				String slotName = ParseUtil.toLowerCase(container.getSlot().toString());
 				
-				for (String key : learnedNBT.getAllKeys()) {
-					Skill skill = SkillManager.getSkill(learnedNBT.getString(key));
+				if (replaceCooldownCompound.contains(slotName)) {
+					container.setReplaceCooldown(replaceCooldownCompound.getInt(slotName));
+				}
+			}
+		}
+		
+		for (SkillCategory category : SkillCategory.ENUM_MANAGER.universalValues()) {
+			if (compound.contains("learned:" + ParseUtil.toLowerCase(category.toString()))) {
+				CompoundTag learnedSkillsCompound = compound.getCompound("learned:" + ParseUtil.toLowerCase(category.toString()));
+				
+				for (String key : learnedSkillsCompound.getAllKeys()) {
+					Skill skill = SkillManager.getSkill(learnedSkillsCompound.getString(key));
 					
 					if (skill != null) {
 						this.addLearnedSkill(skill);
@@ -196,7 +241,7 @@ public class CapabilitySkill {
 				playerMode = "EPICFIGHT";
 			}
 			
-			this.skillContainers[0].getExecutor().toMode(PlayerPatch.PlayerMode.valueOf(playerMode.toUpperCase(Locale.ROOT)), true);
+			this.skillContainers[0].getExecutor().toMode(PlayerPatch.PlayerMode.valueOf(ParseUtil.toUpperCase(playerMode)), true);
 		} else {
 			this.skillContainers[0].getExecutor().toEpicFightMode(true);
 		}

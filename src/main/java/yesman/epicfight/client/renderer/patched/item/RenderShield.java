@@ -22,13 +22,15 @@ public class RenderShield extends RenderItemBase {
 	}
 	
 	@Override
-	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+	public void renderItemInHand(ItemStack itemstack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
 		ItemDisplayContext transformType = (hand == InteractionHand.MAIN_HAND) ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-		BakedModel model = itemRenderer.getItemModelShaper().getItemModel(stack);
-		itemRenderer.render(stack, transformType, !(hand == InteractionHand.MAIN_HAND), poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, model);
+		BakedModel model = itemRenderer.getItemModelShaper().getItemModel(itemstack);
+		
+		// Used render method from item renderer directly for compatibility with modded shields
+		itemRenderer.render(itemstack, transformType, !(hand == InteractionHand.MAIN_HAND), poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, model);
 		poseStack.popPose();
 	}
 }

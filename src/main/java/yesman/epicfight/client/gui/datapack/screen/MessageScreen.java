@@ -30,22 +30,31 @@ public class MessageScreen<T> extends Screen {
 	protected Component okButtomTitle;
 	protected Component cancelButtomTitle;
 	
+	protected int layerFarPlane = 100;
+	
 	public MessageScreen(String title, String message, Screen parentScreen, Button.OnPress onOkPres, int width, int height) {
+		this(title, Component.literal(message), parentScreen, onOkPres, null, width, height);
+	}
+	
+	public MessageScreen(String title, Component message, Screen parentScreen, Button.OnPress onOkPres, int width, int height) {
 		this(title, message, parentScreen, onOkPres, null, width, height);
 	}
 	
 	public MessageScreen(String title, String message, Screen parentScreen, Button.OnPress onOkPress, @Nullable Button.OnPress onCancelPress, int width, int height) {
+		this(title, Component.literal(message), parentScreen, onOkPress, onCancelPress, width, height);
+	}
+	
+	public MessageScreen(String title, Component message, Screen parentScreen, Button.OnPress onOkPress, @Nullable Button.OnPress onCancelPress, int width, int height) {
 		super(Component.literal(title));
 		
 		this.onOkPress = onOkPress;
 		this.onCancelPress = onCancelPress;
 		this.parentScreen = parentScreen;
-		this.message = Component.literal(message);
+		this.message = message;
 		this.messageBoxWidth = width;
 		this.messageBoxHeight = height;
 		this.onOkPressWithInput = null;
 		this.inputWidget = null;
-		
 		this.minecraft = parentScreen.getMinecraft();
 	}
 	
@@ -60,7 +69,6 @@ public class MessageScreen<T> extends Screen {
 		this.messageBoxHeight = height;
 		this.onOkPressWithInput = onOkPressWithInput;
 		this.inputWidget = inputWidget;
-		
 		this.minecraft = parentScreen.getMinecraft();
 	}
 	
@@ -120,7 +128,7 @@ public class MessageScreen<T> extends Screen {
 		this.parentScreen.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		guiGraphics.pose().pushPose();
-		guiGraphics.pose().translate(0, 0, 100);
+		guiGraphics.pose().translate(0, 0, this.layerFarPlane);
 		guiGraphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 		
 		int width = this.messageBoxWidth / 2;
@@ -153,5 +161,10 @@ public class MessageScreen<T> extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		guiGraphics.pose().popPose();
+	}
+	
+	public MessageScreen<T> setLayerFarPlane(int i) {
+		this.layerFarPlane = i;
+		return this;
 	}
 }

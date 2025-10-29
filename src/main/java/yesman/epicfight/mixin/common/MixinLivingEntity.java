@@ -20,8 +20,6 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPAbsorption;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.CustomHumanoidMobPatch;
-import yesman.epicfight.world.capabilities.entitypatch.CustomMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -92,19 +90,23 @@ public abstract class MixinLivingEntity {
 		}
 	}
 	
-	@Inject(at = @At(value = "HEAD"), method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
+	@Inject(at = @At(value = "HEAD"), method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V")
 	private void epicfight_readAdditionalSaveData(CompoundTag compTag, CallbackInfo info) {
 		LivingEntity self = (LivingEntity)((Object)this);
-		CustomMobPatch<?> customMobPatch = EpicFightCapabilities.getEntityPatch(self, CustomMobPatch.class);
+		LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(self, LivingEntityPatch.class);
 		
-		if (customMobPatch != null) {
-			customMobPatch.initAttributes();
-		} else {
-			CustomHumanoidMobPatch<?> customHumanoidMobPatch = EpicFightCapabilities.getEntityPatch(self, CustomHumanoidMobPatch.class);
-			
-			if (customHumanoidMobPatch != null) {
-				customHumanoidMobPatch.initAttributes();
-			}
+		if (entitypatch != null) {
+			entitypatch.initAttributesFromCompound(compTag);
+		}
+	}
+	
+	@Inject(at = @At(value = "HEAD"), method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V")
+	private void epicfight_addAdditionalSaveData(CompoundTag compoundTag, CallbackInfo info) {
+		LivingEntity self = (LivingEntity)((Object)this);
+		LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(self, LivingEntityPatch.class);
+		
+		if (entitypatch != null) {
+			entitypatch.saveData(compoundTag);
 		}
 	}
 	

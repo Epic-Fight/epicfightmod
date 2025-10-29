@@ -43,9 +43,11 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.ViewLimit;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
+import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
@@ -61,6 +63,7 @@ import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.ZoomInType;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -364,7 +367,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public boolean shouldBlockMoving() {
-		return ControlEngine.isKeyDown(this.minecraft.options.keyDown);
+		return InputManager.isActionActive(EpicFightInputActions.MOVE_BACKWARD) || InputManager.isActionActive(EpicFightInputActions.SNEAK);
 	}
 	
 	@Override
@@ -519,8 +522,10 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 			ViewLimit viewLimit = this.getPovSettings().viewLimit();
 			
 			if (viewLimit != null) {
-				float yRotDest = this.original.getYRot() + (float)yRot * 0.15F;
-				float yRotClamped = Mth.clamp(yRotDest, this.getYRot() + viewLimit.yRotMin(), this.getYRot() + viewLimit.yRotMax());
+				float yCamera = Mth.wrapDegrees(this.original.getYRot());
+				float yBody = MathUtils.findNearestRotation(yCamera, this.getYRot());
+				float yRotDest = yCamera + (float)yRot * 0.15F;
+				float yRotClamped = Mth.clamp(yRotDest, yBody + viewLimit.yRotMin(), yBody + viewLimit.yRotMax());
 				
 				if (yRotDest != yRotClamped) {
 					return 0.0D;
@@ -646,12 +651,29 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		super.resetHolding();
 	}
 	
+	@Override
+	public void updateHeldItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
+		super.updateHeldItem(mainHandCap, offHandCap);
+		
+		if (ClientConfig.preferenceWork == ClientConfig.PreferenceWork.SWITCH_MODE) {
+			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+				this.toEpicFightMode(true); 
+			} else if (ClientConfig.miningPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+				this.toVanillaMode(true);
+			}
+		}
+	}
+	
 	/**
 	 * Judge the next behavior depending on player's item preference and where he's looking at
 	 * @return true if the next action is swing a weapon, false if the next action is breaking a block
 	 */
 	public boolean canPlayAttackAnimation() {
-		if (this.minecraft.hitResult.getType() == HitResult.Type.ENTITY) {
+		if (this.getPlayerMode() == PlayerPatch.PlayerMode.VANILLA) {
+			return false;
+		}
+		
+		if (RenderEngine.hitResultEquals(this.minecraft.hitResult, HitResult.Type.ENTITY)) {
 			Entity hitEntity = ((EntityHitResult)this.minecraft.hitResult).getEntity();
 			
 			if (!(hitEntity instanceof LivingEntity) && !(hitEntity instanceof PartEntity)) {
@@ -663,17 +685,21 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 			return true;
 		}
 		
-		if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
-			if (this.minecraft.hitResult.getType() == HitResult.Type.BLOCK && this.minecraft.level != null) {
-				BlockPos bp = ((BlockHitResult) this.minecraft.hitResult).getBlockPos();
-				BlockState bs = this.minecraft.level.getBlockState(bp);
-				return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+		if (ClientConfig.preferenceWork.checkHitResult()) {
+			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+				if (RenderEngine.hitResultEquals(this.minecraft.hitResult, HitResult.Type.BLOCK) && this.minecraft.level != null) {
+					BlockPos bp = ((BlockHitResult) this.minecraft.hitResult).getBlockPos();
+					BlockState bs = this.minecraft.level.getBlockState(bp);
+					return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+				}
+			} else {
+				return RenderEngine.hitResultNotEquals(this.minecraft.hitResult, HitResult.Type.BLOCK);
 			}
+			
+			return true;
 		} else {
-			return this.minecraft.hitResult.getType() != HitResult.Type.BLOCK;
+			return ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem());
 		}
-		
-		return true;
 	}
 	
 	public boolean shouldHighlightTarget(Entity entity) {
@@ -687,7 +713,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 			}
 			
 			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
-				if (this.minecraft.hitResult.getType() == HitResult.Type.BLOCK && this.minecraft.level != null) {
+				if (RenderEngine.hitResultEquals(this.minecraft.hitResult, HitResult.Type.BLOCK) && this.minecraft.level != null) {
 					BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
 					BlockState bs = this.minecraft.level.getBlockState(bp);
 					return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);

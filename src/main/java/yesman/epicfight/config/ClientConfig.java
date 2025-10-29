@@ -2,12 +2,12 @@ package yesman.epicfight.config;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.Lists;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,9 +23,10 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
+import yesman.epicfight.api.utils.CirculatableEnum;
+import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.gui.HealthBar.HealthBarVisibility;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
@@ -39,21 +40,28 @@ import yesman.epicfight.main.EpicFightMod;
 public class ClientConfig {
 	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
-	public static final IntValue LONG_PRESS_COUNTER = BUILDER.defineInRange("ingame.long_press_count", 2, 1, 10);
+	// Graphic Configurations
+	public static final BooleanValue SHOW_TARGET_INDICATOR = BUILDER.define("ingame.show_target_indicator", () -> true);
+	public static final EnumValue<HealthBarVisibility> HEALTH_BAR_VISIBILITY = BUILDER.defineEnum("ingame.health_bar_show_option", HealthBarVisibility.HURT);
 	public static final IntValue MAX_STUCK_PROJECTILES = BUILDER.defineInRange("ingame.max_hit_projectiles", 30, 0, 30);
 	public static final DoubleValue AIM_HELPER_COLOR = BUILDER.defineInRange("ingame.laser_pointer_color", 0.328125D, 0.0D, 1.0D);
 	public static final BooleanValue ENABLE_AIM_HELPER = BUILDER.define("ingame.enable_laser_pointer", () -> true);
-	public static final BooleanValue AUTO_SWITCH_CAMERA = BUILDER.define("ingame.camera_auto_switch", () -> false);
 	public static final BooleanValue BLOOD_EFFECTS = BUILDER.define("ingame.blood_effects", () -> true);
 	public static final BooleanValue AIMING_POV_CORRECTION = BUILDER.define("ingame.aiming_correction", () -> true);
 	public static final BooleanValue SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP = BUILDER.define("ingame.show_epicfight_attributes", () -> true);
 	public static final BooleanValue ACTIVATE_COMPUTE_SHADER = BUILDER.define("ingame.use_compute_shader", () -> false);
 	public static final BooleanValue ENABLE_ANIMATED_FIRST_PERSON_MODEL = BUILDER.define("ingame.first_person_model", () -> true);
-	public static final BooleanValue ENABLE_MINE_BLOCK_GUIDE = BUILDER.define("ingame.enable_mine_block_guide", () -> true);
+	public static final EnumValue<BlockGuideOptions> MINE_BLOCK_GUIDE_OPTION = BUILDER.defineEnum("ingame.mine_block_guide_option", BlockGuideOptions.CROSSHAIR_AND_HIGHLIGHT);
 	public static final BooleanValue ENABLE_TARGET_ENTITY_GUIDE = BUILDER.define("ingame.enable_target_entity_guide", () -> true);
 	public static final BooleanValue ENABLE_POV_ACTION = BUILDER.define("ingame.enable_pov_action", () -> true);
 	public static final BooleanValue ENABLE_COSMETICS = BUILDER.define("ingame.enable_cosmetics", () -> true);
+	public static final BooleanValue ENABLE_PLAYER_VANILLA_MODEL = BUILDER.define("ingame.enable_player_vanilla_model", () -> true);
 	
+	// Control Configurations
+	public static final IntValue LONG_PRESS_COUNTER = BUILDER.defineInRange("ingame.long_press_count", 2, 1, 10);
+	public static final BooleanValue AUTO_SWITCH_CAMERA = BUILDER.define("ingame.camera_auto_switch", () -> false);
+	public static final EnumValue<KeyConflictResolveScope> KEY_CONFLICT_RESOLVE_SCOPE = BUILDER.defineEnum("ingame.key_conflict_resolve_scope", KeyConflictResolveScope.INTERACTION);
+	public static final EnumValue<PreferenceWork> PREFERENCE_WORK = BUILDER.defineEnum("ingame.preference_work", PreferenceWork.ADAPTIVE);
 	public static final ConfigValue<List<? extends String>> BATTLE_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.combat_preferred_items", Lists.newArrayList(), (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
@@ -61,7 +69,6 @@ public class ClientConfig {
 		
 		return false;
 	});
-	
 	public static final ConfigValue<List<? extends String>> MINING_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.mining_preferred_items", Lists.newArrayList(), (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
@@ -70,10 +77,7 @@ public class ClientConfig {
 		return false;
 	});
 	
-	// UI configurations
-	public static final BooleanValue SHOW_TARGET_INDICATOR = BUILDER.define("ingame.show_target_indicator", () -> true);
-	public static final EnumValue<HealthBarVisibility> HEALTH_BAR_VISIBILITY = BUILDER.defineEnum("ingame.health_bar_show_option", HealthBarVisibility.HURT);
-	
+	// UI Configurations
 	public static final ConfigValue<Integer> STAMINA_BAR_X = BUILDER.define("ingame.ui.stamina_bar_x", 120);
 	public static final ConfigValue<Integer> STAMINA_BAR_Y = BUILDER.define("ingame.ui.stamina_bar_y", 10);
 	public static final EnumValue<HorizontalBasis> STAMINA_BAR_BASE_X = BUILDER.defineEnum("ingame.ui.stamina_bar_x_base", HorizontalBasis.RIGHT);
@@ -95,32 +99,40 @@ public class ClientConfig {
 	public static final EnumValue<HorizontalBasis> CHARGING_BAR_BASE_X = BUILDER.defineEnum("ingame.ui.charging_bar_x_base", HorizontalBasis.CENTER);
 	public static final EnumValue<VerticalBasis> CHARGING_BAR_BASE_Y = BUILDER.defineEnum("ingame.ui.charging_bar_y_base", VerticalBasis.CENTER);
 	
+	// Epic Skins Tokens
 	public static final ForgeConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
 	public static final ForgeConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
-	
 	public static final ForgeConfigSpec.EnumValue<AuthenticationProvider> PROVIDER = BUILDER.defineEnum("provider", AuthenticationProvider.NULL);
 	
+	// Config Spec
 	public static final ForgeConfigSpec SPEC = BUILDER.build();
 	
-	public static int longPressCounter;
+	// Graphic Config Values
 	public static int maxStuckProjectiles;
 	public static double aimHelperColor;
 	public static int aimHelperPackedColor = 0xFFFFFFFF;
 	public static boolean enableAimHelper;
-	public static boolean authSwitchCamera;
 	public static boolean bloodEffects;
 	public static boolean aimingPovCorrection;
 	public static boolean showEpicFightAttributesInTooltip;
 	public static boolean activateComputeShader;
 	public static boolean enableAnimatedFirstPersonModel;
-	public static boolean enableMineBlockGuide;
+	public static BlockGuideOptions mineBlockGuideOption;
 	public static boolean enableTargetEntityGuide;
 	public static boolean enablePovAction;
 	public static boolean enableCosmetics;
+	public static boolean enableOriginalModel;
+	
+	// Control Config Values
+	public static int longPressCounter;
+	public static boolean authSwitchCamera;
+	public static KeyConflictResolveScope keyConflictResolveScope;
+	public static PreferenceWork preferenceWork;
+	
 	public static Set<Item> combatPreferredItems;
 	public static Set<Item> miningPreferredItems;
 	
-	// UI configurations
+	// UI Config value
 	public static boolean showTargetIndicator;
 	public static HealthBarVisibility healthBarVisibility;
 	public static int staminaBarX;
@@ -141,30 +153,31 @@ public class ClientConfig {
 	public static HorizontalBasis chargingBarBaseX;
 	public static VerticalBasis chargingBarBaseY;
 	
-	// Disable when Iris installed
-	public static Supplier<Boolean> computeNormalInShader = () -> false;
-	
 	@SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
 		if (event.getConfig().getType() != ModConfig.Type.CLIENT) {
 			return;
 		}
 		
-		longPressCounter = LONG_PRESS_COUNTER.get();
 		maxStuckProjectiles = MAX_STUCK_PROJECTILES.get();
 		aimHelperColor = AIM_HELPER_COLOR.get();
 		aimHelperPackedColor = ColorSlider.rgbColor(aimHelperColor);
 		enableAimHelper = ENABLE_AIM_HELPER.get();
-		authSwitchCamera = AUTO_SWITCH_CAMERA.get();
 		bloodEffects = BLOOD_EFFECTS.get();
 		aimingPovCorrection = AIMING_POV_CORRECTION.get();
 		showEpicFightAttributesInTooltip = SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get();
 		activateComputeShader = ACTIVATE_COMPUTE_SHADER.get();
 		enableAnimatedFirstPersonModel = ENABLE_ANIMATED_FIRST_PERSON_MODEL.get();
-		enableMineBlockGuide = ENABLE_MINE_BLOCK_GUIDE.get();
+		mineBlockGuideOption = MINE_BLOCK_GUIDE_OPTION.get();
 		enableTargetEntityGuide = ENABLE_TARGET_ENTITY_GUIDE.get();
 		enablePovAction = ENABLE_POV_ACTION.get();
 		enableCosmetics = ENABLE_COSMETICS.get();
+		enableOriginalModel = ENABLE_PLAYER_VANILLA_MODEL.get();
+		
+		longPressCounter = LONG_PRESS_COUNTER.get();
+		authSwitchCamera = AUTO_SWITCH_CAMERA.get();
+		keyConflictResolveScope = KEY_CONFLICT_RESOLVE_SCOPE.get();
+		preferenceWork = PREFERENCE_WORK.get();
 		
 		combatPreferredItems = BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
@@ -198,11 +211,16 @@ public class ClientConfig {
 		chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
 		
 		if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
+			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: supported");
+			
     		try {
     			// Try loading epic skins code dynamically
     			Class.forName("yesman.epicfight.epicskins.user.AuthenticationHelperImpl");
-    		} catch (ClassNotFoundException e) {
+    		} catch (Exception e) {
+    			EpicFightMod.LOGGER.info("Epic Fight web server status: Failed at initializing Authentication provider: " + e);
     		}
+		} else {
+			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: unsupported");
 		}
 		
 		if (EpicFightServerConnectionHelper.supported() && ClientEngine.getInstance().getAuthHelper().valid()) {
@@ -211,23 +229,24 @@ public class ClientConfig {
     }
 	
 	public static void saveChanges() {
-		if (longPressCounter != LONG_PRESS_COUNTER.get()) LONG_PRESS_COUNTER.set(longPressCounter);
 		if (maxStuckProjectiles != MAX_STUCK_PROJECTILES.get()) MAX_STUCK_PROJECTILES.set(maxStuckProjectiles);
-		if (aimHelperColor != AIM_HELPER_COLOR.get()) {
-			AIM_HELPER_COLOR.set(aimHelperColor);
-			aimHelperPackedColor = ColorSlider.rgbColor(aimHelperColor);
-		}
+		if (aimHelperColor != AIM_HELPER_COLOR.get()) { AIM_HELPER_COLOR.set(aimHelperColor); aimHelperPackedColor = ColorSlider.rgbColor(aimHelperColor); }
 		if (enableAimHelper != ENABLE_AIM_HELPER.get()) ENABLE_AIM_HELPER.set(enableAimHelper);
-		if (authSwitchCamera != AUTO_SWITCH_CAMERA.get()) AUTO_SWITCH_CAMERA.set(authSwitchCamera);
 		if (bloodEffects != BLOOD_EFFECTS.get()) BLOOD_EFFECTS.set(bloodEffects);
 		if (aimingPovCorrection != AIMING_POV_CORRECTION.get()) AIMING_POV_CORRECTION.set(aimingPovCorrection);
 		if (showEpicFightAttributesInTooltip != SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get()) SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.set(showEpicFightAttributesInTooltip);
 		if (activateComputeShader != ACTIVATE_COMPUTE_SHADER.get()) ACTIVATE_COMPUTE_SHADER.set(activateComputeShader);
 		if (enableAnimatedFirstPersonModel != ENABLE_ANIMATED_FIRST_PERSON_MODEL.get()) ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel);
-		if (enableMineBlockGuide != ENABLE_MINE_BLOCK_GUIDE.get()) ENABLE_MINE_BLOCK_GUIDE.set(enableMineBlockGuide);
+		if (mineBlockGuideOption != MINE_BLOCK_GUIDE_OPTION.get()) MINE_BLOCK_GUIDE_OPTION.set(mineBlockGuideOption);
 		if (enableTargetEntityGuide != ENABLE_TARGET_ENTITY_GUIDE.get()) ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide);
 		if (enablePovAction != ENABLE_POV_ACTION.get()) ENABLE_POV_ACTION.set(enablePovAction);
 		if (enableCosmetics != ENABLE_COSMETICS.get()) ENABLE_COSMETICS.set(enableCosmetics);
+		if (enableOriginalModel != ENABLE_PLAYER_VANILLA_MODEL.get()) ENABLE_PLAYER_VANILLA_MODEL.set(enableOriginalModel);
+		
+		if (longPressCounter != LONG_PRESS_COUNTER.get()) LONG_PRESS_COUNTER.set(longPressCounter);
+		if (authSwitchCamera != AUTO_SWITCH_CAMERA.get()) AUTO_SWITCH_CAMERA.set(authSwitchCamera);
+		if (keyConflictResolveScope != KEY_CONFLICT_RESOLVE_SCOPE.get()) KEY_CONFLICT_RESOLVE_SCOPE.set(keyConflictResolveScope);
+		if (preferenceWork != PREFERENCE_WORK.get()) PREFERENCE_WORK.set(preferenceWork);
 		
 		if (!combatPreferredItems.equals(BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
@@ -235,7 +254,6 @@ public class ClientConfig {
 		) {
 			BATTLE_MODE_SWITCHING_ITEMS.set(combatPreferredItems.stream().map((item) -> ForgeRegistries.ITEMS.getKey(item).toString()).collect(Collectors.toList()));
 		}
-		
 		if (!miningPreferredItems.equals(MINING_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
 				.collect(Collectors.toSet()))
@@ -280,5 +298,137 @@ public class ClientConfig {
 		int posX = chargingBarBaseX.positionGetter.apply(width, chargingBarX);
 		int posY = chargingBarBaseY.positionGetter.apply(height, chargingBarY);
 		return new Vec2i(posX, posY);
+	}
+	
+	/**
+	 * Determines which entities should show the health bar
+	 * 
+	 * NONE: none of entities show the health bar
+	 * HURT: entities whose health is lower than max health show the health bar
+	 * TARGET: an entity that the player is targeting shows the health bar
+	 * TARGET_AND_HURT: entities that meet both the HURT and TARGET conditions show the health bar
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public enum HealthBarVisibility implements CirculatableEnum<HealthBarVisibility>, StringRepresentable {
+		NONE, HURT, TARGET, TARGET_AND_HURT;
+		
+		@Override
+		public HealthBarVisibility nextEnum() {
+			return HealthBarVisibility.values()[(this.ordinal() + 1) % 4];
+		}
+
+		@Override
+		public String getSerializedName() {
+			return ParseUtil.toLowerCase(this.name());
+		}
+	}
+	
+	/**
+	 * Determines which indicators are activated for block mining guide
+	 * 
+	 * NONE: nothing
+	 * CROSSHAIR : crosshair changes when player looks at the block with mining preferred item
+	 * HIGHLIGHT : block flashes white when player looks at the block with mining preferred item
+	 * CROSSHAIR_AND_HIGHLIGHT : both
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public enum BlockGuideOptions implements CirculatableEnum<BlockGuideOptions>, StringRepresentable {
+		NONE(false, false), CROSSHAIR(true, false), HIGHLIGHT(false, true), CROSSHAIR_AND_HIGHLIGHT(true, true);
+		
+		boolean showCrosshair;
+		boolean showBlockHighlight;
+		
+		BlockGuideOptions(boolean showCrosshair, boolean showBlockHighlight) {
+			this.showCrosshair = showCrosshair;
+			this.showBlockHighlight = showBlockHighlight;
+		}
+		
+		public boolean switchCrosshair() {
+			return this.showCrosshair;
+		}
+		
+		public boolean showBlockHighlight() {
+			return this.showBlockHighlight;
+		}
+		
+		@Override
+		public BlockGuideOptions nextEnum() {
+			return BlockGuideOptions.values()[(this.ordinal() + 1) % 4];
+		}
+		
+		@Override
+		public String getSerializedName() {
+			return ParseUtil.toLowerCase(this.name());
+		}
+	}
+	
+	/**
+	 * The scope of vanilla actions that will be canceled when they conflict with Epic Fight keybinds (currently, it only supports mouse right button)
+	 * 
+	 * NONE: nothing
+	 * BLOCK_INTERACTION : cancel block interactions (like furnace, crafting table)
+	 * ITEM_INTERACTION : cancel item interactions (like plowing using a hoe)
+	 * BLOCK_AND_ITEM_INTERACTION : both
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public enum KeyConflictResolveScope implements CirculatableEnum<KeyConflictResolveScope>, StringRepresentable {
+		NONE(false, false), INTERACTION(true, false), ITEM_USE(false, true), INTERACTION_AND_ITEMUSE(true, true);
+		
+		boolean cancelInteraction;
+		boolean cancelItemUse;
+		
+		KeyConflictResolveScope(boolean cancelBlockInteraction, boolean cancelItemInteraction) {
+			this.cancelInteraction = cancelBlockInteraction;
+			this.cancelItemUse = cancelItemInteraction;
+		}
+		
+		public boolean cancelInteraction() {
+			return this.cancelInteraction;
+		}
+		
+		public boolean cancelItemUse() {
+			return this.cancelItemUse;
+		}
+		
+		@Override
+		public KeyConflictResolveScope nextEnum() {
+			return KeyConflictResolveScope.values()[(this.ordinal() + 1) % 4];
+		}
+		
+		@Override
+		public String getSerializedName() {
+			return ParseUtil.toLowerCase(this.name());
+		}
+	}
+	
+	/**
+	 * Determines how item preference works
+	 * 
+	 * ADAPTIVE: Decides the next action based on crosshair hit result and target
+	 * SWITCH_MODE: Switches the player mode to each categorized preference, forcing the player to do only mine or attack.
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public enum PreferenceWork implements CirculatableEnum<PreferenceWork>, StringRepresentable {
+		ADAPTIVE(true), SWITCH_MODE(false);
+		
+		boolean checkHitResult;
+		
+		PreferenceWork(boolean checkHitResult) {
+			this.checkHitResult = checkHitResult;
+		}
+		
+		public boolean checkHitResult() {
+			return this.checkHitResult;
+		}
+		
+		@Override
+		public String getSerializedName() {
+			return ParseUtil.toLowerCase(this.name());
+		}
+		
+		@Override
+		public PreferenceWork nextEnum() {
+			return PreferenceWork.values()[(this.ordinal() + 1) % 2];
+		}
 	}
 }

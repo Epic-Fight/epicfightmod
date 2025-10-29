@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import dev.tr7zw.skinlayers.SkinLayersModBase;
+import dev.tr7zw.skinlayers.SkinUtil;
 import dev.tr7zw.skinlayers.accessor.PlayerEntityModelAccessor;
 import dev.tr7zw.skinlayers.accessor.PlayerSettings;
 import dev.tr7zw.skinlayers.api.Mesh;
@@ -17,6 +18,7 @@ import dev.tr7zw.skinlayers.render.CustomizableModelPart;
 import dev.tr7zw.skinlayers.renderlayers.CustomLayerFeatureRenderer;
 import dev.tr7zw.skinlayers.util.NMSWrapper.WrappedNativeImage;
 import dev.tr7zw.skinlayers.versionless.util.wrapper.SolidPixelWrapper;
+import dev.tr7zw.transition.mc.PlayerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -53,7 +55,6 @@ import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.mixin.skinlayers.MixinSkinUtil;
 
 public class SkinLayer3DCompat implements ICompatModule {
 	private static Capability<SkinLayer3DMeshes> SKIN_LAYER_3D_CAPABILITY;
@@ -212,7 +213,8 @@ public class SkinLayer3DCompat implements ICompatModule {
 		
 		private static SkinnedMesh createEpicFight3DSkinLayer(AbstractClientPlayer player, PlayerModelPart playerModelPart, Mesh skinlayerModelPart, ModelPart vanillaModelPart, int width, int height, int depth, int textureU, int textureV, boolean topPivot, float rotationOffset) {
             CustomizableCubeListBuilder builder = new CustomizableCubeListBuilder();
-			NativeImage skinImage = MixinSkinUtil.invokeGetSkinTexture(player);
+            ResourceLocation skinLocation = PlayerUtil.getPlayerSkin(player);
+			NativeImage skinImage = SkinUtil.getTexture(skinLocation, null);
             
             if (SolidPixelWrapper.wrapBox(builder, new WrappedNativeImage(skinImage), width, height, depth, textureU, textureV, topPivot, rotationOffset) != null) {
                 return SkinLayer3DTransformer.transformMesh(

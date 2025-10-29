@@ -53,14 +53,14 @@ public class BonebreakerSkill extends PassiveSkill {
 			if (currentTargetId == -1) {
 				container.getDataManager().setDataSync(SkillDataKeys.ENTITY_ID.get(), event.getTarget().getId());
 				container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 1);
-				EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), container.getServerExecutor().getOriginal());
+				EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), event.getPlayerPatch().getOriginal());
 			} else if (currentTargetId == event.getTarget().getId()) {
 				int stacks = container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
 				event.getDamageSource().attachDamageModifier(ValueModifier.multiplier(1.0F + this.damageBonus * stacks));
 				
 				if (stacks + 1 == this.maxDamageBonusStacks) {
 					event.getTarget().playSound(EpicFightSounds.OLD_FALL.get(), 50.0F, 1.0F);
-					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_MAX_STACK), container.getServerExecutor().getOriginal());
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_MAX_STACK), event.getPlayerPatch().getOriginal());
 				}
 				
 				container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), Math.min(stacks + 1, this.maxDamageBonusStacks));
@@ -77,12 +77,12 @@ public class BonebreakerSkill extends PassiveSkill {
 					Entity newTarget = event.getPlayerPatch().getCurrentlyActuallyHitEntities().get(0);
 					
 					if (entity != null) {
-						EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), container.getServerExecutor().getOriginal());
+						EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), event.getPlayerPatch().getOriginal());
 					}
 					
 					container.getDataManager().setDataSync(SkillDataKeys.ENTITY_ID.get(), newTarget.getId());
 					container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 1);
-					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(newTarget.getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), container.getServerExecutor().getOriginal());
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(newTarget.getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), event.getPlayerPatch().getOriginal());
 				}
 			}
 		});
@@ -96,13 +96,15 @@ public class BonebreakerSkill extends PassiveSkill {
 		listener.removeListener(EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
 		listener.removeListener(EventType.ATTACK_PHASE_END_EVENT, EVENT_UUID);
 		
-		int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
-		
-		if (currentTargetId != -1) {
-			Entity entity = container.getExecutor().getOriginal().level().getEntity(currentTargetId);
+		if (!container.getExecutor().isLogicalClient()) {
+			int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
 			
-			if (entity != null) {
-				EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), container.getServerExecutor().getOriginal());
+			if (currentTargetId != -1) {
+				Entity entity = container.getExecutor().getOriginal().level().getEntity(currentTargetId);
+				
+				if (entity != null) {
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), container.getServerExecutor().getOriginal());
+				}
 			}
 		}
 	}

@@ -11,7 +11,8 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id
+    archivesName = "${mod_id}-forge"
+    version = "${mod_version}-1.20.1"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -78,12 +79,17 @@ repositories {
             includeGroup 'net.minecraftforge'
         }
     }
-    
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
+
+    exclusiveContent {
+        forRepository { maven { url "https://cursemaven.com" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "curse.maven" }
+    }
+
+    exclusiveContent {
+        forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "maven.modrinth" }
     }
     
     maven {
@@ -114,6 +120,7 @@ mixin {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+	/**
 	// Copy and paste dependencies you need at the below
 	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
@@ -124,13 +131,10 @@ dependencies {
     compileOnly fg.deobf("curse.maven:azurelib-817423:5500355")
     compileOnly fg.deobf("curse.maven:azurelib-armor-912767:5500370")
     compileOnly fg.deobf("curse.maven:geckolib-388172:5675221")
-
-    runtimeOnly fg.deobf("libs:azurelib:3.1.1")
-
-
-    // Iris, Sodium compatibility, compute shader compat (optional)
-    compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
-    compileOnly fg.deobf("curse.maven:oculus-581495:5299671")
+	
+	// Iris, Sodium compatibility, compute shader compat (optional)
+    compileOnly fg.deobf("curse.maven:embeddium-908741:5681725")
+    compileOnly fg.deobf("curse.maven:oculus-581495:6020952")
     
     // Werewolves, Vampirism compatibility, baking layer model for vampire and visibility fix when transform to the wolf (optional)
     compileOnly fg.deobf("curse.maven:werewolves-become-a-beast-417851:5406832")
@@ -146,17 +150,24 @@ dependencies {
     // Player animator compatibility, emote fix (optional)
     compileOnly fg.deobf("curse.maven:playeranimator-658587:4587214")
     
-    // Skinlayer3d compatibility (optional) (Warn: this mod file will cause crash, as it references obfuscated names)
-    compileOnly fg.deobf("libs:skinlayers3d:1.9.0")
+    // Libraries for tr7zw featured mods (optional, when you dependent your project on 3D Skin Layers or First-person)
+    compileOnly fg.deobf("libs:TRansition:1.0.5")
+    compileOnly fg.deobf("libs:TRender:1.0.7")
     
-    // First-person compatibility (optional) (Warn: this mod file will cause crash, as it references obfuscated names)
-    compileOnly fg.deobf("libs:firstperson:2.5.0")
+    // Skinlayer3d compatibility (optional)
+    compileOnly fg.deobf("maven.modrinth:3dskinlayers:BBnR3V86") // 1.9.2
+    // First-person compatibility (optional)
+    compileOnly fg.deobf("maven.modrinth:first-person-model:ub6wk879") // 2.5.0
     
     // KubeJS compatibility (optional)
     compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-
+    
+    // Shoulder Surfing Reloaded compatibility (optional, have to choose one)
+    compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993792") // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993792)
+    //compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993788") // Actual mod file (for test)
+    **/
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -207,4 +218,9 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+// Create source.jar
+java {
+    withSourcesJar()
 }

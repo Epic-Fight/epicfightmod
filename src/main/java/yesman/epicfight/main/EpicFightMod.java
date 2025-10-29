@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import com.mojang.logging.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -321,7 +322,14 @@ public class EpicFightMod {
 		}
 		
 		if (ModList.get().isLoaded("azurelib")) {
-			ICompatModule.loadCompatModule(context, AzureLibCompat.class);
+            String test = ModList.get().getModFileById("azurelib").versionString();
+            int dotIndex = test.indexOf(".");
+            int majorVersion = Integer.parseInt(test.substring(0, dotIndex));
+            LogUtils.getLogger().debug(test);
+            if (majorVersion < 3)
+                ICompatModule.loadCompatModule(context, AzureLibCompat.class);
+            else
+                LogUtils.getLogger().warn("Azure Lib version {} is not supported yet.", majorVersion);
 		}
 		
 		if (ModList.get().isLoaded("azurelibarmor")) {

@@ -3,8 +3,9 @@ package yesman.epicfight.skill;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -32,7 +33,10 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 public class BasicAttack extends Skill {
 	private static final UUID EVENT_UUID = UUID.fromString("a42e0198-fdbc-11eb-9a03-0242ac130003");
-	
+
+    private float dashAttackConsumption = 0f;
+    private float airAttackConsumption = 0f;
+
 	/** Decides if the animation used for combo attack **/
 	public static final IndependentAnimationVariableKey<Boolean> COMBO = AnimationVariables.independent(animator -> false, false);
 	
@@ -62,7 +66,7 @@ public class BasicAttack extends Skill {
 					return;
 				}
 				
-				Set<AnimationAccessor<? extends AttackAnimation>> attackMotionSet = Set.copyOf(comboAnimations.stream().collect(Collectors.toSet()));
+				Set<AnimationAccessor<? extends AttackAnimation>> attackMotionSet = Set.copyOf(Sets.newHashSet(comboAnimations));
 				
 				if (!attackMotionSet.contains(event.getAnimation()) && itemCapability.shouldCancelCombo(event.getPlayerPatch())) {
 					setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, event.getPlayerPatch(), container, event.getAnimation(), 0);
@@ -70,13 +74,37 @@ public class BasicAttack extends Skill {
 			}
 		});
 	}
+
+    protected boolean checkConsumption(SkillContainer container, boolean dash, boolean air) {
+        if (air) {
+            if (resource == Resource.STAMINA) {
+                return container.getExecutor().consumeForSkill(this, resource, container.getExecutor().getModifiedStaminaConsume(airAttackConsumption));
+            }
+            return container.getExecutor().consumeForSkill(this, resource, airAttackConsumption);
+        }
+        if (dash) {
+            if (resource == Resource.STAMINA) {
+                return container.getExecutor().consumeForSkill(this, resource, container.getExecutor().getModifiedStaminaConsume(dashAttackConsumption));
+            }
+            return container.getExecutor().consumeForSkill(this, resource, dashAttackConsumption);
+
+        }
+        return container.getExecutor().consumeForSkill(this, resource);
+    }
 	
 	@Override
 	public void onRemoved(SkillContainer container) {
 		container.getExecutor().getEventListener().removeListener(EventType.ACTION_EVENT_SERVER, EVENT_UUID);
 	}
-	
-	@Override
+
+    @Override
+    public void setParams(CompoundTag parameters) {
+        super.setParams(parameters);
+        dashAttackConsumption = parameters.getFloat("dash_attack_consumption");
+        airAttackConsumption = parameters.getFloat("air_attack_consumption");
+    }
+
+    @Override
 	public boolean isExecutableState(PlayerPatch<?> executor) {
 		EntityState playerState = executor.getEntityState();
 		Player player = executor.getOriginal();
@@ -102,11 +130,13 @@ public class BasicAttack extends Skill {
 		ServerPlayer player = executor.getOriginal();
 		SkillDataManager dataManager = skillContainer.getDataManager();
 		int comboCounter = dataManager.getDataValue(SkillDataKeys.COMBO_COUNTER.get());
+        boolean dashAttack = player.isSprinting();
+        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater();
 		
 		if (player.isPassenger()) {
 			Entity entity = player.getVehicle();
 			
-			if ((entity instanceof PlayerRideableJumping ridable && ridable.canJump()) && cap.availableOnHorse() && cap.getMountAttackMotion() != null) {
+			if ((entity instanceof PlayerRideableJumping rideable && rideable.canJump()) && cap.availableOnHorse() && cap.getMountAttackMotion() != null) {
 				comboCounter %= cap.getMountAttackMotion().size();
 				attackMotion = cap.getMountAttackMotion().get(comboCounter);
 				comboCounter++;
@@ -119,21 +149,23 @@ public class BasicAttack extends Skill {
 			}
 			
 			int comboSize = combo.size();
-			boolean dashAttack = player.isSprinting();
-			
-			if (dashAttack) {
+
+			if (airAttack) {
+                comboCounter = comboSize - 1;
+            }
+            else if (dashAttack) {
 				comboCounter = comboSize - 2;
 			} else {
 				comboCounter %= comboSize - 2;
 			}
 			
 			attackMotion = combo.get(comboCounter);
-			comboCounter = dashAttack ? 0 : comboCounter + 1;
+			comboCounter = (dashAttack || airAttack) ? 0 : comboCounter + 1;
 		}
 		
 		setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, executor, skillContainer, attackMotion, comboCounter);
 		
-		if (attackMotion != null) {
+		if (attackMotion != null && checkConsumption(skillContainer, dashAttack, airAttack)) {
 			executor.getAnimator().getVariables().put(COMBO, attackMotion, true);
 			executor.getAnimator().playAnimation(attackMotion, 0.0F);
 			

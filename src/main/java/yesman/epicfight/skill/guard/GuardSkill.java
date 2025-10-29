@@ -327,16 +327,11 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	}
 	
 	protected Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> getGuardMotionMap(BlockType blockType) {
-		switch (blockType) {
-		case GUARD_BREAK:
-			return this.guardBreakMotions;
-		case GUARD:
-			return this.guardMotions;
-		case ADVANCED_GUARD:
-			return this.advancedGuardMotions;
-		default:
-			throw new IllegalArgumentException("unsupported block type " + blockType);
-		}
+        return switch (blockType) {
+            case GUARD_BREAK -> this.guardBreakMotions;
+            case GUARD -> this.guardMotions;
+            case ADVANCED_GUARD -> this.advancedGuardMotions;
+        };
 	}
 	
 	public boolean isHoldingWeaponAvailable(PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {

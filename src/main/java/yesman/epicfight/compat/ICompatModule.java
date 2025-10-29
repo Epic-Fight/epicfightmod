@@ -12,7 +12,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import yesman.epicfight.main.EpicFightMod;
 
 public interface ICompatModule {
-	public static void loadCompatModule(FMLJavaModLoadingContext context, Class<? extends ICompatModule> compatModule) {
+	static void loadCompatModule(FMLJavaModLoadingContext context, Class<? extends ICompatModule> compatModule) {
 		try {
 			Constructor<? extends ICompatModule> constructor = compatModule.getConstructor();
 			ICompatModule compatModuleInstance = constructor.newInstance();

@@ -114,7 +114,6 @@ mixin {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-	/**
 	// Copy and paste dependencies you need at the below
 	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
@@ -125,8 +124,11 @@ dependencies {
     compileOnly fg.deobf("curse.maven:azurelib-817423:5500355")
     compileOnly fg.deobf("curse.maven:azurelib-armor-912767:5500370")
     compileOnly fg.deobf("curse.maven:geckolib-388172:5675221")
-	
-	// Iris, Sodium compatibility, compute shader compat (optional)
+
+    runtimeOnly fg.deobf("libs:azurelib:3.1.1")
+
+
+    // Iris, Sodium compatibility, compute shader compat (optional)
     compileOnly fg.deobf("curse.maven:embeddium-908741:5556138")
     compileOnly fg.deobf("curse.maven:oculus-581495:5299671")
     
@@ -154,8 +156,7 @@ dependencies {
     compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-    **/
-    
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

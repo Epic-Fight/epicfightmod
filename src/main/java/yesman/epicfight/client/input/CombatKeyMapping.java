@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.client.ClientEngine;
 
 @OnlyIn(Dist.CLIENT)
@@ -14,7 +15,7 @@ public class CombatKeyMapping extends KeyMapping {
 	}
 	
 	@Override
-	public boolean isActiveAndMatches(InputConstants.Key keyCode) {
+	public boolean isActiveAndMatches(InputConstants.@NotNull Key keyCode) {
         return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isBattleMode();
     }
 }

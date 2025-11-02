@@ -112,6 +112,12 @@ public class SkillBookScreen extends Screen {
 	protected final InteractionHand hand;
 	
 	private double customScale;
+
+    private Button learnButton;
+
+    public Button getLearnButton() {
+        return learnButton;
+    }
 	
 	public SkillBookScreen(Player opener, ItemStack stack, @Nullable InteractionHand hand) {
 		this(opener, SkillBookItem.getContainSkill(stack), hand, null);
@@ -213,7 +219,7 @@ public class SkillBookScreen extends Screen {
 			this.customScale = window.getGuiScale();
 		}
 		
-		Button learnButton =
+		learnButton =
 			Button.builder(
 				Component.translatable(EpicFightMod.format("gui.%s") + (isUsing ? ".applied" : meetsCondition ? ".learn" : ".unusable")),
 				button -> {

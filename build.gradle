@@ -253,6 +253,9 @@ publishMods {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "vu3NZ5Ma"
         minecraftVersions.add("1.21.1")
+
+        // Syncs the GitHub README with the Modrinth project description
+        projectDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText
     }
     // Discord webhook and notification settings
     discord {

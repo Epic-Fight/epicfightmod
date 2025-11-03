@@ -1,6 +1,12 @@
 # Epic Fight in Minecraft 1.20.1 Changelog
 # Changelog on publishing websites and Discord will be parsed between version header ([x.x.x] - yyyy-mm-dd) and (For Devs) section
 
+## [Unreleased]
+
+### Changed
+
+- Updated the default config to disable the mine block highlight guide.
+
 ## [20.13.3] - 2025-11-01
 
 ### Bugfix

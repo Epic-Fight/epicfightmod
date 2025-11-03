@@ -551,7 +551,8 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         @Override
         protected void handleButtons(ControllerEntity controller) {
             if (LEARN_SKILL.on(controller).guiPressed().get()) {
-                screen.learnButton.onPress();
+                screen.getLearnButton().onPress();
+                playClackSound();
             }
             super.handleButtons(controller);
         }
@@ -575,7 +576,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             super.onWidgetRebuild();
 
             ButtonGuideApi.addGuideToButton(
-                    this.screen.learnButton,
+                    this.screen.getLearnButton(),
                     LEARN_SKILL,
                     ButtonGuidePredicate.always()
             );

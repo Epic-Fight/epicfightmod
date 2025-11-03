@@ -110,8 +110,12 @@ public class SkillBookScreen extends Screen {
 	protected final AttributeIconList providingAttributesList;
 	protected final InteractionHand hand;
 	private double customScale;
-    public AbstractButton learnButton;
-	
+    private Button learnButton;
+
+    public Button getLearnButton() {
+        return learnButton;
+    }
+
 	public SkillBookScreen(Player opener, ItemStack stack, @Nullable InteractionHand hand) {
 		this(opener, SkillBookItem.getContainSkill(stack).get().value(), hand, null);
 	}

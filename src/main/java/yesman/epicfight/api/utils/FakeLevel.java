@@ -41,6 +41,8 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.connection.ConnectionType;
+import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
 public class FakeLevel extends ClientLevel {
@@ -105,11 +107,37 @@ public class FakeLevel extends ClientLevel {
 	public int getSkyDarken() {
 		return this.refLevel.getSkyDarken();
 	}
-	
-	@Override
-	public BiomeManager getBiomeManager() {
-		return this.refLevel.getBiomeManager();
-	}
+
+    /**
+     * A workaround to a crash when some mods are installed such as BadOptimizations.
+     * <a href="https://github.com/imthosea/BadOptimizations/issues/108">Issue report</a>.
+     *
+     * @see FakeLevel#getBiomeManager()
+     *
+     */
+    private boolean appliedGetBiomeManagerWorkaround;
+
+    @Override
+    public @NotNull BiomeManager getBiomeManager() {
+        // The field "refLevel" could be null, which causes the game to freeze when
+        // joining the world (100% and stuck) when some mods are installed.
+        // For example: https://github.com/imthosea/BadOptimizations/issues/108
+        // We work around this issue by checking for null and then fallback to the super method.
+        final @Nullable ClientLevel level = this.refLevel;
+        if (level == null) {
+            if (!appliedGetBiomeManagerWorkaround) {
+                EpicFightMod.LOGGER.warn(
+                        """
+                                FakeLevel.refLevel is null, so Epic Fight can't override getBiomeManager().
+                                This issue may happens when some mods are installed, such as BadOptimizations.
+                                For more technical details, refer to: https://github.com/imthosea/BadOptimizations/issues/108"""
+                );
+            }
+            appliedGetBiomeManagerWorkaround = true;
+            return super.getBiomeManager();
+        }
+        return level.getBiomeManager();
+    }
 	
 	@Override
 	public boolean isClientSide() {

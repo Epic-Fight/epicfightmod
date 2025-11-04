@@ -7,6 +7,10 @@
 
 - Updated the default config to disable the mine block highlight guide.
 
+### Fixed
+
+- World launch crash when BadOptimizations mod is installed. Refer to [BadOptimizations#108](https://github.com/imthosea/BadOptimizations/issues/108) and [#2160](https://github.com/Epic-Fight/epicfight/issues/2160).
+
 ## [20.13.3] - 2025-11-01
 
 ### Bugfix

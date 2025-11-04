@@ -1,43 +1,43 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.azurelib;
 
+import mod.azure.azurelib.neoforge.event.GeoRenderEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import software.bernie.geckolib.event.GeoRenderEvent;
-import yesman.epicfight.api.client.model.transformer.GeoModelTransformer;
+import yesman.epicfight.api.client.model.transformer.AzureModelTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.EntityUI;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
-public class GeckolibCompat implements ICompatModule {
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void onModEventBusClient(IEventBus eventBus) {
-		eventBus.<FMLClientSetupEvent>addListener(event -> event.enqueueWork(() -> HumanoidModelBaker.registerNewTransformer(new GeoModelTransformer())));
-	}
-	
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void onGameEventBusClient(IEventBus eventBus) {
-		eventBus.addListener(GeoModelTransformer::getGeoArmorTexturePath);
-		eventBus.addListener(this::geoEntityRenderPreEvent);
-		eventBus.addListener(this::geoEntityRenderPostEvent);
-	}
-	
+public class AzureLibCompat implements ICompatModule {
 	@Override
 	public void onModEventBus(IEventBus eventBus) {
 	}
 	
 	@Override
 	public void onGameEventBus(IEventBus eventBus) {
+	}
+	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void onModEventBusClient(IEventBus eventBus) {
+		HumanoidModelBaker.registerNewTransformer(new AzureModelTransformer());
+	}
+	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void onGameEventBusClient(IEventBus eventBus) {
+		eventBus.addListener(AzureModelTransformer::getGeoArmorTexturePath);
+		eventBus.addListener(this::geoEntityRenderPreEvent);
+		eventBus.addListener(this::geoEntityRenderPostEvent);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

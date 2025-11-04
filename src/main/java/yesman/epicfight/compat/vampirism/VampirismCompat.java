@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.vampirism;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -22,6 +22,7 @@ import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.mixin.teamlapen.MixinVampirePlayerHeadLayer;
 
 public class VampirismCompat implements ICompatModule {

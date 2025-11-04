@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.skinlayer3d;
 
 import java.util.Collections;
 import java.util.Map;
@@ -53,6 +53,7 @@ import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.main.EpicFightMod;
 
 public class SkinLayer3DCompat implements ICompatModule {

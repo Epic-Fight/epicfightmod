@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.iris;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -7,6 +7,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.SodiumFakeBlockRenderer;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
+import yesman.epicfight.compat.ICompatModule;
 
 public class IRISCompat implements ICompatModule {
 	@Override

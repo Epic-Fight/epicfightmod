@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.firstperson;
 
 import dev.tr7zw.firstperson.api.ActivationHandler;
 import dev.tr7zw.firstperson.api.FirstPersonAPI;
@@ -7,6 +7,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 

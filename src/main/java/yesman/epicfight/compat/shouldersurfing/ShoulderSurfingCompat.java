@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.shouldersurfing;
 
 import com.github.exopandora.shouldersurfing.api.callback.ICameraCouplingCallback;
 import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingPlugin;

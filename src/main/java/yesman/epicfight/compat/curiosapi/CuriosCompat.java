@@ -1,4 +1,4 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.curiosapi;
 
 import java.util.Map;
 
@@ -29,6 +29,7 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class CuriosCompat implements ICompatModule {

@@ -1,10 +1,11 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.azurelib;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.client.model.transformer.AzureArmorTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
+import yesman.epicfight.compat.ICompatModule;
 
 public class AzureLibArmorCompat implements ICompatModule {
 	@OnlyIn(Dist.CLIENT)

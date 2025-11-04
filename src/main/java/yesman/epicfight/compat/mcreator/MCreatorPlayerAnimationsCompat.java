@@ -1,13 +1,12 @@
-package yesman.epicfight.compat;
+package yesman.epicfight.compat.mcreator;
 
-import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import dev.kosmx.playerAnim.impl.animation.AnimationApplier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import yesman.epicfight.api.client.neoevent.RenderEpicFightPlayerEvent;
+import yesman.epicfight.compat.ICompatModule;
 
-public class PlayerAnimatorCompat implements ICompatModule {
+public class MCreatorPlayerAnimationsCompat implements ICompatModule {
     @Override
     public void onModEventBus(IEventBus eventBus) {}
 
@@ -25,7 +24,7 @@ public class PlayerAnimatorCompat implements ICompatModule {
 
     @OnlyIn(Dist.CLIENT)
     private void renderEvent(RenderEpicFightPlayerEvent event) {
-        AnimationApplier emote = ((IAnimatedPlayer) event.getPlayerPatch().getOriginal()).playerAnimator_getAnimation();
-        if (emote.isActive()) event.setShouldRender(false);
+        String animation = event.getPlayerPatch().getOriginal().getPersistentData().getString("PlayerCurrentAnimation");
+        if (!animation.isEmpty()) event.setShouldRender(false);
     }
 }

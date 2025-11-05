@@ -22,9 +22,7 @@
 		"client.MixinMinecraft",
 		"client.MixinMouseHandler",
 		"client.MixinParticleEngine",
-		"client.MixinThrownTridentRenderer",
-		"teamlapen.MixinVampirePlayerHeadLayer",
-		"teamlapen.MixinHumanWerewolfLayer"
+		"client.MixinThrownTridentRenderer"
 	],
 	"mixins": [
 		"common.MixinCrossbowAttack",

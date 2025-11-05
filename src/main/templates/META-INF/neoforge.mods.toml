@@ -25,6 +25,12 @@ config="${mod_id}-compat.skinlayers3d.mixins.json"
 [[mixins]]
 config="${mod_id}-compat.geckolib.mixins.json"
 
+[[mixins]]
+config="${mod_id}-compat.vampirism.mixins.json"
+
+[[mixins]]
+config="${mod_id}-compat.werewolves.mixins.json"
+
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
 

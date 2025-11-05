@@ -23,7 +23,7 @@ import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.compat.ICompatModule;
-import yesman.epicfight.mixin.teamlapen.MixinVampirePlayerHeadLayer;
+import yesman.epicfight.compat.vampirism.mixin.MixinVampirePlayerHeadLayer;
 
 public class VampirismCompat implements ICompatModule {
 	@Override

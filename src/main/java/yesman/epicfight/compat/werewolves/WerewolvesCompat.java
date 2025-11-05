@@ -29,7 +29,7 @@ import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.PatchedLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.compat.ICompatModule;
-import yesman.epicfight.mixin.teamlapen.MixinHumanWerewolfLayer;
+import yesman.epicfight.compat.werewolves.mixin.MixinHumanWerewolfLayer;
 
 public class WerewolvesCompat implements ICompatModule {
 	@Override

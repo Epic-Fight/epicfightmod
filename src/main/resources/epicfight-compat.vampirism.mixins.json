@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
+  "package": "yesman.epicfight.compat.vampirism.mixin",
+  "client": [
+    "MixinVampirePlayerHeadLayer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

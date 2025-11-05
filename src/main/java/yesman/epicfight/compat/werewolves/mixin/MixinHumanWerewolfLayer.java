@@ -1,4 +1,4 @@
-package yesman.epicfight.mixin.teamlapen;
+package yesman.epicfight.compat.werewolves.mixin;
 
 import java.util.List;
 

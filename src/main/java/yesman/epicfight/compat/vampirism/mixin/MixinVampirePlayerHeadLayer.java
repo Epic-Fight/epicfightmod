@@ -1,4 +1,4 @@
-package yesman.epicfight.mixin.teamlapen;
+package yesman.epicfight.compat.vampirism.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

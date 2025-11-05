@@ -1,4 +1,4 @@
-package yesman.epicfight.mixin.client;
+package yesman.epicfight.platform.neoforge.mixin;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.neoforged.bus.api.Event;
@@ -13,6 +13,8 @@ public abstract class MixinClientLevel {
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;post(Lnet/neoforged/bus/api/Event;)Lnet/neoforged/bus/api/Event;"))
     private Event epicfight$init(IEventBus instance, Event e) {
         if (((ClientLevel)(Object)this) instanceof FakeLevel) {
+            // Prevents crashes that can occur when joining the world with certain mods.
+            // See: https://github.com/Epic-Fight/epicfight/issues/2164
             return null;
         }
 

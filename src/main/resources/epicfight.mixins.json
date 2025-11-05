@@ -8,7 +8,6 @@
 		"client.MixinAgeableListModel",
 		"client.MixinClientPacketListener",
 		"client.MixinClientCommonPacketListenerImpl",
-        "client.MixinClientLevel",
 		"client.MixinCompositeRenderType",
 		"client.MixinEnderDragonRenderer",
 		"client.MixinEntityRenderer",

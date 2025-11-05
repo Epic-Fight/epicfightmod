@@ -6,11 +6,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.ControlEngine;
 
-@OnlyIn(Dist.CLIENT)
 @Mixin(Inventory.class)
 public class MixinInventory {
     @Inject(

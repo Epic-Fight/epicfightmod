@@ -42,8 +42,9 @@ import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.mixin.geckolib.MixinGeoArmorRenderer;
+import yesman.epicfight.compat.geckolib.mixin.MixinGeoArmorRenderer;
 
+// TODO: Move this file to yesman.epicfight.compat.geckolib
 @OnlyIn(Dist.CLIENT)
 public class GeoModelTransformer extends HumanoidModelTransformer {
 	static final PartTransformer<GeoCube> HEAD = new SimpleTransformer(9);

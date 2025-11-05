@@ -23,7 +23,6 @@
 		"client.MixinMouseHandler",
 		"client.MixinParticleEngine",
 		"client.MixinThrownTridentRenderer",
-		"geckolib.MixinGeoArmorRenderer",
 		"teamlapen.MixinVampirePlayerHeadLayer",
 		"teamlapen.MixinHumanWerewolfLayer"
 	],

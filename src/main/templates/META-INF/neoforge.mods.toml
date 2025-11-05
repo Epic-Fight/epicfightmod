@@ -22,6 +22,9 @@ config="${mod_id}-platform.neoforge.mixins.json"
 [[mixins]]
 config="${mod_id}-compat.skinlayers3d.mixins.json"
 
+[[mixins]]
+config="${mod_id}-compat.geckolib.mixins.json"
+
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
 

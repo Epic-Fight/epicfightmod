@@ -36,9 +36,10 @@ import yesman.epicfight.api.client.model.transformer.VanillaModelTransformer.Van
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.mixin.skinlayers.MixinCustomModelPart;
-import yesman.epicfight.mixin.skinlayers.MixinCustomizableCubeWrapper.SkinLayer3DMixinCustomModelCube;
+import yesman.epicfight.compat.skinlayer3d.mixin.MixinCustomModelPart;
+import yesman.epicfight.compat.skinlayer3d.mixin.MixinCustomizableCubeWrapper.SkinLayer3DMixinCustomModelCube;
 
+// TODO: Move this file to yesman.epicfight.compat.skinlayer3d
 @OnlyIn(Dist.CLIENT)
 public class SkinLayer3DTransformer extends CustomizableCube {
 	private SkinLayer3DTransformer() {
@@ -214,7 +215,7 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 						.setEffectiveJointNumber(1)
 					);
 				}
-				
+
 				triangluatePolygon(indices, partName, indexCounter);
 			}
 		}

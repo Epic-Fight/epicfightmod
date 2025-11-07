@@ -1,6 +1,20 @@
 # Epic Fight in Minecraft 1.20.1 Changelog
 # Changelog on publishing websites and Discord will be parsed between version header ([x.x.x] - yyyy-mm-dd) and (For Devs) section
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed a regression where the Phantom Ascent skill was triggered when
+  pressing the jump key while any screen was open (e.g., inventory, chat).
+  [#2170](https://github.com/Epic-Fight/epicfight/issues/2170)
+
+### Changed
+
+- Refactored the code to eliminate unnecessary native GLFW calls,
+  optimizing whether key down checks are performed per tick, by adapting
+  Minecraft vanilla `KeyMapping`, which may also potentially fix other compatibility issues with other mods.
+
 ## [20.13.4] - 2025-11-04
 
 ### Changed

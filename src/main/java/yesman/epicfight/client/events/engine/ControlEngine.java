@@ -539,6 +539,10 @@ public class ControlEngine {
      * though it only handles Epic Fight supported actions. For checking a custom mod keybind,
      * use the vanilla {@link KeyMapping#isDown}.
      * <p>
+     * Please note that there is a difference between vanilla {@link KeyMapping#isDown} and this method,
+     * {@link KeyMapping#isDown} may be <code>false</code> in some cases even if the physical key
+     * is actually down, for example, if a screen is open.
+     * <p>
      * Even though this is a private method, it is retained in case an Epic Fight addon
      * accesses it by bypassing Java private access modifier restriction.
      */
@@ -561,7 +565,12 @@ public class ControlEngine {
      * <p>
      * Even though this is a private method, it is retained in case an Epic Fight addon
      * accesses it by bypassing Java private access modifier restriction.
+     * @see InputManager#isPhysicalKeyDownInternalWorkaround(KeyMapping)
+     * @see InputManager#isKeyDown(KeyMapping)
+     * @deprecated Consider adapting the Minecraft's {@link KeyMapping#isDown()}, keep in mind that
+     *  this may return false in some cases, such as when a screen or chat is open.
      */
+    @SuppressWarnings({"JavadocReference", "removal"})
     @Deprecated(forRemoval = true)
 	private static boolean isKeyPressed(KeyMapping key, boolean eventCheck) {
 		boolean consumes = key.consumeClick();

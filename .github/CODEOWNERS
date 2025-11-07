@@ -1,0 +1,10 @@
+# All requests must be reviewed and approved by:
+* @Yesssssman
+
+# Controlify integration-related changes
+/src/main/java/yesman/epicfight/compat/controlify/ @EchoEllet
+/src/main/resources/META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint @EchoEllet
+/src/main/resources/assets/controlify/ @EchoEllet
+
+# Client Input API
+/src/main/java/yesman/epicfight/api/client/input/ @EchoEllet

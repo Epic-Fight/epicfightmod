@@ -218,12 +218,67 @@ public final class InputManager {
 
     /**
      * Checks whether the vanilla {@link KeyMapping} is down.
-     * This internal method replaces the legacy {@link ControlEngine#isKeyDown}.
+     * <p>
+     * <b>Note:</b> This may report <code>false</code> if a Minecraft screen is open, so it respects
+     * Minecraft internals.
+     * The exact behavior varied from one Minecraft version to another.
      */
     private static boolean isKeyDown(@NotNull KeyMapping keyMapping) {
-        if (keyMapping.isDown()) {
-            return true;
+        final boolean isDown = keyMapping.isDown();
+        if (!isDown && keyMapping.getKey().getType() == InputConstants.Type.MOUSE) {
+            // TODO: (WORKAROUND) Remove this entire "if" statement when
+            //  porting to Minecraft 1.21.10 or a newer version.
+            //  This exists only due to inconsistent behavior in older Minecraft versions,
+            //  such as 1.21.1 and 1.20.1.
+            //  It fixes an issue where the weapon's innate skill fails to trigger
+            //  even though the left mouse button is actually pressed.
+            //  In vanilla Minecraft, "KeyMapping#isDown" incorrectly reports "false"
+            //  when multiple keybindings share the same physical mouse button.
+            //  (This is not an issue with keyboard inputs.)
+            //  When porting to 1.21.10 or 1.22, test the weapon's innate skill
+            //  without this condition.
+            //  If it works correctly, remove this "if" block
+            //  along with the isPhysicalKeyDownInternalWorkaround() method.
+            //  For more details, see: https://github.com/Epic-Fight/epicfight/issues/2174
+            return isPhysicalKeyDownInternalWorkaround(keyMapping);
         }
+        return isDown;
+    }
+
+    /**
+     * Checks whether the physical key is actually pressed, regardless of Minecraft's internal state.
+     * This method does not respect any Minecraft behavior and may return <code>true</code> even
+     * if a screen is open, for example.
+     * <p>
+     * Consumers or addons should <b>never</b> rely on this internal method unless absolutely necessary.
+     * For instance, Epic Fight still uses it internally as a workaround for a specific issue.
+     * <p>
+     * This method serves as a workaround for an issue where the weapon’s innate skill fails to trigger
+     * when bound to the left mouse button.
+     * Since other keybindings may share the same physical input,
+     * Minecraft incorrectly reports the key as <code>false</code>, even though it should be <code>true</code>.
+     * This issue occurs in versions 1.21.1 and 1.20.1 but is fixed in 1.21.10 and newer.
+     * Once migration to a newer version is complete, this workaround should be removed entirely
+     * while ensuring the weapon's innate skill continues to function correctly.
+     * <p>
+     * For more details, see
+     * <a href="https://github.com/Epic-Fight/epicfight/issues/2174">Epic Fight issue #2174</a>.
+     * <p>
+     * <b>Project maintainers:</b> This method should be completely removed when porting to 1.21.10 or 1.22.
+     * Its only usage is in {@link InputManager#isActionActive}. After removal, verify that the weapon's
+     * innate skill still works as intended.
+     * <p>
+     * Note: At the time of writing, this workaround is confirmed to be unnecessary in 1.21.10,
+     * but may still (though unlikely) be required in 1.22 or later versions.
+     *
+     * @deprecated This method will be removed when Epic Fight migrates to 1.22. It currently exists
+     * only to address inconsistencies in Minecraft’s internal behavior.
+     * See <a href="https://github.com/Epic-Fight/epicfight/issues/2170">issue #2170</a> for details.
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated(forRemoval = true)
+    @ApiStatus.Internal
+    private static boolean isPhysicalKeyDownInternalWorkaround(@NotNull KeyMapping keyMapping) {
         final InputConstants.Key key = keyMapping.getKey();
         final int keyValue = key.getValue();
         final long windowPointer = Minecraft.getInstance().getWindow().getWindow();

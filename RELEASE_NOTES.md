@@ -3,6 +3,9 @@
 
 ## [21.13.5] - Unreleased
 
+### Changed
+- Avoid registering mixins for non-existing third-party mods to avoid spamming the console log and prevent unnecessary operations.
+
 ### For Devs
 - Adopted KeyConflictContext for each keybind as documented by [Neoforge](https://docs.neoforged.net/docs/misc/keymappings/#ikeyconflictcontext) to avoid potential problem from inconsistency
 - Made GUARD and DODGE CombatKeyMapping, to activate only in Epic Fight mode

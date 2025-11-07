@@ -908,9 +908,12 @@ public class ControlEngine {
 		
 		@SubscribeEvent
 		public static void clientTickEndEvent(TickEvent.ClientTickEvent event) {
-			if (controlEngine.minecraft.player == null) {
+
+            if (controlEngine.minecraft.player == null) {
 				return;
 			}
+
+
 			
 			if (event.phase == TickEvent.Phase.END) {
 				for (Object packet : controlEngine.packets) {

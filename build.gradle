@@ -121,7 +121,7 @@ mixin {
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    /**
+/**
 	// Copy and paste dependencies you need at the below
 	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
@@ -164,11 +164,11 @@ dependencies {
     compileOnly fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-    
+
     // Shoulder Surfing Reloaded compatibility (optional, have to choose one)
     compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993792") // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993792)
     //compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993788") // Actual mod file (for test)
-    **/
+**/
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

@@ -44,7 +44,7 @@ public class MeteorSlamSkill extends Skill {
 	}
 	
 	public static float getFallDistance(SkillContainer skillContainer) {
-		return skillContainer.getDataManager().getDataValue(SkillDataKeys.FALL_DISTANCE.get());
+		return skillContainer.getDataManager().hasData(SkillDataKeys.FALL_DISTANCE.get()) ? skillContainer.getDataManager().getDataValue(SkillDataKeys.FALL_DISTANCE.get()) : 0;
 	}
 	
 	public static MeteorSlamSkill.Builder createMeteorSlamBuilder() {
@@ -74,7 +74,7 @@ public class MeteorSlamSkill extends Skill {
 			if (!container.getExecutor().isLogicalClient()) {
 				Skill skill = event.getSkillContainer().getSkill();
 				
-				if (skill.getCategory() != SkillCategories.BASIC_ATTACK) {
+			    	if (skill.getCategory() != SkillCategories.BASIC_ATTACK) {
 					return;
 				}
 				

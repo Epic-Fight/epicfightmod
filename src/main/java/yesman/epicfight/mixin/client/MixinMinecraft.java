@@ -18,12 +18,8 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 @Mixin(value = Minecraft.class)
 public class MixinMinecraft {
 	@Shadow
-	private LocalPlayer player;
-	
-	@Inject(at = @At(value = "HEAD"), method = "handleKeybinds()V", cancellable = true)
-	private void epicfight$handleKeybinds(CallbackInfo callbackInfo) {
-		ClientEngine.getInstance().controlEngine.handleEpicFightKeyMappings();
-	}
+    public LocalPlayer player;
+
 	
 	@Inject(at = @At(value = "HEAD"), method = "shouldEntityAppearGlowing(Lnet/minecraft/world/entity/Entity;)Z", cancellable = true)
 	private void epicfight$shouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable<Boolean> callbackInfo) {

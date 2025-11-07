@@ -354,7 +354,12 @@ public class CapabilityItem {
 	}
 	
 	public boolean checkOffhandValid(LivingEntityPatch<?> entitypatch) {
-		return this.getStyle(entitypatch).canUseOffhand() && EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).canHoldInOffhandAlone();
+        try {
+            return this.getStyle(entitypatch).canUseOffhand() && EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).canHoldInOffhandAlone();
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
 	}
 	
 	public boolean canHoldInOffhandAlone() {

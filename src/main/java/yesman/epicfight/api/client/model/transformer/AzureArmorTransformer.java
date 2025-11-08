@@ -37,7 +37,7 @@ import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.client.model.transformer.GeoModelTransformer.GeoMeshPartDefinition;
+import yesman.epicfight.compat.geckolib.client.GeoModelTransformer.GeoMeshPartDefinition;
 import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;

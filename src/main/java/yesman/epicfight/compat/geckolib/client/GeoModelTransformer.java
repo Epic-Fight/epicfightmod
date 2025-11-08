@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.model.transformer;
+package yesman.epicfight.compat.geckolib.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +38,13 @@ import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.model.transformer.HumanoidModelTransformer;
 import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.compat.geckolib.mixin.MixinGeoArmorRenderer;
 
-// TODO: Move this file to yesman.epicfight.compat.geckolib
 @OnlyIn(Dist.CLIENT)
 public class GeoModelTransformer extends HumanoidModelTransformer {
 	static final PartTransformer<GeoCube> HEAD = new SimpleTransformer(9);

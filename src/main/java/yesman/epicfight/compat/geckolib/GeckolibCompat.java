@@ -7,7 +7,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import software.bernie.geckolib.event.GeoRenderEvent;
-import yesman.epicfight.api.client.model.transformer.GeoModelTransformer;
+import yesman.epicfight.compat.geckolib.client.GeoModelTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;

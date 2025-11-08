@@ -1,5 +1,5 @@
 # All requests must be reviewed and approved by:
-* @Yesssssman
+* @Yesssssman @Forixaim
 
 # Controlify compatibility
 /src/main/java/yesman/epicfight/compat/controlify/ @EchoEllet
@@ -9,6 +9,10 @@
 # Input
 /src/main/java/yesman/epicfight/api/client/input/ @EchoEllet
 /src/main/java/yesman/epicfight/client/events/engine/ControlEngine.java @EchoEllet
+
+# Skills and Animation API
+/src/main/java/yesman/epicfight/skill/ @Forixaim
+/src/main/java/yesman/epicfight/api/animation/ @Forixaim
 
 # Shoulder Surfing Compatibility
 /src/main/java/yesman/epicfight/compat/shouldersurfing/ @EchoEllet

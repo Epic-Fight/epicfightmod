@@ -177,6 +177,10 @@ public class EpicFightMod {
         }
     	
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
+
+        // TODO: Improve "ICompatModule"s registration by avoiding duplicating "ModList.get().isLoaded()".
+        //  Make sure we're not duplicating the mod ID anywhere else, like in "GeckolibMixinPlugin".
+        //  ALso, extract this in a separate function and avoid duplicating "ICompatModule.loadCompatModule" too.
 		
 		if (ModList.get().isLoaded("vampirism")) {
 			ICompatModule.loadCompatModule(modEventBus, VampirismCompat.class);

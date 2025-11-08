@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_21",
   "package": "yesman.epicfight.compat.geckolib.mixin",
+  "plugin": "yesman.epicfight.compat.geckolib.GeckolibMixinPlugin",
   "client": [
     "MixinGeoArmorRenderer"
   ],

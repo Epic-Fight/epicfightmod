@@ -14,6 +14,7 @@
 - Refactored the code to eliminate unnecessary native GLFW calls,
   optimizing whether key down checks are performed per tick, by adapting
   Minecraft vanilla `KeyMapping`, which may also potentially fix other compatibility issues with other mods.
+- Avoid registering mixins for non-existing third-party mods to avoid spamming the console log and prevent unnecessary operations.
 
 ### For Devs
 - Adopted KeyConflictContext for each keybind as documented by [Neoforge](https://docs.neoforged.net/docs/misc/keymappings/#ikeyconflictcontext) to avoid potential problem from inconsistency

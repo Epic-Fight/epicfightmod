@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.model.transformer;
+package yesman.epicfight.compat.azurelib.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +15,15 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import mod.azure.azurelib.common.api.client.renderer.GeoArmorRenderer;
-import mod.azure.azurelib.common.internal.client.RenderProvider;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoCube;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoQuad;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoVertex;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.state.BoneSnapshot;
+import mod.azure.azurelibarmor.common.api.client.renderer.GeoArmorRenderer;
+import mod.azure.azurelibarmor.common.internal.client.RenderProvider;
+import mod.azure.azurelibarmor.common.internal.client.util.RenderUtils;
+import mod.azure.azurelibarmor.common.internal.common.cache.object.GeoBone;
+import mod.azure.azurelibarmor.common.internal.common.cache.object.GeoCube;
+import mod.azure.azurelibarmor.common.internal.common.cache.object.GeoQuad;
+import mod.azure.azurelibarmor.common.internal.common.cache.object.GeoVertex;
+import mod.azure.azurelibarmor.core.animatable.GeoAnimatable;
+import mod.azure.azurelibarmor.core.state.BoneSnapshot;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
@@ -37,6 +37,7 @@ import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.model.transformer.HumanoidModelTransformer;
 import yesman.epicfight.compat.geckolib.client.GeoModelTransformer.GeoMeshPartDefinition;
 import yesman.epicfight.api.client.neoevent.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -44,7 +45,7 @@ import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
 
 @OnlyIn(Dist.CLIENT)
-public class AzureModelTransformer extends HumanoidModelTransformer {
+public class AzureArmorTransformer extends HumanoidModelTransformer {
 	static final PartTransformer<GeoCube> HEAD = new SimpleTransformer(9);
 	static final PartTransformer<GeoCube> LEFT_FEET = new SimpleTransformer(5);
 	static final PartTransformer<GeoCube> RIGHT_FEET = new SimpleTransformer(2);
@@ -76,7 +77,7 @@ public class AzureModelTransformer extends HumanoidModelTransformer {
 				event.setResultLocation(geoArmorRenderer.getTextureLocation(geoAnimatable));
 			}
 		}
-	}	
+	}
 	
 	@Override
 	public SkinnedMesh transformArmorModel(HumanoidModel<?> humanoidModel) {
@@ -198,7 +199,7 @@ public class AzureModelTransformer extends HumanoidModelTransformer {
 					invertedParentTransform.m31 *= 0.0625F;
 					invertedParentTransform.m32 *= 0.0625F;
 					invertedParentTransform.invert();
-					partDefinition = AzureMeshPartDefinition.of(partName, newList, invertedParentTransform, modelpartition.geoBone);
+					partDefinition = AzureArmorMeshPartDefinition.of(partName, newList, invertedParentTransform, modelpartition.geoBone);
 				}
 				
 				modelpartition.partTransformer.bakeCube(poseStack, partDefinition, cube, vertices, indices, indexCounter);
@@ -691,14 +692,40 @@ public class AzureModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
+	public static OpenMatrix4f of(PoseStack poseStack, GeoBone bone) {
+		BoneSnapshot boneSnapshot = bone.getInitialSnapshot();
+		poseStack.pushPose();
+		poseStack.translate(boneSnapshot.getOffsetX(), boneSnapshot.getOffsetY(), boneSnapshot.getOffsetZ());
+		
+		if (boneSnapshot.getRotX() != 0.0F || boneSnapshot.getRotY() != 0.0F || boneSnapshot.getRotZ() != 0.0F) {
+			poseStack.mulPose(new Quaternionf().rotationZYX(boneSnapshot.getRotZ(), boneSnapshot.getRotY(), boneSnapshot.getRotX()));
+		}
+		
+		Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
+		poseStack.popPose();
+		
+		OpenMatrix4f matrix = OpenMatrix4f.importFromMojangMatrix(lastPose);
+		matrix.m30 *= 0.0625F;
+		matrix.m31 *= 0.0625F;
+		matrix.m32 *= 0.0625F;
+		
+		OpenMatrix4f partAnimation = OpenMatrix4f.mulMatrices(matrix,
+																new OpenMatrix4f().translate(new Vec3f(bone.getPosX() - boneSnapshot.getOffsetX(), bone.getPosY() - boneSnapshot.getOffsetY(), bone.getPosZ() - boneSnapshot.getOffsetZ()).scale(0.0625F))
+																					.mulBack(OpenMatrix4f.fromQuaternion(new Quaternionf().rotationZYX(boneSnapshot.getRotZ() - bone.getRotZ(), boneSnapshot.getRotY() - bone.getRotY(), boneSnapshot.getRotX() - bone.getRotX())))
+																					.scale(new Vec3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ())),
+																OpenMatrix4f.invert(matrix, null));
+		
+		return partAnimation;
+	}
+	
 	@OnlyIn(Dist.CLIENT)
-	public record AzureMeshPartDefinition(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) implements MeshPartDefinition {
+	public record AzureArmorMeshPartDefinition(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) implements MeshPartDefinition {
 		public static MeshPartDefinition of(String partName) {
-			return new AzureMeshPartDefinition(partName, null, null, null);
+			return new AzureArmorMeshPartDefinition(partName, null, null, null);
 		}
 		
 		public static MeshPartDefinition of(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) {
-			return new AzureMeshPartDefinition(partName, path, invertedParentTransform, root);
+			return new AzureArmorMeshPartDefinition(partName, path, invertedParentTransform, root);
 		}
 		
 		public static GeoBone getChildBone(GeoBone bone, String boneName) {

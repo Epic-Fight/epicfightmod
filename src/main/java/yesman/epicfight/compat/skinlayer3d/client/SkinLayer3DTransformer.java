@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.model.transformer;
+package yesman.epicfight.compat.skinlayer3d.client;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +32,7 @@ import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelTransformer.PartTransformer;
+import yesman.epicfight.api.client.model.transformer.VanillaModelTransformer;
 import yesman.epicfight.api.client.model.transformer.VanillaModelTransformer.VanillaMeshPartDefinition;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec2f;
@@ -39,7 +40,6 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.compat.skinlayer3d.mixin.MixinCustomModelPart;
 import yesman.epicfight.compat.skinlayer3d.mixin.MixinCustomizableCubeWrapper.SkinLayer3DMixinCustomModelCube;
 
-// TODO: Move this file to yesman.epicfight.compat.skinlayer3d
 @OnlyIn(Dist.CLIENT)
 public class SkinLayer3DTransformer extends CustomizableCube {
 	private SkinLayer3DTransformer() {

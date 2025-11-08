@@ -44,7 +44,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.client.model.transformer.SkinLayer3DTransformer;
+import yesman.epicfight.compat.skinlayer3d.client.SkinLayer3DTransformer;
 import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 import yesman.epicfight.api.neoevent.EntityRemoveEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;

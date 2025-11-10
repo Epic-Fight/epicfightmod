@@ -17,6 +17,14 @@
   optimizing whether key down checks are performed per tick, by adapting
   Minecraft vanilla `KeyMapping`, which may also potentially fix other compatibility issues with other mods.
 
+### Added
+
+- Built-in Controlify integration for controller support.
+  No need to install
+  [Epic Fight: Controlify](https://www.curseforge.com/minecraft/mc-mods/epic-fight-controlify) anymore.
+  Install only
+  [Controlify: Forgified](https://www.curseforge.com/minecraft/mc-mods/controlify-forgified-unofficial) on 1.20.1
+
 ## [20.13.4] - 2025-11-04
 
 ### Changed

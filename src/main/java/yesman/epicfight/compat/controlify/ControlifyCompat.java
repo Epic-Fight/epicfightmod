@@ -20,12 +20,10 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -41,9 +39,6 @@ import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -72,7 +67,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         registrar.registerBindContext(COMBAT_MODE_CONTEXT);
         registerInputBindings(registrar);
         registerTargetLockOnSupport();
-        registerGuides(context.guideRegistries().inGame(), context.guideRegistries().container());
+        registerGuides();
         registerScreenProcessors();
     }
 
@@ -92,7 +87,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             EpicFightMod.rl("epicfight_combat"),
             mc -> {
                 final boolean isInGame = mc.screen == null && mc.level != null && mc.player != null;
-                return isInGame && ClientEngine.getInstance().isEpicFightMode();
+                return isInGame && ClientEngine.getInstance().isBattleMode();
             }
     );
     private static final BindContext IN_GAME_CONTEXT = BindContext.IN_GAME;
@@ -181,11 +176,11 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             // this code is equivalent to:
             // https://github.com/isXander/Controlify/blob/f5c94c57d5e0d4954e413624a0d7ead937b6e8ab/src/main/java/dev/isxander/controlify/bindings/RadialIcons.java#L106-L112
             RadialIcons.registerIcon(location, (graphics, x, y, tickDelta) -> {
-                var pose = CGuiPose.ofPush(graphics);
-                pose.translate(x, y);
-                pose.scale(0.5f, 0.5f);
-                Blit.tex(graphics, location, 0, 0, 0, 0, 32, 32, 32, 32);
-                pose.pop();
+                graphics.pose().pushPose();
+                graphics.pose().translate((float) x, (float) y, 0.0F);
+                graphics.pose().scale(0.5F, 0.5F, 1.0F);
+                Blit.blitTex(graphics, location, 0, 0, 0, 0, 32, 32, 32, 32);
+                graphics.pose().popPose();
             });
         }
     }
@@ -347,23 +342,10 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         });
     }
 
-    private static void registerGuides(GuideDomainRegistry<InGameCtx> inGameRegistry, GuideDomainRegistry<ContainerCtx> containerRegistry) {
-        // Facts are registered here; rules in "assets/controlify/guides/in_game.json" reference these facts.
-        inGameRegistry.registerFact(new Fact<>(EpicFightMod.rl("can_perform_dodge"), ctx -> {
-            final LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
-            if (localPlayerPatch == null || !localPlayerPatch.isEpicFightMode()) {
-                return false;
-            }
-            return localPlayerPatch.getPlayerSkills().hasCategory(SkillCategories.DODGE);
-        }));
-        containerRegistry.registerFact(new Fact<>(EpicFightMod.rl("can_show_weapon_innate_skill_tooltip"), ctx -> {
-            final Slot hoveredSlot = ctx.hoveredSlot();
-            if (hoveredSlot == null || !ctx.hoveredSlot().hasItem()) {
-                return false;
-            }
-            final Optional<CapabilityItem> maybeCapabilityItem = EpicFightCapabilities.getItemCapability(hoveredSlot.getItem());
-            return maybeCapabilityItem.isPresent();
-        }));
+    private static void registerGuides() {
+        // Button guides are unsupported in "Controlify: Forgified"
+        // Since this is an official backport of an older version of Controlify.
+        // However, when using Epic Fight NeoForge 1.21.1, it's fully supported
     }
 
     private static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputActions action) {

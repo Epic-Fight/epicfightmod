@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +33,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -385,4 +387,8 @@ public class EpicFightMod {
 			event.accept(stack);
 		});
 	}
+
+    public static @NotNull ResourceLocation rl(@NotNull String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
 }

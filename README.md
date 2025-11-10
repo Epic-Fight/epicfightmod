@@ -1,107 +1,303 @@
 <center><img src="https://i.imgur.com/iBWSME0.png" alt="Logo" width="1897" height="672" /></center>
 
-<p style="text-align: center;"><span style="font-size: 14px;">Epic Fight adds complex game mechanics and fighting styles to your gameplay. With a pinch of soulslike combat and unique animation handling that adds bends to minecraft, Epic Fight will spice up your gameplay to a whole other level and allow for great new challanges along the way. You'll be facing a new take on minecraft's combat where all entities have new and challenging fighting mechanics.</span></p>
+**Epic Fight** adds complex game mechanics and fighting styles to your gameplay.  
+With a pinch of *soulslike combat* and unique animation handling that bends **Minecraft**,  
+Epic Fight will spice up your gameplay to a whole new level and bring great new challenges along the way.
 
-<p><span style="font-size: 14px;"><img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline1" width="1344" height="48" /></span></p>
+You'll face a new take on **Minecraft’s combat**,  
+where all entities have new and challenging fighting mechanics.
 
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
+### **Controls**
 
-<details>
-<summary><p><span style="font-size: 24px; color: #000080;"><strong><em>Controls</em></strong></span></p></summary>
+<details><summary>Tap to show/hide</summary>
 
-<p><span style="font-size: 14px;">Toggle building/battle mode (initial setting is R)</span></p>
-<p><img src="https://i.imgur.com/2DW5saD.png" alt="" width="423" height="242" /></p>
-<p><span style="font-size: 14px;">You can only use the modded combat system in battle mode.</span></p>
+- *Vanilla Basic Attack | Epic Fight Basic Attack*  
+  <img src="https://i.imgur.com/e5pJkAV.png" alt="Vanilla Attack" width="157" height="162" /> <img src="https://i.imgur.com/V8HWA9i.png" alt="Epic Fight Attack" width="157" height="162" />
 
+- *Dash Attack* (Attack + Sprinting)  
+  <img src="https://i.imgur.com/XGuPrSE.png" alt="Dash Attack" width="157" height="162" /> <img src="https://i.imgur.com/Em7T2Kl.png" alt="Dash Attack Epic" width="157" height="162" />
 
-<p><span style="font-size: 14px;"><i>Vanilla Basic Attack | Epic Fight Basic attack </i></span></p>
-<p><img src="https://i.imgur.com/e5pJkAV.png" alt="" width="157" height="162" /><img src="https://i.imgur.com/V8HWA9i.png" alt="" width="157" height="162" /></p>
+- *Dodging* (Left Alt, requires a Dodge Skill)  
+  <img src="https://i.imgur.com/RSV2eVc.png" alt="Dodging" width="272" height="187" />
 
+- *Special Attack* (Press Attack key)  
+  <img src="https://i.imgur.com/fAEgF3X.gif" alt="Special Attack" />
 
-<p><span style="font-size: 14px;">Dash attack [Attack key + Sprinting]</span></p>
-<p><img src="https://i.imgur.com/XGuPrSE.png" alt="" width="157" height="162" /><img src="https://i.imgur.com/Em7T2Kl.png" alt="" width="157" height="162" /></p>
+- *Toggle Epic Fight Mode* (optional, initial key: R)  
+  <img src="https://i.imgur.com/2DW5saD.png" alt="Toggle Epic Fight Mode" width="423" height="242" />
 
-<p><span style="font-size: 14px;">Dodging [Left Alt key + Skill Book]</span></p>
-<p><img src="https://i.imgur.com/RSV2eVc.png" alt="" width="272" height="187" /></p>
-
-<p><span style="font-size: 14px;">Special attack [Press Attack key, can be configured]</span></p>
-<p><img src="https://i.imgur.com/fAEgF3X.gif" /></p>
-</details>
-
-
-
-<details>
-<summary><p><span style="font-size: 24px; color: #000080;"><strong><em>Abilities</em></strong></span></p></summary>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong><i>Weapon &amp; Armor</i></strong></em></span></p>
-<p><em><img src="https://i.imgur.com/AbdYsTu.png" alt="" width="291" height="201" /></em></p>
-
-<p><span style="font-size: 14px;">Armor negation: this percentage won't decrease the total damage by defense points.</span></p>
-<p><span style="font-size: 14px;">Impact: this attribute will increase the total stun time of the hit target.</span></p>
-<p><span style="font-size: 14px;">Hit N enemies per swing: the maximum number of hittable enemies per swing.</span></p>
-
-<p><img src="https://i.imgur.com/4BRqNoF.png" alt="" width="229" height="88" /></p>
-<p><span style="font-size: 14px;">Weight: This attribute&nbsp;<span style="color: #ff0000;">shortens the stun time when hit</span>, but <span style="color: #ff0000;">increases the stamina consumption of skills</span> and <span style="color: #ff0000;">decreases attack speed</span>. Items with high attack speed will be affected more.</span></p>
-<p><span style="font-size: 14px;">Stun Armor: This attribute will increase the time between stuns.</span></p>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong>The Special Attack</strong></em></span><br /><img src="https://i.imgur.com/jdsZCPP.png" alt="" width="491" height="167" /></p>
-<p><span style="font-size: 14px;">Most weapons have a special attack. To use this attack, you have to fill their special attack gauge. It will increase when you deal damage to any kind of entity that has HP. The special attacks are more powerful than basic and dash attack. You can see the tooltip of a special attack by pressing the special attack tooltip key. (initial setting is 'P')</span></p>
-
-<p><span style="font-size: 24px; color: #000080;"><strong><em>Enchantments</em></strong></span></p>
-<p><span style="font-size: 18px;"><strong>Sharpness</strong></span></p>
-<p><span style="font-size: 14px;">Sharpness enchantment will increase the damage of every type of attack.</span></p>
-<p><span style="font-size: 18px;"><strong>Sweeping Edge</strong>&nbsp;</span></p>
-<p><span style="font-size: 14px;">Sweeping edge enchantment will increase the damage of special attack(50% | 67% | 75%)</span></p>
-<p><span style="font-size: 18px;"><strong>Knockback</strong></span></p>
-<p><span style="font-size: 14px;">Knockback enchantment will increase the stun time.</span></p>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong>Restrictions</strong></em></span></p>
-<p><span style="font-size: 24px; color: #000080;"><em><strong><img src="https://i.imgur.com/QipRzp0.png" alt="" width="184" height="58" /></strong></em></span></p>
-<p><span style="font-size: 24px; color: #000080;"><span style="font-size: 14px; color: #000000;">Twohanded weapons are unable to be held in the offhand and disable the offhand function.</span></span></p>
-<p><span style="font-size: 14px;">&nbsp;</span></p>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong>Weapon Combination</strong></em></span></p>
-<p><span style="font-size: 24px; color: #000080;"><em><strong><img src="https://i.imgur.com/PHVYrrq.png" alt="" width="340" height="193" /></strong></em></span></p>
-<p><span style="color: #000000; font-size: 14px;">Some weapons have different attack styles depending on what is being held in the offhand. The basic attack animation and the special attack will be changed. Try the various attack styles!</span></p>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong>Stun</strong></em></span></p>
-<p><span style="font-size: 24px; color: #000080;"><em><strong><img src="https://i.imgur.com/wWN4u82.png" alt="" width="232" height="187" /></strong></em></span></p>
-<p><span style="font-size: 14px; color: #000000;">All animated attacks stun the target for a short time, including the player. You can't control your character during this time. You need Stun Armor and Weight points to protect yourself.</span></p>
-<p><span style="font-size: 14px; color: #000000;">Stun Armor and Weight points can be acquired by equipping armors. The more valuable armor, the more Stun Armor point you will get.</span></p>
-<p>&nbsp;</p>
-
-<p><span style="font-size: 24px; color: #000080;"><em><strong><span style="color: #000000;"><span style="color: #000080;">Stamina &amp; Skills</span></span></strong></em></span></p>
-<p><span style="font-size: 24px; color: #000080;"><em><strong><span style="color: #000000;"><span style="color: #000080;"><img src="https://i.imgur.com/kFMMpaR.png" alt="" width="573" height="322" /><img src="https://i.imgur.com/FSnJN9z.png" alt="" width="573" height="325" /><br /></span></span></strong></em></span></p>
-<p><span style="font-size: 14px; color: #333333;">You can learn skills through the skill book. They're in dungeon chests or dropped from the hostile mobs with a low chance. Skills are classified into three types: Dodge, Guard, and Passive.</span></p>
-<p><span style="font-size: 14px; color: #333333;">Dodge skills consume stamina. Stamina is displayed in the right-bottom corner.</span></p>
-<p><span style="font-size: 14px; color: #333333;">Guard skills consume stamina. They can block the attacks like shields in the vanilla but have a short stun time.</span></p>
-<p><span style="font-size: 14px; color: #333333;">Passive skills are automatically applied when their condition is met.</span></p>
+  > Toggling Epic Fight mode allows the player to disable the Epic Fight player model, animations, and combat mechanics
+  while in-game.
 
 </details>
 
+### **Abilities**
+
+<details><summary>Tap to show/hide</summary>
+
+### *Weapon & Armor*
+
+![Weapon & Armor](https://i.imgur.com/AbdYsTu.png)
+
+- **Armor Negation:** This percentage won't decrease the total damage by defense points.
+- **Impact:** Increases the total stun time of the hit target.
+- **Hit N enemies per swing:** Maximum number of hittable enemies per swing.
+- ![Weight](https://i.imgur.com/4BRqNoF.png)
+- **Weight:** Shortens the stun time when hit, increases stamina consumption of skills, and decreases attack speed.
+  Items with high attack speed are affected more.
+- **Stun Armor:** Increases the time between stuns.
+
+---
+
+### *The Special Attack*
+
+![Special Attack](https://i.imgur.com/jdsZCPP.png)
+
+Most weapons have a special attack. To use it, fill the special attack gauge by dealing damage to any entity with HP.
+Special attacks are more powerful than basic and dash attacks. You can see the tooltip of a special attack by pressing
+the special attack tooltip key (initial setting: **P**).
+
+---
+
+### *Enchantments*
+
+#### **Sharpness**
+
+Increases damage to every type of attack.
+
+#### **Sweeping Edge**
+
+Increases special attack damage (50% | 67% | 75%).
+
+#### **Knockback**
+
+Increases stun time.
+
+---
+
+### *Restrictions*
+
+![Restrictions](https://i.imgur.com/QipRzp0.png)
+
+- Two-handed weapons cannot be held in the offhand and disable offhand functionality.
+
+---
+
+### *Weapon Combination*
+
+![Weapon Combination](https://i.imgur.com/PHVYrrq.png)
+
+Some weapons have different attack styles depending on what is held in the offhand. Basic attack animations and special
+attacks change accordingly. Try the various attack styles!
+
+---
+
+### *Stun*
+
+![Stun](https://i.imgur.com/wWN4u82.png)
+
+All animated attacks stun the target for a short time, including the player. You can't control your character during
+this time. Stun Armor and Weight points help protect yourself.
+
+- **Stun Armor & Weight:** Acquired by equipping armors. Higher-value armor grants more Stun Armor points.
+
+---
+
+### *Stamina & Skills*
+
+![Stamina & Skills 1](https://i.imgur.com/kFMMpaR.png)  
+![Stamina & Skills 2](https://i.imgur.com/FSnJN9z.png)
+
+You can learn skills through the skill book (found in dungeon chests or dropped from hostile mobs). Skills are
+classified into three types:
+
+- **Dodge Skills:** Consume stamina; stamina is displayed in the bottom-right corner.
+- **Guard Skills:** Consume stamina; block attacks like shields but have a short stun time.
+- **Passive Skills:** Automatically applied when their conditions are met.
+
 </details>
 
-<details>
-<summary><p><span style="font-size: 24px; color: #000080;"><strong><em>FAQ</em></strong></span></p></summary>
+### **FAQ**
 
-<p><span style="font-size: 14px;"><strong>Q:</strong> How can I make different mods compatible?</span><br /><span style="font-size: 14px;"><strong>A:</strong> Try the <em>Wiki:</em>&nbsp;</span><span style="font-size: 1.2rem;"><span style="font-size: 14px;"><a href="https://epicfight-docs.readthedocs.io/">Wiki </a></span><br /><br /></span></p>
-<p><span style="font-size: 14px;"><strong>Q:</strong> How do i create custom weapons / how do i apply weapon types to custom modded weapons?&nbsp;</span><br /><span style="font-size: 14px;"><strong>A:</strong>&nbsp;<a href="https://epicfight-docs.readthedocs.io/Guides/page2/">Custom Weapon/Armor datapack - Wiki </a></span><br /><br /></p>
-<p><span style="font-size: 14px;"><strong>Q:</strong> How do i patch entities ? (In 1.18.2 &amp; 1.16.5)<br /><strong>A:</strong>&nbsp;</span><span style="font-size: 14px;"><a href="https://epicfight-docs.readthedocs.io/Guides/page1/">Custom Entity Datapack - Wiki</a></span></p>
-<p><br /><span style="font-size: 14px;"><strong>Q:</strong> The mod armor is invisible or looks weird!</span></p>
-<p><span style="font-size: 14px;"><strong>A:</strong> <a href="https://epicfight-docs.readthedocs.io/Armor/3Darmor_page1/">Custom 3D armor Resource Pack - Wiki</a><a href="https://github.com/Yesssssman/epicfightmod/wiki/Creating-custom-armor-resource-pack"><br /><br /></a></span></p>
-<p><span style="font-size: 14px;"><strong>Q:</strong> Are there any plans to backport the latest update to 1.12.2 or 1.16.5?<br /><strong>A:</strong> No, 1.12.2 &amp; 1.16.5 are discontinued.<br /><br /><strong>Q:</strong> Any plans to make a Fabric version?<br /><strong>A:</strong> We currently have a team member working on a fabric port, tho be ware that there's no ETA considering the huge amount of changes it'll require.<br /><br /><strong>Q:</strong> Any plans to make a PE version?<br /><strong>A:</strong> No, Minecraft PE is totally different from Java edition.<br /><br /><strong>Q:</strong> Why there are no other languages ?<br /><strong>A:</strong> In the future, we plan on having new translation files be applied to epic fight, but currently we are only taking in translations from verified members and so the proccess of getting new languages takes time.<br /></span></p>
+<details><summary>Tap to show/hide</summary>
+
+- **Fabric port?**  
+  Currently, there are no immediate plans for a Fabric port due to the extensive development involved.  
+  It may be considered in the future.
+
+- **Making different mods compatible**  
+  Achieving compatibility can be complex and may require Java knowledge.  
+  If you are a mod developer,
+  refer to the [API Guide](https://epicfight-docs.readthedocs.io/API/Starting/) for detailed instructions.  
+  Alternatively, you can explore the [Epic Fight Wiki](https://epicfight-docs.readthedocs.io/) for additional guidance.
+
+- **Creating custom weapons or assigning weapon types to modded weapons**  
+  Refer to the [Item Capability Guide](https://epicfight-docs.readthedocs.io/Guides/Weapons/page1/)  
+  and the [Weapon Type Editor Guide](https://epicfight-docs.readthedocs.io/Guides/Weapons/page2/) for detailed
+  instructions.
+
+- **Patching custom modded entities to use Epic Fight animations and mechanics**  
+  Refer to the [Custom Entity Datapack Guide](https://epicfight-docs.readthedocs.io/Guides/Entities/page1/) for
+  instructions.  
+  For advanced cases, Java code may be necessary to fully patch an entity.
+
+- **Modded armor appears invisible or looks unusual**  
+  Epic Fight changes the player model to support more complex animations.  
+  To make armor display correctly, a compatibility resource pack is required.  
+  If you’re familiar with Blender or 3D modeling,
+  check out this [Epic Fight guide](https://epicfight-docs.readthedocs.io/Guides/Armor/3Darmor_page1/) for detailed
+  instructions.
+
+- **Backport the latest Epic Fight update to older Minecraft versions?**  
+  There are currently no plans to backport newer Epic Fight features to older Minecraft versions, due to the major
+  code differences between versions and the maintenance burden it would create for developers.
+
+- **Any plans to make a Bedrock version?**  
+  Minecraft Bedrock is completely different from Java Edition.
+
+- **New Translations?**  
+  In the future, new translations will be added.
+  Currently, only verified members can submit translations, so adding new languages takes time.
 
 </details>
 
-<p><img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline1" width="1344" height="48" /></p></p></p></p>
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-<h2><center><font color=yellow><strong><em>Support &amp; Affiliates</em></strong></font></center></h2>
+## **Support & Affiliates**
 
 <center><a href="https://billing.sparkedhost.com/aff.php?aff=2724"><img src="https://i.imgur.com/kTgYcrh.pnghttps://i.imgur.com/kTgYcrh.png" alt="Modloader"></a></center>
 
 <br>
 
-<p><img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline1" width="1344" height="48" /></p>
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
 <center><a title="Patreon" href="https://www.patreon.com/bePatron?u=53051224" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/7c517b51-581a-48dc-9130-aaad326dbcb4" alt="Patreon" width="150" height="150" /></a>&nbsp; &nbsp;<a title="Discord" href="https://discord.com/invite/NbAJwj8RHg" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/f3358cb9-f3cd-46e7-9ed0-a90bc2b1b188" alt="Discord" width="150" height="150" /></a>&nbsp; &nbsp;<a title="YouTube" href="https://www.youtube.com/@yesman4100" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/3f2de855-e926-4eb9-a20c-4c6f44828250" alt="Youtube" width="150" height="150" /></a>&nbsp; &nbsp;<a href="https://epicfight-docs.readthedocs.io/en/latest/"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/23220c47-c1e5-4e2b-82aa-876a86d7ed1a" alt="GitHub" width="150" height="150" /></a></center>
-<p>&nbsp;&nbsp;</p>
+
+## 🔧 **Compatibility**
+
+### ✅ Fully Supported and Compatible Mods
+
+<details><summary>Tap to show/hide</summary>
+
+- [Epic Fight: Skill Tree](https://modrinth.com/mod/epic-fight-skill-tree)
+- [Controlify](https://modrinth.com/mod/controlify) OR [Controlify: Forgified 1.20.1 (Unofficial)](https://modrinth.com/mod/controlify-forgified)
+- [ParCool](https://modrinth.com/mod/parcool) (via [Epic x ParCool](https://modrinth.com/mod/official-epic-x-parcool))
+- [Just Enough Items (JEI)](https://modrinth.com/mod/jei)
+- [Sodium](https://modrinth.com/mod/sodium)
+- [Iris Shaders](https://modrinth.com/mod/iris)
+- [3D Skin Layers](https://modrinth.com/mod/3dskinlayers)
+- [Vampirism](https://modrinth.com/mod/vampirism)
+- [Werewolves](https://modrinth.com/mod/werewolves)
+- [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
+- [playerAnimator](https://modrinth.com/mod/playeranimator)
+- [Geckolib](https://modrinth.com/mod/geckolib)
+- [AzureLib](https://modrinth.com/mod/azurelib)
+- [First-person Model](https://modrinth.com/mod/first-person-model)
+- [Curios API](https://modrinth.com/mod/curios)
+- [Do a Barrel Roll](https://modrinth.com/mod/do-a-barrel-roll)
+- [KubeJS](https://modrinth.com/mod/kubejs)
+
+</details>
+
+### ⚠️ Incompatible Mods
+
+<details><summary>Tap to show/hide</summary>
+
+- **Optifine** (closed-source mod)
+- [Controllable](https://www.curseforge.com/minecraft/mc-mods/controllable) —
+  Consider [Controlify](https://modrinth.com/mod/controlify)
+
+</details>
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## 🐞 **Bug Reports**
+
+If you encounter any crashes or bugs in **Epic Fight**:
+
+1. **Reproduce the issue** in a fresh Minecraft instance with as few mods as possible.
+2. **Generate a crash/log report** using [mclo.gs](https://mclo.gs/).
+3. **Submit the report** by sending the link along with detailed relevant information (e.g., Epic Fight version) to [**this GitHub repository**](https://github.com/Epic-Fight/epicfight/issues/new/choose).
+
+> ⚠️ **Important:** Always reproduce the crash or bug with a **minimal set of mods**.  
+> Sharing reports from instances with 100+ mods makes it nearly impossible to debug each mod individually due to the high volume of reports and limited resources.
+
+**Note:** We only address issues and bugs that **originate from Epic Fight itself**.
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## **Official Integrations**
+
+### **Skill Tree**
+
+The [Epic Fight: Skill Tree](https://modrinth.com/mod/epic-fight-skill-tree) is an official first-party addon
+developed by the Epic Fight team to replace the **Skill Book Items** system with a **Skill Tree**,
+providing a more RPG-focused experience.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KtY_zayLzYw?si=62WHXDS6TV2bagbO&amp;start=116" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+### **ParCool**
+
+The [Epic x ParCool](https://modrinth.com/mod/official-epic-x-parcool) is an official addon
+developed in collaboration with the [ParCool](https://modrinth.com/mod/parcool) project authors.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T-uMmLCYbn4?si=kY0vKLD2PNeAaN48" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+### **Controlify (Controller Support)**
+
+In recent versions of Epic Fight, the Epic Fight team added an
+official [Controlify](https://modrinth.com/mod/controlify) integration,
+allowing you to use Epic Fight seamlessly with a controller,
+with enhanced support for all input actions and GUI operations.
+
+> **Tip:** If you're on Forge 1.20.1,
+> use [Controlify: Forgified (Unofficial backport)](https://modrinth.com/mod/controlify-forgified) instead.
+> Epic Fight’s on-screen controller button guides are **not supported** on Minecraft 1.20.1.
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## **Community addons**
+
+These are community-made mods that add optional support for this mod.
+They are **not officially supported** and may not be compatible with all versions.
+
+<details><summary>Tap to show/hide</summary>
+
+- [Epic Fight - Sword Soaring](https://www.curseforge.com/minecraft/mc-mods/sword-soaring)
+- [Weapons of miracles](https://modrinth.com/mod/weapons-of-miracles)
+- [Epic Fight: More Skill Slots](https://modrinth.com/mod/epic-fight-more-skill-slots)
+- [P1nero's Epic Fight X Cataclysm](https://www.curseforge.com/minecraft/mc-mods/p1neros-epic-x-cataclysm)
+- [P1nero's Epic Bow](https://www.curseforge.com/minecraft/mc-mods/p1neros-epic-bow)
+- [Epic Fight - The Wraithon](https://www.curseforge.com/minecraft/mc-mods/epic-fight-wraithon)
+- [Epic Fight : Dodge Parry Reward](https://www.curseforge.com/minecraft/mc-mods/epic-fight-dodge-parry-reward)
+- [Epic Fight Nightfall](https://www.curseforge.com/minecraft/mc-mods/epicfight-nightfall)
+
+</details>
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## 📚 WIKI
+
+For detailed information on **Epic Fight**, including skills, recipes, API and Blender guides,
+custom trails, weapon or
+entity patches, armor fixes, resource pack integrations and more, visit
+the [Epic Fight WIKI](https://epicfight-docs.readthedocs.io/).
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## **Contributing**
+
+For contribution guidelines,
+please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight/blob/1.21.1/CONTRIBUTING.md).
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
+## **Disclaimer**
+
+To comply with the [Minecraft Essential guidelines](https://www.minecraft.net/en-us/usage-guidelines),
+the following disclaimer is included:
+
+> **NOT AN OFFICIAL MINECRAFT Epic Fight. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFTMOJANG
+OR MICROSOFT.**

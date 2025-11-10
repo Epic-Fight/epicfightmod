@@ -1,0 +1,25 @@
+{
+  "defaults": {
+    "epicfight:attack": {
+      "axis": "controlify:axis/right_trigger"
+    },
+    "epicfight:weapon_innate_skill": {
+      "axis": "controlify:axis/right_trigger"
+    },
+    "epicfight:weapon_innate_skill_tooltip": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "epicfight:mobility": {
+      "button": "controlify:button/south"
+    },
+    "epicfight:guard": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "epicfight:dodge": {
+      "button": "controlify:button/east"
+    },
+    "epicfight:lock_on": {
+      "button": "controlify:button/left_stick"
+    }
+  }
+}

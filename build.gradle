@@ -112,6 +112,12 @@ repositories {
             includeGroup "dev.latvian.mods"
         }
     }
+
+    exclusiveContent {
+        forRepository { maven { url "https://echoellet.github.io/Controlify/" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "dev.echoellet" }
+    }
 }
 
 mixin {
@@ -170,6 +176,9 @@ dependencies {
     //compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993788") // Actual mod file (for test)
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    implementation fg.deobf("dev.echoellet:controlify-forgified:${project.controlify_version}")
+    runtimeOnly fg.deobf("maven.modrinth:yacl:3.6.6+1.20.1-forge") // Required dependency to run Controlify
 }
 
 tasks.named('processResources', ProcessResources).configure {

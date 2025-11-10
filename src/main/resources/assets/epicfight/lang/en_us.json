@@ -11,17 +11,17 @@
 	"attribute.name.epicfight.offhand_impact": "Offhand Impact",
 	"attribute.name.epicfight.offhand_armor_negation": "Offhand Armor Negation",
 	"attribute.name.epicfight.offhand_max_strikes": "Offhand Max Strikes",
-	
+
 	"attribute.name.epicfight.impact.value": "%s Impact",
 	"attribute.name.epicfight.armor_negation.value": "%s%% Armor Negation",
 	"attribute.name.epicfight.max_strikes.value": "Hit %s Enemies per Swing",
-	
+
 	"attribute.name.generic.max_health.skillbook_tooltip": "Increases player's max health",
 	"attribute.name.generic.attack_damage.skillbook_tooltip": "Increases player's attack damage",
 	"attribute.name.generic.attack_speed.skillbook_tooltip": "Increases player's attack speed",
 	"attribute.name.epicfight.staminar.skillbook_tooltip": "Increases player's max stamina",
 	"attribute.name.epicfight.stamina_regen.skillbook_tooltip": "Reduces the amount of time taken for stamina to regen",
-	
+
 	"attribute.name.epicfight.stamina.consume": "%s Stamina",
 	"attribute.name.epicfight.stamina_current_ratio.consume": "%s%% of current stamina",
 	"attribute.name.epicfight.stamina_per_second.consume": "%s per second",
@@ -30,7 +30,7 @@
 	"attribute.name.epicfight.cooldown.consume.tooltip": "A cooldown time to activate a skill again",
 	"attribute.name.epicfight.health.consume": "%s Health",
 	"attribute.name.epicfight.health.consume.tooltip": "Requires an indicated amount of health to execute",
-	
+
 	"commands.epicfight.skill.add.success.single": "Added skill %s to %s",
 	"commands.epicfight.skill.add.success.multiple": "Added skill %s to %s targets",
 	"commands.epicfight.skill.add.failed": "Unable to add this skill (skill already applied)",
@@ -40,21 +40,21 @@
 	"commands.epicfight.skill.clear.success.single": "Removed all skills from %s",
 	"commands.epicfight.skill.clear.success.multiple": "Removed all skills from %s targets",
 	"commands.epicfight.skill.clear.failed": "Target has no skills to remove",
-	
+
 	"commands.epicfight.stamina.success.self": "Successfully Modified %s's stamina to %s",
 	"commands.epicfight.stamina.success.other": "Successfully Modified stamina from %s targets",
 	"commands.epicfight.stamina.success.failed": "Failed at modifying stamina",
-	
+
 	"commands.epicfight.stamina.value.get.success": "Value of stamina for player %s is %s",
 	"commands.epicfight.stamina.failed.no_stamina": "Player %s has no stamina",
-	
+
 	"death.attack.wither_beam": "%1$s was vaporized by wither beam",
 	"death.attack.shockwave": "%1$s was teared up by Shockwave",
 	"debug.vanilla_model_debugging.on": "Vanilla model debugging: On",
 	"debug.vanilla_model_debugging.off": "Vanilla model debugging: Off",
 	"debug.show_epicfight_tooltip.on": "Show Epic Fight Tooltip: On",
 	"debug.show_epicfight_tooltip.off": "Show Epic Fight Tooltip: Off",
-	
+
 	"damage_source.epicfight.damage": "%s damage",
 	"damage_source.epicfight.target_lost_health": " + %s of the target lost health",
 	"damage_source.epicfight.sweeping_edge_enchant_level": " + %s (sweeping Edge %s lv)",
@@ -64,15 +64,15 @@
 	"damage_source.epicfight.stun_hold": "§cHOLD §8targets",
 	"damage_source.epicfight.stun_knockdown": "§cKNOCKDOWN §8targets",
 	"damage_source.epicfight.stun_neutralize": "",
-	
+
 	"effect.epicfight.stun_immunity": "Stun Immunity",
 	"effect.epicfight.blooming": "Blooming",
 	"effect.epicfight.instability": "Instability",
-	
+
 	"entity.epicfight.wither_skeleton_minion": "Wither's Minion",
 	"entity.epicfight.wither_ghost": "Wither Ghost",
 	"entity.epicfight.area_effect_breath": "Dragon Breath",
-	
+
 	"epicfight.gui.configuration.item_preferences": "Item Preferences",
 	"epicfight.gui.combat_perferred": "Combat Preferred",
 	"epicfight.gui.combat_perferred.tooltip": "Items categorized here will play attack animations if you target any entity",
@@ -83,10 +83,10 @@
 	"epicfight.gui.tooltip_battle": "All items with epic fight attributes will automatically be registered.",
 	"epicfight.gui.tooltip_mining": "All items excluded from battle mode will automatically be registered.",
 	"epicfight.gui.attribute": "Epic Fight Attributes:",
-	
+
 	"epicfight.skillNotFound": "Unknown skill: %s",
 	"epicfight.animationNotFound": "Unknown animation name: %s",
-	
+
 	"epicfight.weapon_category.not_weapon": "Not Weapon",
 	"epicfight.weapon_category.axe": "Axe",
 	"epicfight.weapon_category.fist": "Fist",
@@ -103,11 +103,11 @@
 	"epicfight.weapon_category.dagger": "Dagger",
 	"epicfight.weapon_category.shield": "Shield",
 	"epicfight.weapon_category.ranged": "Ranged",
-	
+
 	"epicfight.skill_category.dodge": "Dodge",
 	"epicfight.skill_category.passive": "Passive",
 	"epicfight.skill_category.guard": "Guard",
-	
+
 	"epicfight.skill_slot.dodge": "Dodge",
 	"epicfight.skill_slot.passive1": "Passive 1",
 	"epicfight.skill_slot.passive2": "Passive 2",
@@ -115,21 +115,21 @@
 	"epicfight.skill_slot.guard": "Guard",
 	"epicfight.skill_slot.identity": "Identity",
 	"epicfight.skill_slot.mover": "Mobility",
-	
+
 	"epicfight.style.one_hand": "One Handed",
 	"epicfight.style.two_hand": "Two Handed",
 	"epicfight.style.mount": "Mount",
 	"epicfight.style.ranged": "Ranged",
 	"epicfight.style.sheath": "Sheathed",
 	"epicfight.style.ochs": "Guard Stance",
-	
+
 	"epicfight.skill_slot.passive1": "Passive 1",
 	"epicfight.skill_slot.passive2": "Passive 2",
 	"epicfight.skill_slot.passive3": "Passive 3",
 	"epicfight.skill_slot.guard": "Guard",
 	"epicfight.skill_slot.identity": "Identity",
 	"epicfight.skill_slot.mover": "Mobility",
-	
+
 	"entity.weapon.whoosh": "Whoosh",
 	"entity.weapon.whoosh_small": "Small whoosh",
 	"entity.weapon.whoosh_hard": "Big whoosh",
@@ -159,10 +159,10 @@
 	"skill.roll": "Rolling",
 	"skill.tumble": "Tumbling",
 	"skill.forbidden_strength": "Forbidden magic casting",
-	
+
 	"gameMode.epicfight.vanilla": "Vanilla",
 	"gameMode.epicfight.epicfight": "EpicFight",
-	
+
 	"gamerule.doVanillaAttack": "Enable vanilla attack",
 	"gamerule.hasFallAnimation": "Enable landing animation",
 	"gamerule.keepSkills": "Keep skills after death",
@@ -177,20 +177,20 @@
 	"gamerule.epicDrop": "Enable the fancy drop effect of the boss loots",
 	"gamerule.skillReplaceCooldown": "Skill replace cooldown",
 	"gamerule.skillReplaceCooldown.description": "Cooldown ticks to replace skills again",
-	
+
 	"gui.epicfight.configurations": "Epic Fight Configurations",
 	"gui.epicfight.graphic_options": "Epic Fight Graphics",
 	"gui.epicfight.control_options": "Epic Fight Controls",
-	
+
 	"gui.epicfight.skill_tree": "Skill Tree",
-	
+
 	"gui.epicfight.health_bar_show_option.none": "Health Bar Show Option: None",
 	"gui.epicfight.health_bar_show_option.hurt": "Health Bar Show Option: Hurt",
 	"gui.epicfight.health_bar_show_option.target": "Health Bar Show Option: Target",
 	"gui.epicfight.health_bar_show_option.target_and_hurt": "Health Bar Show Option: Target and Hurt",
 	"gui.epicfight.target_indicator.on": "Show Target Indicator: ON",
 	"gui.epicfight.target_indicator.off": "Show Target Indicator: OFF",
-	
+
 	"gui.epicfight.ui_setup": "Ingame UI Setup",
 	"gui.epicfight.ui_setup.tooltip": "Open UI setup screen",
 	"gui.epicfight.aim_helper.on": "Show Aim Helper: ON",
@@ -265,41 +265,41 @@
 	"gui.epicfight.changing_cost": "Cost: %d",
 	"gui.epicfight.no_skills": "You have not learned any skills yet! You can learn skills by acquiring skill books from looting mobs and chests.",
 	"gui.epicfight.select_slot_tooltip": "Choose a slot to replace the skill",
-	
+
 	"gui.epicfight.save": "Save",
 	"gui.epicfight.export": "Export",
 	"gui.epicfight.find_weapon": "Find Weapons",
-	
+
 	"gui.epicfight.button.graphics": "Graphics",
 	"gui.epicfight.button.controls": "Controls",
 	"gui.epicfight.button.datapack_edit": "Datapack Editor",
-	
+
 	"gui.epicfight.tab.datapack.weapon_type": "Weapon Type",
 	"gui.epicfight.tab.datapack.item_capability": "Item Capability",
 	"gui.epicfight.tab.datapack.mob_patch": "Mob Capability",
-	
+
 	"gui.epicfight.select": "%s List",
 	"gui.epicfight.available_weapon_types": "Available Weapon Types",
-	
+
 	"gui.epicfight.warn.no_target": "No targeted entity",
 	"gui.epicfight.warn.animation_unsync": "Below animations are missing or don't exist in the server\n\n%s\nPlease check the resource packs that you're missing or unload the packs that the server doesn't have",
 	"gui.epicfight.warn.animation_unsync.etc": "... and %d other animations",
-	
+
 	"gui.epicskins.skin_config": "Skin Configuration",
 	"gui.epicskins.button.skin_configuration": "Skin Configuration",
 	"gui.epicskins.button.save": "Save",
 	"gui.epicskins.button.quit": "Quit",
 	"gui.epicskins.button.delete_account": "Delete Account",
 	"gui.epicskins.button.back": "Back",
-	
+
 	"gui.epicskins.avatar.cape_type": "Cape Type",
 	"gui.epicskins.avatar.cape_color": "Cape Color",
 	"gui.epicskins.avatar.vanilla_texture": "Vanilla Texture",
-	
+
 	"gui.epicskins.avatar.cape_type.tooltip": "Select a cape type",
 	"gui.epicskins.avatar.cape_color.tooltip": "Set a color of cape",
 	"gui.epicskins.avatar.vanilla_texture.tooltip": "Check if you want to use vanilla cape texture",
-	
+
 	"item.epicfight.bokken": "Bokken",
 	"item.epicfight.uchigatana": "Uchigatana",
 	"item.epicfight.stray_hat": "Stray Hat",
@@ -337,21 +337,21 @@
 	"item.epicfight.netherite_dagger": "Netherite Dagger",
 	"item.epicfight.skillbook": "Skill Book",
 	"item.epicfight.glove": "Glove",
-	
+
 	"item.minecraft.potion.effect.blooming": "Blooming",
 	"item.minecraft.splash_potion.effect.blooming": "Splash potion of Blooming",
 	"item.minecraft.lingering_potion.effect.blooming": "Lingering potion of Blooming",
 	"item.minecraft.tipped_arrow.effect.blooming": "Arrow of Blooming",
-	
+
 	"item.epicfight.uchigatana.tooltip": "Sheathe Uchigatana after 5 seconds of inactivity and your next attack will be empowered.",
 	"itemGroup.epicfight.items": "EpicFight Items",
-	
+
 	"inventory.epicfight.guide_innate_tooltip": "[%s] to see Innate skill",
-	
+
 	"key.epicfight.combat": "Epic Fight Combat",
 	"key.epicfight.gui": "Epic Fight GUI",
 	"key.epicfight.system": "Epic Fight System",
-	
+
 	"key.epicfight.show_tooltip": "Show Weapon Innate Skill Tooltip",
 	"key.epicfight.switch_mode": "Toggle Battle/Mining Mode",
 	"key.epicfight.attack": "Attack",
@@ -363,7 +363,19 @@
 	"key.epicfight.mover_skill": "Mobility Skill",
 	"key.epicfight.config": "Open Configuration Screen",
 	"key.epicfight.switch_vanilla_model_debug": "Switch Vanilla Model Debugging",
-	
+
+  "key.epicfight.show_tooltip.description": "Displays the tooltip of your weapon's innate skill when the inventory screen is open",
+  "key.epicfight.switch_mode.description": "Switches between combat and mining modes",
+  "key.epicfight.attack.description": "Performs a basic attack with your equipped weapon",
+  "key.epicfight.weapon_innate_skill.description": "Activates the innate skill of your equipped weapon",
+  "key.epicfight.skill_gui.description": "Opens the skill editor GUI to customize your skills",
+  "key.epicfight.dodge.description": "Performs a dodge maneuver to avoid attacks",
+  "key.epicfight.guard.description": "Blocks incoming attacks with your weapon",
+  "key.epicfight.lock_on.description": "Locks onto the nearest target for easier combat",
+  "key.epicfight.mover_skill.description": "Uses a skill that enhances movement or mobility",
+  "key.epicfight.config.description": "Opens the mod configuration screen",
+  "key.epicfight.switch_vanilla_model_debug.description": "Toggles debugging for vanilla player models",
+
 	"skill.epicfight.dancing_edge": "Dancing Edge",
 	"skill.epicfight.dancing_edge.tooltip": "Cut down enemies with a lethal flourish! It strikes 3 times",
 	"skill.epicfight.battojutsu": "Battojutsu",
@@ -451,20 +463,20 @@
 	"skill.epicfight.guard.category": "Guard",
 	"skill.epicfight.identity.category": "Identity",
 	"skill.epicfight.mover.category": "Mobility",
-	
+
 	"skill_tree.epicfight.battleborn": "Battleborn",
-	
+
 	"painting.epicfight.epicfight_logo.title": "The martial Herobrine",
 	"painting.epicfight.epicfight_logo.author": "Gui Brabo",
-	
+
 	"pack.epicfight_legacy.title": "Epic Fight Legacy",
-	
+
 	"tag.damage_type.epicfight.is_melee": "Melee",
 	"tag.damage_type.minecraft.is_projectile": "Projectile",
 	"tag.damage_type.minecraft.is_fire": "Fire",
 	"tag.damage_type.epicfight.is_magic": "Magic",
 	"tag.damage_type.minecraft.is_explosion": "Explosion",
-	
+
 	"epicfight.tip.weight": "Weight shortens stun, raises skill stamina use, and slows attack speed, especially on fast items.",
 	"epicfight.tip.stun_armor": "Stun Armor extends the time between stuns, boosting overall resilience and defense.",
 	"epicfight.tip.knockback": "The Knockback enchantment functions to amplify the stun duration upon impact.",
@@ -481,12 +493,12 @@
 	"epicfight.tip.combat_mode": "Switch between mining and combat modes by pressing it's default key, 'R'.",
 	"epicfight.tip.weapon_charge": "Your weapon will be charged up when you strike entities. You can use weapon innate skill when weapon charge is full",
 	"epicfight.tip.weapon_innate": "Each weapon has its innate skill. You can execute a skill with a weapon innate keybind",
-	
+
 	"datapack_edit.model_player.collider": "Collider",
 	"datapack_edit.model_player.item": "Item",
 	"datapack_edit.model_player.trail": "Trail",
 	"datapack_edit.model_player.trail.tooltip": "Defines a trail effect information of an animation.",
-	
+
 	"datapack_edit.import_animation": "Import Animation",
 	"datapack_edit.import_animation.place_tooltip": "Drag & drop the animation files you want to import here.",
 	"datapack_edit.import_animation.type": "Type",
@@ -528,12 +540,12 @@
 	"datapack_edit.import_animation.client_data.end_time.tooltip": "Defines an end time of a trail effect in an animation time",
 	"datapack_edit.import_animation.client_data.joint": "Joint",
 	"datapack_edit.import_animation.client_data.joint.tooltip": "Defines a parent joint of a trail effect",
-	
+
 	"datapack_edit.import_model": "Import Model",
 	"datapack_edit.import_model.meshes": "Meshes",
 	"datapack_edit.import_model.armatures": "Armatures",
 	"datapack_edit.export_with_exceptions": "Export Anyway!",
-	
+
 	"datapack_edit.collider": "Collider",
 	"datapack_edit.collider.tooltip": "Defines a collider of a weapon. Get from the collider registry or define a custom one\n(mandatory)",
 	"datapack_edit.item_capability.collider.tooltip": "Defines a collider of a weapon. Will apply a collider from a weapon type if this is empty\n(optional)",
@@ -543,12 +555,12 @@
 	"datapack_edit.collider.center.tooltip": "Center location of a collider\n(mandatory)",
 	"datapack_edit.collider.size": "Size",
 	"datapack_edit.collider.size.tooltip": "Size of a collider (Only positive values are allowed)\n(mandatory)",
-	
+
 	"datapack_edit.style": "Style",
 	"datapack_edit.styles": "Styles",
 	"datapack_edit.styles.tooltip.mandatory": "Styles of a weapon\n(mandatory)",
 	"datapack_edit.styles.tooltip.optional": "Styles of a weapon\n(optional)",
-	
+
 	"datapack_edit.weapon_type.category": "Category",
 	"datapack_edit.weapon_type.category.tooltip": "Defines a weapon category\n(mandatory)",
 	"datapack_edit.weapon_type.hit_particle": "Hit Particle",
@@ -571,21 +583,21 @@
 	"datapack_edit.weapon_type.living_animations.tooltip": "Defines living animations overrided by a weapon",
 	"datapack_edit.weapon_type.living_animations.modifiers": "Modifiers",
 	"datapack_edit.weapon_type.living_animations.modifiers.tooltip": "Defines overrided animations when holding a weapon",
-	
+
 	"datapack_edit.weapon_type.styles.default": "Default",
 	"datapack_edit.weapon_type.styles.default.tooltip": "A default style (mandatory)",
 	"datapack_edit.weapon_type.styles.condition": "Condition",
 	"datapack_edit.weapon_type.styles.condition.tooltip": "Defines conditions that determine when a player have this style",
 	"datapack_edit.weapon_type.styles.parameters": "Parameters",
 	"datapack_edit.weapon_type.styles.parameters.tooltip": "Defines parameters of a condition",
-	
+
 	"datapack_edit.weapon_type.combos.combo_attacks": "Combo Attacks",
 	"datapack_edit.weapon_type.combos.combo_attacks.tooltip": "Defines combo attacks of a weapon\n(mandatory)",
 	"datapack_edit.weapon_type.combos.dash_attak": "Dash Attack",
 	"datapack_edit.weapon_type.combos.dash_attak.tooltip": "Defines a dash attack of a weapon\n(mandatory)",
 	"datapack_edit.weapon_type.combos.air_slash": "Air Slash",
 	"datapack_edit.weapon_type.combos.air_slash.tooltip": "Defines a jump attack of a weapon\n(mandatory)",
-	
+
 	"datapack_edit.item_capability.item_type": "Item Type",
 	"datapack_edit.item_capability.item_type.tooltip": "Defines if an item is armor or weapon\n(mandatory)",
 	"datapack_edit.item_capability.attributes": "Attributes",
@@ -608,7 +620,7 @@
 	"datapack_edit.item_capability.texture_path.tooltip": "Defines a texture of a trail effect\n(mandatory)",
 	"datapack_edit.item_capability.particle_type": "Particle Type",
 	"datapack_edit.item_capability.particle_type.tooltip": "Defines a particle type of a trail effect\n(mandatory)",
-	
+
 	"datapack_edit.mob_patch.disabled": "Disabled",
 	"datapack_edit.mob_patch.disabled.tooltip": "Disables epic fight style combat\n(optional)",
 	"datapack_edit.mob_patch.preset": "Preset",
@@ -640,14 +652,14 @@
 	"datapack_edit.mob_patch.combat_behavior": "Combat Behavior",
 	"datapack_edit.mob_patch.combat_behavior.tooltip": "Defines attack movesets of an entity\n(mandatory)",
 	"datapack_edit.mob_patch.humanoid_combat_behavior": "Humanoid Combat Behavior",
-	
+
 	"datapack_edit.mob_patch.humanoid_weapon_motions.weapon_categories": "Weapon Categories",
 	"datapack_edit.mob_patch.humanoid_weapon_motions.weapon_categories.tooltip": "Defines weapon categories that own a living animation set",
 	"datapack_edit.mob_patch.humanoid_weapon_motions.style": "Style",
 	"datapack_edit.mob_patch.humanoid_weapon_motions.style.tooltip": "Defines a style of weapon categories",
 	"datapack_edit.mob_patch.humanoid_weapon_motions.living_animations": "Living Animations",
 	"datapack_edit.mob_patch.humanoid_weapon_motions.living_animations.tooltip": "Defines living animations based on weapon categories and its style",
-	
+
 	"datapack_edit.mob_patch.combat_behavior.weight": "Weight",
 	"datapack_edit.mob_patch.combat_behavior.weight.tooltip": "Defines a chance to select this behavior",
 	"datapack_edit.mob_patch.combat_behavior.cooldown": "Cooldown",
@@ -662,13 +674,13 @@
 	"datapack_edit.mob_patch.combat_behavior.parameters.tooltip": "Defines parameters of a condition",
 	"datapack_edit.mob_patch.combat_behavior.animation": "Animation",
 	"datapack_edit.mob_patch.combat_behavior.animation.tooltip": "Defines an attack animation",
-	
+
 	"epicfight.messages.test_version_warning_line1": "Epic Fight is testing version.",
 	"epicfight.messages.test_version_warning_line2": "(%s)",
 	"epicfight.messages.version_notifier": "EpicFight-%s",
-	
+
 	"epicfight.messages.shader_transform_fail": "Failed to create shader %s. Don't turn on animation shader in your environment...",
 	"epicfight.messages.mode_switching_disabled": "Switching vanilla/epicfight mode is disabled in this world. Enable the gamerule or ask for a server operator.",
-	
+
 	"eof": "eof"
 }

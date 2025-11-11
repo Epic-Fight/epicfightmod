@@ -649,7 +649,7 @@ public class RenderEngine {
 			if (renderEngine.hasRendererFor(livingentity)) {
 				LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
 				float originalYRot = 0.0F;
-				
+
 				// Draw the player in inventory
 				if ((event.getPartialTick() == 0.0F || event.getPartialTick() == 1.0F) && entitypatch instanceof LocalPlayerPatch localplayerpatch) {
 					if (entitypatch.overrideRender()) {
@@ -702,7 +702,7 @@ public class RenderEngine {
 					CapabilityItem cap = EpicFightCapabilities.getItemStackCapabilityOr(event.getItemStack(), null);
 					
 					if (cap != null) {
-						if (InputManager.isActionActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
+						if (InputManager.isActionPhysicallyActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
 							Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, event.getItemStack());
 
 							if (weaponInnateSkill != null) {

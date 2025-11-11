@@ -55,6 +55,13 @@ public final class InputManager {
         return controllerMod.getInputMode().supportsController();
     }
 
+    // TODO: Review the design of isActionActive() and isActionPhysicallyActive()
+    //  fully, while testing and ensuring the behavior consistency across controller and mouse/keyboard inputs.
+    //  When this regression appeared: https://github.com/Epic-Fight/epicfight/issues/2196
+    //  it happened only on vanilla mouse/keyboard but not controllers,
+    //  this is a strong sign that there is behavior inconsistency between different inputs.
+    //  Related: https://github.com/Epic-Fight/epicfight/issues/2194
+
     /**
      * Returns whether the given input action is active during this tick, following Minecraft’s internal behavior.
      * May return <code>false</code> while a screen is open, even if the physical input is held down.
@@ -70,7 +77,7 @@ public final class InputManager {
      * It should not be used while a screen is open.
      *
      * @param action the input action to check
-     * @return true if the action is active, this tick according to Minecraft’s internal behavior; false otherwise
+     * @return true if the action is active, this tick according to Minecraft’s internals; false otherwise
      * @see InputType
      */
     public static boolean isActionActive(@NotNull EpicFightInputActions action) {
@@ -83,6 +90,34 @@ public final class InputManager {
             case KEYBOARD_MOUSE -> isKeyDown(action.keyMapping());
             case CONTROLLER -> controllerMod.getBinding(action).isDigitalActiveNow();
             case MIXED -> isKeyDown(action.keyMapping()) || controllerMod.getBinding(action).isDigitalActiveNow();
+        };
+    }
+
+    /**
+     * Returns whether the given input action is currently physically active this tick.
+     * <p>
+     * Unlike {@link #isActionActive}, this method is independent of the Minecraft behavior and internals:
+     * <ul>
+     *     <li>Ignores vanilla GUI filtering (always checks the physical key state).</li>
+     *     <li>Bypasses the mouse multiple-keybind sharing bug (present in versions before 1.21.10).</li>
+     * </ul>
+     * <p>
+     * Controllers are handled the same as {@link #isActionActive}.
+     *
+     * @param action the input action to check
+     * @return true, if the action is active, this tick regardless of Minecraft’s internals; false otherwise
+     */
+    public static boolean isActionPhysicallyActive(@NotNull EpicFightInputActions action) {
+        final IEpicFightControllerMod controllerMod = getControllerModApi();
+        if (controllerMod == null) {
+            return isPhysicalKeyDown(action.keyMapping());
+        }
+
+        return switch (controllerMod.getInputMode()) {
+            case KEYBOARD_MOUSE -> isPhysicalKeyDown(action.keyMapping());
+            case CONTROLLER -> controllerMod.getBinding(action).isDigitalActiveNow();
+            case MIXED ->
+                    isPhysicalKeyDown(action.keyMapping()) || controllerMod.getBinding(action).isDigitalActiveNow();
         };
     }
 

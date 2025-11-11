@@ -38,7 +38,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 	@Shadow private int[] idleHeadUpdates = new int[2];
 	@Shadow private int destroyBlocksTick;
 	@Shadow @Final private ServerBossEvent bossEvent;
-	@Unique private WitherPatch witherPatch;
+	@Unique private WitherPatch epicFight$witherPatch;
 	
 	protected MixinWitherBoss(EntityType<? extends WitherBoss> entityType, Level level) {
 		super(entityType, level);
@@ -46,16 +46,16 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 	
 	@Inject(at = @At(value = "RETURN"), method = "<init>")
 	private void epicfight$witherBossInit(CallbackInfo info) {
-		this.witherPatch = EpicFightCapabilities.getEntityPatch(((WitherBoss)((Object)this)), WitherPatch.class);
+		this.epicFight$witherPatch = EpicFightCapabilities.getEntityPatch(((WitherBoss)((Object)this)), WitherPatch.class);
 	}
 	
 	@Inject(at = @At(value = "HEAD"), method = "aiStep()V", cancellable = true)
 	private void epicfight$aiStep(CallbackInfo info) {
-		if (this.witherPatch != null) {
+		if (this.epicFight$witherPatch != null) {
 			info.cancel();
 			
-			WitherBoss self = this.witherPatch.getOriginal();
-			MixinWitherBossAccessor self$Accessor = this.witherPatch.getOriginalAsMixinAccessor();
+			WitherBoss self = this.epicFight$witherPatch.getOriginal();
+			MixinWitherBossAccessor self$Accessor = this.epicFight$witherPatch.getOriginalAsMixinAccessor();
 			super.aiStep();
 			
 			for (int i = 0; i < 2; ++i) {
@@ -71,13 +71,13 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 					entity1 = this.level().getEntity(k);
 				}
 				
-				if (this.witherPatch.getLaserTargetEntity(j + 1) != null) {
-					Entity laserTarget = this.witherPatch.getLaserTargetEntity(j + 1);
+				if (this.epicFight$witherPatch.getLaserTargetEntity(j + 1) != null) {
+					Entity laserTarget = this.epicFight$witherPatch.getLaserTargetEntity(j + 1);
 					this.lookAt(j, laserTarget.getX(), laserTarget.getEyeY(), laserTarget.getZ(), 360.0F, 360.0F);
-				} else if (isValid(this.witherPatch.getLaserTargetPosition(j + 1))) {
-					Vec3 laserTargetPosition = this.witherPatch.getLaserTargetPosition(j + 1);
+				} else if (epicFight$isValid(this.epicFight$witherPatch.getLaserTargetPosition(j + 1))) {
+					Vec3 laserTargetPosition = this.epicFight$witherPatch.getLaserTargetPosition(j + 1);
 					this.lookAt(j, laserTargetPosition.x, laserTargetPosition.y, laserTargetPosition.z, 360.0F, 360.0F);
-				} else if (this.witherPatch.getEntityState().inaction()) {
+				} else if (this.epicFight$witherPatch.getEntityState().inaction()) {
 					self$Accessor.getXRotHeads()[j] = this.rotlerp(self$Accessor.getXRotHeads()[j], 0.0F, 40.0F);
 					self$Accessor.getYRotHeads()[j] = this.rotlerp(self$Accessor.getYRotHeads()[j], this.yBodyRot, 10.0F);
 				} else if (entity1 != null) {
@@ -94,7 +94,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 				double subHeadY = self$Accessor.invoke_getHeadY(l);
 				double subHeadZ = self$Accessor.invoke_getHeadZ(l);
 				
-				if (!this.witherPatch.isGhost()) {
+				if (!this.epicFight$witherPatch.isGhost()) {
 					this.level().addParticle(
 						ParticleTypes.SMOKE,
 						subHeadX + this.random.nextGaussian() * (double) 0.3F,
@@ -137,7 +137,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 	
 	@Unique
 	private void lookAt(int head, double x, double y, double z, float lerpX, float lerpY) {
-		MixinWitherBossAccessor self = this.witherPatch.getOriginalAsMixinAccessor();
+		MixinWitherBossAccessor self = this.epicFight$witherPatch.getOriginalAsMixinAccessor();
 		double d9 = self.invoke_getHeadX(head + 1);
 		double d1 = self.invoke_getHeadY(head + 1);
 		double d3 = self.invoke_getHeadZ(head + 1);
@@ -153,10 +153,10 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 	
 	@Inject(at = @At(value = "HEAD"), method = "customServerAiStep()V", cancellable = true)
 	private void epicfight$customServerAiStep(CallbackInfo info) {
-		if (this.witherPatch != null) {
+		if (this.epicFight$witherPatch != null) {
 			info.cancel();
-			WitherBoss self = this.witherPatch.getOriginal();
-			MixinWitherBossAccessor self$Accessor = this.witherPatch.getOriginalAsMixinAccessor();
+			WitherBoss self = this.epicFight$witherPatch.getOriginal();
+			MixinWitherBossAccessor self$Accessor = this.epicFight$witherPatch.getOriginalAsMixinAccessor();
 			
 			if (self.getInvulnerableTicks() > 0) {
 				int k1 = self.getInvulnerableTicks() - 1;
@@ -182,7 +182,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 					if (self.tickCount >= this.nextHeadUpdate[i - 1]) {
 						this.nextHeadUpdate[i - 1] = self.tickCount + 10 + self.getRandom().nextInt(10);
 
-						if ((self.level().getDifficulty() == Difficulty.NORMAL || self.level().getDifficulty() == Difficulty.HARD) && !this.witherPatch.getEntityState().inaction()) {
+						if ((self.level().getDifficulty() == Difficulty.NORMAL || self.level().getDifficulty() == Difficulty.HARD) && !this.epicFight$witherPatch.getEntityState().inaction()) {
 							int i3 = i - 1;
 							int j3 = this.idleHeadUpdates[i - 1];
 							this.idleHeadUpdates[i3] = this.idleHeadUpdates[i - 1] + 1;
@@ -198,7 +198,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 						
 						int l1 = self.getAlternativeTarget(i);
 
-						if (this.witherPatch.getEntityState().inaction()) {
+						if (this.epicFight$witherPatch.getEntityState().inaction()) {
 							this.nextHeadUpdate[i - 1] = self.tickCount + 30;
 						}
 
@@ -206,7 +206,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 							LivingEntity livingentity = (LivingEntity) self.level().getEntity(l1);
 
 							if (livingentity != null && self.canAttack(livingentity) && !(self.distanceToSqr(livingentity) > 900.0D) && self.hasLineOfSight(livingentity)) {
-								if (!this.witherPatch.getEntityState().inaction()) {
+								if (!this.epicFight$witherPatch.getEntityState().inaction()) {
 									self$Accessor.invoke_performRangedAttack(i + 1, livingentity);
 									this.nextHeadUpdate[i - 1] = self.tickCount + 40 + self.getRandom().nextInt(20);
 									this.idleHeadUpdates[i - 1] = 0;
@@ -269,12 +269,12 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 	
 	@Unique
 	public boolean isSpectator() {
-		return (this.witherPatch != null) ? this.witherPatch.isGhost() : super.isSpectator();
+		return (this.epicFight$witherPatch != null) ? this.epicFight$witherPatch.isGhost() : super.isSpectator();
 	}
 	
 	@Unique
 	protected SoundEvent getAmbientSound() {
-		return (this.witherPatch != null) ? (this.witherPatch.isGhost() ? null : SoundEvents.WITHER_AMBIENT) : null;
+		return (this.epicFight$witherPatch != null) ? (this.epicFight$witherPatch.isGhost() ? null : SoundEvents.WITHER_AMBIENT) : null;
 	}
 	
 	@Shadow
@@ -282,7 +282,8 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 		throw new AbstractMethodError("Shadow");
 	}
 	
-	private static boolean isValid(Vec3 vec) {
+	@Unique
+    private static boolean epicFight$isValid(Vec3 vec) {
 		return !(Double.isNaN(vec.x)|| Double.isNaN(vec.y) || Double.isNaN(vec.z));
 	}
 }

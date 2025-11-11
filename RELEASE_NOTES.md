@@ -21,6 +21,7 @@
 ### For Devs
 - Adopted KeyConflictContext for each keybind as documented by [Neoforge](https://docs.neoforged.net/docs/misc/keymappings/#ikeyconflictcontext) to avoid potential problem from inconsistency
 - Made GUARD and DODGE CombatKeyMapping, to activate only in Epic Fight mode
+- Adjusted `MixinWitherBoss` to follow best practices and prevent potential conflicts with other mods in production environments.
 
 ## [21.13.4] - 2025-11-04
 

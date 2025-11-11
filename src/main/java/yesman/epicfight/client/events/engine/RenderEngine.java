@@ -661,7 +661,7 @@ public class RenderEngine implements IEventBasedEngine {
 		if (ClientConfig.showEpicFightAttributesInTooltip && event.getEntity() != null && event.getEntity().level().isClientSide) {
 			EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
 				EpicFightCapabilities.getItemCapability(event.getItemStack()).ifPresent(itemCapability -> {
-					if (InputManager.isActionActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
+					if (InputManager.isActionPhysicallyActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
 						Skill weaponInnateSkill = itemCapability.getInnateSkill(playerpatch, event.getItemStack());
 						
 						if (weaponInnateSkill != null) {

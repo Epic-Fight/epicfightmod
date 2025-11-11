@@ -8,17 +8,19 @@ import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
 
 @OnlyIn(Dist.CLIENT)
 public interface AuthenticationHelper {
-	public boolean valid();
-	
-	default void initialize(
-		ConfigValue<String> accessToken,
-		ConfigValue<String> refreshToken,
-		EnumValue<AuthenticationProvider> provider
-	) {}
+	boolean valid();
+
+    void initialize(
+            ConfigValue<String> accessToken,
+            ConfigValue<String> refreshToken,
+            EnumValue<AuthenticationProvider> provider
+    );
 	
 	default Screen getAvatarEditorScreen(Screen parentScreen) {
 		return null;
 	}
+	
+	Status status();
 	
 	@OnlyIn(Dist.CLIENT)
 	public enum Status {

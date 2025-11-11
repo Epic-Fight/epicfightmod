@@ -10,6 +10,11 @@
   [#2170](https://github.com/Epic-Fight/epicfight/issues/2170)
 - Fixed a crash when right click some blocks from Supplementaries
   [#2187](https://github.com/Epic-Fight/epicfight/issues/2187)
+- Fixed patron capes always being default
+- Fixed an unintended mechanism where you weren't able to attack in Epic Fight
+  mode while Preference Work is set to Switch Mode, so it works in the same way
+  as Item Auto Switching option, an old config where automatically sets player
+  mode depending on the item that player holds
 
 ### Changed
 

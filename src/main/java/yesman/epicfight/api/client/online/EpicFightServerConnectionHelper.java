@@ -62,20 +62,21 @@ public class EpicFightServerConnectionHelper {
 		
 		if (os != null) {
 			String libpath = MessageFormat.format("/assets/epicfight/nativelib/{0}/{1}{2}", os.telemetryName(), LIB_FILE, os.libExtension());
-			InputStream inputstream = EpicFightMod.class.getResourceAsStream(libpath);
+			InputStream inputStream = EpicFightMod.class.getResourceAsStream(libpath);
 			
-			if (inputstream != null) {
-				File file = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
+			if (inputStream != null) {
+				File configNativeFile = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
+				byte[] resourceBytes = null;
 				boolean shouldCreate;
 				
-				if (file.exists()) {
-					InputStream inputStream = null;
-					
+				if (configNativeFile.exists()) {
 					try {
-						inputStream = new FileInputStream(file);
-						String sha256 = ParseUtil.getBytesSHA256Hash(inputStream.readAllBytes());
-						shouldCreate = !sha256.equals(os.SHA256());
+						String configFileSHA256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(configNativeFile).readAllBytes());
+						resourceBytes = inputStream.readAllBytes();
+						String resourceFileSHA256 = ParseUtil.getBytesSHA256Hash(resourceBytes);
+						shouldCreate = !configFileSHA256.equals(resourceFileSHA256);
 					} catch (IOException e) {
+						e.printStackTrace();
 						shouldCreate = true;
 					} finally {
 						try {
@@ -89,28 +90,29 @@ public class EpicFightServerConnectionHelper {
 				
 				if (shouldCreate) {
 					try {
-						EpicFightMod.LOGGER.info("Created temporary lib file at: " + file.getPath());
-						file.delete();
+						EpicFightMod.LOGGER.info("Created temporary lib file at: " + configNativeFile.getPath());
+						configNativeFile.delete();
 						
-						if (!file.getParentFile().isDirectory()) {
-							file.getParentFile().mkdirs();
+						if (!configNativeFile.getParentFile().isDirectory()) {
+							configNativeFile.getParentFile().mkdirs();
 						}
 						
-						file.createNewFile();
-						FileOutputStream fos = new FileOutputStream(file);
-						byte[] bytes = inputstream.readAllBytes();
-						fos.write(bytes, 0, bytes.length);
+						configNativeFile.createNewFile();
+						FileOutputStream fos = new FileOutputStream(configNativeFile);
+						if (resourceBytes == null) resourceBytes = inputStream.readAllBytes();
+						fos.write(resourceBytes, 0, resourceBytes.length);
 						fos.flush();
 						fos.close();
 					} catch (IOException e) {
-						EpicFightMod.LOGGER.info("Can't read library file: " + e.getMessage());
+						e.printStackTrace();
+						EpicFightMod.LOGGER.info("Can't read library file: " + e);
 					}
 				}
 				
 				boolean exceptionOccurred = false;
 				
 				try {
-					System.load(file.toString());
+					System.load(configNativeFile.toString());
 				} catch (UnsatisfiedLinkError e) {
 					exceptionOccurred = true;
 					EpicFightMod.LOGGER.warn("Failed at loading library file");
@@ -130,25 +132,25 @@ public class EpicFightServerConnectionHelper {
 		return supported;
 	}
 	
-	public static native void autoLogin(String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void autoLogin(String domain, String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void signIn(String minecraftUuid, String authenticationCode, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void signIn(String domain, String minecraftUuid, String authenticationCode, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void signOut(String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void signOut(String domain, String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void getAvailableCosmetics(String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void getAvailableCosmetics(String domain, String minecraftUuid, String accessToken, String refreshToken, String provider, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void saveConfiguration(String postBody, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void saveConfiguration(String domain, String postBody, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void getPlayerSkinInfo(String minecraftUuid, BiConsumer<HttpResponse<String>, Exception> onResponse);
+	public static native void getPlayerSkinInfo(String domain, String minecraftUuid, BiConsumer<HttpResponse<String>, Exception> onResponse);
 	
-	public static native void loadRemoteMesh(String path, BiConsumer<Mesh, Exception> onResponse);
+	public static native void loadRemoteMesh(String domain, String path, BiConsumer<Mesh, Exception> onResponse);
 	
 	private enum SupportedOS {
-		//LINUX("linux", ".so", ""),
-		//SOLARIS("solaris", ".so", ""),
-		WINDOWS("windows", ".dll", "2f1f38f1aff1fb405408865a22478ad464a6786fe636e13adf67891b9eb8e6e5"),
-		//OSX("mac", ".dylib", "")
+		//LINUX("linux", ".so"),
+		//SOLARIS("solaris", ".so"),
+		WINDOWS("windows", ".dll"),
+		//OSX("mac", ".dylib")
 		;
 		
 		public static SupportedOS getOS() {
@@ -161,12 +163,10 @@ public class EpicFightServerConnectionHelper {
 		
 		private final String telemetryName;
 		private final String libExtension;
-		private final String SHA256;
 		
-		SupportedOS(String telemetryName, String libExtension, String SHA256) {
+		SupportedOS(String telemetryName, String libExtension) {
 			this.telemetryName = telemetryName;
 			this.libExtension = libExtension;
-			this.SHA256 = SHA256;
 		}
 		
 		String telemetryName() {
@@ -175,10 +175,6 @@ public class EpicFightServerConnectionHelper {
 		
 		String libExtension() {
 			return this.libExtension;
-		}
-		
-		String SHA256() {
-			return this.SHA256;
 		}
 	}
 }

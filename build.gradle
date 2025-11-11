@@ -227,7 +227,7 @@ publishMods {
     def latestChangelog = matcher.group(1)
 
     // Test run to see the notification works well in discord
-    dryRun = true
+    dryRun = false
 
     // The changelog that will be appeared in publishing websites
     changelog = "Minecraft version: ${minecraft_version}\nNeoForge version: ${neo_version}\n\n" + latestChangelog

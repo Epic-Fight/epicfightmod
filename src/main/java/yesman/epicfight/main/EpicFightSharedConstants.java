@@ -21,7 +21,12 @@ public class EpicFightSharedConstants {
 	
 	// Environment varables
 	public static final boolean IS_DEV_ENV = !FMLEnvironment.production;
-	public static final String SERVER_URL = "https://epic-fight.com";
+	
+	// Public server domain in AWS
+	public static final String PUBLIC_SERVER_DOMAIN = "https://epic-fight.com";
+	
+	// When you run Epic Fight web server on local, change the domain to this
+	public static final String LOCAL_WEB_SERVER_DOMAIN = "http://127.0.0.1:8080";
 	
 	// Sided variables
 	private static final Function<LivingEntityPatch<?>, Animator> ANIMATOR_PROVIDER;
@@ -36,5 +41,12 @@ public class EpicFightSharedConstants {
 	
 	public static boolean isPhysicalClient() {
 		return FMLEnvironment.dist == Dist.CLIENT;
+	}
+	
+	/**
+	 * Returns a domain of Epic Fight web server to access patron cosmetics
+	 */
+	public static String webServerDomain() {
+		return PUBLIC_SERVER_DOMAIN;
 	}
 }

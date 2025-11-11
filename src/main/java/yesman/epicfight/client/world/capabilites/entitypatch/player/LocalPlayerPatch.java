@@ -649,7 +649,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	public void updateHeldItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
 		super.updateHeldItem(mainHandCap, offHandCap);
 		
-		if (ClientConfig.preferenceWork == ClientConfig.PreferenceWork.SWITCH_MODE) {
+		if (!ClientConfig.preferenceWork.checkHitResult()) {
 			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
 				this.toEpicFightMode(true); 
 			} else if (ClientConfig.miningPreferredItems.contains(this.original.getMainHandItem().getItem())) {
@@ -692,7 +692,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 			
 			return true;
 		} else {
-			return ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem());
+			return this.getPlayerMode() == PlayerPatch.PlayerMode.EPICFIGHT;
 		}
 	}
 	
@@ -706,16 +706,20 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 				return false;
 			}
 			
-			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
-				if (RenderEngine.hitResultEquals(this.minecraft.hitResult, HitResult.Type.BLOCK) && this.minecraft.level != null) {
-					BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
-					BlockState bs = this.minecraft.level.getBlockState(bp);
-					return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+			if (ClientConfig.preferenceWork.checkHitResult()) {
+				if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
+					if (RenderEngine.hitResultEquals(this.minecraft.hitResult, HitResult.Type.BLOCK) && this.minecraft.level != null) {
+						BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
+						BlockState bs = this.minecraft.level.getBlockState(bp);
+						return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+					}
+					
+					return true;
+				} else {
+					return this.minecraft.crosshairPickEntity == entity;
 				}
-				
-				return true;
 			} else {
-				return this.minecraft.crosshairPickEntity == entity;
+				return this.getPlayerMode() == PlayerPatch.PlayerMode.EPICFIGHT;
 			}
 		}
 		

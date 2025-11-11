@@ -32,18 +32,19 @@ import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClie
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 @OnlyIn(Dist.CLIENT)
 public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g, float b) {
 	public static void initEpicSkins(AbstractClientPlayerPatch<?> playerpatch) {
 		if (EpicFightServerConnectionHelper.supported() && ClientConfig.enableCosmetics) {
-			EpicFightServerConnectionHelper.getPlayerSkinInfo(playerpatch.getOriginal().getUUID().toString().replace("-", ""), (response, exception) -> {
+			EpicFightServerConnectionHelper.getPlayerSkinInfo(EpicFightSharedConstants.webServerDomain(), playerpatch.getOriginal().getUUID().toString().replace("-", ""), (response, exception) -> {
 				if (exception != null) {
-					EpicFightMod.LOGGER.error("Failed at connecting epic fight server: " + exception.getMessage());
+					EpicFightMod.LOGGER.error("Failed at connecting Epic Fight web server: " + exception.getMessage());
 				}
 				
 				if (response.statusCode() != 200) {
-					EpicFightMod.LOGGER.error("Failed at connecting epic fight server: " + response.body());
+					EpicFightMod.LOGGER.error("Error code from Epic Fight web server: " + response.body());
 				}
 				
 				Map<Slot, Cosmetic> cosmetics = Maps.newHashMap();

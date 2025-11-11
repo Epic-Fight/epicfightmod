@@ -285,7 +285,9 @@
 	"gui.epicfight.warn.no_target": "No targeted entity",
 	"gui.epicfight.warn.animation_unsync": "Below animations are missing or don't exist in the server\n\n%s\nPlease check the resource packs that you're missing or unload the packs that the server doesn't have",
 	"gui.epicfight.warn.animation_unsync.etc": "... and %d other animations",
-	
+  "gui.epicfight.tooltip.dev_environment": "Can't configure cosmetics in dev environment",
+  "gui.epicfight.tooltip.communication_module_error": "Can't load the server communication module. Mostly because of the thrid-party launcher or unsupported OS",
+  "gui.epicfight.tooltip.offline_mode": "Can't authenticate your Minecraft account. Are you using a cracked account?",
 	"gui.epicskins.skin_config": "Skin Configuration",
 	"gui.epicskins.button.skin_configuration": "Skin Configuration",
 	"gui.epicskins.button.save": "Save",

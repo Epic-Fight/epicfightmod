@@ -3,6 +3,7 @@ package yesman.epicfight.client.gui.screen.config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -13,7 +14,9 @@ import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
+import yesman.epicfight.main.AuthenticationHelper;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 @OnlyIn(Dist.CLIENT)
 public class IngameConfigurationScreen extends Screen {
@@ -38,15 +41,25 @@ public class IngameConfigurationScreen extends Screen {
 			Minecraft.getInstance().setScreen(new DatapackEditScreen(this));
 		}).pos(this.width / 2 - 165, 68).size(160, 20).build());
 		
+		Tooltip unsupportedReason = null;
+
+		if (EpicFightSharedConstants.IS_DEV_ENV) {
+			unsupportedReason = Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tooltip.dev_environment")));
+		} else if (!EpicFightServerConnectionHelper.supported()) {
+			unsupportedReason = Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tooltip.communication_module_error")));
+		} else if (ClientEngine.getInstance().getAuthHelper().status() == AuthenticationHelper.Status.OFFLINE_MODE) {
+			unsupportedReason = Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tooltip.offline_mode")));
+		}
+
 		Button skinConfigScreen = Button.builder(Component.translatable("gui." + EpicFightMod.EPICSKINS_MODID + ".button.skin_configuration"), (button) -> {
 			if (Minecraft.getInstance().level == null) {
 				Minecraft.getInstance().setScreen(ClientEngine.getInstance().getAuthHelper().getAvatarEditorScreen(this));
 			} else {
 				Minecraft.getInstance().setScreen(new MessageScreen<> ("Warning", "You may not open avatar screen while in the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
 			}
-		}).pos(this.width / 2 + 5, 68).size(160, 20).build();
-		
-		skinConfigScreen.active = ClientEngine.getInstance().getAuthHelper().valid() && EpicFightServerConnectionHelper.supported();
+		}).pos(this.width / 2 + 5, 68).size(160, 20).tooltip(unsupportedReason).build();
+
+		skinConfigScreen.active = unsupportedReason == null;
 		this.addRenderableWidget(skinConfigScreen);
 		
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {

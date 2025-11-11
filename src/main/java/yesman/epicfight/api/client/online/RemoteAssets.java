@@ -54,7 +54,7 @@ public class RemoteAssets {
 		this.cachedMeshes.put(seq, remoteMeshAccessor);
 		
 		CompletableFuture.runAsync(() -> {
-			EpicFightServerConnectionHelper.loadRemoteMesh(path, (mesh, exception) -> {
+			EpicFightServerConnectionHelper.loadRemoteMesh(EpicFightSharedConstants.webServerDomain(), path, (mesh, exception) -> {
 				if (exception != null) {
 					EpicFightMod.LOGGER.error("Failed at loading remote mesh " + seq + ": " + exception.getMessage());
 					exception.printStackTrace();
@@ -72,7 +72,7 @@ public class RemoteAssets {
 		AbstractTexture texture = TEXTURE_MANAGER.getTexture(textureLocation, MissingTextureAtlasSprite.getTexture());
 		
 		if (texture == MissingTextureAtlasSprite.getTexture()) {
-			AbstractTexture httptexture = new RemoteTexture(EpicFightSharedConstants.SERVER_URL + "/textures/" + fileName, MissingTextureAtlasSprite.getLocation());
+			AbstractTexture httptexture = new RemoteTexture(EpicFightSharedConstants.webServerDomain() + "/textures/" + fileName, MissingTextureAtlasSprite.getLocation());
 			TEXTURE_MANAGER.register(textureLocation, httptexture);
 		}
 		

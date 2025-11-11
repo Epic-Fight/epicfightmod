@@ -9,7 +9,7 @@ where all entities have new and challenging fighting mechanics.
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-### **Controls**
+## **Controls**
 
 <details><summary>Tap to show/hide</summary>
 
@@ -33,7 +33,7 @@ where all entities have new and challenging fighting mechanics.
 
 </details>
 
-### **Abilities**
+## **Abilities**
 
 <details><summary>Tap to show/hide</summary>
 
@@ -119,7 +119,7 @@ classified into three types:
 
 </details>
 
-### **FAQ**
+## **FAQ**
 
 <details><summary>Tap to show/hide</summary>
 
@@ -177,7 +177,7 @@ classified into three types:
 
 ## 🔧 **Compatibility**
 
-### ✅ Fully Supported and Compatible Mods
+### **✅ Fully Supported and Compatible Mods**
 
 <details><summary>Tap to show/hide</summary>
 
@@ -201,7 +201,7 @@ classified into three types:
 
 </details>
 
-### ⚠️ Incompatible Mods
+### **⚠️ Incompatible Mods**
 
 <details><summary>Tap to show/hide</summary>
 
@@ -213,7 +213,7 @@ classified into three types:
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-## 🐞 **Bug Reports**
+## **🐞 Bug Reports**
 
 If you encounter any crashes or bugs in **Epic Fight**:
 
@@ -278,7 +278,7 @@ They are **not officially supported** and may not be compatible with all version
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-## 📚 WIKI
+## **📚 WIKI**
 
 For detailed information on **Epic Fight**, including skills, recipes, API and Blender guides,
 custom trails, weapon or
@@ -291,8 +291,6 @@ the [Epic Fight WIKI](https://epicfight-docs.readthedocs.io/).
 
 For contribution guidelines,
 please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight/blob/1.21.1/CONTRIBUTING.md).
-
-<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
 ## **Disclaimer**
 

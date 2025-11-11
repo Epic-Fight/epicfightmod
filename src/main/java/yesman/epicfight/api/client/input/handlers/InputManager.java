@@ -56,7 +56,8 @@ public final class InputManager {
     }
 
     /**
-     * Returns whether the given input action is currently active this tick.
+     * Returns whether the given input action is active during this tick, following Minecraft’s internal behavior.
+     * May return <code>false</code> while a screen is open, even if the physical input is held down.
      * <p>
      * Checks the action state depending on the current input mode:
      * <ul>
@@ -65,10 +66,11 @@ public final class InputManager {
      *     <li>{@link InputMode#MIXED}: true if either the key mapping is down or the controller binding state is active.</li>
      * </ul>
      * If no controller mod is present, only the key mapping is checked.
-     * This is usually useful for continuous actions.
+     * This is usually useful for in-game continuous actions.
+     * It should not be used while a screen is open.
      *
      * @param action the input action to check
-     * @return true if the action is currently active in this tick; false otherwise
+     * @return true if the action is active, this tick according to Minecraft’s internal behavior; false otherwise
      * @see InputType
      */
     public static boolean isActionActive(@NotNull EpicFightInputActions action) {

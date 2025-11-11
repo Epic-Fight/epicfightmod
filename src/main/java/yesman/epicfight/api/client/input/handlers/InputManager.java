@@ -241,7 +241,7 @@ public final class InputManager {
             //  If it works correctly, remove this "if" block
             //  along with the isPhysicalKeyDownInternalWorkaround() method.
             //  For more details, see: https://github.com/Epic-Fight/epicfight/issues/2174
-            return isPhysicalKeyDownInternalWorkaround(keyMapping);
+            return isPhysicalKeyDown(keyMapping);
         }
         return isDown;
     }
@@ -279,7 +279,7 @@ public final class InputManager {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(forRemoval = true)
     @ApiStatus.Internal
-    private static boolean isPhysicalKeyDownInternalWorkaround(@NotNull KeyMapping keyMapping) {
+    private static boolean isPhysicalKeyDown(@NotNull KeyMapping keyMapping) {
         final InputConstants.Key key = keyMapping.getKey();
         final int keyValue = key.getValue();
         final long windowPointer = Minecraft.getInstance().getWindow().getWindow();

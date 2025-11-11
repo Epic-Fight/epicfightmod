@@ -25,6 +25,11 @@
   Install only
   [Controlify: Forgified](https://www.curseforge.com/minecraft/mc-mods/controlify-forgified-unofficial) on 1.20.1
 
+### For Devs
+
+- Adjusted `MixinWitherBoss` to follow best practices and prevent potential conflicts with other mods in production
+  environments.
+
 ## [20.13.4] - 2025-11-04
 
 ### Changed

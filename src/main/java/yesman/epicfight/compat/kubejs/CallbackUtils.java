@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs;
+package yesman.epicfight.compat.kubejs;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

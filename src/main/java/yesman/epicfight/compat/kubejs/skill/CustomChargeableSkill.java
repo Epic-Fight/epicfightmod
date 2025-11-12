@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs.skill;
+package yesman.epicfight.compat.kubejs.skill;
 
 import java.util.Arrays;
 import java.util.function.Consumer;

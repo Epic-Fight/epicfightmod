@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs.skill;
+package yesman.epicfight.compat.kubejs.skill;
 
 import dev.latvian.mods.kubejs.typings.Info;
 import net.minecraft.client.gui.GuiGraphics;

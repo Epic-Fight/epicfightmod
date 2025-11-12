@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs;
+package yesman.epicfight.compat.kubejs;
 
 import dev.latvian.mods.kubejs.typings.Info;
 import net.neoforged.api.distmarker.Dist;

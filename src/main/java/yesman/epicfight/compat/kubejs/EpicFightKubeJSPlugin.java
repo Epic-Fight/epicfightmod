@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs;
+package yesman.epicfight.compat.kubejs;
 
 import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.kubejs.skill.CustomSkill;
+import yesman.epicfight.compat.kubejs.skill.CustomSkill;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.skill.Skill;

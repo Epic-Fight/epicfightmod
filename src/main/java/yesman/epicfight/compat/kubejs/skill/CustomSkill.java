@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs.skill;
+package yesman.epicfight.compat.kubejs.skill;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.kubejs.CallbackUtils;
+import yesman.epicfight.compat.kubejs.CallbackUtils;
 import yesman.epicfight.registry.entries.EpicFightCreativeTabs;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;

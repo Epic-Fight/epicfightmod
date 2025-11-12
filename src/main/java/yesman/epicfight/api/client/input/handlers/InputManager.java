@@ -55,29 +55,23 @@ public final class InputManager {
         return controllerMod.getInputMode().supportsController();
     }
 
-    // TODO: Review the design of isActionActive() and isActionPhysicallyActive()
-    //  fully, while testing and ensuring the behavior consistency across controller and mouse/keyboard inputs.
-    //  When this regression appeared: https://github.com/Epic-Fight/epicfight/issues/2196
-    //  it happened only on vanilla mouse/keyboard but not controllers,
-    //  this is a strong sign that there is behavior inconsistency between different inputs.
-    //  Related: https://github.com/Epic-Fight/epicfight/issues/2194
-
     /**
-     * Returns whether the given input action is active during this tick, following Minecraft’s internal behavior.
-     * May return <code>false</code> while a screen is open, even if the physical input is held down.
-     * <p>
-     * Checks the action state depending on the current input mode:
+     * Returns whether the given input action is active during this tick.
+     * The behavior differs depending on the input source:
      * <ul>
-     *     <li>{@link InputMode#KEYBOARD_MOUSE}: whether the key mapping is down.</li>
-     *     <li>{@link InputMode#CONTROLLER}: whether the controller binding digital state is active.</li>
-     *     <li>{@link InputMode#MIXED}: true if either the key mapping is down or the controller binding state is active.</li>
+     *   <li><b>Keyboard/Mouse:</b> Follows Minecraft’s internal behavior.
+     *   May return <code>false</code> while a screen is open, even if the physical key is held down.</li>
+     *   <li><b>Controller:</b> The behavior is handled externally and is irrelevant to this method.
+     *   It is usually determined by an input context during the
+     *   controller binding registration (third-party API),
+     *   which decides whether to return <code>false</code> or <code>true</code> when the physical input is down.</li>
      * </ul>
-     * If no controller mod is present, only the key mapping is checked.
+     * <p>
+     * If no controller mod is present, only the {@link KeyMapping} (Keyboard/Mouse) is checked.
      * This is usually useful for in-game continuous actions.
      * It should not be used while a screen is open.
      *
      * @param action the input action to check
-     * @return true if the action is active, this tick according to Minecraft’s internals; false otherwise
      * @see InputType
      */
     public static boolean isActionActive(@NotNull EpicFightInputActions action) {
@@ -96,16 +90,21 @@ public final class InputManager {
     /**
      * Returns whether the given input action is currently physically active this tick.
      * <p>
-     * Unlike {@link #isActionActive}, this method is independent of the Minecraft behavior and internals:
+     * The behavior differs depending on the input source:
      * <ul>
-     *     <li>Ignores vanilla GUI filtering (always checks the physical key state).</li>
-     *     <li>Bypasses the mouse multiple-keybind sharing bug (present in versions before 1.21.10).</li>
+     *   <li><b>Keyboard/Mouse:</b> Always checks the physical key state, ignoring vanilla GUI filtering
+     *   and bypassing the <a href="https://github.com/Epic-Fight/epicfight/issues/2174">mouse multiple-keybind sharing bug</a>
+     *   (present in versions before 1.21.10).</li>
+     *   <li><b>Controller:</b> Similarly to {@link #isActionActive},
+     *   the behavior is handled externally and is irrelevant to this method.</li>
      * </ul>
      * <p>
-     * Controllers are handled the same as {@link #isActionActive}.
+     * If no controller mod is present, only the {@link KeyMapping} (Keyboard/Mouse) is checked.
+     * This is usually useful for GUI continuous actions.
+     * It should not be used in-game with no screens.
      *
      * @param action the input action to check
-     * @return true, if the action is active, this tick regardless of Minecraft’s internals; false otherwise
+     * @see #isActionActive
      */
     public static boolean isActionPhysicallyActive(@NotNull EpicFightInputActions action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
@@ -274,8 +273,7 @@ public final class InputManager {
             //  (This is not an issue with keyboard inputs.)
             //  When porting to 1.21.10 or 1.22, test the weapon's innate skill
             //  without this condition.
-            //  If it works correctly, remove this "if" block
-            //  along with the isPhysicalKeyDownInternalWorkaround() method.
+            //  If it works correctly, remove this "if" block.
             //  For more details, see: https://github.com/Epic-Fight/epicfight/issues/2174
             return isPhysicalKeyDown(keyMapping);
         }
@@ -301,19 +299,13 @@ public final class InputManager {
      * For more details, see
      * <a href="https://github.com/Epic-Fight/epicfight/issues/2174">Epic Fight issue #2174</a>.
      * <p>
-     * <b>Project maintainers:</b> This method should be completely removed when porting to 1.21.10 or 1.22.
-     * Its only usage is in {@link InputManager#isActionActive}. After removal, verify that the weapon's
-     * innate skill still works as intended.
-     * <p>
      * Note: At the time of writing, this workaround is confirmed to be unnecessary in 1.21.10,
      * but may still (though unlikely) be required in 1.22 or later versions.
-     *
-     * @deprecated This method will be removed when Epic Fight migrates to 1.22. It currently exists
-     * only to address inconsistencies in Minecraft’s internal behavior.
+     * This is also useful when a screen is open,
+     * since {@link #isKeyDown(KeyMapping)} will return <code>false</code>.
+     * <p>
      * See <a href="https://github.com/Epic-Fight/epicfight/issues/2170">issue #2170</a> for details.
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated(forRemoval = true)
     @ApiStatus.Internal
     private static boolean isPhysicalKeyDown(@NotNull KeyMapping keyMapping) {
         final InputConstants.Key key = keyMapping.getKey();

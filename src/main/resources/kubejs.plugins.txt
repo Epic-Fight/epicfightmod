@@ -1,1 +1,1 @@
-yesman.epicfight.kubejs.EpicFightKubeJSPlugin
+yesman.epicfight.compat.kubejs.EpicFightKubeJSPlugin

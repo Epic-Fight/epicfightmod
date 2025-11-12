@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs;
+package yesman.epicfight.compat.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
@@ -12,9 +12,9 @@ import net.minecraftforge.registries.RegistryObject;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.kubejs.skill.CustomChargeableSkill;
-import yesman.epicfight.kubejs.skill.CustomPassiveSkill;
-import yesman.epicfight.kubejs.skill.CustomSkill;
+import yesman.epicfight.compat.kubejs.skill.CustomChargeableSkill;
+import yesman.epicfight.compat.kubejs.skill.CustomPassiveSkill;
+import yesman.epicfight.compat.kubejs.skill.CustomSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.skill.SkillSlots;

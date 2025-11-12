@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs.skill;
+package yesman.epicfight.compat.kubejs.skill;
 
 import dev.latvian.mods.kubejs.registry.BuilderBase;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
@@ -12,8 +12,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.kubejs.CallbackUtils;
-import yesman.epicfight.kubejs.EpicFightKubeJSPlugin;
+import yesman.epicfight.compat.kubejs.CallbackUtils;
+import yesman.epicfight.compat.kubejs.EpicFightKubeJSPlugin;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;

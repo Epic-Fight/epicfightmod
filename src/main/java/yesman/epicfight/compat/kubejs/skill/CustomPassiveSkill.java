@@ -1,4 +1,4 @@
-package yesman.epicfight.kubejs.skill;
+package yesman.epicfight.compat.kubejs.skill;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.kubejs.typings.Info;

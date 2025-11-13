@@ -117,8 +117,21 @@ public class EpicFightControlOptionScreen extends EpicFightOptionSubScreen {
 			.size(160, 20)
 			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.key_conflict_resolve_scope.tooltip"))))
 			.build();
+
+        Button cameraPerspectiveToggleMode =
+                Button.builder(
+                                Component.translatable(EpicFightMod.format("gui.%s.camera_perspective_toggle_mode." + ClientConfig.cameraPerspectiveToggleMode.getSerializedName())),
+                                button -> {
+                                    ClientConfig.cameraPerspectiveToggleMode = ClientConfig.cameraPerspectiveToggleMode.nextEnum();
+                                    button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.camera_perspective_toggle_mode." + ClientConfig.cameraPerspectiveToggleMode.getSerializedName())));
+                                }
+                        )
+                        .pos(this.width / 2 + 5, this.height / 4 + buttonHeight)
+                        .size(160, 20)
+                        .tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.camera_perspective_toggle_mode.tooltip"))))
+                        .build();
 		
-		this.optionsList.addSmall(resolveKeyConflictsButton, null);
+		this.optionsList.addSmall(resolveKeyConflictsButton, cameraPerspectiveToggleMode);
 		buttonHeight += 24;
 		
 		this.addWidget(this.optionsList);

@@ -22,6 +22,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.ParseUtil;
@@ -62,6 +63,19 @@ public class ClientConfig {
 	public static final BooleanValue AUTO_SWITCH_CAMERA = BUILDER.define("ingame.camera_auto_switch", () -> false);
 	public static final EnumValue<KeyConflictResolveScope> KEY_CONFLICT_RESOLVE_SCOPE = BUILDER.defineEnum("ingame.key_conflict_resolve_scope", KeyConflictResolveScope.INTERACTION);
 	public static final EnumValue<PreferenceWork> PREFERENCE_WORK = BUILDER.defineEnum("ingame.preference_work", PreferenceWork.ADAPTIVE);
+    public static final EnumValue<CameraPerspectiveToggleMode> CAMERA_PERSPECTIVE_TOGGLE_MODE = BUILDER
+            .comment("""
+                    Defines how the camera toggles perspectives.
+                    
+                        1. Vanilla (Default)
+                           Uses Minecraft’s default behavior.
+                           Cycles through all available perspectives.
+                    
+                        2. Skip Third-Person Front Perspective
+                           Skips only the front view when toggling.
+                           Other perspectives remain available.
+                    """)
+            .defineEnum("ingame.camera_perspective_toggle_mode", CameraPerspectiveToggleMode.VANILLA);
 	public static final ConfigValue<List<? extends String>> BATTLE_MODE_SWITCHING_ITEMS = BUILDER.defineList("ingame.combat_preferred_items", Lists.newArrayList(), (element) -> {
 		if (element instanceof String str) {
 			return str.contains(":");
@@ -128,6 +142,7 @@ public class ClientConfig {
 	public static boolean authSwitchCamera;
 	public static KeyConflictResolveScope keyConflictResolveScope;
 	public static PreferenceWork preferenceWork;
+    public static CameraPerspectiveToggleMode cameraPerspectiveToggleMode;
 	
 	public static Set<Item> combatPreferredItems;
 	public static Set<Item> miningPreferredItems;
@@ -178,6 +193,7 @@ public class ClientConfig {
 		authSwitchCamera = AUTO_SWITCH_CAMERA.get();
 		keyConflictResolveScope = KEY_CONFLICT_RESOLVE_SCOPE.get();
 		preferenceWork = PREFERENCE_WORK.get();
+        cameraPerspectiveToggleMode = CAMERA_PERSPECTIVE_TOGGLE_MODE.get();
 		
 		combatPreferredItems = BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
@@ -247,6 +263,7 @@ public class ClientConfig {
 		if (authSwitchCamera != AUTO_SWITCH_CAMERA.get()) AUTO_SWITCH_CAMERA.set(authSwitchCamera);
 		if (keyConflictResolveScope != KEY_CONFLICT_RESOLVE_SCOPE.get()) KEY_CONFLICT_RESOLVE_SCOPE.set(keyConflictResolveScope);
 		if (preferenceWork != PREFERENCE_WORK.get()) PREFERENCE_WORK.set(preferenceWork);
+        if (cameraPerspectiveToggleMode != CAMERA_PERSPECTIVE_TOGGLE_MODE.get()) { CAMERA_PERSPECTIVE_TOGGLE_MODE.set(cameraPerspectiveToggleMode); CAMERA_PERSPECTIVE_TOGGLE_MODE.save(); }
 		
 		if (!combatPreferredItems.equals(BATTLE_MODE_SWITCHING_ITEMS.get().stream()
 				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
@@ -431,4 +448,34 @@ public class ClientConfig {
 			return PreferenceWork.values()[(this.ordinal() + 1) % 2];
 		}
 	}
+
+    /**
+     * Defines how the camera perspective toggles when pressing toggle perspective (i.e., F5).
+     */
+    public enum CameraPerspectiveToggleMode implements CirculatableEnum<CameraPerspectiveToggleMode>, StringRepresentable {
+        /**
+         * Uses Minecraft's default behavior.
+         * <p>
+         * Cycles through all available perspectives, including any added by third-party mods.
+         * This does not change the existing vanilla behavior.
+         */
+        VANILLA,
+        /**
+         * Skips the third-person front perspective only.
+         * <p>
+         * Other perspectives remain available and are not ignored.
+         */
+        SKIP_THIRD_PERSON_FRONT;
+
+        @Override
+        public CameraPerspectiveToggleMode nextEnum() {
+            CameraPerspectiveToggleMode[] values = values();
+            return values[(this.ordinal() + 1) % values.length];
+        }
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return ParseUtil.toLowerCase(this.name());
+        }
+    }
 }

@@ -1,6 +1,14 @@
 # Epic Fight in Minecraft 1.21.1 Changelog
 # Changelog on publishing websites and Discord will be parsed between version header ([x.x.x] - yyyy-mm-dd) and (For Devs) section
 
+## [Unreleased]
+
+### Added
+
+- Added a client config to allow skipping the third-person front perspective when
+  toggling the camera perspective (i.e., F5).
+  [#2205](https://github.com/Epic-Fight/epicfight/issues/2205)
+
 ## [21.13.5] - 2025-11-12
 
 ### Fixed

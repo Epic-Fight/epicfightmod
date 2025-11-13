@@ -18,6 +18,7 @@
 		"client.MixinLightTexture",
 		"client.MixinLivingEntityRenderer",
 		"client.MixinLocalPlayer",
+        "client.MixinOptions",
 		"client.MixinMinecraft",
 		"client.MixinMouseHandler",
 		"client.MixinParticleEngine",

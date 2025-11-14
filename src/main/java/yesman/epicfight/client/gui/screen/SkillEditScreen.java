@@ -46,7 +46,7 @@ public class SkillEditScreen extends Screen {
 	private static final int MAX_SKILL_OPTIONS_ROWS = 6;
 	private static final int MAX_SLOT_ROWS = 9;
 	private static final int STRIDE = 18;
-	
+
 	private final Player player;
 	private final PlayerSkills skills;
 	private final Map<SkillSlot, SlotButton> slotButtons = new LinkedHashMap<> ();
@@ -307,7 +307,8 @@ public class SkillEditScreen extends Screen {
 		
 		@Override
 		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			int y = ((this.isHovered || selectedSlotButton == this) && !this.skillContainer.onReplaceCooldown()) ? 35 : 17;
+            this.active = !this.skillContainer.onReplaceCooldown();
+			int y = ((this.isHoveredOrFocused() || selectedSlotButton == this) && !this.skillContainer.onReplaceCooldown()) ? 35 : 17;
 			guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 237, y, this.width, this.height);
 			
 			if (!this.skillContainer.isEmpty()) {
@@ -323,17 +324,12 @@ public class SkillEditScreen extends Screen {
 				float lerp = Mth.clampedLerp(0.0F, 16.0F, 1.0F - (float)this.skillContainer.getReplaceCooldown() / maxCooldown);
 				guiGraphics.fill(this.getX() + 1, this.getY() + 1 + (int)lerp, this.getX() + 17, this.getY() + 17, 0x78000000);
 				
-				if (this.isHovered) {
+				if (this.isHoveredOrFocused()) {
 					this.setTooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.container_on_cooldown"), this.skillContainer.getReplaceCooldown() / 20)));
 				}
 			} else {
 				this.setTooltip(Tooltip.create(this.slotExplanation));
 			}
-		}
-		
-		@Override
-		protected boolean clicked(double mouseX, double mouseY) {
-			return super.clicked(mouseX, mouseY) && !this.skillContainer.onReplaceCooldown();
 		}
 	}
 	
@@ -370,7 +366,7 @@ public class SkillEditScreen extends Screen {
 		@Override
 		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-			int texY = (this.isHovered || !this.active) ? 224 : 200;
+			int texY = (this.isHoveredOrFocused() || !this.active) ? 224 : 200;
 			guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 0, texY, this.width, this.height);
 			
 			RenderSystem.enableBlend();
@@ -396,6 +392,35 @@ public class SkillEditScreen extends Screen {
 			
 			return super.mouseClicked(x, y, pressType);
 		}
+
+        @Override
+        public void setFocused(boolean focused) {
+            super.setFocused(focused);
+
+            // Supports key arrow navigation
+            maybeScroll();
+        }
+
+        private void maybeScroll() {
+            final List<EquipSkillButton> buttons = SkillEditScreen.this.equipSkillButtons;
+            final int start = SkillEditScreen.this.start;
+            final int maxRows = MAX_SKILL_OPTIONS_ROWS;
+
+            final int i = buttons.indexOf(this);
+            final boolean isOutsideVisibleRowsAtBottom = i >= start + maxRows;
+            final boolean isOutsideVisibleRowsAtTop = i < start;
+
+            if (isOutsideVisibleRowsAtBottom || isOutsideVisibleRowsAtTop) {
+                int nextStart = (isOutsideVisibleRowsAtBottom) ? Math.max(0, i - maxRows + 1) : i;
+                int diff = (start - nextStart);
+
+                for (Button button : buttons) {
+                    button.setY(button.getY() + 26 * diff);
+                }
+
+                SkillEditScreen.this.start = nextStart;
+            }
+        }
 		
 		protected boolean clickedNoCountActive(double x, double y) {
 			return this.visible && x >= (double) this.getX() && y >= (double) this.getY() && x < (double) (this.getX() + this.width) && y < (double) (this.getY() + this.height);

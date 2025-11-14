@@ -533,12 +533,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             super(screen);
         }
 
-        @Override
-        public VirtualMouseBehaviour virtualMouseBehaviour() {
-            // The skill edit screen does not natively support controllers.
-            // To save development time, we work around this issue by enforcing the virtual mouse.
-            return VirtualMouseBehaviour.ENABLED;
-        }
+        // Placeholder screen processor. Does nothing currently. Retained for potential future use.
     }
 
     private static class SkillBookScreenProcessor extends ScreenProcessor<SkillBookScreen> {

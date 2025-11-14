@@ -8,6 +8,12 @@
 - Added a client config to allow skipping the third-person front perspective when
   toggling the camera perspective (i.e., F5).
   [#2205](https://github.com/Epic-Fight/epicfight/issues/2205)
+- Improved arrow key navigation (`↑`, `↓`, `→`, `←`) in the skill editor screen, including proper scrolling support. [#2203](https://github.com/Epic-Fight/epicfight/issues/2203)
+- **[Controlify]** Added native controller support for the skill editor screen and disabled virtual mouse behavior.
+
+### Fixed
+
+- Fixed a bug that allowed the player to replace the current skill slot even during cooldown.
 
 ## [21.13.5] - 2025-11-12
 

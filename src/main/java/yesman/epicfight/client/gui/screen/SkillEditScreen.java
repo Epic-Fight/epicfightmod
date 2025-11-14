@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
@@ -136,7 +137,7 @@ public class SkillEditScreen extends Screen {
 									.setActive(this.skills.getSkillContainer(skill) == null)
 								);
 								
-								widgetHeight.add(26);
+								widgetHeight.add(EquipSkillButton.SPACING);
 							});
 							
 							for (Button shownButton : this.equipSkillButtons) {
@@ -234,7 +235,7 @@ public class SkillEditScreen extends Screen {
 						--this.start;
 						
 						for (Button button : this.equipSkillButtons) {
-							button.setY(button.getY() + 26);
+							button.setY(button.getY() + EquipSkillButton.SPACING);
 						}
 						
 						return true;
@@ -244,7 +245,7 @@ public class SkillEditScreen extends Screen {
 						++this.start;
 						
 						for (Button button : this.equipSkillButtons) {
-							button.setY(button.getY() - 26);
+							button.setY(button.getY() - EquipSkillButton.SPACING);
 						}
 						
 						return true;
@@ -345,7 +346,7 @@ public class SkillEditScreen extends Screen {
 		}
 		
 		@Override
-		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			if (this.up && scroll != 0) guiGraphics.blit(SCROLL_ARROW_UP, this.getX(), this.getY(), this.width, this.height, 0, 0, 16, 16, 16, 16);
 			else if (!this.up && scroll != maxScroll) guiGraphics.blit(SCROLL_ARROW_DOWN, this.getX(), this.getY(), this.width, this.height, 0, 0, 16, 16, 16, 16);
 		}
@@ -358,6 +359,8 @@ public class SkillEditScreen extends Screen {
 	
 	@OnlyIn(Dist.CLIENT)
 	class EquipSkillButton extends Button {
+        private static final int SPACING = 26;
+
 		private final Skill skill;
 
 		public EquipSkillButton(int x, int y, int width, int height, Skill skill, Component title, OnPress pressedAction) {
@@ -373,10 +376,10 @@ public class SkillEditScreen extends Screen {
 			
 			RenderSystem.enableBlend();
 			guiGraphics.blit(this.skill.getSkillTexture(), this.getX() + 5, this.getY() + 4, 16, 16, 0, 0, 128, 128, 128, 128);
-			guiGraphics.drawString(font, this.getMessage(), this.getX() + 26, this.getY() + 2, -1, false);
+			guiGraphics.drawString(font, this.getMessage(), this.getX() + SPACING, this.getY() + 2, -1, false);
 			
 			if (!this.active) {
-				guiGraphics.drawString(font, Component.literal(skills.getSkillContainer(this.skill).getSlot().toString().toLowerCase(Locale.ROOT)), this.getX()+26, this.getY() + 12, 16736352, false);
+				guiGraphics.drawString(font, Component.literal(skills.getSkillContainer(this.skill).getSlot().toString().toLowerCase(Locale.ROOT)), this.getX() + EquipSkillButton.SPACING, this.getY() + 12, 16736352, false);
 			}
 		}
 		
@@ -417,7 +420,7 @@ public class SkillEditScreen extends Screen {
                 int diff = (start - nextStart);
 
                 for (Button button : buttons) {
-                    button.setY(button.getY() + 26 * diff);
+                    button.setY(button.getY() + EquipSkillButton.SPACING * diff);
                 }
 
                 SkillEditScreen.this.start = nextStart;

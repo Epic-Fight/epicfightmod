@@ -439,7 +439,11 @@ public class SkillContainer {
 	public float getDurationRatio(float partialTicks) {
 		return this.containingSkill != null && this.maxDuration > 0 ? (this.prevDuration + ((this.duration - this.prevDuration) * partialTicks)) / this.maxDuration : 0;
 	}
-	
+
+    /**
+     * Returns whether the player is currently on cooldown for replacing a skill.
+     * The player must not be in Creative mode for the cooldown to apply.
+     */
 	public boolean onReplaceCooldown() {
 		return this.replaceCooldown > 0 && !this.executor.getOriginal().isCreative();
 	}

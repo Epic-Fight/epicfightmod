@@ -46,7 +46,7 @@ public class SkillEditScreen extends Screen {
 	
 	private static final int MAX_SKILL_OPTIONS_ROWS = 6;
 	private static final int MAX_SLOT_ROWS = 9;
-	private static final int STRIDE = 18;
+	private static final int STRIDE = SlotButton.SIZE;
 
 	private final Player player;
 	private final PlayerSkills skills;
@@ -295,11 +295,12 @@ public class SkillEditScreen extends Screen {
 	
 	@OnlyIn(Dist.CLIENT)
 	class SlotButton extends Button {
+        private static final int SIZE = 18;
 		private final SkillContainer skillContainer;
 		private final Component slotExplanation;
 		
 		public SlotButton(int x, int y, SkillContainer skillContainer, OnPress pressedAction, Component tooltipMessage) {
-			super(x, y, 18, 18, Component.empty(), pressedAction, Button.DEFAULT_NARRATION);
+			super(x, y, SIZE, SIZE, Component.empty(), pressedAction, Button.DEFAULT_NARRATION);
 			
 			this.skillContainer = skillContainer;
 			this.slotExplanation = tooltipMessage;

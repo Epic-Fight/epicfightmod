@@ -21,7 +21,6 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
-import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -533,7 +532,17 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             super(screen);
         }
 
-        // Placeholder screen processor. Does nothing currently. Retained for potential future use.
+        private static final InputBindingSupplier OPEN_SKILL_INFO = ControlifyBindings.GUI_ABSTRACT_ACTION_1;
+
+        @Override
+        protected void handleButtons(ControllerEntity controller) {
+            super.handleButtons(controller);
+
+            if (this.screen.getFocused() instanceof SkillEditScreen.EquipSkillButton equipSkillButton &&
+                    OPEN_SKILL_INFO.on(controller).guiPressed().get()) {
+                equipSkillButton.openSkillInfoScreen();
+            }
+        }
     }
 
     private static class SkillBookScreenProcessor extends ScreenProcessor<SkillBookScreen> {

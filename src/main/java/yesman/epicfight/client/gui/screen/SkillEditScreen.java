@@ -388,7 +388,7 @@ public class SkillEditScreen extends Screen {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	class EquipSkillButton extends Button {
+	public class EquipSkillButton extends Button {
         private static final int SPACING = 26;
 
 		private final Skill skill;
@@ -419,14 +419,18 @@ public class SkillEditScreen extends Screen {
 				boolean flag = this.clickedNoCountActive(x, y);
 				
 				if (flag) {
-					this.playDownSound(Minecraft.getInstance().getSoundManager());
-					minecraft.setScreen(new SkillBookScreen(player, this.skill, null, SkillEditScreen.this));
+					openSkillInfoScreen();
 					return true;
 				}
 			}
 			
 			return super.mouseClicked(x, y, pressType);
 		}
+
+        public void openSkillInfoScreen() {
+            this.playDownSound(Minecraft.getInstance().getSoundManager());
+            minecraft.setScreen(new SkillBookScreen(player, this.skill, null, SkillEditScreen.this));
+        }
 
         @Override
         public void setFocused(boolean focused) {

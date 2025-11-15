@@ -333,6 +333,35 @@ public class SkillEditScreen extends Screen {
 				this.setTooltip(Tooltip.create(this.slotExplanation));
 			}
 		}
+
+        @Override
+        public void setFocused(boolean focused) {
+            super.setFocused(focused);
+
+            // Supports key arrow navigation
+            maybeScroll();
+        }
+
+        private void maybeScroll() {
+            if (SkillEditScreen.this.maxScroll == 0) {
+                return;
+            }
+            final int scroll = SkillEditScreen.this.scroll;
+
+            final int index = slotButtons.values().stream().toList().indexOf(this);
+            final int relativeIndex = index - scroll;
+
+            final boolean needsScrollDown = relativeIndex >= (MAX_SLOT_ROWS - 1);
+            final boolean needsScrollTop = relativeIndex == 0;
+
+            if (needsScrollDown || needsScrollTop) {
+                if (needsScrollDown) {
+                    scrollDown();
+                } else {
+                    scrollUp();
+                }
+            }
+        }
 	}
 	
 	@OnlyIn(Dist.CLIENT)

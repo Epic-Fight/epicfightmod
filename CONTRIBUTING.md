@@ -265,3 +265,12 @@ Although our existing public APIs lack documentation, we’re working to improve
 ### 9. Keep code formatting consistent
 
 Currently, we don't have a GitHub workflow or CI setup to enforce this, but that may change in future releases.
+
+### 10. Avoid magical numbers
+
+Avoid mysterious and magical numbers that lack a clear purpose or explanation.
+
+```diff
+- rect.left = 4.24264068712;
++ rect.left = 3.0 * Math.sqrt(2);
+```

@@ -20,7 +20,9 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
+import net.minecraft.client.InputType;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -524,6 +526,35 @@ public class ControlifyCompat implements ControlifyEntrypoint {
                     OPEN_SKILL_INFO.on(controller).guiPressed().get()) {
                 equipSkillButton.openSkillInfoScreen();
             }
+        }
+
+        @Override
+        protected void setInitialFocus() {
+            // Intentionally empty. Do NOT call super.setInitialFocus().
+        }
+
+        @Override
+        public void onWidgetRebuild() {
+            super.onWidgetRebuild();
+            setInputTypeWorkaround();
+        }
+
+        /**
+         * Controlify intentionally avoids setting Minecraft's input type to
+         * {@link InputType#KEYBOARD_ARROW} because keyboard and controller inputs behave
+         * differently.
+         * However, {@link SkillEditScreen} was built mainly for mouse users,
+         * and some GUI elements—like skill slot names—are shown only via tooltips, which
+         * appear only when the input type is {@link InputType#KEYBOARD_ARROW}.
+         * <p>
+         * To support controller users without extra rework, the input type is set here
+         * manually.
+         * As a result, {@link #setInitialFocus()} must remain empty, since
+         * Minecraft handles focus automatically whenever the input type is not
+         * {@link InputType#NONE}, which is what Controlify normally uses.
+         */
+        private void setInputTypeWorkaround() {
+            Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
         }
     }
 

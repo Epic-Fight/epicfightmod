@@ -178,52 +178,56 @@ public class EpicFightMod {
     	
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
 
+        loadModCompatibilityModules(modEventBus);
+	}
+
+    private void loadModCompatibilityModules(@NotNull IEventBus modEventBus) {
         // TODO: Improve "ICompatModule"s registration by avoiding duplicating "ModList.get().isLoaded()".
         //  Make sure we're not duplicating the mod ID anywhere else, like in "GeckolibMixinPlugin".
         //  ALso, extract this in a separate function and avoid duplicating "ICompatModule.loadCompatModule" too.
-		
-		if (ModList.get().isLoaded("vampirism")) {
-			ICompatModule.loadCompatModule(modEventBus, VampirismCompat.class);
-		}
-        
+
+        if (ModList.get().isLoaded("vampirism")) {
+            ICompatModule.loadCompatModule(modEventBus, VampirismCompat.class);
+        }
+
         if (ModList.get().isLoaded("werewolves")) {
-			ICompatModule.loadCompatModule(modEventBus, WerewolvesCompat.class);
-		}
-        
+            ICompatModule.loadCompatModule(modEventBus, WerewolvesCompat.class);
+        }
+
         if (ModList.get().isLoaded("curios")) {
-			ICompatModule.loadCompatModule(modEventBus, CuriosCompat.class);
-		}
-        
-		if (EpicFightSharedConstants.isPhysicalClient()) {
-			modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
-			
-			if (ModList.get().isLoaded("geckolib")) {
-				ICompatModule.loadCompatModule(modEventBus, GeckolibCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("azurelib")) {
-				ICompatModule.loadCompatModule(modEventBus, AzureLibCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("azurelibarmor")) {
-				ICompatModule.loadCompatModule(modEventBus, AzureLibArmorCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("firstperson")) {
-				ICompatModule.loadCompatModule(modEventBus, FirstPersonCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("skinlayers3d")) {
-				ICompatModule.loadCompatModule(modEventBus, SkinLayer3DCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("iris")) {
-				ICompatModule.loadCompatModule(modEventBus, IRISCompat.class);
-			}
-			
-			if (ModList.get().isLoaded("playeranimator")) {
-				ICompatModule.loadCompatModule(modEventBus, PlayerAnimatorCompat.class);
-			}
+            ICompatModule.loadCompatModule(modEventBus, CuriosCompat.class);
+        }
+
+        if (EpicFightSharedConstants.isPhysicalClient()) {
+            modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
+
+            if (ModList.get().isLoaded("geckolib")) {
+                ICompatModule.loadCompatModule(modEventBus, GeckolibCompat.class);
+            }
+
+            if (ModList.get().isLoaded("azurelib")) {
+                ICompatModule.loadCompatModule(modEventBus, AzureLibCompat.class);
+            }
+
+            if (ModList.get().isLoaded("azurelibarmor")) {
+                ICompatModule.loadCompatModule(modEventBus, AzureLibArmorCompat.class);
+            }
+
+            if (ModList.get().isLoaded("firstperson")) {
+                ICompatModule.loadCompatModule(modEventBus, FirstPersonCompat.class);
+            }
+
+            if (ModList.get().isLoaded("skinlayers3d")) {
+                ICompatModule.loadCompatModule(modEventBus, SkinLayer3DCompat.class);
+            }
+
+            if (ModList.get().isLoaded("iris")) {
+                ICompatModule.loadCompatModule(modEventBus, IRISCompat.class);
+            }
+
+            if (ModList.get().isLoaded("playeranimator")) {
+                ICompatModule.loadCompatModule(modEventBus, PlayerAnimatorCompat.class);
+            }
 
             if (ModList.get().getModFiles().stream().anyMatch(modFile -> {
                 try {
@@ -235,8 +239,8 @@ public class EpicFightMod {
             })) {
                 ICompatModule.loadCompatModule(modEventBus, MCreatorPlayerAnimationsCompat.class);
             }
-		}
-	}
+        }
+    }
     
     /**
      * FML Lifecycle Events

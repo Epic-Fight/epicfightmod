@@ -52,17 +52,7 @@ import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.compat.*;
-import yesman.epicfight.compat.azurelib.AzureLibArmorCompat;
-import yesman.epicfight.compat.azurelib.AzureLibCompat;
-import yesman.epicfight.compat.curiosapi.CuriosCompat;
-import yesman.epicfight.compat.firstperson.FirstPersonCompat;
-import yesman.epicfight.compat.geckolib.GeckolibCompat;
-import yesman.epicfight.compat.iris.IRISCompat;
 import yesman.epicfight.compat.mcreator.MCreatorPlayerAnimationsCompat;
-import yesman.epicfight.compat.playeranimator.PlayerAnimatorCompat;
-import yesman.epicfight.compat.skinlayer3d.SkinLayer3DCompat;
-import yesman.epicfight.compat.vampirism.VampirismCompat;
-import yesman.epicfight.compat.werewolves.WerewolvesCompat;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
@@ -94,6 +84,8 @@ import yesman.epicfight.world.item.SkillBookItem;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -178,57 +170,29 @@ public class EpicFightMod {
     	
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
 
+        if (EpicFightSharedConstants.isPhysicalClient()) {
+            modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
+        }
         loadModCompatibilityModules(modEventBus);
 	}
 
+    private List<? extends Class<? extends ICompatModule>> getCompatibilityModules(final boolean isClientSide) {
+        return Arrays.stream(MinecraftMod.values())
+                .filter(mod -> ModList.get().isLoaded(mod.getModId()))
+                // Includes all mods on client. Skips client-only mods on server
+                .filter(mod -> isClientSide || !mod.isClientOnly())
+                .map(MinecraftMod::getCompatibilityModule)
+                .toList();
+    }
+
     private void loadModCompatibilityModules(@NotNull IEventBus modEventBus) {
-        // TODO: Improve "ICompatModule"s registration by avoiding duplicating "ModList.get().isLoaded()".
-        //  Make sure we're not duplicating the mod ID anywhere else, like in "GeckolibMixinPlugin".
-        //  ALso, extract this in a separate function and avoid duplicating "ICompatModule.loadCompatModule" too.
+        final boolean isClientSide = EpicFightSharedConstants.isPhysicalClient();
 
-        if (ModList.get().isLoaded("vampirism")) {
-            ICompatModule.loadCompatModule(modEventBus, VampirismCompat.class);
+        for (final Class<? extends ICompatModule> module : getCompatibilityModules(isClientSide)) {
+            ICompatModule.loadCompatModule(modEventBus, module);
         }
 
-        if (ModList.get().isLoaded("werewolves")) {
-            ICompatModule.loadCompatModule(modEventBus, WerewolvesCompat.class);
-        }
-
-        if (ModList.get().isLoaded("curios")) {
-            ICompatModule.loadCompatModule(modEventBus, CuriosCompat.class);
-        }
-
-        if (EpicFightSharedConstants.isPhysicalClient()) {
-            modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
-
-            if (ModList.get().isLoaded("geckolib")) {
-                ICompatModule.loadCompatModule(modEventBus, GeckolibCompat.class);
-            }
-
-            if (ModList.get().isLoaded("azurelib")) {
-                ICompatModule.loadCompatModule(modEventBus, AzureLibCompat.class);
-            }
-
-            if (ModList.get().isLoaded("azurelibarmor")) {
-                ICompatModule.loadCompatModule(modEventBus, AzureLibArmorCompat.class);
-            }
-
-            if (ModList.get().isLoaded("firstperson")) {
-                ICompatModule.loadCompatModule(modEventBus, FirstPersonCompat.class);
-            }
-
-            if (ModList.get().isLoaded("skinlayers3d")) {
-                ICompatModule.loadCompatModule(modEventBus, SkinLayer3DCompat.class);
-            }
-
-            if (ModList.get().isLoaded("iris")) {
-                ICompatModule.loadCompatModule(modEventBus, IRISCompat.class);
-            }
-
-            if (ModList.get().isLoaded("playeranimator")) {
-                ICompatModule.loadCompatModule(modEventBus, PlayerAnimatorCompat.class);
-            }
-
+        if (isClientSide) {
             if (ModList.get().getModFiles().stream().anyMatch(modFile -> {
                 try {
                     Path dataPath = modFile.getFile().findResource("data");

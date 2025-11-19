@@ -3,6 +3,7 @@ package yesman.epicfight.compat;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.compat.azurelib.AzureLibArmorCompat;
 import yesman.epicfight.compat.azurelib.AzureLibCompat;
+import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
 import yesman.epicfight.compat.curiosapi.CuriosCompat;
 import yesman.epicfight.compat.firstperson.FirstPersonCompat;
 import yesman.epicfight.compat.geckolib.GeckolibCompat;
@@ -25,7 +26,9 @@ public enum MinecraftMod {
     FIRST_PERSON("firstperson", true, FirstPersonCompat.class),
     SKIN_LAYERS_3D("skinlayers3d", true, SkinLayer3DCompat.class),
     IRIS("iris", true, IRISCompat.class),
-    PLAYER_ANIMATOR("playeranimator", true, PlayerAnimatorCompat.class);
+    PLAYER_ANIMATOR("playeranimator", true, PlayerAnimatorCompat.class),
+    BETTER_THIRD_PERSON("betterthirdperson", true, BetterThirdPersonCompat.class),
+    ;
 
     private final @NotNull String modId;
     private final boolean isClientOnly;

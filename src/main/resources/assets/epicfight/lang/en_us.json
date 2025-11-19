@@ -203,6 +203,7 @@
   "gui.epicfight.tps_perspective.always_back": "TPS Perspective: Always back",
   "gui.epicfight.tps_perspective.when_aiming": "TPS Perspective: When aiming",
   "gui.epicfight.tps_perspective.always": "TPS Perspective: Always",
+  "gui.epicfight.tps_perspective.disabled_due_to_mod_conflict": "Epic Fight's TPS perspective is disabled because it conflicts with '%s' mod.\n\nTo enable Epic Fight's TPS perspective, uninstall the conflicting mod and set the camera mode from 'Always Back' to 'Always' after launching the game.",
   "gui.epicfight.tps_setup": "TPS Setup",
   "gui.epicfight.show_attributes.on": "Attributes Tooltip: ON",
   "gui.epicfight.show_attributes.off": "Attributes Tooltip: OFF",

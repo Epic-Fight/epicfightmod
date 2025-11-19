@@ -11,7 +11,7 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 public interface ICompatModule {
-	public static void loadCompatModule(IEventBus modEventBus, Class<? extends ICompatModule> compatModule) {
+	static void loadCompatModule(IEventBus modEventBus, Class<? extends ICompatModule> compatModule) {
 		try {
 			Constructor<? extends ICompatModule> constructor = compatModule.getConstructor();
 			ICompatModule compatModuleInstance = constructor.newInstance();
@@ -22,12 +22,12 @@ public interface ICompatModule {
 				compatModuleInstance.onModEventBusClient(modEventBus);
 				compatModuleInstance.onGameEventBusClient(NeoForge.EVENT_BUS);
 			}
-			
-			EpicFightMod.LOGGER.info("Loaded mod compat: " + compatModule.getSimpleName());
+
+            EpicFightMod.LOGGER.info("Loaded mod compatibility module: {}", compatModule.getSimpleName());
 		} catch (ModLoadingException e) {
 			throw e;
 		} catch (Exception e) {
-			EpicFightMod.LOGGER.error("Failed to load mod compat: " + e.getMessage());
+            EpicFightMod.LOGGER.error("Failed to load mod compatibility module: {}", e.getMessage());
 			e.printStackTrace();
 		}
 	}

@@ -15,6 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
+import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
@@ -79,6 +81,15 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))));
 			cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
 		}).pos(this.width / 2 - 165, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.tooltip")))).build();
+
+        final EpicFightTpsCameraDisabledReason tpsDisabledReason = EpicFightTpsCameraDisableState.getReason();
+        if (tpsDisabledReason != null) {
+            cameraTypeButton.active = false;
+            final Tooltip disabledReasonTooltip = Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.disabled_due_to_mod_conflict"), tpsDisabledReason.getModName()));
+
+            cameraTypeButton.setTooltip(disabledReasonTooltip);
+            cameraSetupButton.setTooltip(disabledReasonTooltip);
+        }
 		
 		cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
 		this.optionsList.addSmall(cameraTypeButton, cameraSetupButton);

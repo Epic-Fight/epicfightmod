@@ -19,6 +19,9 @@
 - An option to toggle lock-on snapping and auto target
 - An option to set the maximum distance that the player can focus entities
 - See the devlog [here](https://www.patreon.com/posts/tps-camera-and-141028682)
+- Epic Fight's TPS perspective will be automatically disabled when a conflicting mod, such
+  as [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
+  or [Better Third Person](https://modrinth.com/mod/better-third-person), is detected to prevent issues.
 
 ### Fixed
 

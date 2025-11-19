@@ -64,6 +64,7 @@ import yesman.epicfight.compat.PlayerAnimatorCompat;
 import yesman.epicfight.compat.SkinLayer3DCompat;
 import yesman.epicfight.compat.VampirismCompat;
 import yesman.epicfight.compat.WerewolvesCompat;
+import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
@@ -258,6 +259,10 @@ public class EpicFightMod {
 		if (ModList.get().isLoaded("playeranimator")) {
 			ICompatModule.loadCompatModule(context, PlayerAnimatorCompat.class);
 		}
+
+        if (ModList.get().isLoaded("betterthirdperson")) {
+            ICompatModule.loadCompatModule(context, BetterThirdPersonCompat.class);
+        }
 	}
     
     /**

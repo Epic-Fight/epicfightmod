@@ -42,7 +42,7 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.hook.EpicFightClientHooks;
 import yesman.epicfight.api.client.hook.instances.BuildCameraTransform;
 import yesman.epicfight.api.client.hook.instances.ItemUsedInDecoupledCamera;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -449,7 +449,7 @@ public final class EpicFightCameraAPI {
 			cancel.setValue(this.isTPSMode() || this.lockingOnTarget);
 			
 			if (cancel.booleanValue()) {
-				float modifier = !this.lockingOnTarget || InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY) ? 0.15F : (ClientConfig.lockOnQuickShift ? 0.005F : 0.0F);
+				float modifier = !this.lockingOnTarget || InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY) ? 0.15F : (ClientConfig.lockOnQuickShift ? 0.005F : 0.0F);
 				this.setCameraRotations(Mth.clamp(this.cameraXRot + (float)dx * modifier, -90.0F, 90.0F), this.cameraYRot + (float)dy * modifier, false);
 				
 				if (ClientConfig.lockOnQuickShift && this.quickShiftDelay <= 0) {
@@ -550,13 +550,13 @@ public final class EpicFightCameraAPI {
 			
 			if (!entityHitResult.getEntity().is(this.focusingEntity)) {
 				if (entityHitResult.getEntity() instanceof LivingEntity livingentity) {
-					if (!(entityHitResult.getEntity() instanceof ArmorStand) && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY))) {
+					if (!(entityHitResult.getEntity() instanceof ArmorStand) && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY))) {
 						this.focusingEntity = livingentity;
 					}
 				} else if (entityHitResult.getEntity() instanceof PartEntity<?> partEntity) {
 					Entity parent = partEntity.getParent();
 					
-					if (parent instanceof LivingEntity parentLivingEntity && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY))) {
+					if (parent instanceof LivingEntity parentLivingEntity && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY))) {
 						this.focusingEntity = parentLivingEntity;
 					}
 				} else {
@@ -654,7 +654,7 @@ public final class EpicFightCameraAPI {
 			float desiredYRot = 0.0F;
 			
 			// Handle camera lock-on
-			if (this.focusingEntity != null && this.lockingOnTarget && !this.isLerpingFpv() && !InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY)) {
+			if (this.focusingEntity != null && this.lockingOnTarget && !this.isLerpingFpv() && !InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY)) {
 				Vec3 povPos = tpsMode ? cameraPos : localPlayer.getEyePosition();
 				Vec3 targetPos = tpsMode ? this.focusingEntity.getBoundingBox().getCenter() : this.focusingEntity.getEyePosition();
 				Vec3 toTarget = targetPos.subtract(povPos);
@@ -679,7 +679,7 @@ public final class EpicFightCameraAPI {
 				
 				desiredXRot = (float)MathUtils.getXRotOfVector(playerToTarget);
 				desiredYRot = (float)MathUtils.getYRotOfVector(playerToTarget);
-			} else if (this.lockingOnTarget && InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY)) {
+			} else if (this.lockingOnTarget && InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY)) {
 				desiredXRot = this.cameraXRot;
 				desiredYRot = this.cameraYRot;
 			} else if (tpsMode) { // Handle camera tps rotation
@@ -833,7 +833,7 @@ public final class EpicFightCameraAPI {
 				}
 				return true;
 			} else if (this.minecraft.options.getCameraType() == CameraType.FIRST_PERSON) {
-				if (!InputManager.isActionActive(EpicFightInputActions.LOCK_ON_SHIFT_FREELY)) {
+				if (!InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY)) {
 					camera.getEntity().setXRot(Mth.rotLerp(partialTick, this.cameraXRotO, this.cameraXRot));
 					camera.getEntity().setYRot(Mth.rotLerp(partialTick, this.cameraYRotO, this.cameraYRot));
 				} else {

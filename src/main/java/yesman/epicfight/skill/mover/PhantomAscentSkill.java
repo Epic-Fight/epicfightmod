@@ -17,7 +17,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.MovementDirection;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
@@ -167,6 +167,6 @@ public class PhantomAscentSkill extends Skill {
 	}
 
     private static boolean isJumpActionPressed() {
-        return InputManager.isActionActive(EpicFightInputActions.JUMP);
+        return InputManager.isActionActive(EpicFightInputAction.JUMP);
     }
 }

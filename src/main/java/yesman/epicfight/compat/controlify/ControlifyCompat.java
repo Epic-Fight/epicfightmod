@@ -32,7 +32,7 @@ import org.joml.Vector2f;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
@@ -136,7 +136,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         }
 
         /**
-         * Maps a non-vanilla {@link EpicFightInputActions} to its corresponding translation keys.
+         * Maps a non-vanilla {@link EpicFightInputAction} to its corresponding translation keys.
          *
          * @param action the non-vanilla action to get the translation key for
          * @return a {@link TranslationKeys} instance containing the translation keys for the name and description
@@ -144,7 +144,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
          *                                  is only relevant for Epic Fight custom input binds.
          *                                  Vanilla input binds are handled internally by Controlify.
          */
-        private static @NotNull TranslationKeys fromAction(@NotNull EpicFightInputActions action) {
+        private static @NotNull TranslationKeys fromAction(@NotNull EpicFightInputAction action) {
             return switch (action) {
                 case ATTACK -> new TranslationKeys("key.epicfight.attack", "key.epicfight.attack.description");
                 case DODGE -> new TranslationKeys("key.epicfight.dodge", "key.epicfight.dodge.description");
@@ -181,7 +181,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             };
         }
 
-        private static @NotNull Component getNameOf(@NotNull EpicFightInputActions action) {
+        private static @NotNull Component getNameOf(@NotNull EpicFightInputAction action) {
             return fromAction(action).getNameComponent();
         }
     }
@@ -219,7 +219,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     }
 
     private static void registerInputBindings(ControlifyBindApi registrar) {
-        for (EpicFightInputActions action : EpicFightInputActions.nonVanillaActions()) {
+        for (EpicFightInputAction action : EpicFightInputAction.nonVanillaActions()) {
             registerInputBinding(registrar, action);
         }
     }
@@ -228,7 +228,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
      * Registers a non-vanilla input binding with Controlify.
      * <p>
      * Must <strong>only</strong> be called for non-vanilla
-     * {@link EpicFightInputActions}. Vanilla actions are already registered
+     * {@link EpicFightInputAction}. Vanilla actions are already registered
      * and calling this with one will throw {@link IllegalArgumentException}.
      * <p>
      * <strong>Type-safety and exhaustive checking:</strong><br>
@@ -245,7 +245,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     @SuppressWarnings("UnusedReturnValue") // Read Javadocs of this method before removing.
     private static @NotNull InputBindingSupplier registerInputBinding(
             @NotNull ControlifyBindApi registrar,
-            @NotNull EpicFightInputActions action
+            @NotNull EpicFightInputAction action
     ) {
         final Component combatCategory = Component.translatable(EpicFightKeyMappings.InputCategories.COMBAT);
         final Component guiCategory = Component.translatable(EpicFightKeyMappings.InputCategories.GUI);
@@ -339,7 +339,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     }
 
     private static @NotNull InputBindingBuilder applyCommonBindingProperties(
-            @NotNull EpicFightInputActions action,
+            @NotNull EpicFightInputAction action,
             @NotNull InputBindingBuilder builder
     ) {
         final TranslationKeys translationKeys = TranslationKeys.fromAction(action);
@@ -353,7 +353,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
                 .addKeyCorrelation(keyMappingToIgnore);
     }
 
-    private static @NotNull ResourceLocation getBindingId(@NotNull EpicFightInputActions action) {
+    private static @NotNull ResourceLocation getBindingId(@NotNull EpicFightInputAction action) {
         final String path = switch (action) {
             // Project maintainers: if you change any ID (e.g., "attack"), update assets/controlify too.
             case ATTACK -> "attack";
@@ -407,7 +407,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         // However, when using Epic Fight NeoForge 1.21.1, it's fully supported
     }
 
-    private static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputActions action) {
+    private static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
         final InputBindingSupplier bindingSupplier = switch (action) {
             // Minecraft Vanilla actions
             case VANILLA_ATTACK_DESTROY -> ControlifyBindings.ATTACK;
@@ -480,7 +480,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         }
 
         @Override
-        public @NotNull ControllerBinding getBinding(EpicFightInputActions action) {
+        public @NotNull ControllerBinding getBinding(EpicFightInputAction action) {
             return new ControllerBindingImpl(getControlifyBinding(action));
         }
 
@@ -507,7 +507,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         }
 
         @Override
-        public boolean isBoundToSameButton(@NotNull EpicFightInputActions action, @NotNull EpicFightInputActions action2) {
+        public boolean isBoundToSameButton(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
             final Input input1 = getControlifyBinding(action).boundInput();
             final Input input2 = getControlifyBinding(action2).boundInput();
             return input1.getRelevantInputs().equals(input2.getRelevantInputs());

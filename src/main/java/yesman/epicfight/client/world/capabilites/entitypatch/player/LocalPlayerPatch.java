@@ -36,7 +36,7 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.events.engine.ControlEngine;
@@ -180,7 +180,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public boolean shouldBlockMoving() {
-		return InputManager.isActionActive(EpicFightInputActions.MOVE_BACKWARD) || InputManager.isActionActive(EpicFightInputActions.SNEAK);
+		return InputManager.isActionActive(EpicFightInputAction.MOVE_BACKWARD) || InputManager.isActionActive(EpicFightInputAction.SNEAK);
 	}
 	
 	@Override

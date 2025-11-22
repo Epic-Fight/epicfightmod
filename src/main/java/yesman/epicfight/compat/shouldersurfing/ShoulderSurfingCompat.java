@@ -5,7 +5,7 @@ import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingPlugin;
 import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingRegistrar;
 
 import net.minecraft.client.Minecraft;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -56,7 +56,7 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
     private static class ForceCameraCouplingWhenAttackingCallback implements ICameraCouplingCallback {
         @Override
         public boolean isForcingCameraCoupling(Minecraft minecraft) {
-            return InputManager.isActionActive(EpicFightInputActions.ATTACK) || InputManager.isActionActive(EpicFightInputActions.VANILLA_ATTACK_DESTROY);
+            return InputManager.isActionActive(EpicFightInputAction.ATTACK) || InputManager.isActionActive(EpicFightInputAction.VANILLA_ATTACK_DESTROY);
         }
     }
 

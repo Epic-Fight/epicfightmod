@@ -4,13 +4,13 @@ import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 
 /**
- * Handles triggering of a discrete (one-time) {@link EpicFightInputActions}
+ * Handles triggering of a discrete (one-time) {@link EpicFightInputAction}
  * based on the current input state.
  * <p>
  * Consumers of this API provide only the "what to do" for each action;
@@ -35,7 +35,7 @@ public final class DiscreteInputActionTrigger {
      * Called on every client tick to potentially trigger the provided callback for a given input action.
      * <p>
      * Determines *when* to trigger the action; consumers define *how* it executes.
-     * For example, for {@link EpicFightInputActions#OPEN_SKILL_SCREEN}, this method decides when to call
+     * For example, for {@link EpicFightInputAction#OPEN_SKILL_SCREEN}, this method decides when to call
      * the callback that opens the screen, but not how the screen is opened.
      * <p>
      * Consumers do not need to know any keyboard/mouse or controller input internals.
@@ -43,7 +43,7 @@ public final class DiscreteInputActionTrigger {
      * @param action  The input action to monitor.
      * @param handler The callback to run when the action triggers.
      */
-    public static void triggerOnPress(EpicFightInputActions action, DiscreteActionHandler handler) {
+    public static void triggerOnPress(EpicFightInputAction action, DiscreteActionHandler handler) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         final KeyMapping keyMapping = action.keyMapping();
         if (controllerMod == null) {

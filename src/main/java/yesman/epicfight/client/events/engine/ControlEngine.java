@@ -34,7 +34,7 @@ import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
 import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
@@ -83,7 +83,7 @@ public class ControlEngine implements IEventBasedEngine {
 	private int reserveCounter;
     /**
      * <b>DEPRECATED:</b> This field is retained for backward compatibility and should not be used
-     * for comparisons or method calls on this instance. In future updates, {@link EpicFightInputActions}
+     * for comparisons or method calls on this instance. In future updates, {@link EpicFightInputAction}
      * will be stored directly instead of a vanilla {@link KeyMapping}.
      *
      * <p>Do not rely on this field for new functionality. For mapping a {@link KeyMapping} to an
@@ -99,7 +99,7 @@ public class ControlEngine implements IEventBasedEngine {
      * <b>DEPRECATED:</b> Consider using {@link ControlEngine#isCurrentHoldingAction} or 
      * {@link ControlEngine#isCurrentHoldingActionActive} instead of directly 
      * accessing or comparing this field. This field is retained for backward 
-     * compatibility; in future updates, {@link EpicFightInputActions} will be 
+     * compatibility; in future updates, {@link EpicFightInputAction} will be
      * stored directly instead of a vanilla {@link KeyMapping}.
      *
      * @see ControlEngine#mapKeyMappingToAction
@@ -145,29 +145,29 @@ public class ControlEngine implements IEventBasedEngine {
 			return;
 		}
 		
-        InputManager.triggerOnPress(EpicFightInputActions.OPEN_SKILL_SCREEN, false, this::openSkillEditor);
+        InputManager.triggerOnPress(EpicFightInputAction.OPEN_SKILL_SCREEN, false, this::openSkillEditor);
         
-        InputManager.triggerOnPress(EpicFightInputActions.OPEN_CONFIG_SCREEN, false, this::openConfig);
+        InputManager.triggerOnPress(EpicFightInputAction.OPEN_CONFIG_SCREEN, false, this::openConfig);
         
-        InputManager.triggerOnPress(EpicFightInputActions.SWITCH_VANILLA_MODEL_DEBUGGING, false, this::switchVanillaModelDebugging);
+        InputManager.triggerOnPress(EpicFightInputAction.SWITCH_VANILLA_MODEL_DEBUGGING, false, this::switchVanillaModelDebugging);
         
-        InputManager.triggerOnPress(EpicFightInputActions.ATTACK, true, this::maybeAttack);
+        InputManager.triggerOnPress(EpicFightInputAction.ATTACK, true, this::maybeAttack);
         
-        InputManager.triggerOnPress(EpicFightInputActions.DODGE, true, this::maybeDodge);
+        InputManager.triggerOnPress(EpicFightInputAction.DODGE, true, this::maybeDodge);
         
-        if (InputManager.isActionActive(EpicFightInputActions.GUARD)) this.maybeGuard();
+        if (InputManager.isActionActive(EpicFightInputAction.GUARD)) this.maybeGuard();
         
-        InputManager.triggerOnPress(EpicFightInputActions.WEAPON_INNATE_SKILL, true, this::handleSeparateWeaponInnateSkill);
+        InputManager.triggerOnPress(EpicFightInputAction.WEAPON_INNATE_SKILL, true, this::handleSeparateWeaponInnateSkill);
         
-        InputManager.triggerOnPress(EpicFightInputActions.MOBILITY, true, this::maybePerformMoverSkill);
+        InputManager.triggerOnPress(EpicFightInputAction.MOBILITY, true, this::maybePerformMoverSkill);
         
-        InputManager.triggerOnPress(EpicFightInputActions.SWITCH_MODE, false, this::switchMode);
+        InputManager.triggerOnPress(EpicFightInputAction.SWITCH_MODE, false, this::switchMode);
 
-        InputManager.triggerOnPress(EpicFightInputActions.LOCK_ON, false, this::toggleLockOnState);
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON, false, this::toggleLockOnState);
 
-        InputManager.triggerOnPress(EpicFightInputActions.LOCK_ON_SHIFT_LEFT, false, this::searchNewTargetFromLeft);
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_LEFT, false, this::searchNewTargetFromLeft);
 
-        InputManager.triggerOnPress(EpicFightInputActions.LOCK_ON_SHIFT_RIGHT, false, this::searchNewTargetFromRight);
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_RIGHT, false, this::searchNewTargetFromRight);
 
         if (shouldDisableSwapHandItems()) consumeSwapOffhandKeyClicks();
 		
@@ -181,16 +181,16 @@ public class ControlEngine implements IEventBasedEngine {
 		}
 		
 		if (this.weaponInnatePressToggle) {
-			if (!InputManager.isActionActive(EpicFightInputActions.WEAPON_INNATE_SKILL)) {
+			if (!InputManager.isActionActive(EpicFightInputAction.WEAPON_INNATE_SKILL)) {
 				this.attackLightPressToggle = true;
 				this.weaponInnatePressToggle = false;
 				this.weaponInnatePressCounter = 0;
 			} else {
-				if (InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.WEAPON_INNATE_SKILL, EpicFightInputActions.ATTACK)) {
+				if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.WEAPON_INNATE_SKILL, EpicFightInputAction.ATTACK)) {
 					if (this.weaponInnatePressCounter > ClientConfig.longPressCounter) {
 						if (this.playerpatch.getSkill(SkillSlots.WEAPON_INNATE).sendCastRequest(this.playerpatch, this).shouldReserveKey()) {
 							if (!this.player.isSpectator()) {
-								this.reserveKey(SkillSlots.WEAPON_INNATE, EpicFightInputActions.WEAPON_INNATE_SKILL);
+								this.reserveKey(SkillSlots.WEAPON_INNATE, EpicFightInputAction.WEAPON_INNATE_SKILL);
 							}
 						} else {
 							this.lockHotkeys();
@@ -215,7 +215,7 @@ public class ControlEngine implements IEventBasedEngine {
 				this.releaseAllServedKeys();
 			} else {
 				if (!this.player.isSpectator() && slot == SkillSlots.COMBO_ATTACKS) {
-					this.reserveKey(slot, EpicFightInputActions.ATTACK);
+					this.reserveKey(slot, EpicFightInputAction.ATTACK);
 				}
 			}
 			
@@ -227,12 +227,12 @@ public class ControlEngine implements IEventBasedEngine {
 		}
 		
 		if (this.sneakPressToggle) {
-			if (!InputManager.isActionActive(EpicFightInputActions.SNEAK)) {
+			if (!InputManager.isActionActive(EpicFightInputAction.SNEAK)) {
 				SkillSlot skillSlot = (this.playerpatch.getEntityState().knockDown()) ? SkillSlots.KNOCKDOWN_WAKEUP : SkillSlots.DODGE;
 				SkillContainer skill = this.playerpatch.getSkill(skillSlot);
 
 				if (skill.sendCastRequest(this.playerpatch, this).shouldReserveKey()) {
-					this.reserveKey(skillSlot, EpicFightInputActions.SNEAK);
+					this.reserveKey(skillSlot, EpicFightInputAction.SNEAK);
 				}
 				
 				this.sneakPressToggle = false;
@@ -341,11 +341,11 @@ public class ControlEngine implements IEventBasedEngine {
     }
 
     private void maybeAttack() {
-        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputActions.ATTACK)) {
+        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.ATTACK)) {
             return;
         }
-        final EpicFightInputActions vanillaAttack = EpicFightInputActions.VANILLA_ATTACK_DESTROY;
-        final EpicFightInputActions epicFightAttack = EpicFightInputActions.ATTACK;
+        final EpicFightInputAction vanillaAttack = EpicFightInputAction.VANILLA_ATTACK_DESTROY;
+        final EpicFightInputAction epicFightAttack = EpicFightInputAction.ATTACK;
 
         boolean shouldPlayAttackAnimation = this.playerpatch.canPlayAttackAnimation();
         if (vanillaAttack.keyMapping().getKey() == epicFightAttack.keyMapping().getKey() &&
@@ -354,7 +354,7 @@ public class ControlEngine implements IEventBasedEngine {
         }
 
         if (shouldPlayAttackAnimation) {
-            if (!InputManager.isBoundToSamePhysicalInput(epicFightAttack, EpicFightInputActions.WEAPON_INNATE_SKILL)) {
+            if (!InputManager.isBoundToSamePhysicalInput(epicFightAttack, EpicFightInputAction.WEAPON_INNATE_SKILL)) {
                 SkillContainer airSlash = this.playerpatch.getSkill(SkillSlots.AIR_SLASH);
                 SkillSlot slot = (this.tickSinceLastJump > 0 && airSlash.getSkill() != null && airSlash.getSkill().canExecute(airSlash)) ? SkillSlots.AIR_SLASH : SkillSlots.COMBO_ATTACKS;
                 SkillCastEvent skillCastEvent = this.playerpatch.getSkill(slot).sendCastRequest(this.playerpatch, this);
@@ -382,10 +382,10 @@ public class ControlEngine implements IEventBasedEngine {
     }
 
     private void maybeDodge() {
-        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputActions.DODGE)) {
+        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.DODGE)) {
             return;
         }
-        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.DODGE, EpicFightInputActions.SNEAK)) {
+        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.DODGE, EpicFightInputAction.SNEAK)) {
             if (this.player.getVehicle() == null) {
                 if (!this.sneakPressToggle) {
                     this.sneakPressToggle = true;
@@ -396,13 +396,13 @@ public class ControlEngine implements IEventBasedEngine {
             SkillContainer skill = this.playerpatch.getSkill(skillCategory);
 
             if (!skill.isEmpty() && skill.sendCastRequest(this.playerpatch, this).shouldReserveKey()) {
-                this.reserveKey(SkillSlots.DODGE, EpicFightInputActions.DODGE);
+                this.reserveKey(SkillSlots.DODGE, EpicFightInputAction.DODGE);
             }
         }
     }
 
     private void maybeGuard() {
-        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputActions.GUARD)) {
+        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.GUARD)) {
             return;
         }
         boolean shouldCancelGuard = false;
@@ -418,7 +418,7 @@ public class ControlEngine implements IEventBasedEngine {
 
             if (skillCastEvent.shouldReserveKey()) {
                 if (!this.player.isSpectator()) {
-                    this.reserveKey(SkillSlots.GUARD, EpicFightInputActions.GUARD);
+                    this.reserveKey(SkillSlots.GUARD, EpicFightInputAction.GUARD);
                 }
             } else {
                 this.lockHotkeys();
@@ -427,13 +427,13 @@ public class ControlEngine implements IEventBasedEngine {
     }
 
     private void handleSeparateWeaponInnateSkill() {
-        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputActions.WEAPON_INNATE_SKILL)) {
+        if (!this.playerpatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.WEAPON_INNATE_SKILL)) {
             return;
         }
-        if (!InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.ATTACK, EpicFightInputActions.WEAPON_INNATE_SKILL)) {
+        if (!InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.ATTACK, EpicFightInputAction.WEAPON_INNATE_SKILL)) {
             if (this.playerpatch.getSkill(SkillSlots.WEAPON_INNATE).sendCastRequest(this.playerpatch, this).shouldReserveKey()) {
                 if (!this.player.isSpectator()) {
-                    this.reserveKey(SkillSlots.WEAPON_INNATE, EpicFightInputActions.WEAPON_INNATE_SKILL);
+                    this.reserveKey(SkillSlots.WEAPON_INNATE, EpicFightInputAction.WEAPON_INNATE_SKILL);
                 }
             } else {
                 this.lockHotkeys();
@@ -446,7 +446,7 @@ public class ControlEngine implements IEventBasedEngine {
             return;
         }
         
-        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.MOBILITY, EpicFightInputActions.JUMP)) {
+        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.MOBILITY, EpicFightInputAction.JUMP)) {
             SkillContainer skillContainer = this.playerpatch.getSkill(SkillSlots.MOVER);
 
             if (!skillContainer.isEmpty()) {
@@ -491,7 +491,7 @@ public class ControlEngine implements IEventBasedEngine {
 		PlayerInputState inputState = InputManager.getInputState(input);
 		
 		if (this.moverPressToggle) {
-			if (!InputManager.isActionActive(EpicFightInputActions.JUMP)) {
+			if (!InputManager.isActionActive(EpicFightInputAction.JUMP)) {
 				this.moverPressToggle = false;
 				this.moverPressCounter = 0;
 				
@@ -528,8 +528,8 @@ public class ControlEngine implements IEventBasedEngine {
      * <b>DEPRECATED:</b> This method is retained for backward compatibility and will 
      * be removed in a future release. Do not use it for new code.
      * <p>Instead of using this method, use
-     * {@link #reserveKey(SkillSlot, EpicFightInputActions)}, which works directly
-     * with {@link EpicFightInputActions}.</p>
+     * {@link #reserveKey(SkillSlot, EpicFightInputAction)}, which works directly
+     * with {@link EpicFightInputAction}.</p>
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(forRemoval = true)
@@ -539,7 +539,7 @@ public class ControlEngine implements IEventBasedEngine {
 		this.reserveCounter = 8;
 	}
 
-    private void reserveKey(SkillSlot slot, EpicFightInputActions action) {
+    private void reserveKey(SkillSlot slot, EpicFightInputAction action) {
         reserveKey(slot, action.keyMapping());
     }
 	
@@ -689,7 +689,7 @@ public class ControlEngine implements IEventBasedEngine {
      */
     @SuppressWarnings("JavadocReference")
     public static void setSprintingKeyStateNotDown() {
-        KeyMapping.set(EpicFightInputActions.SPRINT.keyMapping().getKey(), false);
+        KeyMapping.set(EpicFightInputAction.SPRINT.keyMapping().getKey(), false);
     }
 
     /**
@@ -770,7 +770,7 @@ public class ControlEngine implements IEventBasedEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeVanillaAttackKeyClicks() {
-        makeUnpressed(EpicFightInputActions.VANILLA_ATTACK_DESTROY.keyMapping());
+        makeUnpressed(EpicFightInputAction.VANILLA_ATTACK_DESTROY.keyMapping());
     }
 
     /**
@@ -788,7 +788,7 @@ public class ControlEngine implements IEventBasedEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeSwapOffhandKeyClicks() {
-        makeUnpressed(EpicFightInputActions.SWAP_OFF_HAND.keyMapping());
+        makeUnpressed(EpicFightInputAction.SWAP_OFF_HAND.keyMapping());
     }
 
     /**
@@ -821,17 +821,17 @@ public class ControlEngine implements IEventBasedEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeDropKeyClicks() {
-        makeUnpressed(EpicFightInputActions.DROP.keyMapping());
+        makeUnpressed(EpicFightInputAction.DROP.keyMapping());
     }
 
     /**
      * Maps a {@link KeyMapping} to its corresponding input action, if defined.
      * <p>
-     * Each {@link EpicFightInputActions} enum constant has an associated {@link KeyMapping},
-     * but not every {@link KeyMapping} corresponds to an {@link EpicFightInputActions}, so this may return {@code null}.
+     * Each {@link EpicFightInputAction} enum constant has an associated {@link KeyMapping},
+     * but not every {@link KeyMapping} corresponds to an {@link EpicFightInputAction}, so this may return {@code null}.
      * Using {@link KeyMapping} directly does not support controllers.
      * <p>
-     * Ideally, this workaround should not exist. The code should depend on {@link EpicFightInputActions} directly
+     * Ideally, this workaround should not exist. The code should depend on {@link EpicFightInputAction} directly
      * instead of storing {@link KeyMapping} instances. However, since some classes and Epic Fight addons still rely on:
      * <ul>
      *   <li>{@link HoldableSkill#getKeyMapping}</li>
@@ -844,8 +844,8 @@ public class ControlEngine implements IEventBasedEngine {
      * Sometimes, it makes sense to use this method, for example, if you're using an event such as {@link InputEvent.InteractionKeyMappingTriggered},
      * which provides only a {@link KeyMapping}.
      */
-    private static @Nullable EpicFightInputActions mapKeyMappingToAction(@NotNull KeyMapping keyMapping) {
-        return EpicFightInputActions.fromKeyMapping(keyMapping);
+    private static @Nullable EpicFightInputAction mapKeyMappingToAction(@NotNull KeyMapping keyMapping) {
+        return EpicFightInputAction.fromKeyMapping(keyMapping);
     }
 
     /**
@@ -855,11 +855,11 @@ public class ControlEngine implements IEventBasedEngine {
      * @return {@code true} if the given action is currently held; otherwise {@code false}
      * @see ControlEngine#mapKeyMappingToAction
      */
-    private boolean isCurrentHoldingAction(@NotNull EpicFightInputActions other) {
+    private boolean isCurrentHoldingAction(@NotNull EpicFightInputAction other) {
         if (currentHoldingKey == null) {
             return false;
         }
-        final EpicFightInputActions currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
+        final EpicFightInputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
         if (currentHoldingAction == null) {
             // Fallback for legacy or custom key mappings.
             // This is IMPORTANT to prevent addon breakage; this allows custom keybinds from other mods,
@@ -873,7 +873,7 @@ public class ControlEngine implements IEventBasedEngine {
         if (currentHoldingKey == null) {
             return false;
         }
-        final EpicFightInputActions currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
+        final EpicFightInputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
         if (currentHoldingAction == null) {
             // Fallback for legacy or custom key mappings.
             // This is IMPORTANT to prevent addon breakage; this allows custom keybinds from other mods,
@@ -959,7 +959,7 @@ public class ControlEngine implements IEventBasedEngine {
 	private void epicfight$interactionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
         if (this.minecraft.player == null || this.minecraft.hitResult == null) return;
 
-        final EpicFightInputActions triggeredAction = mapKeyMappingToAction(event.getKeyMapping());
+        final EpicFightInputAction triggeredAction = mapKeyMappingToAction(event.getKeyMapping());
 
         if (triggeredAction == null) {
             // The key mapping corresponds to a fixed vanilla action (attack, pick block, or use item).
@@ -968,8 +968,8 @@ public class ControlEngine implements IEventBasedEngine {
         }
 
 		if (
-            triggeredAction == EpicFightInputActions.VANILLA_ATTACK_DESTROY &&
-            InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.ATTACK, EpicFightInputActions.VANILLA_ATTACK_DESTROY) &&
+            triggeredAction == EpicFightInputAction.VANILLA_ATTACK_DESTROY &&
+            InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.ATTACK, EpicFightInputAction.VANILLA_ATTACK_DESTROY) &&
 			this.minecraft.hitResult.getType() == HitResult.Type.BLOCK &&
 			ClientConfig.combatPreferredItems.contains(this.player.getMainHandItem().getItem())
 		) {
@@ -983,8 +983,8 @@ public class ControlEngine implements IEventBasedEngine {
 		}
 		
 		if (
-			triggeredAction == EpicFightInputActions.USE &&
-			InputManager.isBoundToSamePhysicalInput(EpicFightInputActions.USE, EpicFightInputActions.GUARD) &&
+			triggeredAction == EpicFightInputAction.USE &&
+			InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.USE, EpicFightInputAction.GUARD) &&
 			(
 				ClientConfig.keyConflictResolveScope.cancelInteraction() ||
 				ClientConfig.keyConflictResolveScope.cancelItemUse()

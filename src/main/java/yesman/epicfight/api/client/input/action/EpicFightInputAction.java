@@ -3,7 +3,6 @@ package yesman.epicfight.api.client.input.action;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -17,10 +16,9 @@ import java.util.*;
  * an Epic Fight custom key mapping. These mappings only support keyboard and mouse input.
  * Controller input is not directly supported to avoid dependencies on third-party controller mods.
  * <p>
- * For implementation details, refer to {@link EpicFightInputActions#keyMapping()}.
+ * For implementation details, refer to {@link #keyMapping()}.
  */
-@ApiStatus.Experimental
-public enum EpicFightInputActions implements InputAction {
+public enum EpicFightInputAction implements InputAction {
     /**
      * Corresponds to Minecraft's default "Attack/Destroy" action.
      * <p>
@@ -77,7 +75,7 @@ public enum EpicFightInputActions implements InputAction {
         return isVanilla;
     }
 
-    EpicFightInputActions(final boolean isVanilla) {
+    EpicFightInputAction(final boolean isVanilla) {
         this.id = InputAction.ENUM_MANAGER.assign(this);
         this.isVanilla = isVanilla;
     }
@@ -121,11 +119,11 @@ public enum EpicFightInputActions implements InputAction {
         };
     }
 
-    private static final @NotNull Map<KeyMapping, EpicFightInputActions> BY_KEY_MAPPING;
+    private static final @NotNull Map<KeyMapping, EpicFightInputAction> BY_KEY_MAPPING;
 
     static {
-        Map<KeyMapping, EpicFightInputActions> map = new HashMap<>();
-        for (EpicFightInputActions action : values()) {
+        Map<KeyMapping, EpicFightInputAction> map = new HashMap<>();
+        for (EpicFightInputAction action : values()) {
             map.put(action.keyMapping(), action);
         }
         BY_KEY_MAPPING = Collections.unmodifiableMap(map);
@@ -137,7 +135,7 @@ public enum EpicFightInputActions implements InputAction {
      * @param keyMapping the key mapping; must not be {@code null}
      * @return the corresponding action, or null if none matches
      */
-    public static @Nullable EpicFightInputActions fromKeyMapping(@NotNull KeyMapping keyMapping) {
+    public static @Nullable EpicFightInputAction fromKeyMapping(@NotNull KeyMapping keyMapping) {
         return BY_KEY_MAPPING.get(keyMapping);
     }
 
@@ -145,12 +143,12 @@ public enum EpicFightInputActions implements InputAction {
      * Returns a set of all Epic Fight actions that are not part of the vanilla
      * Minecraft key mappings.
      *
-     * @return a set containing all non-vanilla {@link EpicFightInputActions}
-     * @see EpicFightInputActions#isVanilla
+     * @return a set containing all non-vanilla {@link EpicFightInputAction}
+     * @see EpicFightInputAction#isVanilla
      */
-    public static @NotNull Set<EpicFightInputActions> nonVanillaActions() {
-        Set<EpicFightInputActions> result = EnumSet.noneOf(EpicFightInputActions.class);
-        for (EpicFightInputActions action : EpicFightInputActions.values()) {
+    public static @NotNull Set<EpicFightInputAction> nonVanillaActions() {
+        Set<EpicFightInputAction> result = EnumSet.noneOf(EpicFightInputAction.class);
+        for (EpicFightInputAction action : EpicFightInputAction.values()) {
             if (!action.isVanilla()) result.add(action);
         }
         return result;

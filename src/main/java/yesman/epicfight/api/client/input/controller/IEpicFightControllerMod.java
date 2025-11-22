@@ -4,7 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 
 /**
  * Represents an integration layer for third-party controller mods used by Epic Fight.
@@ -46,9 +46,9 @@ public interface IEpicFightControllerMod {
     /**
      * Retrieves the universal controller binding for a given Epic Fight input action.
      * <p>
-     * This method maps actions such as {@link EpicFightInputActions#JUMP},
-     * {@link EpicFightInputActions#ATTACK}, and
-     * {@link EpicFightInputActions#MOVE_FORWARD} to the corresponding controller
+     * This method maps actions such as {@link EpicFightInputAction#JUMP},
+     * {@link EpicFightInputAction#ATTACK}, and
+     * {@link EpicFightInputAction#MOVE_FORWARD} to the corresponding controller
      * buttons or axes.
      * </p>
      *
@@ -58,11 +58,11 @@ public interface IEpicFightControllerMod {
      * @see ControllerBinding
      */
     @NotNull
-    ControllerBinding getBinding(EpicFightInputActions action);
+    ControllerBinding getBinding(EpicFightInputAction action);
 
     /**
      * Retrieves the current input state.
-     * This is used internally by Epic Fight to perform actions such as {@link EpicFightInputActions#DODGE}.
+     * This is used internally by Epic Fight to perform actions such as {@link EpicFightInputAction#DODGE}.
      *
      * @return a {@link PlayerInputState} representing the current input state.
      */
@@ -80,5 +80,5 @@ public interface IEpicFightControllerMod {
      * @param action2 the second input action
      * @return {@code true} if both actions are bound to the same controller button; {@code false} otherwise
      */
-    boolean isBoundToSameButton(@NotNull EpicFightInputActions action, @NotNull EpicFightInputActions action2);
+    boolean isBoundToSameButton(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2);
 }

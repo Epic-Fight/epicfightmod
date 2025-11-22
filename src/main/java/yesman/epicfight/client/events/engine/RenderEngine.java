@@ -55,7 +55,7 @@ import org.joml.Vector3f;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
@@ -452,7 +452,7 @@ public class RenderEngine implements IEventBasedEngine {
 		if (ClientConfig.showEpicFightAttributesInTooltip && event.getEntity() != null && event.getEntity().level().isClientSide) {
 			EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
 				EpicFightCapabilities.getItemCapability(event.getItemStack()).ifPresent(itemCapability -> {
-					if (InputManager.isActionPhysicallyActive(EpicFightInputActions.WEAPON_INNATE_SKILL_TOOLTIP)) {
+					if (InputManager.isActionPhysicallyActive(EpicFightInputAction.WEAPON_INNATE_SKILL_TOOLTIP)) {
 						Skill weaponInnateSkill = itemCapability.getInnateSkill(playerpatch, event.getItemStack());
 						
 						if (weaponInnateSkill != null) {

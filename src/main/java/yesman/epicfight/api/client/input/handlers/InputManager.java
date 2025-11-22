@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.InputEvent;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
@@ -76,7 +76,7 @@ public final class InputManager {
      * @param action the input action to check
      * @see InputType
      */
-    public static boolean isActionActive(@NotNull EpicFightInputActions action) {
+    public static boolean isActionActive(@NotNull EpicFightInputAction action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
             return isKeyDown(action.keyMapping());
@@ -108,7 +108,7 @@ public final class InputManager {
      * @param action the input action to check
      * @see #isActionActive
      */
-    public static boolean isActionPhysicallyActive(@NotNull EpicFightInputActions action) {
+    public static boolean isActionPhysicallyActive(@NotNull EpicFightInputAction action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
             return isPhysicalKeyDown(action.keyMapping());
@@ -134,7 +134,7 @@ public final class InputManager {
      * @param handler    The callback to invoke when the action triggers.
      * @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
      */
-    public static void triggerOnPress(@NotNull EpicFightInputActions action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {
+    public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {
         DiscreteInputActionTrigger.triggerOnPress(action, (context) -> {
             if (context.triggeredByController() || !interactionKeyEventCheck) {
                 handler.onAction(context);
@@ -146,12 +146,12 @@ public final class InputManager {
     }
 
     /**
-     * Convenience overload of {@link #triggerOnPress(EpicFightInputActions, boolean, DiscreteActionHandler)}
+     * Convenience overload of {@link #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)}
      * for callbacks that do not require the {@link DiscreteActionHandler.Context}.
      *
-     * @see #triggerOnPress(EpicFightInputActions, boolean, DiscreteActionHandler)
+     * @see #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)
      */
-    public static void triggerOnPress(@NotNull EpicFightInputActions action, boolean interactionKeyEventCheck, @NotNull Runnable runnable) {
+    public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull Runnable runnable) {
         triggerOnPress(action, interactionKeyEventCheck, (context) -> runnable.run());
     }
 
@@ -165,7 +165,7 @@ public final class InputManager {
      * @param action2 the second input action
      * @return true if both actions are triggered by the same key or controller button; false otherwise
      */
-    public static boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputActions action, @NotNull EpicFightInputActions action2) {
+    public static boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
             return controllerMod.isBoundToSameButton(action, action2);
@@ -236,7 +236,7 @@ public final class InputManager {
      * This method replaces the legacy internal {@link ControlEngine#isKeyPressed}.
      */
     @SuppressWarnings("JavadocReference")
-    private static void runKeyboardMouseEvent(@NotNull EpicFightInputActions action, @NotNull DiscreteActionHandler handler) {
+    private static void runKeyboardMouseEvent(@NotNull EpicFightInputAction action, @NotNull DiscreteActionHandler handler) {
         final KeyMapping keyMapping = action.keyMapping();
 
         final InputConstants.Key key = keyMapping.getKey();

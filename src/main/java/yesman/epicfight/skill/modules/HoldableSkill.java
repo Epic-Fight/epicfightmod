@@ -4,6 +4,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.network.server.SPSkillFeedback;
 import yesman.epicfight.skill.Skill;
@@ -48,16 +49,16 @@ public interface HoldableSkill {
      * Retrieves the keybind of this skill.
      * <p>
      * If the returned {@link KeyMapping} corresponds to an action defined in
-     * {@link yesman.epicfight.api.client.input.action.EpicFightInputActions#keyMapping()},
+     * {@link EpicFightInputAction#keyMapping()},
      * controller input will be supported as well. Otherwise, the skill will only
      * support keyboard and mouse input. This is related to the workaround implemented in the internal
      * {@link ControlEngine#mapKeyMappingToAction}.
      * <p>
      * In future updates, this method may be deprecated in favor of returning
-     * {@link yesman.epicfight.api.client.input.action.EpicFightInputActions}
+     * {@link EpicFightInputAction}
      * (OR {@link yesman.epicfight.api.client.input.action.InputAction}) directly,
      * eliminating the need for {@link ControlEngine#mapKeyMappingToAction} to support controllers.
-     * @see yesman.epicfight.api.client.input.action.EpicFightInputActions
+     * @see EpicFightInputAction
      * @see ControlEngine#mapKeyMappingToAction
      */
     @SuppressWarnings({"JavadocReference", "deprecation"})

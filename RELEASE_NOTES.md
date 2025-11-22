@@ -28,6 +28,11 @@
 - Fixed a bug that allowed the player to replace the current skill slot even during cooldown.
 - Fixed the mining crosshair not to show in vanilla mode
 
+### For Devs
+
+- Rename the experimental enum `EpicFightInputActions` to `EpicFightInputAction` to follow Java naming
+  conventions. [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
+
 ## [20.13.6] - 2025-11-12
 
 ### Fixed

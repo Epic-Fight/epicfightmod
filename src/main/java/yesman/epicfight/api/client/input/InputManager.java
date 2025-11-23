@@ -26,6 +26,12 @@ import yesman.epicfight.client.input.DiscreteInputActionTrigger;
 ///
 /// Use this class whenever possible to ensure input works consistently across
 /// keyboard/mouse and supported controllers.
+///
+/// **Warning:** This API is currently marked as experimental.
+/// This designation does not imply that the implementation is of an **'experimental'** quality,
+/// but rather indicates that classes, methods, and fields may be subject to renaming, relocation, or removal.
+/// The Epic Fight team reserves the right to modify or completely remove any components of the API at any time,
+/// without prior notice.
 @ApiStatus.Experimental
 public final class InputManager {
     private InputManager() {
@@ -123,7 +129,7 @@ public final class InputManager {
     ///
     /// @param action                   The input action to monitor and trigger.
     /// @param interactionKeyEventCheck If `true`, fires the [InputEvent.InteractionKeyMappingTriggered] event for non-controller actions.
-    ///                                                                 This event is cancellable.
+    ///                                                                                                 This event is cancellable.
     /// @param handler                  The callback to invoke when the action triggers.
     /// @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
     public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {
@@ -174,7 +180,7 @@ public final class InputManager {
     /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
     ///
     /// @param vanillaInput the Minecraft vanilla [Input] which will be mapped to a [PlayerInputState];
-    ///                                                                                                                                                                                                                             ignored if using a controller.
+    ///                                                                                                                                                                                                                                                 ignored if using a controller.
     /// @return an immutable [PlayerInputState] representing the current input state.
     /// @see InputManager#setInputState
     @NotNull

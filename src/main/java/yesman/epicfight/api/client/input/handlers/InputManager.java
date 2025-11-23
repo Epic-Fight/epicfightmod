@@ -40,6 +40,15 @@ public final class InputManager {
         return EpicFightControllerModProvider.get();
     }
 
+    /// Returns the current input mode (keyboard/mouse or controller).
+    /// Equivalent to {@link IEpicFightControllerMod#getInputMode()}, but guaranteed
+    /// to return a non-null value even if no controller mod is present.
+    @NotNull
+    public static InputMode getInputMode() {
+        final IEpicFightControllerMod controllerMod = getControllerModApi();
+        return controllerMod == null ? InputMode.KEYBOARD_MOUSE : controllerMod.getInputMode();
+    }
+
     /**
      * Checks if controller or gamepad input is currently supported.
      *
@@ -50,11 +59,7 @@ public final class InputManager {
      * @see InputMode
      */
     public static boolean supportsControllerInput() {
-        final IEpicFightControllerMod controllerMod = getControllerModApi();
-        if (controllerMod == null) {
-            return false;
-        }
-        return controllerMod.getInputMode().supportsController();
+        return getInputMode().supportsController();
     }
 
     /**
@@ -128,10 +133,10 @@ public final class InputManager {
      * This calls the internal {@link DiscreteInputActionTrigger#triggerOnPress} API, and additionally fires
      * the {@link InputEvent.InteractionKeyMappingTriggered} input event for keyboard/mouse if {@code interactionKeyEventCheck} is {@code true}.
      *
-     * @param action     The input action to monitor and trigger.
+     * @param action                   The input action to monitor and trigger.
      * @param interactionKeyEventCheck If {@code true}, fires the {@link InputEvent.InteractionKeyMappingTriggered} event for non-controller actions.
-     *                   This event is cancellable.
-     * @param handler    The callback to invoke when the action triggers.
+     *                                 This event is cancellable.
+     * @param handler                  The callback to invoke when the action triggers.
      * @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
      */
     public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {

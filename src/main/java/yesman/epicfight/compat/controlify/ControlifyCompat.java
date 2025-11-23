@@ -47,6 +47,7 @@ import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -156,30 +157,27 @@ public class ControlifyCompat implements ControlifyEntrypoint {
          */
         private static @NotNull TranslationKeys fromAction(@NotNull EpicFightInputAction action) {
             return switch (action) {
-                case ATTACK -> new TranslationKeys("key.epicfight.attack", "key.epicfight.attack.description");
-                case DODGE -> new TranslationKeys("key.epicfight.dodge", "key.epicfight.dodge.description");
-                case GUARD -> new TranslationKeys("key.epicfight.guard", "key.epicfight.guard.description");
-                case LOCK_ON -> new TranslationKeys("key.epicfight.lock_on", "key.epicfight.lock_on.description");
+                case ATTACK -> new TranslationKeys(LangKeys.KEY_ATTACK, LangKeys.KEY_ATTACK_DESCRIPTION);
+                case DODGE -> new TranslationKeys(LangKeys.KEY_DODGE, LangKeys.KEY_DODGE_DESCRIPTION);
+                case GUARD -> new TranslationKeys(LangKeys.KEY_GUARD, LangKeys.KEY_GUARD_DESCRIPTION);
+                case LOCK_ON -> new TranslationKeys(LangKeys.KEY_LOCK_ON, LangKeys.KEY_LOCK_ON_DESCRIPTION);
                 case LOCK_ON_SHIFT_LEFT ->
-                        new TranslationKeys("key.epicfight.lock_on_shift_left", "key.epicfight.lock_on_shift_left.description");
+                        new TranslationKeys(LangKeys.KEY_LOCK_ON_SHIFT_LEFT, LangKeys.KEY_LOCK_ON_SHIFT_LEFT_DESCRIPTION);
                 case LOCK_ON_SHIFT_RIGHT ->
-                        new TranslationKeys("key.epicfight.lock_on_shift_right", "key.epicfight.lock_on_shift_right.description");
+                        new TranslationKeys(LangKeys.KEY_LOCK_ON_SHIFT_RIGHT, LangKeys.KEY_LOCK_ON_SHIFT_RIGHT_DESCRIPTION);
                 case LOCK_ON_SHIFT_FREELY ->
-                        new TranslationKeys("key.epicfight.lock_on_shift_freely", "key.epicfight.lock_on_shift_freely.description");
-                case SWITCH_MODE ->
-                        new TranslationKeys("key.epicfight.switch_mode", "key.epicfight.switch_mode.description");
+                        new TranslationKeys(LangKeys.KEY_LOCK_ON_SHIFT_FREELY, LangKeys.KEY_LOCK_ON_SHIFT_FREELY_DESCRIPTION);
+                case SWITCH_MODE -> new TranslationKeys(LangKeys.KEY_SWITCH_MODE, LangKeys.KEY_SWITCH_MODE_DESCRIPTION);
                 case WEAPON_INNATE_SKILL ->
-                        new TranslationKeys("key.epicfight.weapon_innate_skill", "key.epicfight.weapon_innate_skill.description");
+                        new TranslationKeys(LangKeys.KEY_WEAPON_INNATE_SKILL, LangKeys.KEY_WEAPON_INNATE_SKILL_DESCRIPTION);
                 case WEAPON_INNATE_SKILL_TOOLTIP ->
-                        new TranslationKeys("key.epicfight.show_tooltip", "key.epicfight.show_tooltip.description");
+                        new TranslationKeys(LangKeys.KEY_SHOW_TOOLTIP, LangKeys.KEY_SHOW_TOOLTIP_DESCRIPTION);
                 case OPEN_SKILL_SCREEN ->
-                        new TranslationKeys("key.epicfight.skill_gui", "key.epicfight.skill_gui.description");
-                case OPEN_CONFIG_SCREEN ->
-                        new TranslationKeys("key.epicfight.config", "key.epicfight.config.description");
+                        new TranslationKeys(LangKeys.KEY_SKILL_GUI, LangKeys.KEY_SKILL_GUI_DESCRIPTION);
+                case OPEN_CONFIG_SCREEN -> new TranslationKeys(LangKeys.KEY_CONFIG, LangKeys.KEY_CONFIG_DESCRIPTION);
                 case SWITCH_VANILLA_MODEL_DEBUGGING ->
-                        new TranslationKeys("key.epicfight.switch_vanilla_model_debug", "key.epicfight.switch_vanilla_model_debug.description");
-                case MOBILITY ->
-                        new TranslationKeys("key.epicfight.mover_skill", "key.epicfight.mover_skill.description");
+                        new TranslationKeys(LangKeys.KEY_SWITCH_VANILLA_MODEL_DEBUG, LangKeys.KEY_SWITCH_VANILLA_MODEL_DEBUG_DESCRIPTION);
+                case MOBILITY -> new TranslationKeys(LangKeys.KEY_MOVER_SKILL, LangKeys.KEY_MOVER_SKILL_DESCRIPTION);
 
                 // Vanilla actions translations already handled by Controlify.
                 case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, DROP, TOGGLE_PERSPECTIVE, JUMP,

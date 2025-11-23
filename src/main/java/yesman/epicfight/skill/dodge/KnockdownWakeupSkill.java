@@ -9,7 +9,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.api.client.input.handlers.InputManager;
-import yesman.epicfight.api.client.input.utils.InputUtils;
+import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillContainer;

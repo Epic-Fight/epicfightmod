@@ -9,23 +9,21 @@ import yesman.epicfight.client.input.EpicFightKeyMappings;
 
 import java.util.*;
 
-/**
- * Represents a default set of input actions used in the Epic Fight mod.
- * <p>
- * Each action is linked to a corresponding Minecraft vanilla {@link KeyMapping} or
- * an Epic Fight custom key mapping. These mappings only support keyboard and mouse input.
- * Controller input is not directly supported to avoid dependencies on third-party controller mods.
- * <p>
- * For implementation details, refer to {@link #keyMapping()}.
- */
+/// Represents a default set of input actions used in the Epic Fight mod.
+///
+/// Each action is linked to a corresponding Minecraft vanilla [KeyMapping] or
+/// an Epic Fight custom key mapping.
+///
+/// These mappings only support keyboard and mouse input.
+/// Controller input is not directly supported to avoid dependencies on third-party controller mods.
+///
+/// For implementation details, refer to [#keyMapping()].
 public enum EpicFightInputAction implements InputAction {
-    /**
-     * Corresponds to Minecraft's default "Attack/Destroy" action.
-     * <p>
-     * This uses the vanilla {@link net.minecraft.client.Options#keyAttack} key mapping,
-     * which is bound to the left mouse button by default. It handles both attacking entities
-     * and breaking blocks in the base game.
-     */
+    /// Corresponds to Minecraft's default "Attack/Destroy" action.
+    ///
+    /// This uses the vanilla [net.minecraft.client.Options#keyAttack] key mapping,
+    /// which is bound to the left mouse button by default.
+    /// It handles both attacking entities and breaking blocks in the base game.
     VANILLA_ATTACK_DESTROY(true),
     USE(true),
     SWAP_OFF_HAND(true),
@@ -55,22 +53,16 @@ public enum EpicFightInputAction implements InputAction {
 
     final private int id;
 
-    /**
-     * Indicates whether this input action corresponds to a standard
-     * Minecraft vanilla key mapping.
-     * <p>
-     * Vanilla actions are those defined by the base game (e.g., attack, jump, move),
-     * while non-vanilla actions are custom Epic Fight actions introduced by the mod.
-     */
+    /// Indicates whether this input action corresponds to a standard Minecraft vanilla key mapping.
+    ///
+    /// Vanilla actions are those defined by the base game (e.g., attack, jump, move),
+    /// while non-vanilla actions are custom Epic Fight actions introduced by the mod.
     final private boolean isVanilla;
 
-    /**
-     * Returns whether this input action corresponds to a vanilla
-     * Minecraft key mapping.
-     *
-     * @return {@code true} if this action is linked to a vanilla key mapping,
-     * {@code false} if it is defined by the Epic Fight mod.
-     */
+    /// Returns whether this input action corresponds to a vanilla Minecraft key mapping.
+    ///
+    /// @return `true` if this action is linked to a vanilla key mapping,
+    /// `false` if it is defined by the Epic Fight mod.
     public boolean isVanilla() {
         return isVanilla;
     }
@@ -129,23 +121,18 @@ public enum EpicFightInputAction implements InputAction {
         BY_KEY_MAPPING = Collections.unmodifiableMap(map);
     }
 
-    /**
-     * Gets the input action corresponding to a {@link KeyMapping}.
-     *
-     * @param keyMapping the key mapping; must not be {@code null}
-     * @return the corresponding action, or null if none matches
-     */
+    /// Gets the input action corresponding to a [KeyMapping].
+    ///
+    /// @param keyMapping the key mapping; must not be `null`
+    /// @return the corresponding action, or null if none matches
     public static @Nullable EpicFightInputAction fromKeyMapping(@NotNull KeyMapping keyMapping) {
         return BY_KEY_MAPPING.get(keyMapping);
     }
 
-    /**
-     * Returns a set of all Epic Fight actions that are not part of the vanilla
-     * Minecraft key mappings.
-     *
-     * @return a set containing all non-vanilla {@link EpicFightInputAction}
-     * @see EpicFightInputAction#isVanilla
-     */
+    /// Returns a set of all Epic Fight actions that are not part of the vanilla Minecraft key mappings.
+    ///
+    /// @return a set containing all non-vanilla [EpicFightInputAction]
+    /// @see EpicFightInputAction#isVanilla
     public static @NotNull Set<EpicFightInputAction> nonVanillaActions() {
         Set<EpicFightInputAction> result = EnumSet.noneOf(EpicFightInputAction.class);
         for (EpicFightInputAction action : EpicFightInputAction.values()) {

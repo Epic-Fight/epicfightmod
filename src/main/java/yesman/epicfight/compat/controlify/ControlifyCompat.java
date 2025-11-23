@@ -517,6 +517,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
     private record ControllerBindingImpl(@NotNull InputBinding inputBinding) implements ControllerBinding {
 
         @Override
+        @NotNull
         public ResourceLocation id() {
             return inputBinding.id();
         }

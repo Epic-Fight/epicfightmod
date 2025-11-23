@@ -14,7 +14,7 @@ import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.gameasset.Animations;

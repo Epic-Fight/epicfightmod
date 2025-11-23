@@ -18,7 +18,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;

@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;

@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.input.MovementDirection;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.client.CPSkillRequest;

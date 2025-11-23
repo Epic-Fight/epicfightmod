@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.input.handlers;
+package yesman.epicfight.api.client.input;
 
 import org.jetbrains.annotations.NotNull;
 

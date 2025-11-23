@@ -39,7 +39,7 @@ import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
-import yesman.epicfight.client.input.EpicFightKeyMappings;
+import yesman.epicfight.client.input.EpicFightInputCategories;
 import yesman.epicfight.main.EpicFightMod;
 
 import java.util.Objects;
@@ -247,10 +247,10 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             @NotNull ControlifyBindApi registrar,
             @NotNull EpicFightInputAction action
     ) {
-        final Component combatCategory = Component.translatable(EpicFightKeyMappings.InputCategories.COMBAT);
-        final Component guiCategory = Component.translatable(EpicFightKeyMappings.InputCategories.GUI);
-        final Component cameraCategory = Component.translatable(EpicFightKeyMappings.InputCategories.CAMERA);
-        final Component systemCategory = Component.translatable(EpicFightKeyMappings.InputCategories.SYSTEM);
+        final Component combatCategory = Component.translatable(EpicFightInputCategories.COMBAT);
+        final Component guiCategory = Component.translatable(EpicFightInputCategories.GUI);
+        final Component cameraCategory = Component.translatable(EpicFightInputCategories.CAMERA);
+        final Component systemCategory = Component.translatable(EpicFightInputCategories.SYSTEM);
 
         // Using a switch expression to enforce compile-time exhaustive checking.
         // The returned value is a dummy and does nothing; its only purpose is to

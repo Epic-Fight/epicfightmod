@@ -58,6 +58,7 @@ import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
+import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.network.EntityPairingPacketType;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -112,7 +113,10 @@ public class EpicFightMod {
 	public static String prefix(String s) {
 		return String.format("%s:%s", MODID, s);
 	}
-	
+
+    /// @deprecated Consider using the generated object [LangKeys],
+    /// which is type-safe and not error-prone to runtime bugs or crashes.
+    @Deprecated(forRemoval = true)
 	public static String format(String s) {
 		return String.format(s, MODID);
 	}

@@ -174,7 +174,6 @@ dependencies {
     }
 }
 
-
 val generationTaskGroup = "generation"
 
 val generateModMetadata by tasks.registering(ProcessResources::class) {
@@ -210,80 +209,6 @@ idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
-    }
-}
-
-publishMods {
-    val readme = project.file("RELEASE_NOTES.md")
-    val readmeContent = readme.readText()
-    val pattern = "(?s)## \\[$modVersion\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"
-    val matcher = Regex(pattern).find(readmeContent)
-
-    // No publishing without matching changelog
-    if (matcher == null) {
-        println("No matching changelog found for version $modVersion in RELEASE_NOTES.md. Publishing is skipped.")
-        return@publishMods
-    }
-
-    // Extract the latest changelog without the header and API change part
-    val latestChangelog = matcher.groupValues[1]
-
-    // Test run to see the notification works well in discord
-    dryRun.set(true)
-
-    changelog.set(
-        """
-    **Tested against:**
-    - **NeoForge:** $neoforgeVersion
-    - **Minecraft:** $mcVersion
-    """.trimIndent()
-    )
-
-    // The name of the mod loader
-    modLoaders.add("neoforge")
-
-    type.set(STABLE)
-
-    displayName.set(getFullModVersion())
-
-    file.set(tasks.jar.get().archiveFile)
-    additionalFiles.from(sourcesJar)
-
-
-    curseforge {
-        accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
-        projectId.set("405076")
-        minecraftVersions.add(mcVersion)
-        projectSlug.set("epic-fight-mod")
-    }
-
-    modrinth {
-        accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
-        projectId.set("vu3NZ5Ma")
-        minecraftVersions.add(mcVersion)
-
-        // Syncs the GitHub README with the Modrinth project description
-        projectDescription.set(
-            providers.fileContents(layout.projectDirectory.file("README.md")).asText
-        )
-    }
-    // Discord webhook and notification settings
-    discord {
-        webhookUrl.set(providers.environmentVariable("DISCORD_WEBHOOK"))
-        dryRunWebhookUrl.set(providers.environmentVariable("DRY_RUN_DISCORD_WEBHOOK"))
-        username.set("Update Notification")
-        avatarUrl.set("https://i.imgur.com/FrxDviN.png")
-        content.set(
-            changelog.map {
-                "<@&1074034800849059930>\n# Epic Fight $modVersion is out!\nMinecraft version: ${mcVersion}\nNeoForge version: ${neoforgeVersion}\n$latestChangelog"
-            }
-        )
-
-        style {
-            look.set("MODERN")
-            link.set("EMBED")
-            thumbnailUrl.set("https://i.imgur.com/nI8xOCy.png")
-        }
     }
 }
 
@@ -401,3 +326,76 @@ tasks.compileJava {
     dependsOn(generateLangKeys)
 }
 
+publishMods {
+    val readme = project.file("RELEASE_NOTES.md")
+    val readmeContent = readme.readText()
+    val pattern = "(?s)## \\[$modVersion\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"
+    val matcher = Regex(pattern).find(readmeContent)
+
+    // No publishing without matching changelog
+    if (matcher == null) {
+        println("No matching changelog found for version $modVersion in RELEASE_NOTES.md. Publishing is skipped.")
+        return@publishMods
+    }
+
+    // Extract the latest changelog without the header and API change part
+    val latestChangelog = matcher.groupValues[1]
+
+    // Test run to see the notification works well in discord
+    dryRun.set(true)
+
+    changelog.set(
+        """
+    **Tested against:**
+    - **NeoForge:** $neoforgeVersion
+    - **Minecraft:** $mcVersion
+    """.trimIndent()
+    )
+
+    // The name of the mod loader
+    modLoaders.add("neoforge")
+
+    type.set(STABLE)
+
+    displayName.set(getFullModVersion())
+
+    file.set(tasks.jar.get().archiveFile)
+    additionalFiles.from(sourcesJar)
+
+
+    curseforge {
+        accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
+        projectId.set("405076")
+        minecraftVersions.add(mcVersion)
+        projectSlug.set("epic-fight-mod")
+    }
+
+    modrinth {
+        accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
+        projectId.set("vu3NZ5Ma")
+        minecraftVersions.add(mcVersion)
+
+        // Syncs the GitHub README with the Modrinth project description
+        projectDescription.set(
+            providers.fileContents(layout.projectDirectory.file("README.md")).asText
+        )
+    }
+    // Discord webhook and notification settings
+    discord {
+        webhookUrl.set(providers.environmentVariable("DISCORD_WEBHOOK"))
+        dryRunWebhookUrl.set(providers.environmentVariable("DRY_RUN_DISCORD_WEBHOOK"))
+        username.set("Update Notification")
+        avatarUrl.set("https://i.imgur.com/FrxDviN.png")
+        content.set(
+            changelog.map {
+                "<@&1074034800849059930>\n# Epic Fight $modVersion is out!\nMinecraft version: ${mcVersion}\nNeoForge version: ${neoforgeVersion}\n$latestChangelog"
+            }
+        )
+
+        style {
+            look.set("MODERN")
+            link.set("EMBED")
+            thumbnailUrl.set("https://i.imgur.com/nI8xOCy.png")
+        }
+    }
+}

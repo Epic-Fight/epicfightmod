@@ -332,7 +332,6 @@ publishMods {
     val pattern = "(?s)## \\[$modVersion\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"
     val matcher = Regex(pattern).find(readmeContent)
 
-    // No publishing without matching changelog
     if (matcher == null) {
         println("No matching changelog found for version $modVersion in RELEASE_NOTES.md. Publishing is skipped.")
         return@publishMods
@@ -341,7 +340,7 @@ publishMods {
     // Extract the latest changelog without the header and API change part
     val latestChangelog = matcher.groupValues[1]
 
-    // Test run to see the notification works well in discord
+    // Test run to see the notification works well in Discord
     dryRun.set(true)
 
     changelog.set(
@@ -352,22 +351,17 @@ publishMods {
     """.trimIndent()
     )
 
-    // The name of the mod loader
     modLoaders.add("neoforge")
-
     type.set(STABLE)
-
     displayName.set(getFullModVersion())
-
     file.set(tasks.jar.get().archiveFile)
     additionalFiles.from(sourcesJar)
-
 
     curseforge {
         accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
         projectId.set("405076")
         minecraftVersions.add(mcVersion)
-        projectSlug.set("epic-fight-mod")
+        projectSlug.set("epic-fight-mod") // Required for Discord notification
     }
 
     modrinth {
@@ -380,6 +374,7 @@ publishMods {
             providers.fileContents(layout.projectDirectory.file("README.md")).asText
         )
     }
+
     // Discord webhook and notification settings
     discord {
         webhookUrl.set(providers.environmentVariable("DISCORD_WEBHOOK"))

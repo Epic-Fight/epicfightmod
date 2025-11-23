@@ -7,19 +7,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
-import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.generated.LangKeys;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class EpicFightKeyMappings {
-
-    @ApiStatus.Internal
-    public static class InputCategories {
-        public static final String COMBAT = LangKeys.KEY_COMBAT;
-        public static final String GUI = LangKeys.KEY_GUI;
-        public static final String SYSTEM = LangKeys.KEY_SYSTEM;
-        public static final String CAMERA = LangKeys.KEY_CAMERA;
-    }
 
     // GUI key-mappings
     public static final KeyMapping WEAPON_INNATE_SKILL_TOOLTIP =
@@ -28,7 +19,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.GUI,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_LSHIFT,
-                    InputCategories.GUI
+                    EpicFightInputCategories.GUI
             );
 
     public static final KeyMapping SKILL_EDIT =
@@ -37,7 +28,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_K,
-                    InputCategories.GUI
+                    EpicFightInputCategories.GUI
             );
 
     public static final KeyMapping OPEN_CONFIG_SCREEN =
@@ -46,7 +37,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     -1,
-                    InputCategories.GUI
+                    EpicFightInputCategories.GUI
             );
 
     // In-game keymappings
@@ -54,7 +45,7 @@ public class EpicFightKeyMappings {
             new CombatKeyMapping(
                     LangKeys.KEY_DODGE,
                     InputConstants.KEY_LALT,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping GUARD =
@@ -62,7 +53,7 @@ public class EpicFightKeyMappings {
                     LangKeys.KEY_GUARD,
                     InputConstants.Type.MOUSE,
                     InputConstants.MOUSE_BUTTON_RIGHT,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping ATTACK =
@@ -70,7 +61,7 @@ public class EpicFightKeyMappings {
                     LangKeys.KEY_ATTACK,
                     InputConstants.Type.MOUSE,
                     InputConstants.MOUSE_BUTTON_LEFT,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping WEAPON_INNATE_SKILL =
@@ -78,14 +69,14 @@ public class EpicFightKeyMappings {
                     LangKeys.KEY_WEAPON_INNATE_SKILL,
                     InputConstants.Type.MOUSE,
                     InputConstants.MOUSE_BUTTON_LEFT,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping MOVER_SKILL =
             new CombatKeyMapping(
                     LangKeys.KEY_MOVER_SKILL,
                     InputConstants.KEY_SPACE,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping SWITCH_MODE =
@@ -94,7 +85,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_R,
-                    InputCategories.COMBAT
+                    EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping LOCK_ON =
@@ -103,7 +94,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_G,
-                    InputCategories.CAMERA
+                    EpicFightInputCategories.CAMERA
             );
 
     public static final KeyMapping LOCK_ON_SHIFT_LEFT =
@@ -112,7 +103,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_LEFT,
-                    InputCategories.CAMERA
+                    EpicFightInputCategories.CAMERA
             );
 
     public static final KeyMapping LOCK_ON_SHIFT_RIGHT =
@@ -121,7 +112,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_RIGHT,
-                    InputCategories.CAMERA
+                    EpicFightInputCategories.CAMERA
             );
 
     public static final KeyMapping LOCK_ON_SHIFT_FREELY =
@@ -130,7 +121,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.MOUSE,
                     InputConstants.MOUSE_BUTTON_RIGHT,
-                    InputCategories.CAMERA
+                    EpicFightInputCategories.CAMERA
             );
 
     // Systemical key mappings especially for debugging
@@ -140,7 +131,7 @@ public class EpicFightKeyMappings {
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     -1,
-                    InputCategories.SYSTEM
+                    EpicFightInputCategories.SYSTEM
             );
 
     @SubscribeEvent

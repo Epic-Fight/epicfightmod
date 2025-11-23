@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.input.utils;
+package yesman.epicfight.client.input;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
@@ -7,10 +7,10 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 
-/**
- * Internal utility for simplified input checks.
- * Clients should use {@link InputManager} directly.
- */
+/// Internal utility for simplified input checks.
+/// Consumers should avoid calling these methods, as they may break in future versions.
+///
+/// @see InputManager
 @ApiStatus.Internal
 public final class InputUtils {
     private InputUtils() {
@@ -23,11 +23,9 @@ public final class InputUtils {
         }
     }
 
-    /**
-     * Currently, this calls {@link Input#tick} without performing any additional logic.
-     * This abstraction was introduced to allow calling it without depending on the vanilla Minecraft {@link Input},
-     * enabling Epic Fight to introduce changes in future updates if necessary to support controllers.
-     */
+    /// Currently, this calls [Input#tick] without performing any additional logic.
+    /// This abstraction was introduced to allow calling it without depending on the vanilla Minecraft [Input],
+    /// enabling Epic Fight to introduce changes in future updates if necessary to support controllers.
     public static void sneakingTick(@NotNull LocalPlayer player, boolean isSneaking, float sneakingSpeedMultiplier) {
         player.input.tick(isSneaking, sneakingSpeedMultiplier);
     }

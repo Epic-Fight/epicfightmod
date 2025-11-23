@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.input.handlers;
+package yesman.epicfight.client.input;
 
 import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.ApiStatus;
@@ -8,6 +8,8 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
+import yesman.epicfight.api.client.input.handlers.DiscreteActionHandler;
+import yesman.epicfight.api.client.input.handlers.InputManager;
 
 /**
  * Handles triggering of a discrete (one-time) {@link EpicFightInputAction}

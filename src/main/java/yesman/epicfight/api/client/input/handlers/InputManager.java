@@ -19,6 +19,7 @@ import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvid
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
+import yesman.epicfight.client.input.DiscreteInputActionTrigger;
 
 /**
  * High-level input API that abstracts direct interactions with {@link KeyMapping}

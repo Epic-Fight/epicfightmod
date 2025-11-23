@@ -6,7 +6,7 @@ import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingRegistra
 
 import net.minecraft.client.Minecraft;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.ClientEngine;

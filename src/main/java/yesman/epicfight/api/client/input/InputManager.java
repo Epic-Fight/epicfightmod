@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.input.handlers;
+package yesman.epicfight.api.client.input;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +14,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.InputEvent;
-import yesman.epicfight.api.client.input.InputMode;
-import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;

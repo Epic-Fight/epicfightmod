@@ -32,7 +32,7 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.event.EpicFightClientEvents;
 import yesman.epicfight.api.client.event.instances.BuildCameraTransform;
 import yesman.epicfight.api.client.event.instances.ItemUsedInDecoupledCamera;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;

@@ -56,7 +56,7 @@ import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.neoevent.RenderEnderDragonEvent;

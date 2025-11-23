@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
 import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.api.utils.LevelUtil;

@@ -8,8 +8,8 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
-import yesman.epicfight.api.client.input.handlers.DiscreteActionHandler;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.DiscreteActionHandler;
+import yesman.epicfight.api.client.input.InputManager;
 
 /// Handles triggering of a discrete (one-time) [EpicFightInputAction]
 /// based on the current input state.

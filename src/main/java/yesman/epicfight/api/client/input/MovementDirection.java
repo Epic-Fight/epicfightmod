@@ -1,21 +1,16 @@
 package yesman.epicfight.api.client.input;
 
-/**
- * Represents player movement direction based on input.
- * <p>
- * forward, backward, left, right indicate the player’s intended movement:
- * <ul>
- *     <li>1 if that direction key is pressed (forward or left)</li>
- *     <li>-1 if the opposite key is pressed (backward or right)</li>
- *     <li>0 if neither key is pressed</li>
- * </ul>
- * <p>
- * Example uses:
- * <ul>
- *     <li>Dodge skill: calculate dash direction from input</li>
- *     <li>Phantom ascent double jump: move and rotate player based on input direction</li>
- * </ul>
- */
+/// Represents player movement direction based on input.
+///
+/// forward, backward, left, right indicate the player’s intended movement:
+///
+/// - `1` if that direction key is pressed (forward or left)
+/// - `-1` if the opposite key is pressed (backward or right)
+/// - `0` if neither key is pressed
+///
+/// Example uses:
+/// - **Dodge skill:** calculate dash direction from input
+/// - **Phantom ascent double jump:** move and rotate player based on input direction
 public record MovementDirection(int forward, int backward, int left, int right) {
     public int vertical() {
         return forward + backward;

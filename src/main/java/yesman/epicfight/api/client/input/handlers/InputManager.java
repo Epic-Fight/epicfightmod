@@ -20,17 +20,14 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
-import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.DiscreteInputActionTrigger;
 
-/**
- * High-level input API that abstracts direct interactions with {@link KeyMapping}
- * and supports controllers if an Epic Fight controller mod implementation is present
- * (see {@link EpicFightControllerModProvider}).
- * <p>
- * Use this class whenever possible to ensure input works consistently across
- * keyboard/mouse and supported controllers.
- */
+/// High-level input API that abstracts direct interactions with [KeyMapping]
+/// and supports controllers if an Epic Fight controller mod implementation is present
+/// (see [EpicFightControllerModProvider]).
+///
+/// Use this class whenever possible to ensure input works consistently across
+/// keyboard/mouse and supported controllers.
 @ApiStatus.Experimental
 public final class InputManager {
     private InputManager() {
@@ -42,7 +39,7 @@ public final class InputManager {
     }
 
     /// Returns the current input mode (keyboard/mouse or controller).
-    /// Equivalent to {@link IEpicFightControllerMod#getInputMode()}, but guaranteed
+    /// Equivalent to [IEpicFightControllerMod#getInputMode()], but guaranteed
     /// to return a non-null value even if no controller mod is present.
     @NotNull
     public static InputMode getInputMode() {
@@ -50,38 +47,34 @@ public final class InputManager {
         return controllerMod == null ? InputMode.KEYBOARD_MOUSE : controllerMod.getInputMode();
     }
 
-    /**
-     * Checks if controller or gamepad input is currently supported.
-     *
-     * <p><b>Note:</b> The {@link InputMode#MIXED} mode supports both controller and keyboard/mouse input at the same time.
-     * Returning {@code true} here does not necessarily mean the input mode is exclusively {@link InputMode#CONTROLLER}.
-     *
-     * @return {@code true} if a controller mod is present and the current input mode allows controller input.
-     * @see InputMode
-     */
+    /// Checks if controller or gamepad input is currently supported.
+    ///
+    /// **Note:** The [InputMode#MIXED] mode supports both controller and keyboard/mouse input at the same time.
+    /// Returning `true` here does not necessarily mean the input mode is exclusively [InputMode#CONTROLLER].
+    ///
+    /// @return `true` if a controller mod is present and the current input mode allows controller input.
+    /// @see InputMode
     public static boolean supportsControllerInput() {
         return getInputMode().supportsController();
     }
 
-    /**
-     * Returns whether the given input action is active during this tick.
-     * The behavior differs depending on the input source:
-     * <ul>
-     *   <li><b>Keyboard/Mouse:</b> Follows Minecraft’s internal behavior.
-     *   May return <code>false</code> while a screen is open, even if the physical key is held down.</li>
-     *   <li><b>Controller:</b> The behavior is handled externally and is irrelevant to this method.
-     *   It is usually determined by an input context during the
-     *   controller binding registration (third-party API),
-     *   which decides whether to return <code>false</code> or <code>true</code> when the physical input is down.</li>
-     * </ul>
-     * <p>
-     * If no controller mod is present, only the {@link KeyMapping} (Keyboard/Mouse) is checked.
-     * This is usually useful for in-game continuous actions.
-     * It should not be used while a screen is open.
-     *
-     * @param action the input action to check
-     * @see InputType
-     */
+    /// Returns whether the given input action is active during this tick.
+    ///
+    /// The behavior differs depending on the input source:
+    ///
+    /// - **Keyboard/Mouse:** Follows Minecraft’s internal behavior.
+    ///   May return `false` while a screen is open, even if the physical key is held down.
+    /// - **Controller:** The behavior is handled externally and is irrelevant to this method.
+    ///   It is usually determined by an input context during the
+    ///   controller binding registration (third-party API),
+    ///   which decides whether to return `false` or `true` when the physical input is down.
+    ///
+    /// If no controller mod is present, only the [KeyMapping] (Keyboard/Mouse) is checked.
+    /// This is usually useful for in-game continuous actions.
+    /// It should not be used while a screen is open.
+    ///
+    /// @param action the input action to check
+    /// @see InputType
     public static boolean isActionActive(@NotNull EpicFightInputAction action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
@@ -95,25 +88,21 @@ public final class InputManager {
         };
     }
 
-    /**
-     * Returns whether the given input action is currently physically active this tick.
-     * <p>
-     * The behavior differs depending on the input source:
-     * <ul>
-     *   <li><b>Keyboard/Mouse:</b> Always checks the physical key state, ignoring vanilla GUI filtering
-     *   and bypassing the <a href="https://github.com/Epic-Fight/epicfight/issues/2174">mouse multiple-keybind sharing bug</a>
-     *   (present in versions before 1.21.10).</li>
-     *   <li><b>Controller:</b> Similarly to {@link #isActionActive},
-     *   the behavior is handled externally and is irrelevant to this method.</li>
-     * </ul>
-     * <p>
-     * If no controller mod is present, only the {@link KeyMapping} (Keyboard/Mouse) is checked.
-     * This is usually useful for GUI continuous actions.
-     * It should not be used in-game with no screens.
-     *
-     * @param action the input action to check
-     * @see #isActionActive
-     */
+    /// Returns whether the given input action is currently physically active this tick.
+    ///
+    /// The behavior differs depending on the input source:
+    ///  - **Keyboard/Mouse:** Always checks the physical key state, ignoring vanilla GUI filtering
+    ///    and bypassing the [mouse multiple-keybind sharing bug](https://github.com/Epic-Fight/epicfight/issues/2174)
+    ///    (present in versions before 1.21.10).
+    /// - **Controller:** Similarly to [#isActionActive], the behavior is handled externally
+    ///   and is irrelevant to this method.
+    ///
+    /// If no controller mod is present, only the [KeyMapping] (Keyboard/Mouse) is checked.
+    /// This is usually useful for GUI continuous actions.
+    /// It should not be used in-game with no screens.
+    ///
+    /// @param action the input action to check
+    /// @see #isActionActive
     public static boolean isActionPhysicallyActive(@NotNull EpicFightInputAction action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
@@ -128,18 +117,17 @@ public final class InputManager {
         };
     }
 
-    /**
-     * Called on every client tick to potentially trigger the provided callback for a given input action.
-     * <p>
-     * This calls the internal {@link DiscreteInputActionTrigger#triggerOnPress} API, and additionally fires
-     * the {@link InputEvent.InteractionKeyMappingTriggered} input event for keyboard/mouse if {@code interactionKeyEventCheck} is {@code true}.
-     *
-     * @param action                   The input action to monitor and trigger.
-     * @param interactionKeyEventCheck If {@code true}, fires the {@link InputEvent.InteractionKeyMappingTriggered} event for non-controller actions.
-     *                                 This event is cancellable.
-     * @param handler                  The callback to invoke when the action triggers.
-     * @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
-     */
+    /// Called on every client tick to potentially trigger the provided callback for a given input action.
+    ///
+    /// This calls the internal [DiscreteInputActionTrigger#triggerOnPress] API, and additionally fires
+    /// the [InputEvent.InteractionKeyMappingTriggered] input event for keyboard/mouse if `interactionKeyEventCheck`
+    /// is `true`.
+    ///
+    /// @param action                   The input action to monitor and trigger.
+    /// @param interactionKeyEventCheck If `true`, fires the [InputEvent.InteractionKeyMappingTriggered] event for non-controller actions.
+    ///                                                                 This event is cancellable.
+    /// @param handler                  The callback to invoke when the action triggers.
+    /// @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
     public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {
         DiscreteInputActionTrigger.triggerOnPress(action, (context) -> {
             if (context.triggeredByController() || !interactionKeyEventCheck) {
@@ -151,26 +139,22 @@ public final class InputManager {
         });
     }
 
-    /**
-     * Convenience overload of {@link #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)}
-     * for callbacks that do not require the {@link DiscreteActionHandler.Context}.
-     *
-     * @see #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)
-     */
+    /// Convenience overload of [#triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)]
+    /// for callbacks that do not require the [DiscreteActionHandler.Context].
+    ///
+    /// @see #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)
     public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull Runnable runnable) {
         triggerOnPress(action, interactionKeyEventCheck, (context) -> runnable.run());
     }
 
-    /**
-     * Checks whether the given input action is assigned to the same key / button as another action.
-     * <p>
-     * For keyboard/mouse, this compares the key codes; for controllers, it compares the digital button.
-     * <p><b>Note:</b> {@link InputMode#MIXED} is currently unsupported and its behavior is undefined.</p>
-     *
-     * @param action  the first input action
-     * @param action2 the second input action
-     * @return true if both actions are triggered by the same key or controller button; false otherwise
-     */
+    /// Checks whether the given input action is assigned to the same key / button as another action.
+    ///
+    /// For keyboard/mouse, this compares the key codes; for controllers, it compares the digital button.
+    /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
+    ///
+    /// @param action  the first input action
+    /// @param action2 the second input action
+    /// @return `true` if both actions are triggered by the same key or controller button; `false` otherwise
     public static boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
@@ -182,20 +166,19 @@ public final class InputManager {
         return keyMapping1.getKey() == keyMapping2.getKey();
     }
 
-    /**
-     * Retrieves the current input state for the current player (client-side).
-     * <p><b>Note:</b> {@link InputMode#MIXED} is currently unsupported and its behavior is undefined.</p>
-     * You should use this method instead of depending on the vanilla {@link Input} directly
-     * to support controllers.
-     * <p>
-     * The {@link PlayerInputState} is immutable, so properties cannot be updated directly, for that,
-     * use {@link InputManager#setInputState}.
-     *
-     * @param vanillaInput the Minecraft vanilla {@link Input} which will be mapped to a {@link PlayerInputState};
-     *                     ignored if using a controller.
-     * @return an immutable {@link PlayerInputState} representing the current input state.
-     * @see InputManager#setInputState
-     */
+    /// Retrieves the current input state for the current player (client-side).
+    ///
+    ///  You should use this method instead of depending on the vanilla [Input] directly support controllers.
+    ///
+    /// The [PlayerInputState] is immutable, so properties cannot be updated directly, for that,
+    /// use [InputManager#setInputState].
+    ///
+    /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
+    ///
+    /// @param vanillaInput the Minecraft vanilla [Input] which will be mapped to a [PlayerInputState];
+    ///                                                                                                                                                                                                                             ignored if using a controller.
+    /// @return an immutable [PlayerInputState] representing the current input state.
+    /// @see InputManager#setInputState
     @NotNull
     public static PlayerInputState getInputState(@NotNull Input vanillaInput) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
@@ -206,42 +189,33 @@ public final class InputManager {
         return PlayerInputState.fromVanillaInput(vanillaInput);
     }
 
-    /**
-     * Convenience overload of {@link #getInputState(Input)} that requires the full {@link LocalPlayer},
-     * which is needed to read the vanilla {@link Input} used for non-controller inputs.
-     *
-     * @param localPlayer the player whose vanilla {@link Input} will be read; ignored when using a controller.
-     * @return an immutable {@link PlayerInputState} representing the current input state.
-     */
+    /// Convenience overload of [#getInputState(Input)] that requires the full [LocalPlayer],
+    /// which is needed to read the vanilla [Input] used for non-controller inputs.
+    ///
+    /// @param localPlayer the player whose vanilla [Input] will be read; ignored when using a controller.
+    /// @return an immutable [PlayerInputState] representing the current input state.
     @NotNull
     public static PlayerInputState getInputState(@NotNull LocalPlayer localPlayer) {
         return getInputState(localPlayer.input);
     }
 
-    /**
-     * Updates the current input state for the current player (client-side).
-     * <p>
-     * You should use this instead of modifying fields in the vanilla {@link Input} directly
-     * to ensure controller input is properly supported.
-     * </p>
-     *
-     * @param inputState the updated input state.
-     * @see InputManager#getInputState
-     */
+    /// Updates the current input state for the current player (client-side).
+    ///
+    /// Consider using this instead of modifying fields in the vanilla [Input] directly
+    /// to avoid direct dependency on Minecraft.
+    ///
+    /// @param inputState the updated input state.
+    /// @see InputManager#getInputState
     public static void setInputState(@NotNull PlayerInputState inputState) {
         final LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            Input input = player.input;
+            final Input input = player.input;
             PlayerInputState.applyToVanillaInput(inputState, input);
         }
     }
 
-    /**
-     * Handles firing the {@link InputEvent.InteractionKeyMappingTriggered} input event for keyboard/mouse actions
-     * and runs the callback only if the event is not canceled.
-     * This method replaces the legacy internal {@link ControlEngine#isKeyPressed}.
-     */
-    @SuppressWarnings("JavadocReference")
+    /// Handles firing the [InputEvent.InteractionKeyMappingTriggered] input event for keyboard/mouse actions
+    /// and runs the callback only if the event is not canceled.
     private static void runKeyboardMouseEvent(@NotNull EpicFightInputAction action, @NotNull DiscreteActionHandler handler) {
         final KeyMapping keyMapping = action.keyMapping();
 
@@ -259,13 +233,11 @@ public final class InputManager {
         }
     }
 
-    /**
-     * Checks whether the vanilla {@link KeyMapping} is down.
-     * <p>
-     * <b>Note:</b> This may report <code>false</code> if a Minecraft screen is open, so it respects
-     * Minecraft internals.
-     * The exact behavior varied from one Minecraft version to another.
-     */
+    /// Checks whether the vanilla [KeyMapping] is down.
+    ///
+    /// **Note:** This may report `false` if a Minecraft screen is open, so it respects
+    /// Minecraft internals.
+    /// The exact behavior varied from one Minecraft version to another.
     private static boolean isKeyDown(@NotNull KeyMapping keyMapping) {
         final boolean isDown = keyMapping.isDown();
         if (!isDown && keyMapping.getKey().getType() == InputConstants.Type.MOUSE) {
@@ -287,32 +259,34 @@ public final class InputManager {
         return isDown;
     }
 
-    /**
-     * Checks whether the physical key is actually pressed, regardless of Minecraft's internal state.
-     * This method does not respect any Minecraft behavior and may return <code>true</code> even
-     * if a screen is open, for example.
-     * <p>
-     * Consumers or addons should <b>never</b> rely on this internal method unless absolutely necessary.
-     * For instance, Epic Fight still uses it internally as a workaround for a specific issue.
-     * <p>
-     * This method serves as a workaround for an issue where the weapon’s innate skill fails to trigger
-     * when bound to the left mouse button.
-     * Since other keybindings may share the same physical input,
-     * Minecraft incorrectly reports the key as <code>false</code>, even though it should be <code>true</code>.
-     * This issue occurs in versions 1.21.1 and 1.20.1 but is fixed in 1.21.10 and newer.
-     * Once migration to a newer version is complete, this workaround should be removed entirely
-     * while ensuring the weapon's innate skill continues to function correctly.
-     * <p>
-     * For more details, see
-     * <a href="https://github.com/Epic-Fight/epicfight/issues/2174">Epic Fight issue #2174</a>.
-     * <p>
-     * Note: At the time of writing, this workaround is confirmed to be unnecessary in 1.21.10,
-     * but may still (though unlikely) be required in 1.22 or later versions.
-     * This is also useful when a screen is open,
-     * since {@link #isKeyDown(KeyMapping)} will return <code>false</code>.
-     * <p>
-     * See <a href="https://github.com/Epic-Fight/epicfight/issues/2170">issue #2170</a> for details.
-     */
+    /// Checks whether the physical key is actually pressed, regardless of Minecraft's internal state.
+    ///
+    /// This method does not respect any Minecraft behavior and may return `true` even
+    /// if a screen is open, for example.
+    ///
+    /// Consumers or addons should **never** rely on this internal method unless absolutely necessary.
+    /// For instance, Epic Fight still uses it internally as a workaround for a specific issue.
+    ///
+    /// This method serves as a workaround for an issue where the weapon’s innate skill fails to trigger
+    /// when bound to the left mouse button.
+    ///
+    /// Since other keybindings may share the same physical input,
+    /// Minecraft incorrectly reports the key as `false`, even though it should be `true`.
+    ///
+    /// This issue occurs in versions `1.21.1` and `1.20.1` but is fixed in 1.21.10 and newer.
+    ///
+    /// Once migration to a newer version is complete, this workaround should be removed entirely
+    /// while ensuring the weapon's innate skill continues to function correctly.
+    ///
+    /// For more details, see [Issue #2174](https://github.com/Epic-Fight/epicfight/issues/2174).
+    ///
+    /// Note: At the time of writing, this workaround is confirmed to be unnecessary in 1.21.10,
+    /// but may still (though unlikely) be required in 1.22 or later versions.
+    ///
+    /// This is also useful when a screen is open,
+    /// since [#isKeyDown(KeyMapping)] will return `false`.
+    ///
+    /// See [issue #2170](https://github.com/Epic-Fight/epicfight/issues/2170) for details.
     @ApiStatus.Internal
     private static boolean isPhysicalKeyDown(@NotNull KeyMapping keyMapping) {
         final InputConstants.Key key = keyMapping.getKey();

@@ -62,7 +62,9 @@ public interface EpicFightClientBoundPayloadHandler {
 			switch (data.workType()) {
 			case REGISTER -> {
 				Object value = data.skillDataKey().value().decode(data.buffer());
-				dataManager.registerData(data.skillDataKey());
+				if (!dataManager.hasData(data.skillDataKey())) {
+					dataManager.registerData(data.skillDataKey());
+				}
 				dataManager.setDataRawtype(data.skillDataKey(), value);
 			}
 			case REMOVE -> {

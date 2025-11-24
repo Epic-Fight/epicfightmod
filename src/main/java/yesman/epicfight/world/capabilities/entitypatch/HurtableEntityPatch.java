@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -95,8 +96,15 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 		List<AttributeModifier> modifiersToAdd = CapabilityItem.getAttributeModifiersAsWeapon(EpicFightAttributes.STUN_ARMOR, equipmentslot, to, null);
 		List<AttributeModifier> modifiersToRemove = CapabilityItem.getAttributeModifiersAsWeapon(EpicFightAttributes.STUN_ARMOR, equipmentslot, from, null);
 		
+		AttributeInstance stunArmorAttribute = this.original.getAttribute(EpicFightAttributes.STUN_ARMOR);
+		if (stunArmorAttribute == null) {
+			EpicFightMod.LOGGER.warn("Entity {} (patch: {}) is missing STUN_ARMOR attribute - likely due to mod incompatibility or mixin failure", 
+				this.original.getType().getDescriptionId(), this.getClass().getSimpleName());
+			return;
+		}
+		
 		AttributeInstance tempAttr = new AttributeInstance(EpicFightAttributes.STUN_ARMOR, (i)->{});
-		tempAttr.replaceFrom(this.original.getAttribute(EpicFightAttributes.STUN_ARMOR));
+		tempAttr.replaceFrom(stunArmorAttribute);
 		
 		for (AttributeModifier modifier : modifiersToAdd) {
 			if (!tempAttr.hasModifier(modifier.id())) {

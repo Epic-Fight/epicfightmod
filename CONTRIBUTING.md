@@ -274,3 +274,42 @@ Avoid mysterious and magical numbers that lack a clear purpose or explanation.
 - rect.left = 4.24264068712;
 + rect.left = 3.0 * Math.sqrt(2);
 ```
+
+### 11. Use Markdown for Javadoc comments
+
+Markdown support has been [added in Java 23+](https://openjdk.org/jeps/467); however,  
+[IntelliJ IDEA supports it](https://blog.jetbrains.com/idea/2025/04/markdown-in-java-docs-shut-up-and-take-my-comments/)
+in any Java version.
+
+To adopt this change, new comments should be written using Markdown syntax,  
+and existing comments should be migrated gradually.
+
+#### 🚫 Avoid
+
+```java
+/**
+ * This key mapping only applies {@link KeyConflictContext#IN_GAME} since it represents player moves
+ */
+```
+
+#### ✅ Preferred
+
+```java
+/// This key mapping only applies [KeyConflictContext#IN_GAME] since it represents player moves.
+```
+
+### 12. Avoid hardcoding translation keys in the source code
+
+Avoid referencing translation keys (from `en_us.json` resource file) directly in source code,
+instead, use the generated `LangKeys` object:
+
+```diff
+- String key = "key." + EpicFightMod.MODID + ".switch_mode.description";
++ String key = LangKeys.KEY_SWITCH_MODE_DESCRIPTION;
+
+Component.translatable(key);
+```
+
+Hardcoding is error-prone, more runtime crashes and bugs, and misleading behavior.
+Where `LangKeys` is a generated object that updates when launching the game,
+and automatically adapts the latest `en_us.json` changes, forcing all references to be fixed at compile time.

@@ -61,7 +61,7 @@ public interface HoldableSkill {
      * @see EpicFightInputAction
      * @see ControlEngine#mapKeyMappingToAction
      */
-    @SuppressWarnings({"JavadocReference", "deprecation"})
+    @SuppressWarnings({"JavadocReference"})
     @OnlyIn(Dist.CLIENT)
     KeyMapping getKeyMapping();
 }

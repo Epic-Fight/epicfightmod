@@ -11,9 +11,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.InteractionHand;
-import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.event.InputEvent;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
@@ -123,32 +120,19 @@ public final class InputManager {
 
     /// Called on every client tick to potentially trigger the provided callback for a given input action.
     ///
-    /// This calls the internal [DiscreteInputActionTrigger#triggerOnPress] API, and additionally fires
-    /// the [InputEvent.InteractionKeyMappingTriggered] input event for keyboard/mouse if `interactionKeyEventCheck`
-    /// is `true`.
-    ///
     /// @param action                   The input action to monitor and trigger.
-    /// @param interactionKeyEventCheck If `true`, fires the [InputEvent.InteractionKeyMappingTriggered] event for non-controller actions.
-    ///                                                                                                 This event is cancellable.
     /// @param handler                  The callback to invoke when the action triggers.
     /// @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
-    public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull DiscreteActionHandler handler) {
-        DiscreteInputActionTrigger.triggerOnPress(action, (context) -> {
-            if (context.triggeredByController() || !interactionKeyEventCheck) {
-                handler.onAction(context);
-                return;
-            }
-
-            runKeyboardMouseEvent(action, handler);
-        });
+    public static void triggerOnPress(@NotNull EpicFightInputAction action, @NotNull DiscreteActionHandler handler) {
+        DiscreteInputActionTrigger.triggerOnPress(action, handler);
     }
 
-    /// Convenience overload of [#triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)]
+    /// Convenience overload of [#triggerOnPress(EpicFightInputAction, DiscreteActionHandler)]
     /// for callbacks that do not require the [DiscreteActionHandler.Context].
     ///
-    /// @see #triggerOnPress(EpicFightInputAction, boolean, DiscreteActionHandler)
-    public static void triggerOnPress(@NotNull EpicFightInputAction action, boolean interactionKeyEventCheck, @NotNull Runnable runnable) {
-        triggerOnPress(action, interactionKeyEventCheck, (context) -> runnable.run());
+    /// @see #triggerOnPress(EpicFightInputAction, DiscreteActionHandler)
+    public static void triggerOnPress(@NotNull EpicFightInputAction action, @NotNull Runnable runnable) {
+        triggerOnPress(action, (context) -> runnable.run());
     }
 
     /// Checks whether the given input action is assigned to the same key / button as another action.
@@ -215,25 +199,6 @@ public final class InputManager {
         if (player != null) {
             final Input input = player.input;
             PlayerInputState.applyToVanillaInput(inputState, input);
-        }
-    }
-
-    /// Handles firing the [InputEvent.InteractionKeyMappingTriggered] input event for keyboard/mouse actions
-    /// and runs the callback only if the event is not canceled.
-    private static void runKeyboardMouseEvent(@NotNull EpicFightInputAction action, @NotNull DiscreteActionHandler handler) {
-        final KeyMapping keyMapping = action.keyMapping();
-
-        final InputConstants.Key key = keyMapping.getKey();
-        final boolean isMouse = InputConstants.Type.MOUSE == key.getType();
-
-        final int mouseButton = isMouse ? key.getValue() : -1;
-
-        InputEvent.InteractionKeyMappingTriggered inputEvent = ClientHooks.onClickInput(
-                mouseButton, keyMapping, InteractionHand.MAIN_HAND
-        );
-
-        if (!inputEvent.isCanceled()) {
-            handler.onAction(new DiscreteActionHandler.Context(false));
         }
     }
 

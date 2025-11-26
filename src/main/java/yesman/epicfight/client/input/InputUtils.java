@@ -1,11 +1,17 @@
 package yesman.epicfight.client.input;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.InputEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 
 /// Internal utility for simplified input checks.
 /// Consumers should avoid calling these methods, as they may break in future versions.
@@ -14,6 +20,26 @@ import yesman.epicfight.api.client.input.InputManager;
 @ApiStatus.Internal
 public final class InputUtils {
     private InputUtils() {
+    }
+
+    /// Handles firing the [InputEvent.InteractionKeyMappingTriggered] input event for keyboard/mouse actions
+    /// and runs the callback only if the event is not canceled.
+    public static void runKeyboardMouseEvent(@NotNull EpicFightInputAction action, @NotNull Runnable handler) {
+        final KeyMapping keyMapping = action.keyMapping();
+
+        final InputConstants.Key key = keyMapping.getKey();
+        final boolean isMouse = InputConstants.Type.MOUSE == key.getType();
+
+        final int mouseButton = isMouse ? key.getValue() : -1;
+
+        @SuppressWarnings("UnstableApiUsage")
+        InputEvent.InteractionKeyMappingTriggered inputEvent = ForgeHooksClient.onClickInput(
+                mouseButton, keyMapping, InteractionHand.MAIN_HAND
+        );
+
+        if (!inputEvent.isCanceled()) {
+            handler.run();
+        }
     }
 
     public static void sneakingTick(boolean isSneaking, float sneakingSpeedMultiplier) {

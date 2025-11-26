@@ -220,6 +220,8 @@
   "gui.epicfight.enable_target_entity_guide.off": "Enable Target Entity Guide: OFF",
   "gui.epicfight.use_compute_shader.on": "Compute Shader: ON",
   "gui.epicfight.use_compute_shader.off": "Compute Shader: OFF",
+  "gui.epicfight.use_persistent_buffer.on": "Persistent Mapping: ON",
+  "gui.epicfight.use_persistent_buffer.off": "Persistent Mapping: OFF",
   "gui.epicfight.enable_pov_action.on": "Pov Action: ON",
   "gui.epicfight.enable_pov_action.off": "Pov Action: OFF",
   "gui.epicfight.enable_cosmetics.on": "Patron Cosmetics: ON",
@@ -249,6 +251,9 @@
   "gui.epicfight.enable_target_entity_guide.tooltip": "Indicate an entity that you can attack",
   "gui.epicfight.use_compute_shader.tooltip": "Turn on/off compute shader. Turning on compute shader enhances the frame rate but may not be compatible with some shader packs",
   "gui.epicfight.use_compute_shader.locked.tooltip": "Compute shader is not supported in your OS or GPU. It needs to support OpenGL 4.3 or higher.",
+  "gui.epicfight.use_persistent_buffer.tooltip": "Turn on/off persistent mapping. Reduce matrix uploading cost.",
+  "gui.epicfight.use_persistent_buffer.locked.tooltip": "Need OpenGL 4.6",
+
   "gui.epicfight.enable_pov_action.tooltip": "Enable camera movement depends on animation in first person.",
   "gui.epicfight.enable_cosmetics.tooltip": "Turn on/off players' patron cosmetics. You have to reconnect the world to apply the change.",
   "gui.epicfight.item_preferences.tooltip": "Categorizes weapons and tools",

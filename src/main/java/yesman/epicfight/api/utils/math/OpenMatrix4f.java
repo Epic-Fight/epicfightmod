@@ -14,6 +14,7 @@ import org.joml.Quaternionf;
 import com.google.common.collect.Lists;
 
 import net.minecraft.world.phys.Vec3;
+import org.lwjgl.system.MemoryUtil;
 import yesman.epicfight.api.animation.JointTransform;
 
 public class OpenMatrix4f {
@@ -220,6 +221,30 @@ public class OpenMatrix4f {
 		buf.put(m32);
 		buf.put(m33);
 		
+		return this;
+	}
+
+	public OpenMatrix4f store(long address){
+		MemoryUtil.memPutFloat(address, m00);
+		MemoryUtil.memPutFloat(address + 4L, m01);
+		MemoryUtil.memPutFloat(address + 4L * 2, m02);
+		MemoryUtil.memPutFloat(address + 4L * 3, m03);
+
+		MemoryUtil.memPutFloat(address + 4L * 4, m10);
+		MemoryUtil.memPutFloat(address + 4L * 5, m11);
+		MemoryUtil.memPutFloat(address + 4L * 6, m12);
+		MemoryUtil.memPutFloat(address + 4L * 7, m13);
+
+		MemoryUtil.memPutFloat(address + 4L * 8, m20);
+		MemoryUtil.memPutFloat(address + 4L * 9, m21);
+		MemoryUtil.memPutFloat(address + 4L * 10, m22);
+		MemoryUtil.memPutFloat(address + 4L * 11, m23);
+
+		MemoryUtil.memPutFloat(address + 4L * 12, m30);
+		MemoryUtil.memPutFloat(address + 4L * 13, m31);
+		MemoryUtil.memPutFloat(address + 4L * 14, m32);
+		MemoryUtil.memPutFloat(address + 4L * 15, m33);
+
 		return this;
 	}
 	

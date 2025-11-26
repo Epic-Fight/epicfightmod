@@ -31,7 +31,9 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 	public EpicFightGraphicOptionScreen(Screen parentScreen) {
 		super(parentScreen, Component.translatable(EpicFightMod.format("gui.%s.graphic_options")));
 	}
-	
+
+	protected Button usePersistentButton;
+
 	@Override
 	protected void init() {
 		super.init();
@@ -246,11 +248,28 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			.size(160, 20)
 			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.enable_cosmetics.tooltip"))))
 			.build();
-		
+
+		usePersistentButton =
+				Button.builder(Component.translatable(
+										EpicFightMod.format("gui.%s.use_persistent_buffer." +
+												(ClientConfig.activatePersistentBuffer ? "on" : "off"))),
+								button -> {
+									ClientConfig.activatePersistentBuffer = !ClientConfig.activatePersistentBuffer;
+									button.setMessage(Component.translatable
+											(EpicFightMod.format("gui.%s.use_persistent_buffer." +
+													(ClientConfig.activatePersistentBuffer ? "on" : "off"))));
+								}
+						)
+						.pos(this.width / 2 + 5, this.height / 4 + buttonHeight + 60)
+						.size(160, 20)
+						.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.use_persistent_buffer.tooltip"))))
+						.build();
+
 		Button useComputeShaderButton =
 			Button.builder(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader." + (ClientConfig.activateComputeShader ? "on" : "off"))),
 				button -> {
 					ClientConfig.activateComputeShader = !ClientConfig.activateComputeShader;
+					this.usePersistentButton.active = ClientConfig.activateComputeShader && ComputeShaderProvider.supportPersistentMapping();
 					button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader." + (ClientConfig.activateComputeShader ? "on" : "off"))));
 				}
 			)
@@ -258,13 +277,21 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 			.size(160, 20)
 			.tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader.tooltip"))))
 			.build();
-		
+
+
 		if (!ComputeShaderProvider.supportComputeShader()) {
 			useComputeShaderButton.active = false;
 			useComputeShaderButton.setTooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.use_compute_shader.locked.tooltip"))));
 		}
-		
+
+
+		if (!ComputeShaderProvider.supportPersistentMapping()) {
+			usePersistentButton.active = false;
+			usePersistentButton.setTooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.use_persistent_buffer.locked.tooltip"))));
+		}
+
 		this.optionsList.addSmall(enableCosmetics, useComputeShaderButton);
+		this.optionsList.addSmall(usePersistentButton, null);
 		buttonHeight += 30;
 
         this.optionsList.addBig(

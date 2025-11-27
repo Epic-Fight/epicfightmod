@@ -4,28 +4,46 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.KeyMapping;
+import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.utils.ExtensibleEnum;
 import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
+import java.util.Optional;
+
 /// Represents a client-side input action in Epic Fight mod.
 ///
-/// Each action is associated with a Minecraft vanilla [KeyMapping], which
-/// only supports keyboard and mouse input.
+/// Each action is associated with:
 ///
-/// Controller input is not directly supported to avoid depending on third-party controller mods.
+/// - a Minecraft vanilla [KeyMapping] (supports keyboard and mouse only).
+/// - a [ControllerBinding], which is an abstraction around the input binding from
+///  third-party controller mods (supports controller only).
+///
+/// **Important:** This class must be called **only on the client**.
 @ApiStatus.Experimental
 public interface InputAction extends ExtensibleEnum {
     ExtensibleEnumManager<InputAction> ENUM_MANAGER = new ExtensibleEnumManager<>("input_action");
 
     /// Returns the Minecraft vanilla [KeyMapping] associated with this action.
     ///
-    /// Note: This mapping only supports keyboard and mouse input and does not support controllers.
-    /// Consumers should consider using a different API when possible to take advantage of
-    /// the current supported controller mod implementation.
-    ///
-    /// **Important:** This method must be called **only on the client**.
+    /// **Note:** This only supports keyboard and mouse input and does not support controllers.
     ///
     /// @return the vanilla [KeyMapping] for this action
+    /// @see #controllerBinding
     @NotNull
     KeyMapping keyMapping();
+
+    /// Returns the universal controller binding associated with this action, if available.
+    ///
+    /// This method may return [Optional#empty()] if the action does not support controller input.
+    ///
+    /// **Important:** Consumers must **not** call this method if the controller mod is not installed,
+    /// since the creation of a [ControllerBinding] requires depending on APIs from the controller mod.
+    ///
+    /// If this was called and the controller mod was not installed, the behavior is undefined and depends
+    /// on the implementation details.
+    /// Usually a [ClassNotFoundException] or [IllegalStateException] is thrown.
+    ///
+    /// @return the [ControllerBinding] for this action, or [Optional#empty()] if not supported
+    /// @see ControllerBinding
+    @NotNull Optional<@NotNull ControllerBinding> controllerBinding();
 }

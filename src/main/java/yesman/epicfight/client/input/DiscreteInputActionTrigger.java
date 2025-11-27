@@ -5,13 +5,14 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.api.client.input.DiscreteActionHandler;
 import yesman.epicfight.api.client.input.InputManager;
 
-/// Handles triggering of a discrete (one-time) [EpicFightInputAction]
+/// Handles triggering of a discrete (one-time) [InputAction]
 /// based on the current input state.
 ///
 /// Consumers of this API provide only the "what to do" for each action;
@@ -42,7 +43,7 @@ public final class DiscreteInputActionTrigger {
     ///
     /// @param action  The input action to monitor.
     /// @param handler The callback to run when the action triggers.
-    public static void triggerOnPress(EpicFightInputAction action, DiscreteActionHandler handler) {
+    public static void triggerOnPress(@NotNull InputAction action, @NotNull DiscreteActionHandler handler) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         final KeyMapping keyMapping = action.keyMapping();
         if (controllerMod == null) {
@@ -51,25 +52,32 @@ public final class DiscreteInputActionTrigger {
         }
 
         switch (controllerMod.getInputMode()) {
-            case MIXED -> {
-                final boolean handled = handleController(controllerMod.getBinding(action), handler);
-                if (handled) {
-                    return;
-                }
-                handleKeyboardAndMouse(keyMapping, handler);
-            }
-            case CONTROLLER -> handleController(controllerMod.getBinding(action), handler);
+            case MIXED -> action.controllerBinding()
+                    .ifPresentOrElse(
+                            controllerBinding -> {
+                                final boolean handled = handleController(controllerBinding, handler);
+                                if (!handled) {
+                                    handleKeyboardAndMouse(keyMapping, handler);
+                                }
+                            },
+                            () -> handleKeyboardAndMouse(keyMapping, handler)
+                    );
+            case CONTROLLER -> action.controllerBinding()
+                    .ifPresentOrElse(
+                            controllerBinding -> handleController(controllerBinding, handler),
+                            () -> handleKeyboardAndMouse(keyMapping, handler)
+                    );
             case KEYBOARD_MOUSE -> handleKeyboardAndMouse(keyMapping, handler);
         }
     }
 
-    private static void handleKeyboardAndMouse(KeyMapping keyMapping, DiscreteActionHandler handler) {
+    private static void handleKeyboardAndMouse(@NotNull KeyMapping keyMapping, @NotNull DiscreteActionHandler handler) {
         while (keyMapping.consumeClick()) {
             handler.onAction(createContext(false));
         }
     }
 
-    private static boolean handleController(ControllerBinding controllerBinding, DiscreteActionHandler handler) {
+    private static boolean handleController(@NotNull ControllerBinding controllerBinding, @NotNull DiscreteActionHandler handler) {
         if (controllerBinding.isDigitalJustPressed()) {
             handler.onAction(createContext(true));
             return true;

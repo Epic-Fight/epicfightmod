@@ -12,10 +12,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.input.DiscreteInputActionTrigger;
+
+import java.util.function.Function;
 
 /// High-level input API that abstracts direct interactions with [KeyMapping]
 /// and supports controllers if an Epic Fight controller mod implementation is present
@@ -76,17 +79,8 @@ public final class InputManager {
     ///
     /// @param action the input action to check
     /// @see ControllerBinding
-    public static boolean isActionActive(@NotNull EpicFightInputAction action) {
-        final IEpicFightControllerMod controllerMod = getControllerModApi();
-        if (controllerMod == null) {
-            return isKeyDown(action.keyMapping());
-        }
-
-        return switch (controllerMod.getInputMode()) {
-            case KEYBOARD_MOUSE -> isKeyDown(action.keyMapping());
-            case CONTROLLER -> controllerMod.getBinding(action).isDigitalActiveNow();
-            case MIXED -> isKeyDown(action.keyMapping()) || controllerMod.getBinding(action).isDigitalActiveNow();
-        };
+    public static boolean isActionActive(@NotNull InputAction action) {
+        return checkAction(action, InputManager::isKeyDown);
     }
 
     /// Returns whether the given input action is currently physically active this tick.
@@ -104,17 +98,26 @@ public final class InputManager {
     ///
     /// @param action the input action to check
     /// @see #isActionActive
-    public static boolean isActionPhysicallyActive(@NotNull EpicFightInputAction action) {
+    public static boolean isActionPhysicallyActive(@NotNull InputAction action) {
+        return checkAction(action, InputManager::isPhysicalKeyDown);
+    }
+
+    /// Shared internal utility between [#isActionActive] and [#isActionPhysicallyActive] to handle the differences.
+    private static boolean checkAction(@NotNull InputAction action, @NotNull Function<KeyMapping, Boolean> keyboardCheck) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
-            return isPhysicalKeyDown(action.keyMapping());
+            return keyboardCheck.apply(action.keyMapping());
         }
 
         return switch (controllerMod.getInputMode()) {
-            case KEYBOARD_MOUSE -> isPhysicalKeyDown(action.keyMapping());
-            case CONTROLLER -> controllerMod.getBinding(action).isDigitalActiveNow();
-            case MIXED ->
-                    isPhysicalKeyDown(action.keyMapping()) || controllerMod.getBinding(action).isDigitalActiveNow();
+            case KEYBOARD_MOUSE -> keyboardCheck.apply(action.keyMapping());
+            case CONTROLLER -> action.controllerBinding()
+                    .map(ControllerBinding::isDigitalActiveNow)
+                    .orElse(keyboardCheck.apply(action.keyMapping()));
+            case MIXED -> keyboardCheck.apply(action.keyMapping())
+                    || action.controllerBinding()
+                    .map(ControllerBinding::isDigitalActiveNow)
+                    .orElse(false);
         };
     }
 
@@ -123,15 +126,13 @@ public final class InputManager {
     /// @param action  The input action to monitor and trigger.
     /// @param handler The callback to invoke when the action triggers.
     /// @see DiscreteInputActionTrigger#triggerOnPress Internal implementation details.
-    public static void triggerOnPress(@NotNull EpicFightInputAction action, @NotNull DiscreteActionHandler handler) {
+    public static void triggerOnPress(@NotNull InputAction action, @NotNull DiscreteActionHandler handler) {
         DiscreteInputActionTrigger.triggerOnPress(action, handler);
     }
 
-    /// Convenience overload of [#triggerOnPress(EpicFightInputAction, DiscreteActionHandler)]
+    /// Convenience overload of [#triggerOnPress(InputAction, DiscreteActionHandler)]
     /// for callbacks that do not require the [DiscreteActionHandler.Context].
-    ///
-    /// @see #triggerOnPress(EpicFightInputAction, DiscreteActionHandler)
-    public static void triggerOnPress(@NotNull EpicFightInputAction action, @NotNull Runnable runnable) {
+    public static void triggerOnPress(@NotNull InputAction action, @NotNull Runnable runnable) {
         triggerOnPress(action, (context) -> runnable.run());
     }
 
@@ -164,7 +165,7 @@ public final class InputManager {
     /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
     ///
     /// @param vanillaInput the Minecraft vanilla [Input] which will be mapped to a [PlayerInputState];
-    ///                                                                                                                                                                                                                                                                                         ignored if using a controller.
+    ///                                                                                                                                                                                                                                                                                                                                                                         ignored if using a controller.
     /// @return an immutable [PlayerInputState] representing the current input state.
     /// @see InputManager#setInputState
     @NotNull

@@ -5,7 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.api.client.input.controller.ControllerBinding;
+import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
+import yesman.epicfight.compat.controlify.EpicFightControlifyControllerMod;
 
 import java.util.*;
 
@@ -109,6 +112,14 @@ public enum EpicFightInputAction implements InputAction {
             case OPEN_CONFIG_SCREEN -> EpicFightKeyMappings.OPEN_CONFIG_SCREEN;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> EpicFightKeyMappings.SWITCH_VANILLA_MODEL_DEBUGGING;
         };
+    }
+
+    @Override
+    public @NotNull Optional<@NotNull ControllerBinding> controllerBinding() {
+        if (EpicFightControllerModProvider.get() == null) {
+            throw new IllegalStateException("controllerBinding() must not be called when the controller mod is not installed");
+        }
+        return Optional.of(EpicFightControlifyControllerMod.getBinding(this));
     }
 
     private static final @NotNull Map<KeyMapping, EpicFightInputAction> BY_KEY_MAPPING;

@@ -36,6 +36,7 @@ import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
 import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
 import yesman.epicfight.api.utils.FakeLevel;
@@ -541,7 +542,7 @@ public class ControlEngine implements IEventBasedEngine {
      * <b>DEPRECATED:</b> This method is retained for backward compatibility and will 
      * be removed in a future release. Do not use it for new code.
      * <p>Instead of using this method, use
-     * {@link #reserveKey(SkillSlot, EpicFightInputAction)}, which works directly
+     * {@link #reserveKey(SkillSlot, InputAction)}, which works directly
      * with {@link EpicFightInputAction}.</p>
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
@@ -552,7 +553,7 @@ public class ControlEngine implements IEventBasedEngine {
 		this.reserveCounter = 8;
 	}
 
-    private void reserveKey(SkillSlot slot, EpicFightInputAction action) {
+    private void reserveKey(SkillSlot slot, InputAction action) {
         reserveKey(slot, action.keyMapping());
     }
 	

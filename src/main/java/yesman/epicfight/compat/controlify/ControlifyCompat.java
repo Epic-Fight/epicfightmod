@@ -523,15 +523,6 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         }
 
         @Override
-        public @NotNull InputType getInputType() {
-            if (inputBinding.boundInput().type() == dev.isxander.controlify.bindings.input.InputType.AXIS) {
-                return InputType.ANALOGUE;
-            }
-            EpicFightMod.LOGGER.error("The method ControllerBinding#getInputType is misleading and should not be called as it will be removed in future updates.");
-            return InputType.DIGITAL;
-        }
-
-        @Override
         public boolean isDigitalActiveNow() {
             return inputBinding.digitalNow();
         }

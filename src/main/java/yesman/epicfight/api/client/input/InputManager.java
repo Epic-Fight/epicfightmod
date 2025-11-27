@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
-import yesman.epicfight.api.client.input.controller.ControllerBinding.InputType;
 import yesman.epicfight.client.input.DiscreteInputActionTrigger;
 
 /// High-level input API that abstracts direct interactions with [KeyMapping]
@@ -73,7 +73,7 @@ public final class InputManager {
     /// It should not be used while a screen is open.
     ///
     /// @param action the input action to check
-    /// @see InputType
+    /// @see ControllerBinding
     public static boolean isActionActive(@NotNull EpicFightInputAction action) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod == null) {
@@ -162,7 +162,6 @@ public final class InputManager {
     /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
     ///
     /// @param vanillaInput the Minecraft vanilla [Input] which will be mapped to a [PlayerInputState];
-    ///                                                                                                                                                                                                                                                                     ignored if using a controller.
     /// @return an immutable [PlayerInputState] representing the current input state.
     /// @see InputManager#setInputState
     @NotNull

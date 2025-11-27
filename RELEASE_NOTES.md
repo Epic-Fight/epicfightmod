@@ -35,6 +35,9 @@
 - Rename the experimental enum `EpicFightInputActions` to `EpicFightInputAction` to follow Java naming
   conventions. [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
 - Removed AirSlash and its related fields (SkillCategory, SkillSlot) to merge air slash and combo attacks as one skill
+- Updated the experimental Epic Fight's input API to support using custom input actions that are not a
+  `EpicFightInputAction`.
+  [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
 
 ### For Devs
 

@@ -5,8 +5,6 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingBuilder;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
-import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
@@ -15,10 +13,8 @@ import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
-import net.minecraft.client.InputType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -36,6 +32,8 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.client.input.EpicFightInputCategories;
+import yesman.epicfight.compat.controlify.screenop.SkillBookScreenProcessor;
+import yesman.epicfight.compat.controlify.screenop.SkillEditScreenProcessor;
 import yesman.epicfight.main.EpicFightMod;
 
 import java.util.Objects;
@@ -466,94 +464,5 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
                 SkillBookScreen.class,
                 SkillBookScreenProcessor::new
         );
-    }
-
-    private static class SkillEditScreenProcessor extends ScreenProcessor<SkillEditScreen> {
-        public SkillEditScreenProcessor(SkillEditScreen screen) {
-            super(screen);
-        }
-
-        private static final InputBindingSupplier OPEN_SKILL_INFO = ControlifyBindings.GUI_ABSTRACT_ACTION_1;
-
-        @Override
-        protected void handleButtons(ControllerEntity controller) {
-            super.handleButtons(controller);
-
-            if (this.screen.getFocused() instanceof SkillEditScreen.EquipSkillButton equipSkillButton &&
-                    OPEN_SKILL_INFO.on(controller).guiPressed().get()) {
-                equipSkillButton.openSkillInfoScreen();
-            }
-        }
-
-        @Override
-        protected void setInitialFocus() {
-            // Intentionally empty. Do NOT call super.setInitialFocus().
-        }
-
-        @Override
-        public void onWidgetRebuild() {
-            super.onWidgetRebuild();
-            setInputTypeWorkaround();
-        }
-
-        /**
-         * Controlify intentionally avoids setting Minecraft's input type to
-         * {@link InputType#KEYBOARD_ARROW} because keyboard and controller inputs behave
-         * differently.
-         * However, {@link SkillEditScreen} was built mainly for mouse users,
-         * and some GUI elements—like skill slot names—are shown only via tooltips, which
-         * appear only when the input type is {@link InputType#KEYBOARD_ARROW}.
-         * <p>
-         * To support controller users without extra rework, the input type is set here
-         * manually.
-         * As a result, {@link #setInitialFocus()} must remain empty, since
-         * Minecraft handles focus automatically whenever the input type is not
-         * {@link InputType#NONE}, which is what Controlify normally uses.
-         */
-        private void setInputTypeWorkaround() {
-            Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
-        }
-    }
-
-    private static class SkillBookScreenProcessor extends ScreenProcessor<SkillBookScreen> {
-        public SkillBookScreenProcessor(SkillBookScreen screen) {
-            super(screen);
-        }
-
-        private static final InputBindingSupplier LEARN_SKILL = ControlifyBindings.GUI_PRESS;
-
-        @Override
-        protected void handleButtons(ControllerEntity controller) {
-            if (LEARN_SKILL.on(controller).guiPressed().get()) {
-                screen.getLearnButton().onPress();
-                playClackSound();
-            }
-            super.handleButtons(controller);
-        }
-
-        // The Skill Book screen has a single actionable button (the "learn skill" button).
-        // Controller navigation and focus are disabled, and only the primary controller
-        // button (e.g., X on DualSense) is used to trigger the action.
-
-        @Override
-        protected void setInitialFocus() {
-            // Intentionally empty. Do NOT call super.setInitialFocus().
-        }
-
-        @Override
-        protected void handleComponentNavigation(ControllerEntity controller) {
-            // Intentionally empty. Do NOT call super.handleComponentNavigation().
-        }
-
-        @Override
-        public void onWidgetRebuild() {
-            super.onWidgetRebuild();
-
-            ButtonGuideApi.addGuideToButton(
-                    this.screen.getLearnButton(),
-                    LEARN_SKILL,
-                    ButtonGuidePredicate.always()
-            );
-        }
     }
 }

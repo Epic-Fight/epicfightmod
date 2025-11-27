@@ -53,9 +53,6 @@ public interface IEpicFightControllerMod {
 
     /// Checks whether the specified input actions are bound to the same controller button.
     ///
-    /// This comparison only applies to digital buttons (e.g., A, B, L3, R3) and does not
-    /// account for analogue inputs such as triggers or stick movements.
-    ///
     /// @param action  the first input action
     /// @param action2 the second input action
     /// @return `true` if both actions are bound to the same controller button; `false` otherwise

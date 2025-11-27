@@ -49,7 +49,7 @@ import java.util.Optional;
 // as the Epic Fight mod might not be loaded yet. For example, avoid referencing
 // EpicFightItems.UCHIGATANA.get() in onControlifyPreInit.
 @ApiStatus.Internal
-public class ControlifyCompat implements ControlifyEntrypoint {
+public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     @Override
     public void onControllersDiscovered(ControlifyApi controlify) {
     }
@@ -258,7 +258,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         return switch (action) {
             case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, TOGGLE_PERSPECTIVE, DROP, MOVE_FORWARD, MOVE_BACKWARD,
                  MOVE_LEFT, MOVE_RIGHT, SPRINT, SNEAK, JUMP -> throw new IllegalArgumentException(
-                    "ControlifyCompat#registerInputBinding() must only be called for non-vanilla actions. " +
+                    "EpicFightControlifyEntrypoint#registerInputBinding() must only be called for non-vanilla actions. " +
                             "This action is vanilla and already registered by Controlify: " + action.name()
             );
             case ATTACK -> attack = registrar.registerBinding(
@@ -372,7 +372,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
             case SWITCH_VANILLA_MODEL_DEBUGGING -> "switch_vanilla_mode_debugging";
             case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, TOGGLE_PERSPECTIVE, DROP, MOVE_FORWARD, MOVE_BACKWARD,
                  MOVE_LEFT, MOVE_RIGHT, SPRINT, SNEAK, JUMP -> throw new IllegalArgumentException(
-                    "ControlifyCompat#getInputBindingId() must only be called for non-vanilla actions. " +
+                    "EpicFightControlifyEntrypoint#getInputBindingId() must only be called for non-vanilla actions. " +
                             "This action is vanilla and already registered by Controlify: " + action.name()
             );
         };

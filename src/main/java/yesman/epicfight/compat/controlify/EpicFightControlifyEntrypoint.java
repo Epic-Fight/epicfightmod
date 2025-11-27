@@ -18,7 +18,6 @@ import dev.isxander.controlify.api.guide.InGameCtx;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.RadialIcons;
-import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -37,11 +36,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputMode;
-import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
-import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
@@ -388,7 +384,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private static void registerModIntegration() {
-        EpicFightControllerModProvider.set(EpicFightMod.MODID, new ControlifyIntegration());
+        EpicFightControllerModProvider.set(EpicFightMod.MODID, new EpicFightControlifyControllerMod());
     }
 
     private static void registerEvents() {
@@ -428,7 +424,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
         }));
     }
 
-    private static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
+    public static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
         final InputBindingSupplier bindingSupplier = switch (action) {
             // Minecraft Vanilla actions
             case VANILLA_ATTACK_DESTROY -> ControlifyBindings.ATTACK;
@@ -463,11 +459,11 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
         return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");
     }
 
-    private static @NotNull ControlifyApi getApi() {
+    public static @NotNull ControlifyApi getApi() {
         return ControlifyApi.get();
     }
 
-    private static @NotNull ControllerEntity requireControllerEntity() {
+    public static @NotNull ControllerEntity requireControllerEntity() {
         Optional<ControllerEntity> optionalControllerEntity = getApi().getCurrentController();
 
         if (optionalControllerEntity.isEmpty()) {
@@ -480,98 +476,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
         }
 
         return optionalControllerEntity.get();
-    }
-
-    /**
-     * Allows Epic Fight to communicate with Controlify APIs without depending on their classes directly.
-     */
-    private static class ControlifyIntegration implements IEpicFightControllerMod {
-        @Override
-        public String getModName() {
-            return "Controlify";
-        }
-
-        @Override
-        public @NotNull InputMode getInputMode() {
-            return switch (getApi().currentInputMode()) {
-                case KEYBOARD_MOUSE -> InputMode.KEYBOARD_MOUSE;
-                case CONTROLLER -> InputMode.CONTROLLER;
-                case MIXED -> InputMode.MIXED;
-            };
-        }
-
-        @Override
-        public @NotNull ControllerBinding getBinding(EpicFightInputAction action) {
-            return new ControllerBindingImpl(getControlifyBinding(action));
-        }
-
-        @Override
-        public @NotNull PlayerInputState getInputState() {
-            ControllerEntity controller = requireControllerEntity();
-
-            InputBinding forwardBind = ControlifyBindings.WALK_FORWARD.on(controller);
-            InputBinding backwardBind = ControlifyBindings.WALK_BACKWARD.on(controller);
-            InputBinding leftBind = ControlifyBindings.WALK_LEFT.on(controller);
-            InputBinding rightBind = ControlifyBindings.WALK_RIGHT.on(controller);
-            InputBinding jumpBind = ControlifyBindings.JUMP.on(controller);
-            InputBinding sneakBind = ControlifyBindings.SNEAK.on(controller);
-
-            float forwardImpulse = forwardBind.analogueNow() - backwardBind.analogueNow();
-            float leftImpulse = leftBind.analogueNow() - rightBind.analogueNow();
-
-            return new PlayerInputState(
-                    leftImpulse, forwardImpulse,
-                    forwardBind.digitalNow(), backwardBind.digitalNow(),
-                    leftBind.digitalNow(), rightBind.digitalNow(),
-                    jumpBind.digitalNow(), sneakBind.digitalNow()
-            );
-        }
-
-        @Override
-        public boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
-            final Input input1 = getControlifyBinding(action).boundInput();
-            final Input input2 = getControlifyBinding(action2).boundInput();
-            return input1.getRelevantInputs().equals(input2.getRelevantInputs());
-        }
-    }
-
-    private record ControllerBindingImpl(@NotNull InputBinding inputBinding) implements ControllerBinding {
-
-        @Override
-        @NotNull
-        public ResourceLocation id() {
-            return inputBinding.id();
-        }
-
-        @Override
-        public boolean isDigitalActiveNow() {
-            return inputBinding.digitalNow();
-        }
-
-        @Override
-        public boolean wasDigitalActivePreviously() {
-            return inputBinding.digitalPrev();
-        }
-
-        @Override
-        public boolean isDigitalJustPressed() {
-            return inputBinding.justPressed();
-        }
-
-        @Override
-        public boolean isDigitalJustReleased() {
-            return inputBinding.justReleased();
-        }
-
-        @Override
-        public float getAnalogueNow() {
-            return inputBinding.analogueNow();
-        }
-
-        @Override
-        public void emulatePress() {
-            inputBinding.fakePress();
-        }
     }
 
     private static void registerScreenProcessors() {

@@ -89,15 +89,13 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             return Component.translatable(description());
         }
 
-        /**
-         * Maps a non-vanilla {@link EpicFightInputAction} to its corresponding translation keys.
-         *
-         * @param action the non-vanilla action to get the translation key for
-         * @return a {@link TranslationKeys} instance containing the translation keys for the name and description
-         * @throws IllegalArgumentException if the action is a vanilla action, since getting the translation keys in this class
-         *                                  is only relevant for Epic Fight custom input binds.
-         *                                  Vanilla input binds are handled internally by Controlify.
-         */
+        /// Maps a non-vanilla [EpicFightInputAction] to its corresponding translation keys.
+        ///
+        /// @param action the non-vanilla action to get the translation key for
+        /// @return a [TranslationKeys] instance containing the translation keys for the name and description
+        /// @throws IllegalArgumentException if the action is a vanilla action,
+        ///                                                                   since getting the translation keys in this class is only relevant for Epic Fight custom input binds.
+        ///                                                                   Vanilla input binds are handled internally by Controlify.
         private static @NotNull TranslationKeys fromAction(@NotNull EpicFightInputAction action) {
             return switch (action) {
                 case ATTACK -> new TranslationKeys("key.epicfight.attack", "key.epicfight.attack.description");
@@ -178,24 +176,22 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
         }
     }
 
-    /**
-     * Registers a non-vanilla input binding with Controlify.
-     * <p>
-     * Must <strong>only</strong> be called for non-vanilla
-     * {@link EpicFightInputAction}. Vanilla actions are already registered
-     * and calling this with one will throw {@link IllegalArgumentException}.
-     * <p>
-     * <strong>Type-safety and exhaustive checking:</strong><br>
-     * Returns an {@link InputBindingSupplier} via a <em>switch expression</em>
-     * over all enum constants. The returned value is a dummy, used only
-     * to satisfy the Java compiler and enforce exhaustive handling. It is
-     * <strong>never used</strong> and has no effect on behavior.
-     *
-     * @param registrar the Controlify API used to register the binding
-     * @param action    the non-vanilla input action to register
-     * @return a dummy {@link InputBindingSupplier} for type-safety only
-     * @throws IllegalArgumentException if called with a vanilla input action
-     */
+    /// Registers a non-vanilla input binding with Controlify.
+    ///
+    /// Must **only** be called for non-vanilla [EpicFightInputAction].
+    /// Vanilla actions are already registered and calling this with one will throw [IllegalArgumentException].
+    ///
+    /// ### **Type-safety and exhaustive checking:**
+    ///
+    /// Returns an [InputBindingSupplier] via a *switch expression* over all enum constants.
+    /// The returned value is a dummy, used only
+    /// to satisfy the Java compiler and enforce exhaustive handling.
+    /// It is **never used** and has no effect on behavior.
+    ///
+    /// @param registrar the Controlify API used to register the binding
+    /// @param action    the non-vanilla input action to register
+    /// @return a dummy [InputBindingSupplier] for type-safety only
+    /// @throws IllegalArgumentException if called with a vanilla input action
     @SuppressWarnings("UnusedReturnValue") // Read Javadocs of this method before removing.
     private static @NotNull InputBindingSupplier registerInputBinding(
             @NotNull ControlifyBindApi registrar,

@@ -49,6 +49,6 @@ public class CombatKeyMapping extends KeyMapping {
 
     @Override
     public boolean isActiveAndMatches(@NotNull InputConstants.Key keyCode) {
-        return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isBattleMode();
+        return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isEpicFightMode();
     }
 }

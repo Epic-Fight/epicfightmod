@@ -61,6 +61,7 @@ public class ClientConfig {
 
     // Performance
     public static final BooleanValue ACTIVATE_COMPUTE_SHADER = BUILDER.define("ingame.use_compute_shader", () -> false);
+	public static final BooleanValue ACTIVATE_PERSISTENT_BUFFER = BUILDER.define("ingame.use_persistent_buffer", () -> false);
 
     // Camera
     public static final BooleanValue ENABLE_POV_ACTION = BUILDER.define("ingame.enable_pov_action", () -> true);
@@ -145,6 +146,8 @@ public class ClientConfig {
 	public static boolean bloodEffects;
 	public static boolean showEpicFightAttributesInTooltip;
 	public static boolean activateComputeShader;
+	public static boolean activatePersistentBuffer;
+
 	public static boolean enableAnimatedFirstPersonModel;
 	public static BlockGuideOptions mineBlockGuideOption;
 	public static boolean enableTargetEntityGuide;
@@ -201,6 +204,7 @@ public class ClientConfig {
 		bloodEffects = BLOOD_EFFECTS.get();
 		showEpicFightAttributesInTooltip = SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get();
 		activateComputeShader = ACTIVATE_COMPUTE_SHADER.get();
+		activatePersistentBuffer = ACTIVATE_PERSISTENT_BUFFER.get();
 		enableAnimatedFirstPersonModel = ENABLE_ANIMATED_FIRST_PERSON_MODEL.get();
 		mineBlockGuideOption = MINE_BLOCK_GUIDE_OPTION.get();
 		enableTargetEntityGuide = ENABLE_TARGET_ENTITY_GUIDE.get();
@@ -286,6 +290,10 @@ public class ClientConfig {
 
         if (activateComputeShader != ACTIVATE_COMPUTE_SHADER.get())
             saveWorks.add(() -> ACTIVATE_COMPUTE_SHADER.set(activateComputeShader));
+
+		if (activatePersistentBuffer != ACTIVATE_PERSISTENT_BUFFER.get()){
+			saveWorks.add(() -> ACTIVATE_PERSISTENT_BUFFER.set(activatePersistentBuffer));
+		}
 
         if (enableAnimatedFirstPersonModel != ENABLE_ANIMATED_FIRST_PERSON_MODEL.get())
             saveWorks.add(() -> ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel));
@@ -420,6 +428,7 @@ public class ClientConfig {
         if (bloodEffects != BLOOD_EFFECTS.get()) BLOOD_EFFECTS.set(bloodEffects);
         if (showEpicFightAttributesInTooltip != SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get()) SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.set(showEpicFightAttributesInTooltip);
         if (activateComputeShader != ACTIVATE_COMPUTE_SHADER.get()) ACTIVATE_COMPUTE_SHADER.set(activateComputeShader);
+		if (activatePersistentBuffer != ACTIVATE_PERSISTENT_BUFFER.get()) ACTIVATE_PERSISTENT_BUFFER.set(activatePersistentBuffer);
         if (enableAnimatedFirstPersonModel != ENABLE_ANIMATED_FIRST_PERSON_MODEL.get()) ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel);
         if (mineBlockGuideOption != MINE_BLOCK_GUIDE_OPTION.get()) MINE_BLOCK_GUIDE_OPTION.set(mineBlockGuideOption);
         if (enableTargetEntityGuide != ENABLE_TARGET_ENTITY_GUIDE.get()) ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide);

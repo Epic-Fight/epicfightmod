@@ -31,10 +31,10 @@ import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.OutputSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.IArrayBufferProxy;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.OutputSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
@@ -49,7 +49,7 @@ public abstract class ComputeShaderSetup {
     protected final StaticSSBO<VertexObj> vObjBO; // VertexBuffer
     protected final StaticSSBO<WeightInfo> jointBO;
     protected final StaticSSBO<ElemInfo> elementsBO; // ElementsPool
-    protected final OutputSSBO outVertexAttrBO;
+    protected OutputSSBO outVertexAttrBO;
     
     protected final IArrayBufferProxy hiddenFlagsBO;
     protected final Integer[] hiddenFlags;

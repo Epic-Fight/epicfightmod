@@ -153,6 +153,9 @@ dependencies {
     compileOnly "curse.maven:shoulder-surfing-reloaded-243190:6993797" // API only
     //runtimeOnly "curse.maven:shoulder-surfing-reloaded-243190:6993795" // Full mod JAR file
 
+    // Spark
+    runtimeOnly "curse.maven:spark-361579:6225208"
+
     // Change "compileOnly" to "implementation" for testing in-game.
     compileOnly("dev.isxander:controlify:${project.controlify_version}") {
         // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
@@ -211,7 +214,7 @@ idea {
 java {
     withSourcesJar()
 }
-
+/*
 publishMods {
     def readme = project.file('RELEASE_NOTES.md')
     def readmeContent = readme.getText()
@@ -276,4 +279,5 @@ publishMods {
             thumbnailUrl = "https://i.imgur.com/nI8xOCy.png"
         }
     }
-}
+}*/
+

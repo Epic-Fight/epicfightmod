@@ -716,6 +716,7 @@ public class ControlEngine implements IEventBasedEngine {
     @SuppressWarnings("JavadocReference")
     @ApiStatus.Internal
     public static boolean shouldDisableVanillaAttack() {
+        //noinspection removal
         final LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
         if (playerpatch == null) {
             return false;

@@ -1,4 +1,4 @@
-package yesman.epicfight.client.renderer.shader.compute.backend.buffers;
+package yesman.epicfight.client.renderer.shader.compute.backend.ssbo;
 
 import java.io.Closeable;
 import java.nio.ByteOrder;
@@ -77,6 +77,7 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
     
     @Override
 	public void unbind() {
+
         if (this.lastBinding >= 0) {
         	GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, this.lastBinding, 0);
         }

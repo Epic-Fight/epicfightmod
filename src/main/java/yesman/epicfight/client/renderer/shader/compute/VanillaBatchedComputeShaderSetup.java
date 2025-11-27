@@ -1,52 +1,38 @@
 package yesman.epicfight.client.renderer.shader.compute;
 
-import static org.lwjgl.opengl.GL11C.GL_BYTE;
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_SHORT;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
+import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.GLConstants;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
+import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+
+import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15C.glBindBuffer;
 import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30C.glVertexAttribIPointer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
-
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import org.lwjgl.opengl.GL30C;
-import org.lwjgl.opengl.GL43C;
-import org.lwjgl.opengl.GL46;
-import org.lwjgl.opengl.GL46C;
-import org.lwjgl.system.MemoryUtil;
-import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
-import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.GLConstants;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedBuffer;
-import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
-import yesman.epicfight.client.renderer.shader.compute.backend.utils.MemUtils;
-import yesman.epicfight.client.renderer.shader.compute.backend.utils.SimpleMemoryInterface;
-import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
-import yesman.epicfight.config.ClientConfig;
-
+@SuppressWarnings("Unfinished")
 @OnlyIn(Dist.CLIENT)
-public class VanillaComputeShaderSetup extends ComputeShaderSetup {
-	
-	public VanillaComputeShaderSetup(SkinnedMesh skinnedMesh) {
+public class VanillaBatchedComputeShaderSetup extends BatchedComputeShaderSetup {
+
+	public VanillaBatchedComputeShaderSetup(SkinnedMesh skinnedMesh) {
         super(skinnedMesh, 12);
     }
 	
@@ -78,7 +64,7 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 				glEnableVertexAttribArray(i);
 			}
 		}
-		
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
@@ -93,16 +79,9 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
 		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
 
-		if(use_persist){
-			pose_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0,
-					poses_off, pose_size);
-			hf_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4,
-					hidden_flag_off, hiddenFlags.length * 4L);
-		}
-		else {
-			ComputeShaderSetup.POSE_BO.bindBufferBase(0);
-			this.hiddenFlagsBO.bindBufferBase(4);
-		}
+		POSES_DATA_BO.bindBufferBase(0);
+		HIDDEN_FLAGS_BO.bindBufferBase(4);
+		MODEL_INFOS_BO.bindBufferBase(6);
 
 		this.elementsBO.bindBufferBase(1);
 		this.vObjBO.bindBufferBase(2);
@@ -110,35 +89,26 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		this.outVertexAttrBO.bindBufferBase(5);
 
 		int workGroupCount = (this.vcount + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
-		if (use_persist) GL46C.glMemoryBarrier(GL46C.GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 		shader.dispatch(workGroupCount, 1, 1);
 		shader.waitBarriers();
 
-		if(use_persist){
-			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, 0);
-			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 4, 0);
-		}
-		else {
-			ComputeShaderSetup.POSE_BO.unbind();
-			this.hiddenFlagsBO.unbind();
-		}
+		POSES_DATA_BO.unbind();
+		HIDDEN_FLAGS_BO.unbind();
+		MODEL_INFOS_BO.unbind();
 
 		this.elementsBO.unbind();
 		this.vObjBO.unbind();
 		this.jointBO.unbind();
 		this.outVertexAttrBO.unbind();
 	}
-
-	private long hidden_flag_off = 0;
-	private long poses_off = 0;
-	private long pose_size = 0;
-	private boolean use_persist = true;
-	private MappedBuffer pose_buffer;
-	private MappedBuffer hf_buffer;
-
+	
 	@Override
-	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack,
+							   MultiBufferSource buffers, RenderType renderType,
+							   int packedLight, float r, float g, float b, float a,
+							   int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
 		// pose setup and upload
+		// todo
 
 		for (int i = 0; i < poses.length; i++) {
 			TOTAL_POSES[i].load(poses[i]);
@@ -163,47 +133,8 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 			this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
 		}
 
-		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
-		if(use_persist){
-			// pose
-			int pose_len = poses.length + skinnedMesh.getAllParts().size();
-			pose_size = ComputeShaderProvider.align(pose_len * 16 * 4L,
-					ComputeShaderProvider.getSSBOAlignment());
-			pose_buffer = ComputeShaderProvider.posesBufferPool.getOrWait(
-					pose_size
-			);
-
-			long address_base = pose_buffer.reserve(pose_size, true);
-			var tmp = pose_buffer.addressAt(0);
-			poses_off = address_base - tmp;
-
-			// upload
-
-			for (int i = 0; i < pose_len; i++) {
-				TOTAL_POSES[i].store(address_base + (16L * 4 * i));
-			}
-
-			// hidden flag
-			hf_buffer = ComputeShaderProvider.hiddenFlagPool.getOrWait(
-					hiddenFlags.length * 4L
-			);
-
-			var aligned_size = ComputeShaderProvider.align(hiddenFlags.length * 4L,
-					ComputeShaderProvider.getSSBOAlignment());
-
-			address_base = hf_buffer.reserve(aligned_size);
-			hidden_flag_off = address_base - hf_buffer.addressAt(0);
-
-			for (int i = 0; i < hiddenFlags.length; i++) {
-				int hf = hiddenFlags[i];
-				MemoryUtil.memPutInt(address_base + 4L * i, hf);
-			}
-
-		}
-		else {
-			this.hiddenFlagsBO.updateAll();
-			POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
-		}
+		this.hiddenFlagsBO.updateAll();
+		POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
 
 		// state trace
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
@@ -211,15 +142,15 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 
 		// setup state
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
-
+		
 		this.draw(poseStack, renderType, r, g, b, a, overlay, packedLight, poses.length);
-
+		
 		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
 			renderType.outline().ifPresent(outlineRendertype -> {
 				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 			});
 		}
-
+		
 		GlStateManager._glBindVertexArray(currentBoundVao);
 		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
 	}

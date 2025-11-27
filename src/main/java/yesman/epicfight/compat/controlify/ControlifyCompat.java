@@ -528,7 +528,7 @@ public class ControlifyCompat implements ControlifyEntrypoint {
         }
 
         @Override
-        public boolean isBoundToSameButton(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
+        public boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
             final Input input1 = getControlifyBinding(action).boundInput();
             final Input input2 = getControlifyBinding(action2).boundInput();
             return input1.getRelevantInputs().equals(input2.getRelevantInputs());

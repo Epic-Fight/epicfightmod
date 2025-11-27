@@ -146,7 +146,7 @@ public final class InputManager {
     public static boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
-            return controllerMod.isBoundToSameButton(action, action2);
+            return controllerMod.isBoundToSamePhysicalInput(action, action2);
         }
 
         final KeyMapping keyMapping1 = action.keyMapping();

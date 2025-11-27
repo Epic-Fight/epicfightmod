@@ -1,6 +1,5 @@
 package yesman.epicfight.api.client.input.controller;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
@@ -21,7 +20,6 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 /// **Note:** This interface exposes low-level controller integration.
 /// Most consumers should use a higher-level abstraction unless direct access is necessary for functionality
 /// that cannot be achieved otherwise.
-@ApiStatus.Experimental
 public interface IEpicFightControllerMod {
     /// Returns the controller mod’s display name (e.g., `Controlify`).
     /// Intended for logging or debugging only; should not influence gameplay logic or be used as a workaround.
@@ -56,5 +54,5 @@ public interface IEpicFightControllerMod {
     /// @param action  the first input action
     /// @param action2 the second input action
     /// @return `true` if both actions are bound to the same controller button; `false` otherwise
-    boolean isBoundToSameButton(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2);
+    boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2);
 }

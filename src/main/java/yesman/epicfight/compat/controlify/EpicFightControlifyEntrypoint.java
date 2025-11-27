@@ -71,7 +71,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     public void onControlifyPreInit(PreInitContext context) {
         final ControlifyBindApi registrar = ControlifyBindApi.get();
         registerCustomRadialIcons();
-        BindContexts.EpicFight.register(registrar);
+        EpicFightControlifyBindContexts.EpicFight.register(registrar);
         registerInputBindings(registrar);
         registerEvents();
         registerGuides(context.guideRegistries().inGame(), context.guideRegistries().container());
@@ -93,43 +93,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     private static InputBindingSupplier lockOnShiftLeft;
     private static InputBindingSupplier lockOnShiftRight;
     private static InputBindingSupplier lockOnShiftFreely;
-
-    private static final class BindContexts {
-        private BindContexts() {
-        }
-
-        private static final class EpicFight {
-            private EpicFight() {
-            }
-
-            private static final BindContext COMBAT_MODE = new BindContext(
-                    EpicFightMod.rl("epicfight_combat"),
-                    mc -> {
-                        final boolean isInGame = isInGame(mc);
-                        return isInGame && ClientEngine.getInstance().isEpicFightMode();
-                    }
-            );
-            private static final BindContext LOCK_ON = new BindContext(
-                    EpicFightMod.rl("epicfight_lock_on"),
-                    mc -> {
-                        final boolean isInGame = isInGame(mc);
-                        return isInGame && EpicFightCameraAPI.getInstance().isLockingOnTarget();
-                    }
-            );
-
-            public static void register(@NotNull ControlifyBindApi registrar) {
-                registrar.registerBindContext(COMBAT_MODE);
-                registrar.registerBindContext(LOCK_ON);
-            }
-        }
-
-        private static final BindContext IN_GAME = BindContext.IN_GAME;
-        private static final BindContext ANY_SCREEN = BindContext.ANY_SCREEN;
-
-        private static boolean isInGame(@NotNull Minecraft mc) {
-            return mc.screen == null && mc.level != null && mc.player != null;
-        }
-    }
 
     private record TranslationKeys(@NotNull String name, @NotNull String description) {
         private @NotNull Component getNameComponent() {
@@ -266,76 +229,76 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case ATTACK -> attack = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case MOBILITY -> mobility = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case GUARD -> guard = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case DODGE -> dodge = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case LOCK_ON -> lockOn = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(cameraCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case LOCK_ON_SHIFT_LEFT -> lockOnShiftLeft = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(cameraCategory)
-                            .allowedContexts(BindContexts.EpicFight.LOCK_ON)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.LOCK_ON)
             );
             case LOCK_ON_SHIFT_RIGHT -> lockOnShiftRight = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(cameraCategory)
-                            .allowedContexts(BindContexts.EpicFight.LOCK_ON)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.LOCK_ON)
             );
             case LOCK_ON_SHIFT_FREELY -> lockOnShiftFreely = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(cameraCategory)
-                            .allowedContexts(BindContexts.EpicFight.LOCK_ON)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.LOCK_ON)
             );
             case SWITCH_MODE -> switchMode = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(systemCategory)
-                            .allowedContexts(BindContexts.IN_GAME)
+                            .allowedContexts(EpicFightControlifyBindContexts.IN_GAME)
                             .radialCandidate(EpicFightRadialIcons.UCHIGATANA.getId())
             );
             case WEAPON_INNATE_SKILL -> weaponInnateSkill = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
-                            .allowedContexts(BindContexts.EpicFight.COMBAT_MODE)
+                            .allowedContexts(EpicFightControlifyBindContexts.EpicFight.COMBAT_MODE)
             );
             case WEAPON_INNATE_SKILL_TOOLTIP -> weaponInnateSkillTooltip = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(guiCategory)
-                            .allowedContexts(BindContexts.ANY_SCREEN)
+                            .allowedContexts(EpicFightControlifyBindContexts.ANY_SCREEN)
             );
             case OPEN_SKILL_SCREEN -> openSkillEditorScreen = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(guiCategory)
-                            .allowedContexts(BindContexts.IN_GAME)
+                            .allowedContexts(EpicFightControlifyBindContexts.IN_GAME)
                             .radialCandidate(EpicFightRadialIcons.SKILL_BOOK.getId())
             );
             case OPEN_CONFIG_SCREEN -> openConfigScreen = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(guiCategory)
-                            .allowedContexts(BindContexts.IN_GAME)
+                            .allowedContexts(EpicFightControlifyBindContexts.IN_GAME)
                             .radialCandidate(RadialIcons.getItem(Items.REDSTONE))
             );
             case SWITCH_VANILLA_MODEL_DEBUGGING -> switchVanillaModeDebugging = registrar.registerBinding(
                     builder ->
                             applyCommonBindingProperties(action, builder)
                                     .category(systemCategory)
-                                    .allowedContexts(BindContexts.IN_GAME)
+                                    .allowedContexts(EpicFightControlifyBindContexts.IN_GAME)
             );
         };
     }

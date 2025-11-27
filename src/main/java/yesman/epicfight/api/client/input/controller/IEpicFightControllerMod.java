@@ -29,19 +29,6 @@ public interface IEpicFightControllerMod {
     @NotNull
     InputMode getInputMode();
 
-    /// Retrieves the universal controller binding for a given Epic Fight input action.
-    ///
-    /// This method maps actions such as [EpicFightInputAction#JUMP],
-    /// [EpicFightInputAction#ATTACK], and
-    /// [EpicFightInputAction#MOVE_FORWARD] to the corresponding controller buttons or axes.
-    ///
-    /// @param action the Epic Fight input action to retrieve the binding for.
-    /// @return the [ControllerBinding] associated with the specified action,
-    /// providing both state and metadata about the input.
-    /// @see ControllerBinding
-    @NotNull
-    ControllerBinding getBinding(EpicFightInputAction action);
-
     /// Retrieves the current input state.
     /// This is used internally by Epic Fight to perform actions such as [EpicFightInputAction#DODGE].
     ///

@@ -4,7 +4,6 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.InputMode;
@@ -30,9 +29,8 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
         };
     }
 
-    @Override
-    public @NotNull ControllerBinding getBinding(EpicFightInputAction action) {
-        return new ControllerBindingImpl(getControlifyBinding(action));
+    public static @NotNull ControllerBinding getBinding(@NotNull EpicFightInputAction action) {
+        return new ControlifyControllerBinding(getControlifyBinding(action));
     }
 
     public static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
@@ -66,44 +64,5 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
         final Input input1 = getControlifyBinding(action).boundInput();
         final Input input2 = getControlifyBinding(action2).boundInput();
         return input1.getRelevantInputs().equals(input2.getRelevantInputs());
-    }
-
-    private record ControllerBindingImpl(@NotNull InputBinding inputBinding) implements ControllerBinding {
-
-        @Override
-        @NotNull
-        public ResourceLocation id() {
-            return inputBinding.id();
-        }
-
-        @Override
-        public boolean isDigitalActiveNow() {
-            return inputBinding.digitalNow();
-        }
-
-        @Override
-        public boolean wasDigitalActivePreviously() {
-            return inputBinding.digitalPrev();
-        }
-
-        @Override
-        public boolean isDigitalJustPressed() {
-            return inputBinding.justPressed();
-        }
-
-        @Override
-        public boolean isDigitalJustReleased() {
-            return inputBinding.justReleased();
-        }
-
-        @Override
-        public float getAnalogueNow() {
-            return inputBinding.analogueNow();
-        }
-
-        @Override
-        public void emulatePress() {
-            inputBinding.fakePress();
-        }
     }
 }

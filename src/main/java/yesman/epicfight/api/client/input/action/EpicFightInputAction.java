@@ -1,10 +1,7 @@
 package yesman.epicfight.api.client.input.action;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -22,76 +19,37 @@ import java.util.*;
 ///
 /// For implementation details, refer to [#keyMapping()].
 public enum EpicFightInputAction implements InputAction {
-    /// Corresponds to Minecraft's default "Attack/Destroy" action.
-    ///
-    /// This uses the vanilla [net.minecraft.client.Options#keyAttack] key mapping,
-    /// which is bound to the left mouse button by default.
-    /// It handles both attacking entities and breaking blocks in the base game.
-    VANILLA_ATTACK_DESTROY(true),
-    USE(true),
-    SWAP_OFF_HAND(true),
-    DROP(true),
-    TOGGLE_PERSPECTIVE(true),
-    ATTACK(false),
-    JUMP(true),
-    MOBILITY(false),
-    GUARD(false),
-    DODGE(false),
-    LOCK_ON(false),
-    LOCK_ON_SHIFT_LEFT(false),
-    LOCK_ON_SHIFT_RIGHT(false),
-    LOCK_ON_SHIFT_FREELY(false),
-    SWITCH_MODE(false),
-    WEAPON_INNATE_SKILL(false),
-    WEAPON_INNATE_SKILL_TOOLTIP(false),
-    MOVE_FORWARD(true),
-    MOVE_BACKWARD(true),
-    MOVE_LEFT(true),
-    MOVE_RIGHT(true),
-    SPRINT(true),
-    SNEAK(true),
-    OPEN_SKILL_SCREEN(false),
-    OPEN_CONFIG_SCREEN(false),
-    SWITCH_VANILLA_MODEL_DEBUGGING(false);
+    ATTACK,
+    MOBILITY,
+    GUARD,
+    DODGE,
+    LOCK_ON,
+    LOCK_ON_SHIFT_LEFT,
+    LOCK_ON_SHIFT_RIGHT,
+    LOCK_ON_SHIFT_FREELY,
+    SWITCH_MODE,
+    WEAPON_INNATE_SKILL,
+    WEAPON_INNATE_SKILL_TOOLTIP,
+    OPEN_SKILL_SCREEN,
+    OPEN_CONFIG_SCREEN,
+    SWITCH_VANILLA_MODEL_DEBUGGING;
 
     final private int id;
 
-    /// Indicates whether this input action corresponds to a standard Minecraft vanilla key mapping.
-    ///
-    /// Vanilla actions are those defined by the base game (e.g., attack, jump, move),
-    /// while non-vanilla actions are custom Epic Fight actions introduced by the mod.
-    final private boolean isVanilla;
-
-    /// Returns whether this input action corresponds to a vanilla Minecraft key mapping.
-    ///
-    /// @return `true` if this action is linked to a vanilla key mapping,
-    /// `false` if it is defined by the Epic Fight mod.
-    public boolean isVanilla() {
-        return isVanilla;
-    }
-
-    EpicFightInputAction(final boolean isVanilla) {
+    EpicFightInputAction() {
         this.id = InputAction.ENUM_MANAGER.assign(this);
-        this.isVanilla = isVanilla;
     }
 
     @Override
     public int universalOrdinal() {
-        return id;
+        return this.id;
     }
 
     @Override
     @NotNull
     public KeyMapping keyMapping() {
-        final Options options = Minecraft.getInstance().options;
         return switch (this) {
-            case VANILLA_ATTACK_DESTROY -> options.keyAttack;
-            case USE -> options.keyUse;
-            case SWAP_OFF_HAND -> options.keySwapOffhand;
-            case DROP -> options.keyDrop;
-            case TOGGLE_PERSPECTIVE -> options.keyTogglePerspective;
             case ATTACK -> EpicFightKeyMappings.ATTACK;
-            case JUMP -> options.keyJump;
             case MOBILITY -> EpicFightKeyMappings.MOVER_SKILL;
             case GUARD -> EpicFightKeyMappings.GUARD;
             case DODGE -> EpicFightKeyMappings.DODGE;
@@ -102,12 +60,6 @@ public enum EpicFightInputAction implements InputAction {
             case SWITCH_MODE -> EpicFightKeyMappings.SWITCH_MODE;
             case WEAPON_INNATE_SKILL -> EpicFightKeyMappings.WEAPON_INNATE_SKILL;
             case WEAPON_INNATE_SKILL_TOOLTIP -> EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP;
-            case MOVE_FORWARD -> options.keyUp;
-            case MOVE_BACKWARD -> options.keyDown;
-            case MOVE_LEFT -> options.keyLeft;
-            case MOVE_RIGHT -> options.keyRight;
-            case SPRINT -> options.keySprint;
-            case SNEAK -> options.keyShift;
             case OPEN_SKILL_SCREEN -> EpicFightKeyMappings.SKILL_EDIT;
             case OPEN_CONFIG_SCREEN -> EpicFightKeyMappings.OPEN_CONFIG_SCREEN;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> EpicFightKeyMappings.SWITCH_VANILLA_MODEL_DEBUGGING;
@@ -122,33 +74,8 @@ public enum EpicFightInputAction implements InputAction {
         return Optional.of(EpicFightControlifyControllerMod.getBinding(this));
     }
 
-    private static final @NotNull Map<KeyMapping, EpicFightInputAction> BY_KEY_MAPPING;
-
-    static {
-        Map<KeyMapping, EpicFightInputAction> map = new HashMap<>();
-        for (EpicFightInputAction action : values()) {
-            map.put(action.keyMapping(), action);
-        }
-        BY_KEY_MAPPING = Collections.unmodifiableMap(map);
-    }
-
-    /// Gets the input action corresponding to a [KeyMapping].
-    ///
-    /// @param keyMapping the key mapping; must not be `null`
-    /// @return the corresponding action, or null if none matches
-    public static @Nullable EpicFightInputAction fromKeyMapping(@NotNull KeyMapping keyMapping) {
-        return BY_KEY_MAPPING.get(keyMapping);
-    }
-
-    /// Returns a set of all Epic Fight actions that are not part of the vanilla Minecraft key mappings.
-    ///
-    /// @return a set containing all non-vanilla [EpicFightInputAction]
-    /// @see EpicFightInputAction#isVanilla
-    public static @NotNull Set<EpicFightInputAction> nonVanillaActions() {
-        Set<EpicFightInputAction> result = EnumSet.noneOf(EpicFightInputAction.class);
-        for (EpicFightInputAction action : EpicFightInputAction.values()) {
-            if (!action.isVanilla()) result.add(action);
-        }
-        return result;
+    @Override
+    public boolean isVanilla() {
+        return false;
     }
 }

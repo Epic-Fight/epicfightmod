@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
@@ -55,7 +56,7 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
     private static class ForceCameraCouplingWhenAttackingCallback implements ICameraCouplingCallback {
         @Override
         public boolean isForcingCameraCoupling(Minecraft minecraft) {
-            return InputManager.isActionActive(EpicFightInputAction.ATTACK) || InputManager.isActionActive(EpicFightInputAction.VANILLA_ATTACK_DESTROY);
+            return InputManager.isActionActive(EpicFightInputAction.ATTACK) || InputManager.isActionActive(MinecraftInputAction.ATTACK_DESTROY);
         }
     }
 

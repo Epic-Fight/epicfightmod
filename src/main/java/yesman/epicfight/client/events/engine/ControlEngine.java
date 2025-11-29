@@ -43,6 +43,7 @@ import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.action.InputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.utils.FakeLevel;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
@@ -242,12 +243,12 @@ public class ControlEngine {
 		}
 		
 		if (this.sneakPressToggle) {
-			if (!InputManager.isActionActive(EpicFightInputAction.SNEAK)) {
+			if (!InputManager.isActionActive(MinecraftInputAction.SNEAK)) {
 				SkillSlot skillSlot = (this.playerPatch.getEntityState().knockDown()) ? SkillSlots.KNOCKDOWN_WAKEUP : SkillSlots.DODGE;
 				SkillContainer skill = this.playerPatch.getSkill(skillSlot);
 				
 				if (skill.sendCastRequest(this.playerPatch, this).shouldReserveKey()) {
-					this.reserveKey(skillSlot, EpicFightInputAction.SNEAK);
+					this.reserveKey(skillSlot, MinecraftInputAction.SNEAK);
 				}
 				
 				this.sneakPressToggle = false;
@@ -356,12 +357,15 @@ public class ControlEngine {
         if (!this.playerPatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.ATTACK)) {
             return;
         }
-        final EpicFightInputAction vanillaAttack = EpicFightInputAction.VANILLA_ATTACK_DESTROY;
+        final MinecraftInputAction vanillaAttack = MinecraftInputAction.ATTACK_DESTROY;
         final EpicFightInputAction epicFightAttack = EpicFightInputAction.ATTACK;
 
         boolean shouldPlayAttackAnimation = this.playerPatch.canPlayAttackAnimation();
         if (vanillaAttack.keyMapping().getKey() == epicFightAttack.keyMapping().getKey() &&
                 Minecraft.getInstance().hitResult != null && shouldPlayAttackAnimation) {
+            // Not needed for controller inputs.
+            // This is called for keyboard/mouse inputs to just reset the internal keymapping counter.
+            // It does not cancel the attack input, as that is handled in a mixin on the Minecraft class.
             consumeVanillaAttackKeyClicks();
         }
 
@@ -396,7 +400,7 @@ public class ControlEngine {
         if (!this.playerPatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.DODGE)) {
             return;
         }
-        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.DODGE, EpicFightInputAction.SNEAK)) {
+        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.DODGE, MinecraftInputAction.SNEAK)) {
             if (this.player.getVehicle() == null) {
                 if (!this.sneakPressToggle) {
                     this.sneakPressToggle = true;
@@ -456,7 +460,7 @@ public class ControlEngine {
         if (!this.playerPatch.isEpicFightMode() || this.playerPatch.isHoldingAny()) {
             return;
         }
-        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.MOBILITY, EpicFightInputAction.JUMP)) {
+        if (InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.MOBILITY, MinecraftInputAction.JUMP)) {
             SkillContainer skillContainer = this.playerPatch.getSkill(SkillSlots.MOVER);
 
             if (!skillContainer.isEmpty()) {
@@ -499,7 +503,7 @@ public class ControlEngine {
 	private void inputTick(Input input) {
         PlayerInputState inputState = InputManager.getInputState(input);
 		if (this.moverPressToggle) {
-			if (!InputManager.isActionActive(EpicFightInputAction.JUMP)) {
+			if (!InputManager.isActionActive(MinecraftInputAction.JUMP)) {
 				this.moverPressToggle = false;
 				this.moverPressCounter = 0;
 				
@@ -701,7 +705,7 @@ public class ControlEngine {
      */
     @SuppressWarnings("JavadocReference")
     public static void setSprintingKeyStateNotDown() {
-        KeyMapping.set(EpicFightInputAction.SPRINT.keyMapping().getKey(), false);
+        KeyMapping.set(MinecraftInputAction.SPRINT.keyMapping().getKey(), false);
     }
 
     /**
@@ -782,7 +786,7 @@ public class ControlEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeVanillaAttackKeyClicks() {
-        makeUnpressed(EpicFightInputAction.VANILLA_ATTACK_DESTROY.keyMapping());
+        makeUnpressed(MinecraftInputAction.ATTACK_DESTROY.keyMapping());
     }
 
     /**
@@ -800,7 +804,7 @@ public class ControlEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeSwapOffhandKeyClicks() {
-        makeUnpressed(EpicFightInputAction.SWAP_OFF_HAND.keyMapping());
+        makeUnpressed(MinecraftInputAction.SWAP_OFF_HAND.keyMapping());
     }
 
     /**
@@ -833,13 +837,13 @@ public class ControlEngine {
      */
     @SuppressWarnings("JavadocReference")
     private static void consumeDropKeyClicks() {
-        makeUnpressed(EpicFightInputAction.DROP.keyMapping());
+        makeUnpressed(MinecraftInputAction.DROP.keyMapping());
     }
 
     /**
      * Maps a {@link KeyMapping} to its corresponding input action, if defined.
      * <p>
-     * Each {@link EpicFightInputAction} enum constant has an associated {@link KeyMapping},
+     * Each {@link InputAction} enum constant has an associated {@link KeyMapping},
      * but not every {@link KeyMapping} corresponds to an {@link EpicFightInputAction}, so this may return {@code null}.
      * Using {@link KeyMapping} directly does not support controllers.
      * <p>
@@ -856,8 +860,8 @@ public class ControlEngine {
      * Sometimes, it makes sense to use this method, for example, if you're using an event such as {@link InputEvent.InteractionKeyMappingTriggered},
      * which provides only a {@link KeyMapping}.
      */
-    private static @Nullable EpicFightInputAction mapKeyMappingToAction(@NotNull KeyMapping keyMapping) {
-        return EpicFightInputAction.fromKeyMapping(keyMapping);
+    private static @Nullable InputAction mapKeyMappingToAction(@NotNull KeyMapping keyMapping) {
+        return InputAction.fromKeyMapping(keyMapping);
     }
 
     /**
@@ -867,11 +871,11 @@ public class ControlEngine {
      * @return {@code true} if the given action is currently held; otherwise {@code false}
      * @see ControlEngine#mapKeyMappingToAction
      */
-    private boolean isCurrentHoldingAction(@NotNull EpicFightInputAction other) {
+    private boolean isCurrentHoldingAction(@NotNull InputAction other) {
         if (currentHoldingKey == null) {
             return false;
         }
-        final EpicFightInputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
+        final InputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
         if (currentHoldingAction == null) {
             // Fallback for legacy or custom key mappings.
             // This is IMPORTANT to prevent addon breakage; this allows custom keybinds from other mods,
@@ -885,7 +889,7 @@ public class ControlEngine {
         if (currentHoldingKey == null) {
             return false;
         }
-        final EpicFightInputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
+        final InputAction currentHoldingAction = mapKeyMappingToAction(currentHoldingKey);
         if (currentHoldingAction == null) {
             // Fallback for legacy or custom key mappings.
             // This is IMPORTANT to prevent addon breakage; this allows custom keybinds from other mods,
@@ -986,7 +990,7 @@ public class ControlEngine {
 		@SubscribeEvent
 		public static void interactionEvent(InteractionKeyMappingTriggered event) {
 			if (controlEngine.minecraft.player == null || controlEngine.minecraft.hitResult == null) return;
-            final EpicFightInputAction triggeredAction = mapKeyMappingToAction(event.getKeyMapping());
+            final InputAction triggeredAction = mapKeyMappingToAction(event.getKeyMapping());
             
             if (triggeredAction == null) {
                 // The key mapping corresponds to a fixed vanilla action (attack, pick block, or use item).
@@ -995,8 +999,8 @@ public class ControlEngine {
             }
             
 			if (
-                triggeredAction == EpicFightInputAction.VANILLA_ATTACK_DESTROY &&
-                InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.ATTACK, EpicFightInputAction.VANILLA_ATTACK_DESTROY) &&
+                triggeredAction == MinecraftInputAction.ATTACK_DESTROY &&
+                InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.ATTACK, MinecraftInputAction.ATTACK_DESTROY) &&
 				controlEngine.minecraft.hitResult.getType() == HitResult.Type.BLOCK &&
 				ClientConfig.combatPreferredItems.contains(controlEngine.player.getMainHandItem().getItem())
 			) {
@@ -1011,8 +1015,8 @@ public class ControlEngine {
 			}
 			
 			if (
-                triggeredAction == EpicFightInputAction.USE &&
-                InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.USE, EpicFightInputAction.GUARD)
+                triggeredAction == MinecraftInputAction.USE &&
+                InputManager.isBoundToSamePhysicalInput(MinecraftInputAction.USE, EpicFightInputAction.GUARD)
 			) {
 				MutableBoolean canGuard = new MutableBoolean(false);
 				MutableBoolean vanillaMode = new MutableBoolean(false);

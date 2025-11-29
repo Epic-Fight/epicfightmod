@@ -5,9 +5,12 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.utils.ExtendableEnum;
 import yesman.epicfight.api.utils.ExtendableEnumManager;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /// Represents a client-side input action in Epic Fight mod.
 ///
@@ -45,4 +48,35 @@ public interface InputAction extends ExtendableEnum {
     /// @return the [ControllerBinding] for this action, or [Optional#empty()] if not supported
     /// @see ControllerBinding
     @NotNull Optional<@NotNull ControllerBinding> controllerBinding();
+
+    /// Returns whether this input action corresponds to a vanilla standard Minecraft input bind.
+    ///
+    /// Vanilla actions are those defined by the base game (e.g., attack, jump, move),
+    /// while non-vanilla actions are custom Epic Fight actions introduced by the mod.
+    ///
+    /// @return `true` if this action is linked to a vanilla key mapping.
+    boolean isVanilla();
+
+    /// Returns a set of all input actions that are not part of the vanilla Minecraft input bindings.
+    ///
+    /// @return a set containing all non-vanilla [InputAction]
+    /// @see InputAction#isVanilla
+    static @NotNull Set<InputAction> nonVanillaActions() {
+        Set<InputAction> result = new HashSet<>();
+        for (InputAction action : InputAction.ENUM_MANAGER.universalValues()) {
+            if (!action.isVanilla()) result.add(action);
+        }
+        return result;
+    }
+
+    /// Gets the input action corresponding to a [KeyMapping].
+    ///
+    /// @param keyMapping the key mapping; must not be `null`
+    /// @return the corresponding action, or null if none matches
+    static @Nullable InputAction fromKeyMapping(@NotNull KeyMapping keyMapping) {
+        return InputAction.ENUM_MANAGER.universalValues().stream()
+                .filter(action -> action.keyMapping() == keyMapping)
+                .findFirst()
+                .orElse(null);
+    }
 }

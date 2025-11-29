@@ -25,6 +25,7 @@ import org.joml.Vector2f;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
@@ -122,14 +123,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
                         new TranslationKeys("key.epicfight.switch_vanilla_model_debug", "key.epicfight.switch_vanilla_model_debug.description");
                 case MOBILITY ->
                         new TranslationKeys("key.epicfight.mover_skill", "key.epicfight.mover_skill.description");
-
-                // Vanilla actions translations already handled by Controlify.
-                case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, DROP, TOGGLE_PERSPECTIVE, JUMP,
-                     MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT, SPRINT, SNEAK ->
-                        throw new IllegalArgumentException(
-                                "TranslationKeys#fromAction() must only be called for non-vanilla actions. " +
-                                        "This action is vanilla and already registered by Controlify: " + action.name()
-                        );
             };
         }
 
@@ -171,7 +164,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private static void registerInputBindings(ControlifyBindApi registrar) {
-        for (EpicFightInputAction action : EpicFightInputAction.nonVanillaActions()) {
+        for (EpicFightInputAction action : EpicFightInputAction.values()) {
             registerInputBinding(registrar, action);
         }
     }
@@ -206,11 +199,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
         // The returned value is a dummy and does nothing; its only purpose is to
         // satisfy the compiler and ensure all enum constants are handled.
         return switch (action) {
-            case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, TOGGLE_PERSPECTIVE, DROP, MOVE_FORWARD, MOVE_BACKWARD,
-                 MOVE_LEFT, MOVE_RIGHT, SPRINT, SNEAK, JUMP -> throw new IllegalArgumentException(
-                    "EpicFightControlifyEntrypoint#registerInputBinding() must only be called for non-vanilla actions. " +
-                            "This action is vanilla and already registered by Controlify: " + action.name()
-            );
             case ATTACK -> attack = registrar.registerBinding(
                     builder -> applyCommonBindingProperties(action, builder)
                             .category(combatCategory)
@@ -320,11 +308,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_SKILL_SCREEN -> "open_skill_editor_screen";
             case OPEN_CONFIG_SCREEN -> "open_config_screen";
             case SWITCH_VANILLA_MODEL_DEBUGGING -> "switch_vanilla_mode_debugging";
-            case VANILLA_ATTACK_DESTROY, USE, SWAP_OFF_HAND, TOGGLE_PERSPECTIVE, DROP, MOVE_FORWARD, MOVE_BACKWARD,
-                 MOVE_LEFT, MOVE_RIGHT, SPRINT, SNEAK, JUMP -> throw new IllegalArgumentException(
-                    "EpicFightControlifyEntrypoint#getInputBindingId() must only be called for non-vanilla actions. " +
-                            "This action is vanilla and already registered by Controlify: " + action.name()
-            );
         };
         return EpicFightMod.rl(path);
     }
@@ -359,20 +342,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
 
     public static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
         final InputBindingSupplier bindingSupplier = switch (action) {
-            // Minecraft Vanilla actions
-            case VANILLA_ATTACK_DESTROY -> ControlifyBindings.ATTACK;
-            case MOVE_FORWARD -> ControlifyBindings.WALK_FORWARD;
-            case MOVE_BACKWARD -> ControlifyBindings.WALK_BACKWARD;
-            case MOVE_LEFT -> ControlifyBindings.WALK_LEFT;
-            case MOVE_RIGHT -> ControlifyBindings.WALK_RIGHT;
-            case SPRINT -> ControlifyBindings.SPRINT;
-            case SNEAK -> ControlifyBindings.SNEAK;
-            case USE -> ControlifyBindings.USE;
-            case SWAP_OFF_HAND -> ControlifyBindings.SWAP_HANDS;
-            case DROP -> ControlifyBindings.DROP_INGAME;
-            case TOGGLE_PERSPECTIVE -> ControlifyBindings.CHANGE_PERSPECTIVE;
-            case JUMP -> ControlifyBindings.JUMP;
-            // Epic Fight custom actions
             case ATTACK -> attack;
             case MOBILITY -> mobility;
             case GUARD -> guard;
@@ -387,6 +356,25 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_SKILL_SCREEN -> openSkillEditorScreen;
             case OPEN_CONFIG_SCREEN -> openConfigScreen;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> switchVanillaModeDebugging;
+        };
+        final @Nullable InputBinding binding = bindingSupplier.onOrNull(requireControllerEntity());
+        return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");
+    }
+
+    public static @NotNull InputBinding getControlifyBinding(@NotNull MinecraftInputAction action) {
+        final InputBindingSupplier bindingSupplier = switch (action) {
+            case ATTACK_DESTROY -> ControlifyBindings.ATTACK;
+            case MOVE_FORWARD -> ControlifyBindings.WALK_FORWARD;
+            case MOVE_BACKWARD -> ControlifyBindings.WALK_BACKWARD;
+            case MOVE_LEFT -> ControlifyBindings.WALK_LEFT;
+            case MOVE_RIGHT -> ControlifyBindings.WALK_RIGHT;
+            case SPRINT -> ControlifyBindings.SPRINT;
+            case SNEAK -> ControlifyBindings.SNEAK;
+            case USE -> ControlifyBindings.USE;
+            case SWAP_OFF_HAND -> ControlifyBindings.SWAP_HANDS;
+            case DROP -> ControlifyBindings.DROP_INGAME;
+            case TOGGLE_PERSPECTIVE -> ControlifyBindings.CHANGE_PERSPECTIVE;
+            case JUMP -> ControlifyBindings.JUMP;
         };
         final @Nullable InputBinding binding = bindingSupplier.onOrNull(requireControllerEntity());
         return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");

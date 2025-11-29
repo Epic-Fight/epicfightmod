@@ -10,8 +10,6 @@ import yesman.epicfight.compat.controlify.EpicFightControlifyControllerMod;
 
 import java.util.Optional;
 
-// TODO: Double confirm old EpicFightInputAction usages and doc comments
-
 public enum MinecraftInputAction implements InputAction {
     JUMP,
     /// Corresponds to Minecraft's default "Attack/Destroy" action.

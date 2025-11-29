@@ -59,4 +59,16 @@ public interface ControllerBinding {
     ///
     /// Can be used for GUI interactions or synthetic input from other systems.
     void emulatePress();
+
+    /// Returns a unique ID for the physical control.
+    /// The returned object must have a stable [Object#equals]/[Object#hashCode] implementation.
+    ///
+    /// @return a unique and comparable identifier for the physical control
+    @NotNull
+    Object physicalInputId();
+
+    /// Returns whether both controller bindings refer to the same physical control.
+    default boolean isBoundToSamePhysicalInput(@NotNull ControllerBinding other) {
+        return physicalInputId().equals(other.physicalInputId());
+    }
 }

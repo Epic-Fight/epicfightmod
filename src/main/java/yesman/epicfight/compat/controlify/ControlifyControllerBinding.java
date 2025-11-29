@@ -44,4 +44,10 @@ public record ControlifyControllerBinding(@NotNull InputBinding inputBinding) im
     public void emulatePress() {
         inputBinding.fakePress();
     }
+
+    @Override
+    @NotNull
+    public Object physicalInputId() {
+        return inputBinding.boundInput().getRelevantInputs();
+    }
 }

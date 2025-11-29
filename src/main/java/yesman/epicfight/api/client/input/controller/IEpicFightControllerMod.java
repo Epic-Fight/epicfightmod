@@ -35,11 +35,4 @@ public interface IEpicFightControllerMod {
     /// @return a [PlayerInputState] representing the current input state.
     @NotNull
     PlayerInputState getInputState();
-
-    /// Checks whether the specified input actions are bound to the same controller button.
-    ///
-    /// @param action  the first input action
-    /// @param action2 the second input action
-    /// @return `true` if both actions are bound to the same controller button; `false` otherwise
-    boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2);
 }

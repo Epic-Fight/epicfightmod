@@ -9,13 +9,13 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 import yesman.epicfight.client.input.DiscreteInputActionTrigger;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /// High-level input API that abstracts direct interactions with [KeyMapping]
@@ -142,10 +142,14 @@ public final class InputManager {
     /// @param action  the first input action
     /// @param action2 the second input action
     /// @return `true` if both actions are triggered by the same key or controller button; `false` otherwise
-    public static boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
+    public static boolean isBoundToSamePhysicalInput(@NotNull InputAction action, @NotNull InputAction action2) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
-            return controllerMod.isBoundToSamePhysicalInput(action, action2);
+            final Optional<ControllerBinding> optionalControllerBinding = action.controllerBinding();
+            final Optional<ControllerBinding> optionalControllerBinding2 = action2.controllerBinding();
+            if (optionalControllerBinding.isPresent() && optionalControllerBinding2.isPresent()) {
+                return optionalControllerBinding.get().isBoundToSamePhysicalInput(optionalControllerBinding2.get());
+            }
         }
 
         final KeyMapping keyMapping1 = action.keyMapping();

@@ -2,7 +2,6 @@ package yesman.epicfight.compat.controlify;
 
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -57,12 +56,5 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
                 leftBind.digitalNow(), rightBind.digitalNow(),
                 jumpBind.digitalNow(), sneakBind.digitalNow()
         );
-    }
-
-    @Override
-    public boolean isBoundToSamePhysicalInput(@NotNull EpicFightInputAction action, @NotNull EpicFightInputAction action2) {
-        final Input input1 = getControlifyBinding(action).boundInput();
-        final Input input2 = getControlifyBinding(action2).boundInput();
-        return input1.getRelevantInputs().equals(input2.getRelevantInputs());
     }
 }

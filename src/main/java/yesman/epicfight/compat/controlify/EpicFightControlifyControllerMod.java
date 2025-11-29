@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.IEpicFightControllerMod;
 
@@ -29,11 +30,11 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
     }
 
     public static @NotNull ControllerBinding getBinding(@NotNull EpicFightInputAction action) {
-        return new ControlifyControllerBinding(getControlifyBinding(action));
+        return new ControlifyControllerBinding(EpicFightControlifyEntrypoint.getControlifyBinding(action));
     }
 
-    public static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
-        return EpicFightControlifyEntrypoint.getControlifyBinding(action);
+    public static @NotNull ControllerBinding getBinding(@NotNull MinecraftInputAction action) {
+        return new ControlifyControllerBinding(EpicFightControlifyEntrypoint.getControlifyBinding(action));
     }
 
     @Override

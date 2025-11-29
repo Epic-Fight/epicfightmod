@@ -39,6 +39,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.client.animation.property.JointMaskReloadListener;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.action.InputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.client.model.ItemSkinsReloadListener;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
@@ -170,6 +171,7 @@ public class EpicFightMod {
     	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
     	if (EpicFightSharedConstants.isPhysicalClient()) {
             InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputAction.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, MinecraftInputAction.class);
         }
     	
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));

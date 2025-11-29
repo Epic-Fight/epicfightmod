@@ -13,8 +13,8 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.MovementDirection;
-import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
 import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
@@ -157,6 +157,6 @@ public class PhantomAscentSkill extends Skill {
 	}
 
     private static boolean isJumpActionPressed() {
-        return InputManager.isActionActive(EpicFightInputAction.JUMP);
+        return InputManager.isActionActive(MinecraftInputAction.JUMP);
     }
 }

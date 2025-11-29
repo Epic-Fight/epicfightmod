@@ -13,11 +13,11 @@
 - An option that you can always activate the TPS perspective, which was only activated when aiming with ranged weapons.
 - An option screen where you can set up the camera position in TPS perspective
 - An auto-tracking functionality that aligns the player's look to the crosshair when aiming and striking entities.
-- A new keybind that moves camera freely while locking on any entity to search another target
+- A new keybind that moves the camera freely while locking on any entity to search another target
 - A lock-on snapping feature that cycles lock-on entities in the screen by snapping mouse left or right
 - An auto-targeting functionality that searches a next target when the current lock-on entity is dead
 - An option to toggle lock-on snapping and auto target
-- An option to set the maximum distance that the player can focus entities
+- An option to set the maximum distance that the player can focus on entities
 - See the devlog [here](https://www.patreon.com/posts/tps-camera-and-141028682)
 - Epic Fight's TPS perspective will be automatically disabled when a conflicting mod, such
   as [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
@@ -37,14 +37,13 @@
 - Removed AirSlash and its related fields (SkillCategory, SkillSlot) to merge air slash and combo attacks as one skill
 - Updated the experimental Epic Fight's input API to support using custom input actions that are not a
   `EpicFightInputAction`.
+- Extracted vanilla input actions from `EpicFightInputAction` into `MinecraftInputAction`.
   [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
-
-### For Devs
-
+  [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
 - New API feature: Hooks
-    - Replaces the mod-loader event system into Epic Fight API, as we planning to support multi-loader developer environment
-    - The feautre is still WIP, supporting only events for EpicFightCameraAPI
-    - We will eventually replace all Forge/Neoforge events owned by Epic Fight into Hooks
+    - Replace the mod-loader event system into Epic Fight API, as we're planning to support multi-loader developer environment
+    - The feature is still WIP, supporting only events for EpicFightCameraAPI
+    - We will eventually replace all Forge/NeoForge events owned by Epic Fight into Hooks
 
 ## [21.13.5] - 2025-11-12
 

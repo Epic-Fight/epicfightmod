@@ -1,6 +1,5 @@
 package yesman.epicfight.mixin.common;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
@@ -160,7 +159,7 @@ public abstract class MixinLivingEntity {
     private float epicfight$tick(LivingEntity livingEntity) {
         // returns the basis y rotation as camera in TPS mode
         if (livingEntity instanceof Player player && player.isLocalPlayer()) {
-            return EpicFightCameraAPI.getInstance().getYRotForHead((LocalPlayer)player);
+            return EpicFightCameraAPI.getInstance().getYRotForHead(player);
         }
 
         return livingEntity.getYRot();
@@ -176,7 +175,7 @@ public abstract class MixinLivingEntity {
     protected float epicfight$tickHeadTurn(LivingEntity livingEntity) {
         // returns the basis y rotation as camera in TPS mode
         if (livingEntity instanceof Player player && player.isLocalPlayer()) {
-            return EpicFightCameraAPI.getInstance().getYRotForHead((LocalPlayer)player);
+            return EpicFightCameraAPI.getInstance().getYRotForHead(player);
         }
 
         return livingEntity.getYRot();

@@ -1,6 +1,5 @@
 package yesman.epicfight.mixin.common;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +36,7 @@ public abstract class MixinPlayer {
     )
     private float epicfight$serverAiStep(Player player) {
         if (player.isLocalPlayer()) {
-            return EpicFightCameraAPI.getInstance().getYRotForHead((LocalPlayer)player);
+            return EpicFightCameraAPI.getInstance().getYRotForHead(player);
         }
 
         return player.getYRot();

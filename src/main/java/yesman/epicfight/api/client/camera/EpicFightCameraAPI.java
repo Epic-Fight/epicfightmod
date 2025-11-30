@@ -892,11 +892,17 @@ public final class EpicFightCameraAPI {
     }
 
     /**
-     * REturns a new basis for {@link LivingEntity#yHeadRot} instead of coupling it to {@link Entity#getYRot}
+     * Returns a new basis for {@link LivingEntity#yHeadRot} instead of coupling it to {@link Entity#getYRot}
      */
     @ApiStatus.Internal
-    public float getYRotForHead(LocalPlayer localPlayer) {
-        return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - localPlayer.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : localPlayer.getYRot();
+    public float getYRotForHead(Player player) {
+        if (!player.isLocalPlayer()) {
+            // Casting player to LocalPlayer led to a crash in dedicated server, so we delegated type checking to here
+            // See MixinLivingEntity
+            throw new IllegalArgumentException("Only LocalPlayer are allowed to this parameter");
+        }
+
+        return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : player.getYRot();
     }
 
     private boolean predicateFocusableEntity(Entity entity) {

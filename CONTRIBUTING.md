@@ -72,7 +72,7 @@ $ ./gradlew runServer
 
 ## ⚙️ Development Notes
 
-- Update [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) whenever you make changes.
+- Update [`CHANGELOG.md`](CHANGELOG.md) whenever you make changes.
     - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for format and style.
     - If the change is **breaking** or affects other mods/addons, document it in the `For Devs` section.
 

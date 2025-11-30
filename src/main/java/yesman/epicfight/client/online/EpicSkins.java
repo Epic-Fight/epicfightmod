@@ -13,8 +13,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
 import yesman.epicfight.api.client.physics.cloth.ClothColliderPresets;
@@ -33,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@OnlyIn(Dist.CLIENT)
 public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g, float b) {
 	public static void initEpicSkins(AbstractClientPlayerPatch<?> playerpatch) {
 		if (EpicFightServerConnectionHelper.supported() && ClientConfig.enableCosmetics) {
@@ -137,8 +134,7 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 		
 		playerpatch.setEpicSkinsInformation(new EpicSkins(() -> playerpatch.getOriginal().getSkin().capeTexture(), 1.0F, 1.0F, 1.0F));
 	}
-	
-	@OnlyIn(Dist.CLIENT)
+
 	public record Cosmetic(int seq, Slot slot, int intParam1, boolean boolParam1, boolean useIntParam1, boolean useBoolParam1, String fileLocation, ResourceLocation textureLocation) {
 		/**
 		 * intParam1 is normally used to color
@@ -157,8 +153,7 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 			);
 		}
 	}
-	
-	@OnlyIn(Dist.CLIENT)
+
 	public enum Slot {
 		CAPE
 	}

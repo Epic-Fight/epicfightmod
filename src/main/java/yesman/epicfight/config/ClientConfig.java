@@ -25,7 +25,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
+import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec2i;

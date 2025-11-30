@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.online.texture;
+package yesman.epicfight.client.online.texture;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.online;
+package yesman.epicfight.client.online;
 
 import java.util.Map;
 import java.util.Queue;
@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.online.texture.RemoteTexture;
+import yesman.epicfight.client.online.texture.RemoteTexture;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 

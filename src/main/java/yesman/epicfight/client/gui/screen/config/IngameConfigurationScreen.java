@@ -9,7 +9,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
+import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;

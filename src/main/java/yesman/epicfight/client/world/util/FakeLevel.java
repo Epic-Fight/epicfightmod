@@ -1,4 +1,4 @@
-package yesman.epicfight.api.utils;
+package yesman.epicfight.client.world.util;
 
 import java.util.HashMap;
 import java.util.List;

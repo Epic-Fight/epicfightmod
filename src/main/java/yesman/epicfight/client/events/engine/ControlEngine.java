@@ -320,6 +320,10 @@ public class ControlEngine implements IEventBasedEngine {
 			consumeDropKeyClicks();
 		}
 
+        maybeCorrectTPSPosition();
+	}
+
+    private void maybeCorrectTPSPosition() {
         if (this.minecraft.level != null && EpicFightCameraAPI.getInstance().isTPSMode() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LCONTROL)) {
             if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LEFT)) {
                 ClientConfig.cameraHorizontalLocation = Math.min(10, ClientConfig.cameraHorizontalLocation + 1);
@@ -337,7 +341,7 @@ public class ControlEngine implements IEventBasedEngine {
                 ClientConfig.cameraVerticalLocation = Math.max(-2, ClientConfig.cameraVerticalLocation - 1);
             }
         }
-	}
+    }
 
     private void openSkillEditor() {
         final PlayerSkills playerSkills = this.playerpatch.getPlayerSkills();

@@ -1,14 +1,9 @@
 package yesman.epicfight.api.animation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import net.minecraft.util.Mth;
+import java.util.*;
 
 public class AnimationClip {
 	public static final AnimationClip EMPTY_CLIP = new AnimationClip();
@@ -73,7 +68,11 @@ public class AnimationClip {
 	
 	public final Pose getPoseInTime(float time) {
 		Pose pose = new Pose();
-		
+
+        if (time < 0.0F) {
+            time = this.clipTime + time;
+        }
+
 		if (this.bakedTimes != null && this.bakedTimes.length > 0) {
 			// Binary search
 			int begin = 0, end = this.bakedTimes.length - 1;

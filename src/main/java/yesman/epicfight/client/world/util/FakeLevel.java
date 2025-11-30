@@ -1,4 +1,4 @@
-package yesman.epicfight.api.utils;
+package yesman.epicfight.client.world.util;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;

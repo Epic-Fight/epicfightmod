@@ -6,7 +6,7 @@ import net.neoforged.bus.api.IEventBus;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import yesman.epicfight.api.utils.FakeLevel;
+import yesman.epicfight.client.world.util.FakeLevel;
 
 @Mixin(value = ClientLevel.class)
 public abstract class MixinClientLevel {

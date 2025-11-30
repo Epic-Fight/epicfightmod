@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.online;
+package yesman.epicfight.client.online;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -11,7 +11,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.online.texture.RemoteTexture;
+import yesman.epicfight.client.online.texture.RemoteTexture;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 

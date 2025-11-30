@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.online.EpicSkins;
+import yesman.epicfight.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.utils.math.MathUtils;

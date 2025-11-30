@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.online;
+package yesman.epicfight.client.online;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;

@@ -27,7 +27,7 @@ import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.neoevent.RenderEpicFightPlayerEvent;
 import yesman.epicfight.api.client.neoevent.UpdatePlayerMotionEvent;
-import yesman.epicfight.api.client.online.EpicSkins;
+import yesman.epicfight.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;

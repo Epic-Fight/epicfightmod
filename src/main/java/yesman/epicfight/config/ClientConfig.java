@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.*;
 import org.apache.commons.compress.utils.Lists;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
+import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec2i;

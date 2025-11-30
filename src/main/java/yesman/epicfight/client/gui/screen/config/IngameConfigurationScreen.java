@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModContainer;
-import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
+import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;

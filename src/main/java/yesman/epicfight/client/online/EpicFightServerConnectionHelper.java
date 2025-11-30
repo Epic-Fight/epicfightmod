@@ -1,4 +1,4 @@
-package yesman.epicfight.api.client.online;
+package yesman.epicfight.client.online;
 
 import net.minecraft.Util;
 import net.neoforged.api.distmarker.Dist;

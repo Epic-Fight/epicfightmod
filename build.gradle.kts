@@ -35,10 +35,9 @@ repositories {
 
     // JEI
     strictMaven("https://maven.blamejared.com", "mezz.jei", "Jared")
-
     strictMaven("https://maven.architectury.dev", "dev.architectury", "Architectury")
-    strictMaven("https://maven.latvian.dev/releases", "dev.latvian.mods", "Architectury")
-
+    // KubeJS
+    strictMaven("https://maven.latvian.dev/releases", "dev.latvian.mods", "Latvian")
     // Controlify, YACL
     strictMaven("https://maven.isxander.dev/releases", "dev.isxander", "IsXander")
 }

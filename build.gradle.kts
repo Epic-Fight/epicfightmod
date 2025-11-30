@@ -325,6 +325,30 @@ tasks.compileJava {
     dependsOn(generateLangKeys)
 }
 
+// The API JAR file includes only classes from the API package.
+
+val apiPackage = "yesman/epicfight/api/**"
+val apiJarClassifier = "api"
+
+val apiJar by tasks.registering(Jar::class) {
+    group = "build"
+    archiveClassifier.set(apiJarClassifier)
+
+    from(sourceSets.main.get().output) { include(apiPackage) }
+}
+
+val apiSourcesJar by tasks.registering(Jar::class) {
+    group = "build"
+    archiveClassifier.set("$apiJarClassifier-sources") // Important to use this suffix, to follow standards
+
+    from(sourceSets.main.get().allSource) { include(apiPackage) }
+}
+
+artifacts {
+    archives(apiJar)
+    archives(apiSourcesJar)
+}
+
 fun extractCurrentVersionChangelog(): String? {
     val changelogFile = project.file("RELEASE_NOTES.md")
     val fullChangelogText = changelogFile.readText()
@@ -366,7 +390,7 @@ publishMods {
     type.set(STABLE)
     displayName.set(getFullModVersion())
     file.set(tasks.jar.get().archiveFile)
-    additionalFiles.from(sourcesJar)
+    additionalFiles.from(sourcesJar, apiJar, apiSourcesJar)
 
     curseforge {
         accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))

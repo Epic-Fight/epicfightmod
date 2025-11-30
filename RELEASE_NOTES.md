@@ -44,6 +44,9 @@
     - Replace the mod-loader event system into Epic Fight API, as we're planning to support multi-loader developer environment
     - The feature is still WIP, supporting only events for EpicFightCameraAPI
     - We will eventually replace all Forge/NeoForge events owned by Epic Fight into Hooks
+- Added API JAR file, which includes classes under `yesman/epicfight/api/**` only, to allow consumers to compile against
+  Epic Fight public API only.
+    - **Note:** Keep in mind that Epic Fight public APIs are still being stabilized, and breaking changes may occur. 
 
 ## [21.13.5] - 2025-11-12
 

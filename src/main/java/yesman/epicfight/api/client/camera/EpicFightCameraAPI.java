@@ -895,9 +895,11 @@ public final class EpicFightCameraAPI {
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_POST.post(new BuildCameraTransform.Post(this, camera, partialTick));
 	}
 	
-	/**
-	 * Returns a new basis for {@link LivingEntity#yRotHead} instead of coupling it to {@link Entity#getYRot}
-	 */
+	/// Returns a new basis for [LivingEntity#yRotHead] instead of coupling it to [Entity#getYRot].
+    ///
+    /// This method takes a [Player] instead of [LocalPlayer] because casting
+    /// to the client-only [LocalPlayer] inside a mixin (e.g., in [LivingEntity])
+    /// would crash a dedicated server due to Forge's `@OnlyIn(Dist.CLIENT)`.
 	@ApiStatus.Internal
 	public float getYRotForHead(Player player) {
 		if (!player.isLocalPlayer()) {

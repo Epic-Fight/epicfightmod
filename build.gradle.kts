@@ -294,7 +294,7 @@ publishMods {
     dryRun.set(false)
 
     val latestChangelog = extractCurrentVersionChangelog() ?: run {
-        println("No matching changelog found for version $modVersion in CHANGELOG.md. Publishing is skipped.")
+        error("No changelog found for version $modVersion in CHANGELOG.md file")
         return@publishMods
     }
     val releaseChangelog = buildReleaseChangelog(latestChangelog)

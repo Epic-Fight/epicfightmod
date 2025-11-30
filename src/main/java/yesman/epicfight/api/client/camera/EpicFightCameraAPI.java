@@ -901,8 +901,6 @@ public final class EpicFightCameraAPI {
 	@ApiStatus.Internal
 	public float getYRotForHead(Player player) {
 		if (!player.isLocalPlayer()) {
-			// Casting player to LocalPlayer led to a crash in dedicated server, so we delegated type checking to here
-			// See MixinLivingEntity
 			throw new IllegalArgumentException("Only LocalPlayer are allowed to this parameter");
 		}
 		

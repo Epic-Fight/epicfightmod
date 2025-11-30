@@ -1,8 +1,6 @@
 package yesman.epicfight.client.online;
 
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
@@ -17,7 +15,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.function.BiConsumer;
 
-@OnlyIn(Dist.CLIENT)
 public class EpicFightServerConnectionHelper {
 	public static HttpClient HTTP_CLIENT;
 	private static final String LIB_FILE = "ServerCommunicationHelper";

@@ -264,7 +264,7 @@ artifacts {
 }
 
 fun extractCurrentVersionChangelog(): String? {
-    val changelogFile = project.file("RELEASE_NOTES.md")
+    val changelogFile = project.file("CHANGELOG.md")
     val fullChangelogText = changelogFile.readText()
 
     // Extracts the current version changelog without the version heading 2 and "For Devs" heading 3.
@@ -294,7 +294,7 @@ publishMods {
     dryRun.set(false)
 
     val latestChangelog = extractCurrentVersionChangelog() ?: run {
-        println("No matching changelog found for version $modVersion in RELEASE_NOTES.md. Publishing is skipped.")
+        println("No matching changelog found for version $modVersion in CHANGELOG.md. Publishing is skipped.")
         return@publishMods
     }
     val releaseChangelog = buildReleaseChangelog(latestChangelog)

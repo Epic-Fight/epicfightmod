@@ -30,8 +30,6 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-@OnlyIn(Dist.CLIENT)
 public class FakeLevel extends ClientLevel {
 	private static FakeLevel instance;
 	private static final Map<GameProfile, FakeClientPlayer> FAKE_PLAYERS = new HashMap<> ();
@@ -196,14 +193,12 @@ public class FakeLevel extends ClientLevel {
 		return false;
 	}
 
-    @OnlyIn(Dist.CLIENT)
     public static class FakeClientPlayer extends AbstractClientPlayer {
         public FakeClientPlayer(FakeLevel fakeLevel, GameProfile gameProfile) {
             super(fakeLevel, gameProfile);
         }
     }
 
-	@OnlyIn(Dist.CLIENT)
 	private static class FakeClientPacketListener extends ClientPacketListener {
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
 		

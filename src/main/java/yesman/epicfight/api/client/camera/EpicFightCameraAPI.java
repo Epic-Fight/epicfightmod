@@ -326,11 +326,8 @@ public final class EpicFightCameraAPI {
 		Vec3 cameraLocation = this.minecraft.gameRenderer.getMainCamera().getPosition();
 		
 		// Create a compact projection matrix without view, hurt bob
-		PoseStack posestack = new PoseStack();
-		double fov = this.minecraft.gameRenderer.getFov(this.minecraft.gameRenderer.getMainCamera(), 1.0F, true);
+		Matrix4f compactProjection = this.getCompactProjectionMatrix();
 		double lockOnRange = this.getFocusingEntityPickRange();
-		posestack.mulPoseMatrix(this.minecraft.gameRenderer.getProjectionMatrix(fov));
-		Matrix4f compactProjection = posestack.last().pose();
 		
 		// Select the nearest target on the screen from the given direction
 		Optional<Pair<LivingEntity, Float>> next = entitiesInLevel.stream()
@@ -353,6 +350,17 @@ public final class EpicFightCameraAPI {
 		});
 		
 		return next.isPresent();
+	}
+	
+	/**
+	 * Creates a compact projection matrix without view, hurt bob
+	 * @return
+	 */
+	private Matrix4f getCompactProjectionMatrix() {
+		PoseStack posestack = new PoseStack();
+		double fov = this.minecraft.gameRenderer.getFov(this.minecraft.gameRenderer.getMainCamera(), 1.0F, true);
+		posestack.mulPoseMatrix(this.minecraft.gameRenderer.getProjectionMatrix(fov));
+		return posestack.last().pose();
 	}
 	
 	/**
@@ -574,8 +582,9 @@ public final class EpicFightCameraAPI {
 		
 		// Calculate camera based ray trace result
 		double pickRange = this.minecraft.options.renderDistance().get() * 16.0D;
-		Vec3 cameraPos = this.minecraft.gameRenderer.getMainCamera().getPosition();
-		Vec3 lookVec = new Vec3(this.minecraft.gameRenderer.getMainCamera().getLookVector());
+		Camera mainCamera = this.minecraft.gameRenderer.getMainCamera();
+		Vec3 cameraPos = mainCamera.getPosition();
+		Vec3 lookVec = new Vec3(mainCamera.getLookVector());
 		Vec3 rayEed = cameraPos.add(lookVec.x * pickRange, lookVec.y * pickRange, lookVec.z * pickRange);
 		LocalPlayer localPlayer = this.minecraft.player;
 		this.crosshairHitResult = localPlayer.level().clip(new ClipContext(cameraPos, rayEed, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, localPlayer));
@@ -614,7 +623,7 @@ public final class EpicFightCameraAPI {
 		boolean tpsMode = this.isTPSMode();
 		
 		if (tpsMode) {
-			Vec3 view = new Vec3(this.minecraft.gameRenderer.getMainCamera().getLookVector());
+			Vec3 view = new Vec3(mainCamera.getLookVector());
 			
 			// If the hit result is in front of the player based on to camera, set missed.
 			if (view.dot(this.crosshairHitResult.getLocation().subtract(localPlayer.getEyePosition()).normalize()) < -0.1D) {
@@ -659,8 +668,8 @@ public final class EpicFightCameraAPI {
 					!MathUtils.canBeSeen(this.focusingEntity, this.minecraft.player, maxLockOnDistance) ||
 					// Angle between look vec and to target too wide
 					!this.lockingOnTarget &&
-						this.focusingEntity.getBoundingBox().getCenter().subtract(this.minecraft.gameRenderer.getMainCamera().getPosition()).normalize()
-							.dot(new Vec3(this.minecraft.gameRenderer.getMainCamera().getLookVector())) < Mth.clampedLerp(0.0D, 0.99D, Mth.inverseLerp(Mth.clamp(distance, 1.0D, 3.5D), 1.0D, 3.5D))
+						this.focusingEntity.getBoundingBox().getCenter().subtract(mainCamera.getPosition()).normalize()
+							.dot(new Vec3(mainCamera.getLookVector())) < Mth.clampedLerp(0.0D, 0.99D, Mth.inverseLerp(Mth.clamp(distance, 1.0D, 3.5D), 1.0D, 3.5D))
 				) {
 					if (this.lockingOnTarget) {
 						this.setLockOn(false);
@@ -685,9 +694,7 @@ public final class EpicFightCameraAPI {
 			this.cameraXRot = this.minecraft.player.getXRot();
 			this.cameraYRot = this.minecraft.player.getYRot();
 		} else {
-			/**
-			 * We do assume playerpatch is never null, but check the null for the crash resistancy
-			 */
+			// We do assume playerpatch is never null, but check the null for the crash resistancy
 			@Nullable
 			LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(localPlayer, LocalPlayerPatch.class);
 			float clamp = 30.0F;
@@ -696,9 +703,21 @@ public final class EpicFightCameraAPI {
 			
 			// Handle camera lock-on
 			if (this.focusingEntity != null && this.lockingOnTarget && !this.isLerpingFpv() && !InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY)) {
-				Vec3 povPos = tpsMode ? cameraPos : localPlayer.getEyePosition();
-				Vec3 targetPos = tpsMode ? this.focusingEntity.getBoundingBox().getCenter() : this.focusingEntity.getEyePosition();
-				Vec3 toTarget = targetPos.subtract(povPos);
+				Vec3 lockEnd;
+				Vec3 lockStart;
+				
+				if (tpsMode) {
+					double toTargetDistanceSqr = localPlayer.position().distanceToSqr(this.focusingEntity.position());
+					
+					// Lerp the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
+					lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), cameraPos, (float)Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
+					lockEnd = MathUtils.lerpVector(this.focusingEntity.getEyePosition(), this.focusingEntity.getBoundingBox().getCenter(), (float)Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
+				} else {
+					lockStart = localPlayer.getEyePosition();
+					lockEnd = this.focusingEntity.getEyePosition();
+				}
+				
+				Vec3 toTarget = lockEnd.subtract(lockStart);
 				float xRot = (float)MathUtils.getXRotOfVector(toTarget);
 				float yRot = (float)MathUtils.getYRotOfVector(toTarget);
 				
@@ -708,15 +727,8 @@ public final class EpicFightCameraAPI {
 				
 				float xLerp = Mth.clamp(Mth.wrapDegrees(xRot - this.cameraXRot) * 0.4F, -clamp, clamp);
 				float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - this.cameraYRot) * 0.4F, -clamp, clamp);
-				Vec3 playerToTarget = targetPos.subtract(localPlayer.getEyePosition());
-				
-				// Limit angle difference in tps mode
-				if (tpsMode) {
-					double angle = MathUtils.getAngleBetween(playerToTarget, toTarget);
-					if (angle < 30.0D) this.setCameraRotations(this.cameraXRot + xLerp, this.cameraYRot + yLerp, false);
-				} else {
-					this.setCameraRotations(this.cameraXRot + xLerp, this.cameraYRot + yLerp, false);
-				}
+				Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
+				this.setCameraRotations(this.cameraXRot + xLerp, this.cameraYRot + yLerp, false);
 				
 				desiredXRot = (float)MathUtils.getXRotOfVector(playerToTarget);
 				desiredYRot = (float)MathUtils.getYRotOfVector(playerToTarget);

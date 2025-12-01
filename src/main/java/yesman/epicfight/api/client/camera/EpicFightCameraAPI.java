@@ -39,7 +39,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
 import net.minecraftforge.entity.PartEntity;
-import org.joml.Vector3f;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.BuildCameraTransform;
@@ -895,10 +894,18 @@ public final class EpicFightCameraAPI {
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_POST.post(new BuildCameraTransform.Post(this, camera, partialTick));
 	}
 	
-
+	/// Returns a new basis for [LivingEntity#yRotHead] instead of coupling it to [Entity#getYRot].
+    ///
+    /// This method takes a [Player] instead of [LocalPlayer] because casting
+    /// to the client-only [LocalPlayer] inside a mixin (e.g., in [LivingEntity])
+    /// would crash a dedicated server due to Forge's `@OnlyIn(Dist.CLIENT)`.
 	@ApiStatus.Internal
-	public float getYRotForHead(LocalPlayer localPlayer) {
-		return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - localPlayer.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : localPlayer.getYRot();
+	public float getYRotForHead(Player player) {
+		if (!player.isLocalPlayer()) {
+			throw new IllegalArgumentException("Only LocalPlayer are allowed to this parameter");
+		}
+
+		return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : player.getYRot();
 	}
 	
 	private boolean predicateFocusableEntity(Entity entity) {

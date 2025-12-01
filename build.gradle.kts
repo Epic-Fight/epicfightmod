@@ -13,35 +13,41 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-val modVersion = providers.gradleProperty("mod_version").get()
-val mcVersion = providers.gradleProperty("minecraft_version").get()
-val neoforgeVersion = providers.gradleProperty("neo_version").get()
-val modId = providers.gradleProperty("mod_id").get()
+val modVersion = gradleProperty("mod_version")
+val mcVersion = gradleProperty("minecraft_version")
+val neoforgeVersion = gradleProperty("neo_version")
+val modId = gradleProperty("mod_id")
 val modLoader = "neoforge"
-val modGroupId = providers.gradleProperty("mod_group_id").get()
+val modGroupId = gradleProperty("mod_group_id")
 
 version = modVersion
 group = modGroupId
 
 repositories {
-    fun strictMaven(url: String, includeGroup: String, name: String? = null) {
+    fun strictMaven(name: String, url: String, vararg includeGroups: String) {
         exclusiveContent {
-            forRepository { maven { name?.let { this.name = it }; this.url = uri(url) } }
-            filter { includeGroup(includeGroup) }
+            forRepository { maven { this.name = name; this.url = uri(url) } }
+            filter {
+                includeGroups.forEach { includeGroup(it) }
+            }
         }
     }
     flatDir { dir("libs") }
 
-    strictMaven("https://cursemaven.com", "curse.maven", "CurseForge")
-    strictMaven("https://api.modrinth.com/maven", "maven.modrinth", "Modrinth")
+    strictMaven("CurseForge", "https://cursemaven.com", "curse.maven")
+    strictMaven("Modrinth", "https://api.modrinth.com/maven", "maven.modrinth")
 
     // JEI
-    strictMaven("https://maven.blamejared.com", "mezz.jei", "Jared")
-    strictMaven("https://maven.architectury.dev", "dev.architectury", "Architectury")
+    strictMaven("Jared", "https://maven.blamejared.com", "mezz.jei")
+    strictMaven("Architectury", "https://maven.architectury.dev", "dev.architectury")
+
     // KubeJS
-    strictMaven("https://maven.latvian.dev/releases", "dev.latvian.mods", "Latvian")
+    strictMaven("Latvian", "https://maven.latvian.dev/releases", "dev.latvian.mods")
+
     // Controlify, YACL
-    strictMaven("https://maven.isxander.dev/releases", "dev.isxander", "IsXander")
+    strictMaven("IsXander", "https://maven.isxander.dev/releases", "dev.isxander")
+    strictMaven("AzureDoom Mods", "https://maven.azuredoom.com/mods", "mod.azure.azurelib", "mod.azure.azurelibarmor")
+    strictMaven("GeckoLib", "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/", "software.bernie.geckolib")
 }
 
 base {
@@ -63,7 +69,7 @@ neoForge {
     version = neoforgeVersion
 
     parchment {
-        mappingsVersion = providers.gradleProperty("parchment_mappings_version").get()
+        mappingsVersion = gradleProperty("parchment_mappings_version")
         minecraftVersion = mcVersion
     }
 
@@ -120,19 +126,23 @@ configurations {
     }
 }
 
+fun gradleProperty(name: String): String {
+    return providers.gradleProperty(name).get()
+}
+
 dependencies {
     val localRuntime by configurations.getting
 
     // JEI compatibility
-    val jeiVersion = providers.gradleProperty("jei_version").get()
+    val jeiVersion = gradleProperty("jei_version")
     compileOnly("mezz.jei:jei-${mcVersion}-common-api:${jeiVersion}")
     compileOnly("mezz.jei:jei-${mcVersion}-neoforge-api:${jeiVersion}")
     localRuntime("mezz.jei:jei-${mcVersion}-neoforge:${jeiVersion}")
 
     // Azurelib, Azurelib armor, Geckolib compatibility
-    compileOnly("curse.maven:azurelib-817423:7084472")
-    compileOnly("curse.maven:azurelib-armor-912767:7084466")
-    compileOnly("curse.maven:geckolib-388172:6304958")
+    compileOnly("mod.azure.azurelib:azurelib-neo-${mcVersion}:${gradleProperty("azurelib_version")}")
+    compileOnly("mod.azure.azurelibarmor:azurelibarmor-common-${mcVersion}:${gradleProperty("azurelib_armor_version")}")
+    compileOnly("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${gradleProperty("geckolib_bersion")}")
 
     // Iris, Sodium, and compute shader compatibility
     compileOnly("curse.maven:irisshaders-455508:6661598")
@@ -149,9 +159,9 @@ dependencies {
     compileOnly("curse.maven:playeranimator-658587:6024462")
 
     // KubeJS compatibility
-    compileOnly("dev.latvian.mods:kubejs-neoforge:${providers.gradleProperty("kubejs_version").get()}")
-    compileOnly("dev.latvian.mods:rhino-neoforge:${providers.gradleProperty("rhino_version").get()}")
-    compileOnly("dev.architectury:architectury-neoforge:${providers.gradleProperty("architectury_version").get()}")
+    compileOnly("dev.latvian.mods:kubejs-neoforge:${gradleProperty("kubejs_version")}")
+    compileOnly("dev.latvian.mods:rhino-neoforge:${gradleProperty("rhino_version")}")
+    compileOnly("dev.architectury:architectury-neoforge:${gradleProperty("architectury_version")}")
 
     // Libraries for tr7zw featured mods (when you dependent your project on 3D Skin Layers or First-person)
     compileOnly("libs:TRansition:1.0.6")
@@ -169,7 +179,7 @@ dependencies {
 
     // Controlify (controller support) compatibility.
     // Change "compileOnly" to "implementation" for testing in-game.
-    compileOnly("dev.isxander:controlify:${providers.gradleProperty("controlify_version").get()}") {
+    compileOnly("dev.isxander:controlify:${gradleProperty("controlify_version")}") {
         // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
         isTransitive = false
     }
@@ -181,15 +191,15 @@ val generateModMetadata by tasks.registering(ProcessResources::class) {
     group = generationTaskGroup
 
     val replaceProperties = mapOf(
-        "minecraft_version_range" to providers.gradleProperty("minecraft_version_range").get(),
-        "neo_version_range" to providers.gradleProperty("neo_version_range").get(),
-        "loader_version_range" to providers.gradleProperty("loader_version_range").get(),
+        "minecraft_version_range" to gradleProperty("minecraft_version_range"),
+        "neo_version_range" to gradleProperty("neo_version_range"),
+        "loader_version_range" to gradleProperty("loader_version_range"),
         "mod_id" to modId,
         "mod_version" to modVersion,
-        "mod_license" to providers.gradleProperty("mod_license").get(),
-        "mod_name" to providers.gradleProperty("mod_name").get(),
-        "mod_authors" to providers.gradleProperty("mod_authors").get(),
-        "mod_description" to providers.gradleProperty("mod_description").get(),
+        "mod_license" to gradleProperty("mod_license"),
+        "mod_name" to gradleProperty("mod_name"),
+        "mod_authors" to gradleProperty("mod_authors"),
+        "mod_description" to gradleProperty("mod_description"),
     )
     inputs.properties(replaceProperties)
     expand(replaceProperties)

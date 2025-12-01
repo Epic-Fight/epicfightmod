@@ -1,15 +1,15 @@
 package yesman.epicfight.client.input;
 
 import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.generated.LangKeys;
 
 @ApiStatus.Internal
 public final class EpicFightInputCategories {
     private EpicFightInputCategories() {
     }
 
-    public static final String COMBAT = EpicFightMod.format("key.%s.combat");
-    public static final String GUI = EpicFightMod.format("key.%s.gui");
-    public static final String SYSTEM = EpicFightMod.format("key.%s.system");
-    public static final String CAMERA = EpicFightMod.format("key.%s.camera");
+    public static final String COMBAT = LangKeys.KEY_COMBAT;
+    public static final String GUI = LangKeys.KEY_GUI;
+    public static final String SYSTEM = LangKeys.KEY_SYSTEM;
+    public static final String CAMERA = LangKeys.KEY_CAMERA;
 }

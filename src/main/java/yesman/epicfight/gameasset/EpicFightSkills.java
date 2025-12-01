@@ -12,7 +12,6 @@ import yesman.epicfight.api.forgeevent.SkillBuildEvent.ModRegistryWorker;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.skill.AirAttack;
 import yesman.epicfight.skill.BasicAttack;
 import yesman.epicfight.skill.BattojutsuPassive;
 import yesman.epicfight.skill.Skill;
@@ -34,8 +33,7 @@ import yesman.epicfight.world.damagesource.StunType;
 public class EpicFightSkills {
 	/** Default skills **/
 	public static Skill BASIC_ATTACK;
-	public static Skill AIR_ATTACK;
-	public static Skill KNOCKDOWN_WAKEUP;
+    public static Skill KNOCKDOWN_WAKEUP;
 	/** Dodging skills **/
 	public static Skill ROLL;
 	public static Skill STEP;
@@ -88,8 +86,7 @@ public class EpicFightSkills {
 	public static void buildSkillEvent(SkillBuildEvent build) {
 		ModRegistryWorker modRegistry = build.createRegistryWorker(EpicFightMod.MODID);
 		
-		BASIC_ATTACK = modRegistry.build("basic_attack", BasicAttack::new, BasicAttack.createBasicAttackBuilder());
-		AIR_ATTACK = modRegistry.build("air_attack", AirAttack::new, AirAttack.createAirAttackBuilder());
+		BASIC_ATTACK = modRegistry.build("basic_attack", BasicAttack::new, BasicAttack.createBasicAttackBuilder().setResource(Resource.STAMINA));
 		ROLL = modRegistry.build("roll", DodgeSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(Animations.BIPED_ROLL_FORWARD, Animations.BIPED_ROLL_BACKWARD));
 		STEP = modRegistry.build("step", DodgeSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_LEFT, Animations.BIPED_STEP_RIGHT));
 		KNOCKDOWN_WAKEUP = modRegistry.build("knockdown_wakeup", KnockdownWakeupSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT).setCategory(SkillCategories.KNOCKDOWN_WAKEUP));

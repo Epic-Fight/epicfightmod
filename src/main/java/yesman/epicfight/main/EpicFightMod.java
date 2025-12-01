@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import com.mojang.logging.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +41,9 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.client.animation.property.JointMaskReloadListener;
-import yesman.epicfight.api.client.input.action.EpicFightInputActions;
+import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.action.InputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.client.model.ItemSkinsReloadListener;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
@@ -195,7 +197,8 @@ public class EpicFightMod {
     	Faction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Factions.class);
     	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
         if (EpicFightSharedConstants.isPhysicalClient()) {
-            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputActions.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputAction.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, MinecraftInputAction.class);
         }
     	
     	EpicFightMobEffects.EFFECTS.register(bus);
@@ -221,7 +224,14 @@ public class EpicFightMod {
 		}
 		
 		if (ModList.get().isLoaded("azurelib")) {
-			ICompatModule.loadCompatModule(context, AzureLibCompat.class);
+            String test = ModList.get().getModFileById("azurelib").versionString();
+            int dotIndex = test.indexOf(".");
+            int majorVersion = Integer.parseInt(test.substring(0, dotIndex));
+            LogUtils.getLogger().debug(test);
+            if (majorVersion < 3)
+                ICompatModule.loadCompatModule(context, AzureLibCompat.class);
+            else
+                LogUtils.getLogger().warn("Azure Lib version {} is not supported yet.", majorVersion);
 		}
 		
 		if (ModList.get().isLoaded("azurelibarmor")) {

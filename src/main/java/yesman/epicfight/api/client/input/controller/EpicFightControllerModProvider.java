@@ -5,14 +5,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.main.EpicFightMod;
 
-/**
- * Provides access to the active {@link IEpicFightControllerMod} implementation.
- * <p>
- * Only one mod can register an implementation at a time. If multiple mods register, a warning is logged
- * and the last one takes effect.
- *
- * @see IEpicFightControllerMod
- */
+/// Provides access to the active [IEpicFightControllerMod] implementation.
+///
+/// Only one mod can register an implementation at a time.
+/// If multiple mods register, a warning is logged
+/// and the last one takes effect.
+///
+/// @see IEpicFightControllerMod
 @ApiStatus.Experimental
 public final class EpicFightControllerModProvider {
     private EpicFightControllerModProvider() {
@@ -22,15 +21,11 @@ public final class EpicFightControllerModProvider {
     @javax.annotation.Nullable
     private static IEpicFightControllerMod instance = null;
 
-    /**
-     * True if a mod other than Epic Fight has already registered an implementation
-     */
+    /// `true` if a mod other than Epic Fight has already registered an implementation
     private static boolean overriddenByOtherMod;
 
-    /**
-     * Registers a controller mod implementation.
-     * Logs a warning if another mod has already registered.
-     */
+    /// Registers a controller mod implementation.
+    /// Logs a warning if another mod has already registered.
     public static void set(@NotNull String registrantModId, @NotNull IEpicFightControllerMod modInstance) {
         if (overriddenByOtherMod) {
             EpicFightMod.LOGGER.warn(
@@ -52,9 +47,7 @@ public final class EpicFightControllerModProvider {
         }
     }
 
-    /**
-     * Returns the current controller implementation, or null if none
-     */
+    /// Returns the current controller implementation, or `null` if none
     @Nullable
     public static IEpicFightControllerMod get() {
         return EpicFightControllerModProvider.instance;

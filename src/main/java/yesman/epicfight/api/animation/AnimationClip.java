@@ -74,6 +74,10 @@ public class AnimationClip {
 	public final Pose getPoseInTime(float time) {
 		Pose pose = new Pose();
 		
+		if (time < 0.0F) {
+			time = this.clipTime + time;
+		}
+		
 		if (this.bakedTimes != null && this.bakedTimes.length > 0) {
 			// Binary search
 			int begin = 0, end = this.bakedTimes.length - 1;

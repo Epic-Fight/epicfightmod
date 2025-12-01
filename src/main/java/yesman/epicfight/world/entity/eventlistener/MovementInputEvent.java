@@ -5,8 +5,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.handlers.InputManager;
-import yesman.epicfight.api.client.input.utils.InputUtils;
+import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 
 public class MovementInputEvent extends AbstractPlayerEvent<LocalPlayerPatch> {

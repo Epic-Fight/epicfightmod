@@ -5,7 +5,6 @@ import yesman.epicfight.main.EpicFightMod;
 
 public enum SkillCategories implements SkillCategory {
 	BASIC_ATTACK(false, false, false),
-	AIR_ATTACK(false, false, false),
 	DODGE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_dodge")),
 	PASSIVE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_passive")),
 	WEAPON_PASSIVE(false, false, false),
@@ -16,17 +15,18 @@ public enum SkillCategories implements SkillCategory {
 	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
 	
 	
-	boolean shouldSave;
-	boolean shouldSyncronize;
-	boolean modifiable;
-	int id;
-	ResourceLocation bookIcon;
+	final boolean shouldSave;
+	final boolean shouldSyncronize;
+	final boolean modifiable;
+	final int id;
+	final ResourceLocation bookIcon;
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable) {
 		this.shouldSave = shouldSave;
 		this.shouldSyncronize = shouldSyncronizedAllPlayers;
 		this.modifiable = modifiable;
 		this.id = SkillCategory.ENUM_MANAGER.assign(this);
+		this.bookIcon = SkillCategory.DEFAULT_BOOK_ICON;
 	}
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable, ResourceLocation bookIcon) {
@@ -59,6 +59,6 @@ public enum SkillCategories implements SkillCategory {
 	
 	@Override
 	public ResourceLocation bookIcon() {
-		return this.bookIcon == null ? SkillCategory.DEFAULT_BOOK_ICON : this.bookIcon;
+		return this.bookIcon;
 	}
 }

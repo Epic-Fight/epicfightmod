@@ -92,16 +92,22 @@ public class ClientEngine {
 		Minecraft.getInstance().getSoundManager().play(soundinstance);
 		Minecraft.getInstance().getSoundManager().play(soundinstance);
 	}
-	
+
+    /// @deprecated Use [#isEpicFightMode] instead for a smoother migration when porting to MC 1.21.1
+    @Deprecated(forRemoval = true, since = "1.21.1")
 	public boolean isBattleMode() {
-		LocalPlayerPatch localPlayerPatch = EpicFightCapabilities.getEntityPatch(this.minecraft.player, LocalPlayerPatch.class);
-		
-		if (localPlayerPatch == null) {
-			return false;
-		}
-		
-		return localPlayerPatch.isEpicFightMode();
+		return isEpicFightMode();
 	}
+
+    public boolean isEpicFightMode() {
+        LocalPlayerPatch localPlayerPatch = EpicFightCapabilities.getEntityPatch(this.minecraft.player, LocalPlayerPatch.class);
+
+        if (localPlayerPatch == null) {
+            return false;
+        }
+
+        return localPlayerPatch.isEpicFightMode();
+    }
 	
 	/**
 	 * Copy from {@link ForgeHooksClient#makeParticleRenderTypeComparator} but prioritize {@link ParticleRenderType#CUSTOM} lowest since it resets GL parameters setup

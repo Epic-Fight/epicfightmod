@@ -30,7 +30,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.input.PlayerInputState;
-import yesman.epicfight.api.client.input.handlers.InputManager;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
@@ -333,16 +333,11 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	}
 	
 	protected Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> getGuardMotionMap(BlockType blockType) {
-		switch (blockType) {
-		case GUARD_BREAK:
-			return this.guardBreakMotions;
-		case GUARD:
-			return this.guardMotions;
-		case ADVANCED_GUARD:
-			return this.advancedGuardMotions;
-		default:
-			throw new IllegalArgumentException("unsupported block type " + blockType);
-		}
+        return switch (blockType) {
+            case GUARD_BREAK -> this.guardBreakMotions;
+            case GUARD -> this.guardMotions;
+            case ADVANCED_GUARD -> this.advancedGuardMotions;
+        };
 	}
 	
 	public boolean isHoldingWeaponAvailable(PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {

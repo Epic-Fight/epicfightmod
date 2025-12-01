@@ -112,7 +112,6 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		CapabilitySkill skillCapability = this.getSkillCapability();
 		skillCapability.getSkillContainerFor(SkillSlots.BASIC_ATTACK).setSkill(EpicFightSkills.BASIC_ATTACK);
-		skillCapability.getSkillContainerFor(SkillSlots.AIR_ATTACK).setSkill(EpicFightSkills.AIR_ATTACK);
 		skillCapability.getSkillContainerFor(SkillSlots.KNOCKDOWN_WAKEUP).setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
 		
 		this.tickSinceLastAction = 0;

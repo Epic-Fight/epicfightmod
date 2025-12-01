@@ -5,12 +5,8 @@ import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Represents the abstract state of the player input (client-side).
- * <p>
- * Mirrors the vanilla Minecraft {@link Input} class.
- * </p>
- */
+/// Represents the abstract state of the player input (client-side).
+/// Mirrors the vanilla Minecraft [Input] class.
 public record PlayerInputState(
         float leftImpulse,
         float forwardImpulse,
@@ -30,13 +26,12 @@ public record PlayerInputState(
         );
     }
 
-    /**
-     * Applies the values from a {@link PlayerInputState} to a vanilla {@link Input} instance.
-     * **Note:** Updating the vanilla {@link Input} fields has side effects, so this change is **not immutable**.
-     *
-     * @param updated the new input state to apply
-     * @param input   the existing vanilla Input instance to update
-     */
+    /// Applies the values from a [PlayerInputState] to a vanilla [Input] instance.
+    ///
+    /// **Note:** Updating the vanilla [Input] fields has side effects, so this change is **not immutable**.
+    ///
+    /// @param updated the new input state to apply
+    /// @param input   the existing vanilla Input instance to update
     public static Input applyToVanillaInput(@NotNull PlayerInputState updated, @NotNull Input input) {
         if (input.leftImpulse != updated.leftImpulse()) input.leftImpulse = updated.leftImpulse();
         if (input.forwardImpulse != updated.forwardImpulse()) input.forwardImpulse = updated.forwardImpulse();

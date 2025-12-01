@@ -74,7 +74,7 @@ public class MeteorSlamSkill extends Skill {
 			if (!container.getExecutor().isLogicalClient()) {
 				Skill skill = event.getSkillContainer().getSkill();
 				
-				if (skill.getCategory() != SkillCategories.BASIC_ATTACK && skill.getCategory() != SkillCategories.AIR_ATTACK) {
+				if (skill.getCategory() != SkillCategories.BASIC_ATTACK) {
 					return;
 				}
 				

@@ -21,7 +21,7 @@ public record SPClearSkills(int entityId) {
 		ctx.get().enqueueWork(() -> {
 			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
 			
-			EpicFightCapabilities.getPlayerPatch(entity).ifPresent(playerpatch -> {
+			EpicFightCapabilities.getPlayerPatchAsOptional(entity).ifPresent(playerpatch -> {
 				playerpatch.getSkillCapability().clearContainersAndLearnedSkills(playerpatch.getOriginal().isLocalPlayer());
 			});
 		});

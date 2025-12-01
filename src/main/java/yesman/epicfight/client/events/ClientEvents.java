@@ -79,6 +79,7 @@ public class ClientEvents {
 
         // TODO: (INPUT_SYSTEM_REFACTOR) This only disables putting the item to offhand inventory slot for key inputs (defaults to F).
         //  Explore a universal solution that also supports controllers and other input systems.
+        //  https://github.com/Epic-Fight/epicfight/issues/2135
 		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.getKey().getValue()) {
 			if (event.getScreen() instanceof AbstractContainerScreen) {
 				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
@@ -129,7 +130,7 @@ public class ClientEvents {
 			}
 			
 			if (!event.isCanceled()) {
-				EpicFightCameraAPI.getInstance().onItemUseHook(event.getEntity(), playerpatch, event.getItemStack(), event.getHand());
+				EpicFightCameraAPI.getInstance().onItemUseEvent(event.getEntity(), playerpatch, event.getItemStack(), event.getHand());
 			}
 		});
 	}

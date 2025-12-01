@@ -538,7 +538,7 @@ public class EntityEvents {
 	
 	@SubscribeEvent
 	public static void playerFallEvent(PlayerFlyableFallEvent event) {
-		EpicFightCapabilities.getPlayerPatch(event.getEntity()).ifPresent(entitypatch -> {
+		EpicFightCapabilities.getPlayerPatchAsOptional(event.getEntity()).ifPresent(entitypatch -> {
 			entitypatch.onFall(new LivingFallEvent(event.getEntity(), event.getDistance(), event.getMultiplier()));
 		});
 	}

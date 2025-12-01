@@ -2,9 +2,12 @@ package yesman.epicfight.world.capabilities;
 
 import java.util.Optional;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -45,13 +48,12 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * This method should remain as the secondary option, especially when you can't fix local variables inside lambda expression.
-	 * 
-	 * @param entity An entity object to extract an entity patch
-	 * @param type A class type to cast
+	 * Extracts {@link EntityPatch} from an entity object, conducting both null-checking and type-checking
+	 * @return stored {@link EntityPatch} capability or {@link null} if the given @param type is incompatible with actual {@link EntityPatch} object
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityPatch> T getEntityPatch(Entity entity, Class<T> type) {
+	@Nullable
+	public static <T extends EntityPatch> T getEntityPatch(@Nullable Entity entity, Class<T> type) {
 		if (entity != null) {
 			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
@@ -64,14 +66,66 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns entity patch with unparameterized original entity
-	 * This is useful to reduce the amount of code when type-casting for {@link EntityPatch#getOriginal} is unnecessary.
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link PlayerPatch} from {@link Player}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static PlayerPatch getPlayerPatch(@Nullable Player player) {
+		if (player != null) {
+			EntityPatch<?> entitypatch = player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && PlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (PlayerPatch<?>)entitypatch;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link ServerPlayerPatch} from {@link ServerPlayer}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static ServerPlayerPatch getServerPlayerPatch(@Nullable ServerPlayer serverPlayer) {
+		if (serverPlayer != null) {
+			EntityPatch<?> entitypatch = serverPlayer.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && ServerPlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (ServerPlayerPatch)entitypatch;
+			}
+		}
+			
+		return null;
+	}
+	
+	/**
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link LocalPlayerPatch} from {@link LocalPlayer}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static LocalPlayerPatch getLocalPlayerPatch(@Nullable LocalPlayer localPlayer) {
+		if (localPlayer != null) {
+			EntityPatch<?> entitypatch = localPlayer.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && LocalPlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (LocalPlayerPatch)entitypatch;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns {@link EntityPatch} with unparameterized original {@link Entity} type
+	 * This method always return {@link Entity} by {@link EntityPatch#getOriginal()}, so it is considerable to use
+	 * when you don't need parameterized original entity type to save parameters
 	 * 
-	 * @param entity An entity object to extract an entity patch
-	 * @param type A class type to cast
+	 * @param entity 	An entity object to extract {@link EntityPatch}
+	 * @param type 		A subclasses type of {@link EntityPatch} to cast
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityPatch<?>> Optional<T> getUnparameterizedEntityPatch(Entity entity, Class<T> type) {
+	public static <T extends EntityPatch<?>> Optional<T> getUnparameterizedEntityPatch(@Nullable Entity entity, Class<T> type) {
 		if (entity != null) {
 			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
@@ -85,15 +139,16 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns entity patch with parameterized original entity
-	 * This method is used when you need parameterized return value of {@link EntityPatch#getOriginal}.
+	 * Returns {@link EntityPatch} with parameterized original {@link Entity} type
+	 * This method will return type-cased original entity object specified by @param entitytype by {@link EntityPatch#getOriginal()},
+	 * so it is considerable to use when you need to access original methods from @param entitytype
 	 * 
-	 * @param entity An entity object to extract an entity patch
-	 * @param entitytype An entity type to cast
-	 * @param patchtype A class type to cast
+	 * @param entity 		An entity object to extract {@link EntityPatch}
+	 * @param entitytype 	A subclasses type of {@link Entity} to cast the original entity
+	 * @param patchtype 	A subclasses type of {@link EntityPatch} to cast
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity, T extends EntityPatch<E>> Optional<T> getParameterizedEntityPatch(Entity entity, Class<E> entitytype, Class<?> patchtype) {
+	public static <E extends Entity, T extends EntityPatch<E>> Optional<T> getParameterizedEntityPatch(@Nullable Entity entity, Class<E> entitytype, Class<?> patchtype) {
 		if (entity != null && entitytype.isAssignableFrom(entity.getClass())) {
 			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
@@ -106,10 +161,14 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns {@link PlayerPatch} from a player
-	 * @param player A player to extract the entity patch
+	 * A compact version of entity patch getter to get {@link PlayerPatch} for @param entity
+	 * It conducts both null-checking and type-checking
 	 */
-	public static Optional<PlayerPatch<?>> getPlayerPatch(Entity entity) {
+	public static Optional<PlayerPatch<?>> getPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
 		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 		
 		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
@@ -120,32 +179,36 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns {@link LocalPlayerPatch} from a local player
-	 * Warning: developers must check physical & logical side before calling this method
-	 * <p>
-	 * @param player A player to extract the entity patch
+	 * A compact version of entity patch getter to get {@link ServerPlayerPatch} from @param entity
+	 * It conducts both null-checking and type-checking
 	 */
-	public static Optional<LocalPlayerPatch> getLocalPlayerPatch(Entity entity) {
+	public static Optional<ServerPlayerPatch> getServerPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
 		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 		
-		if (entitypatch instanceof LocalPlayerPatch localplayerpatch) {
-			return Optional.of(localplayerpatch);
+		if (entitypatch instanceof ServerPlayerPatch serverplayerpatch) {
+			return Optional.of(serverplayerpatch);
 		}
 		
 		return Optional.empty();
 	}
 	
 	/**
-	 * Returns {@link ServerPlayerPatch} from a server player
-	 * Warning: developers must check logical side before calling this method
-	 * <p>
-	 * @param player A player to extract the entity patch
+	 * A compact version of entity patch getter to get {@link LocalPlayerPatch} for @param entity
+	 * It conducts both null-checking and type-checking
 	 */
-	public static Optional<ServerPlayerPatch> getServerPlayerPatch(Entity entity) {
+	public static Optional<LocalPlayerPatch> getLocalPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
 		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 		
-		if (entitypatch instanceof ServerPlayerPatch serverplayerpatch) {
-			return Optional.of(serverplayerpatch);
+		if (entitypatch instanceof LocalPlayerPatch localplayerpatch) {
+			return Optional.of(localplayerpatch);
 		}
 		
 		return Optional.empty();

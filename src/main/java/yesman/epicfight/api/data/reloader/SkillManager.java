@@ -140,7 +140,6 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 			});
 			
 			skillCapability.getSkillContainerFor(SkillSlots.BASIC_ATTACK).setSkill(EpicFightSkills.BASIC_ATTACK);
-			skillCapability.getSkillContainerFor(SkillSlots.AIR_ATTACK).setSkill(EpicFightSkills.AIR_ATTACK);
 			skillCapability.getSkillContainerFor(SkillSlots.KNOCKDOWN_WAKEUP).setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
 		}
 	}

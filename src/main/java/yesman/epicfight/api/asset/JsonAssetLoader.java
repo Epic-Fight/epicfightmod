@@ -708,7 +708,7 @@ public class JsonAssetLoader {
 				for (int j = 0; j < 16; j++) {
 					matrixElements[j] = matrixArray.get(j).getAsFloat();
 				}
-				
+
 				Matrix4f matrix = new Matrix4f().set(matrixElements);
 				matrix.transpose();
 
@@ -716,7 +716,7 @@ public class JsonAssetLoader {
 					matrix.mulLocal(BLENDER_TO_MINECRAFT_COORD);
 				}
 				
-				matrix.mulLocal(invLocalTransform);
+				matrix.transpose().mulLocal(invLocalTransform);
 				
 				JointTransform transform = JointTransform.fromMatrix(matrix);
 				transform.rotation().normalize();

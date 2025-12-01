@@ -166,7 +166,7 @@ public class TransformSheet {
 		Keyframe startKeyframe = keyframes[0];
 		Keyframe endKeyframe = keyframes[keyframes.length - 1];
 		float pitchDeg = (float) Math.toDegrees(Mth.atan2(modifiedStartToEnd.y - startToEnd.y, modifiedStartToEnd.length()));
-		float yawDeg = (float) MathUtils.getAngleBetween(modifiedStartToEnd.copy().multiply(1.0F, 0.0F, 1.0F).normalize(), startToEnd.copy().multiply(1.0F, 0.0F, 1.0F).normalize());
+		float yawDeg = (float) MathUtils.getAngleBetween(modifiedStartToEnd.copy().multiply(1.0F, 0.0F, 1.0F), startToEnd.copy().multiply(1.0F, 0.0F, 1.0F));
 		
 		for (Keyframe kf : keyframes) {
 			float lerp = (kf.time() - startKeyframe.time()) / (endKeyframe.time() - startKeyframe.time());

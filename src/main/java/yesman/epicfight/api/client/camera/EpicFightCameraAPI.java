@@ -39,6 +39,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
 import net.minecraftforge.entity.PartEntity;
+import org.joml.Vector3f;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.BuildCameraTransform;

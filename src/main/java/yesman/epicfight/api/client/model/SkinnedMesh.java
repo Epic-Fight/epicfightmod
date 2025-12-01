@@ -27,8 +27,6 @@ import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
@@ -140,12 +138,12 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		return parts.get(name);
 	}
 	
-	private static final Vec4f TRANSFORM = new Vec4f();
-	private static final Vec4f POS = new Vec4f();
-	private static final Vec4f TOTAL_POS = new Vec4f();
+	private static final Vector4f TRANSFORM = new Vector4f();
+	private static final Vector4f POS = new Vector4f();
+	private static final Vector4f TOTAL_POS = new Vector4f();
 	
 	@Override
-	public void getVertexPosition(int positionIndex, Vector4f dest, @Nullable OpenMatrix4f[] poses) {
+	public void getVertexPosition(int positionIndex, Vector4f dest, @Nullable Matrix4f[] poses) {
 		int index = positionIndex * 3;
 		
 		POS.set(this.positions[index], this.positions[index + 1], this.positions[index + 2], 1.0F);
@@ -155,18 +153,18 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			int jointIndex = this.affectingJointIndices[positionIndex][i];
 			int weightIndex = this.affectingWeightIndices[positionIndex][i];
 			float weight = this.weights[weightIndex];
-			
-			Vec4f.add(OpenMatrix4f.transform(poses[jointIndex], POS, TRANSFORM).scale(weight), TOTAL_POS, TOTAL_POS);
+
+			TOTAL_POS.add(poses[jointIndex].transform(POS, TRANSFORM).mul(weight));
 		}
 		
 		dest.set(TOTAL_POS.x, TOTAL_POS.y, TOTAL_POS.z, 1.0F);
 	}
 	
-	private static final Vec4f NORM = new Vec4f();
-	private static final Vec4f TOTAL_NORM = new Vec4f();
+	private static final Vector4f NORM = new Vector4f();
+	private static final Vector4f TOTAL_NORM = new Vector4f();
 	
 	@Override
-	public void getVertexNormal(int positionIndex, int normalIndex, Vector3f dest, @Nullable OpenMatrix4f[] poses) {
+	public void getVertexNormal(int positionIndex, int normalIndex, Vector3f dest, @Nullable Matrix4f[] poses) {
 		int index = normalIndex * 3;
 		NORM.set(this.normals[index], this.normals[index + 1], this.normals[index + 2], 1.0F);
 		TOTAL_NORM.set(0.0F, 0.0F, 0.0F, 0.0F);
@@ -175,7 +173,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			int jointIndex = this.affectingJointIndices[positionIndex][i];
 			int weightIndex = this.affectingWeightIndices[positionIndex][i];
 			float weight = this.weights[weightIndex];
-			Vec4f.add(OpenMatrix4f.transform(poses[jointIndex], NORM, TRANSFORM).scale(weight), TOTAL_NORM, TOTAL_NORM);
+			TOTAL_NORM.add(poses[jointIndex].transform(NORM, TRANSFORM).mul(weight));
 		}
 		
 		dest.set(TOTAL_NORM.x, TOTAL_NORM.y, TOTAL_NORM.z);
@@ -198,26 +196,26 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	 * Draws the model to vanilla buffer
 	 */
 	@Override
-	public void drawPosed(PoseStack poseStack, VertexConsumer bufferbuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	public void drawPosed(PoseStack poseStack, VertexConsumer bufferbuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses) {
 		Matrix4f pose = poseStack.last().pose();
 		Matrix3f normal = poseStack.last().normal();
 		
 		for (SkinnedMeshPart part : this.parts.values()) {
 			if (!part.isHidden()) {
-				OpenMatrix4f transform = part.getVanillaPartTransform();
+				Matrix4f transform = part.getVanillaPartTransform();
 				
 				for (int i = 0; i < poses.length; i++) {
-					ComputeShaderSetup.TOTAL_POSES[i].load(poses[i]);
+					ComputeShaderSetup.TOTAL_POSES[i].set(poses[i]);
 					
 					if (armature != null) {
-						ComputeShaderSetup.TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
+						ComputeShaderSetup.TOTAL_POSES[i].mul(armature.searchJointById(i).getToOrigin());
 					}
 					
 					if (transform != null) {
-						ComputeShaderSetup.TOTAL_POSES[i].mulBack(transform);
+						ComputeShaderSetup.TOTAL_POSES[i].mul(transform);
 					}
 					
-					ComputeShaderSetup.TOTAL_NORMALS[i] = ComputeShaderSetup.TOTAL_POSES[i].removeTranslation();
+					ComputeShaderSetup.TOTAL_NORMALS[i] = ComputeShaderSetup.TOTAL_POSES[i].setTranslation(0, 0, 0);
 				}
 				
 				for (VertexBuilder vi : part.getVertices()) {
@@ -238,12 +236,12 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	 * @param armature give this parameter as null if @param poses already bound origin translation
 	 * @param poses
 	 */
-	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses) {
 		this.draw(poseStack, bufferSources, renderType, Mesh.DrawingFunction.NEW_ENTITY, packedLight, r, g, b, a, overlay, armature, poses);
 	}
 
 	@Override
-	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses) {
 		if (ClientConfig.activateComputeShader && this.computerShaderSetup != null) {
 			this.computerShaderSetup.drawWithShader(this, poseStack, bufferSources, EpicFightRenderTypes.getTriangulated(renderType), packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
@@ -275,7 +273,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	public class SkinnedMeshPart extends MeshPart {
 		private ComputeShaderSetup.MeshPartBuffer partVBO;
 
-		public SkinnedMeshPart(List<VertexBuilder> animatedMeshPartList, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
+		public SkinnedMeshPart(List<VertexBuilder> animatedMeshPartList, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<Matrix4f> vanillaPartTracer) {
 			super(animatedMeshPartList, renderProperties, vanillaPartTracer);
 		}
 		
@@ -318,8 +316,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		
 		for (int i = 0; i < positions.length / 3; i++) {
 			int k = i * 3;
-			Vec4f posVector = new Vec4f(positions[k], positions[k+1], positions[k+2], 1.0F);
-			posVector.transform(JsonAssetLoader.MINECRAFT_TO_BLENDER_COORD);
+			Vector4f posVector = new Vector4f(positions[k], positions[k+1], positions[k+2], 1.0F);
+			JsonAssetLoader.MINECRAFT_TO_BLENDER_COORD.transform(posVector);
 			positions[k] = posVector.x;
 			positions[k+1] = posVector.y;
 			positions[k+2] = posVector.z;
@@ -327,8 +325,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		
 		for (int i = 0; i < normals.length / 3; i++) {
 			int k = i * 3;
-			Vec4f normVector = new Vec4f(normals[k], normals[k+1], normals[k+2], 1.0F);
-			normVector.transform(JsonAssetLoader.MINECRAFT_TO_BLENDER_COORD);
+			Vector4f normVector = new Vector4f(normals[k], normals[k+1], normals[k+2], 1.0F);
+			JsonAssetLoader.MINECRAFT_TO_BLENDER_COORD.transform(normVector);
 			normals[k] = normVector.x;
 			normals[k+1] = normVector.y;
 			normals[k+2] = normVector.z;

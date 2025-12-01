@@ -15,20 +15,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 
 public class OBBCollider extends Collider {
 	protected final Vec3[] modelVertices;
 	protected final Vec3[] modelNormals;
 	protected Vec3[] rotatedVertices;
 	protected Vec3[] rotatedNormals;
-	protected Vec3f scale;
+	protected Vector3f scale;
 	
 	/**
 	 * 
@@ -74,12 +74,7 @@ public class OBBCollider extends Collider {
 		return new AABB(maxLength, maxLength, maxLength, -maxLength, -maxLength, -maxLength);
 	}
 	
-	/**
-	 * make 2d obb
-	 * @param pos1 left
-	 * @param pos2 right
-	 * @param modelCenter central position
-	 */
+
 	public OBBCollider(
 		  AABB entityCallAABB
 		, double pos1_x, double pos1_y, double pos1_z
@@ -130,18 +125,18 @@ public class OBBCollider extends Collider {
 	 * Transform the bounding box
 	 **/
 	@Override
-	public void transform(OpenMatrix4f modelMatrix) {
-		OpenMatrix4f noTranslation = modelMatrix.removeTranslation();
+	public void transform(Matrix4f modelMatrix) {
+		Matrix4f noTranslation = modelMatrix.setTranslation(0, 0, 0);
 		
 		for (int i = 0; i < this.modelVertices.length; i++) {
-			this.rotatedVertices[i] = OpenMatrix4f.transform(noTranslation, this.modelVertices[i]);
+			this.rotatedVertices[i] = new Vec3(Matrix4fUtils.transform3v(noTranslation, this.modelVertices[i].toVector3f(), new Vector3f()));
 		}
 		
 		for (int i = 0; i < this.modelNormals.length; i++) {
-			this.rotatedNormals[i] = OpenMatrix4f.transform(noTranslation, this.modelNormals[i]);
+			this.rotatedNormals[i] = new Vec3(Matrix4fUtils.transform3v(noTranslation, this.modelNormals[i].toVector3f(), new Vector3f()));
 		}
 		
-		this.scale = noTranslation.toScaleVector();
+		this.scale = noTranslation.getScale(new Vector3f());
 		
 		super.transform(modelMatrix);
 	}
@@ -325,7 +320,7 @@ public class OBBCollider extends Collider {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void drawInternal(PoseStack poseStack, VertexConsumer vertexConsumer, Armature armature, Joint joint, Pose pose1, Pose pose2, float partialTicks, int color) {
-		OpenMatrix4f poseMatrix;
+		Matrix4f poseMatrix;
 		Pose interpolatedPose = Pose.interpolatePose(pose1, pose2, partialTicks);
 		
 		if (armature.rootJoint.equals(joint)) {
@@ -335,7 +330,7 @@ public class OBBCollider extends Collider {
 			jt.rotation().z = 0.0F;
 			jt.rotation().w = 1.0F;
 			
-			poseMatrix = jt.getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
+			poseMatrix = jt.getAnimationBoundMatrix(armature.rootJoint, new Matrix4f()).setTranslation(0, 0, 0);
 		} else {
 			poseMatrix = armature.getBoundTransformFor(interpolatedPose, joint);
 		}

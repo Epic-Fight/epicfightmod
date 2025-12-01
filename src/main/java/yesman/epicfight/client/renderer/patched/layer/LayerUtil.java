@@ -22,11 +22,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import org.joml.Vector3f;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.RegisterResourceLayersEvent;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.data.conditions.EpicFightConditions;
@@ -154,8 +154,8 @@ public class LayerUtil {
 			throw new NoSuchElementException("Layer type epicfight:model_original requires to specify joint");
 		}
 		
-		Vec3f vec = new Vec3f();
-		Vec3f rot = new Vec3f();
+		Vector3f vec = new Vector3f();
+		Vector3f rot = new Vector3f();
 		
 		if (properties.has("translation")) {
 			JsonArray translationVector = GsonHelper.getAsJsonArray(properties, "translation");

@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,9 +36,7 @@ import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.GeoModelTransformer.GeoMeshPartDefinition;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec2f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class AzureArmorTransformer extends HumanoidModelTransformer {
@@ -193,11 +188,7 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 				MeshPartDefinition partDefinition = GeoMeshPartDefinition.of(partName);
 				
 				if (bindPartAnimation) {
-					OpenMatrix4f invertedParentTransform = OpenMatrix4f.importFromMojangMatrix(poseStack.last().pose());
-					invertedParentTransform.m30 *= 0.0625F;
-					invertedParentTransform.m31 *= 0.0625F;
-					invertedParentTransform.m32 *= 0.0625F;
-					invertedParentTransform.invert();
+					Matrix4f invertedParentTransform = poseStack.last().pose().setTranslation(poseStack.last().pose().getTranslation(new Vector3f()).mul(0.0625F)).invert(new Matrix4f());
 					partDefinition = AzureArmorMeshPartDefinition.of(partName, newList, invertedParentTransform, modelpartition.geoBone);
 				}
 				
@@ -237,11 +228,11 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 					pos.mul(poseStack.last().pose());
 					
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z())/*.scale(0.0625F)*/)
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.texU(), vertex.texV()))
-						.setEffectiveJointIDs(new Vec3f(this.jointId, 0, 0))
-						.setEffectiveJointWeights(new Vec3f(1.0F, 0.0F, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z())/*.scale(0.0625F)*/)
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.texU(), vertex.texV()))
+						.setEffectiveJointIDs(new Vector3f(this.jointId, 0, 0))
+						.setEffectiveJointWeights(new Vector3f(1.0F, 0.0F, 0.0F))
 						.setEffectiveJointNumber(1)
 					);
 				}
@@ -387,11 +378,11 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 					}
 					
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z()))
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.u, vertex.v))
-						.setEffectiveJointIDs(new Vec3f(joint1, joint2, 0))
-						.setEffectiveJointWeights(new Vec3f(weight1, weight2, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z()))
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.u, vertex.v))
+						.setEffectiveJointIDs(new Vector3f(joint1, joint2, 0))
+						.setEffectiveJointWeights(new Vector3f(weight1, weight2, 0.0F))
 						.setEffectiveJointNumber(count)
 					);
 				}
@@ -560,11 +551,11 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 					Vector4f pos = new Vector4f(vertex.pos, 1.0F);
 					
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z()))
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.u, vertex.v))
-						.setEffectiveJointIDs(new Vec3f(vertex.jointId.getX(), 0, 0))
-						.setEffectiveJointWeights(new Vec3f(1.0F, 0.0F, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z()))
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.u, vertex.v))
+						.setEffectiveJointIDs(new Vector3f(vertex.jointId.getX(), 0, 0))
+						.setEffectiveJointWeights(new Vector3f(1.0F, 0.0F, 0.0F))
 						.setEffectiveJointNumber(1)
 					);
 				}
@@ -630,14 +621,7 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 	}
 	
 	static Vector3f getClipPoint(Vector3f pos1, Vector3f pos2, float yClip) {
-		Vector3f direct = new Vector3f(pos2);
-		direct.sub(pos1);
-		direct.mul((yClip - pos1.y()) / (pos2.y() - pos1.y()));
-		
-		Vector3f clipPoint = new Vector3f(pos1);
-		clipPoint.add(direct);
-		
-		return clipPoint;
+        return GeoModelTransformer.getClipPoint(pos1, pos2, yClip);
 	}
 	
 	static ModelPart.Vertex getTranslatedVertex(GeoVertex original, Matrix4f matrix) {
@@ -650,21 +634,21 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 	@OnlyIn(Dist.CLIENT)
 	static class AnimatedVertex extends ModelPart.Vertex {
 		final Vec3i jointId;
-		final Vec3f weight;
+		final Vector3f weight;
 		
 		public AnimatedVertex(ModelPart.Vertex posTexVertx, int jointId) {
 			this(posTexVertx, jointId, 0, 0, 1.0F, 0.0F, 0.0F);
 		}
 		
 		public AnimatedVertex(ModelPart.Vertex posTexVertx, int jointId1, int jointId2, int jointId3, float weight1, float weight2, float weight3) {
-			this(posTexVertx, new Vec3i(jointId1, jointId2, jointId3), new Vec3f(weight1, weight2, weight3));
+			this(posTexVertx, new Vec3i(jointId1, jointId2, jointId3), new Vector3f(weight1, weight2, weight3));
 		}
 		
-		public AnimatedVertex(ModelPart.Vertex posTexVertx, Vec3i ids, Vec3f weights) {
+		public AnimatedVertex(ModelPart.Vertex posTexVertx, Vec3i ids, Vector3f weights) {
 			this(posTexVertx, posTexVertx.u, posTexVertx.v, ids, weights);
 		}
 		
-		public AnimatedVertex(ModelPart.Vertex posTexVertx, float u, float v, Vec3i ids, Vec3f weights) {
+		public AnimatedVertex(ModelPart.Vertex posTexVertx, float u, float v, Vec3i ids, Vector3f weights) {
 			super(posTexVertx.pos.x(), posTexVertx.pos.y(), posTexVertx.pos.z(), u, v);
 			this.jointId = ids;
 			this.weight = weights;
@@ -691,7 +675,7 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	public static OpenMatrix4f of(PoseStack poseStack, GeoBone bone) {
+	public static Matrix4f of(PoseStack poseStack, GeoBone bone) {
 		BoneSnapshot boneSnapshot = bone.getInitialSnapshot();
 		poseStack.pushPose();
 		poseStack.translate(boneSnapshot.getOffsetX(), boneSnapshot.getOffsetY(), boneSnapshot.getOffsetZ());
@@ -702,28 +686,20 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 		
 		Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
 		poseStack.popPose();
-		
-		OpenMatrix4f matrix = OpenMatrix4f.importFromMojangMatrix(lastPose);
-		matrix.m30 *= 0.0625F;
-		matrix.m31 *= 0.0625F;
-		matrix.m32 *= 0.0625F;
-		
-		OpenMatrix4f partAnimation = OpenMatrix4f.mulMatrices(matrix,
-																new OpenMatrix4f().translate(new Vec3f(bone.getPosX() - boneSnapshot.getOffsetX(), bone.getPosY() - boneSnapshot.getOffsetY(), bone.getPosZ() - boneSnapshot.getOffsetZ()).scale(0.0625F))
-																					.mulBack(OpenMatrix4f.fromQuaternion(new Quaternionf().rotationZYX(boneSnapshot.getRotZ() - bone.getRotZ(), boneSnapshot.getRotY() - bone.getRotY(), boneSnapshot.getRotX() - bone.getRotX())))
-																					.scale(new Vec3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ())),
-																OpenMatrix4f.invert(matrix, null));
-		
-		return partAnimation;
+
+		lastPose.setTranslation(lastPose.getTranslation(new Vector3f()).mul(0.0625F));
+
+        return Matrix4fUtils.mulMatrices(lastPose, new Matrix4f().mul(new Matrix4f().rotation(new Quaternionf().rotationZYX(boneSnapshot.getRotZ() - bone.getRotZ(), boneSnapshot.getRotY() - bone.getRotY(), boneSnapshot.getRotX() - bone.getRotX())))
+						.scale(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ())), lastPose.invert(new Matrix4f()));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public record AzureArmorMeshPartDefinition(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) implements MeshPartDefinition {
+	public record AzureArmorMeshPartDefinition(String partName, List<String> path, Matrix4f invertedParentTransform, GeoBone root) implements MeshPartDefinition {
 		public static MeshPartDefinition of(String partName) {
 			return new AzureArmorMeshPartDefinition(partName, null, null, null);
 		}
 		
-		public static MeshPartDefinition of(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) {
+		public static MeshPartDefinition of(String partName, List<String> path, Matrix4f invertedParentTransform, GeoBone root) {
 			return new AzureArmorMeshPartDefinition(partName, path, invertedParentTransform, root);
 		}
 		
@@ -737,7 +713,7 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 			return null;
 		}
 		
-		public Supplier<OpenMatrix4f> getModelPartAnimationProvider() {
+		public Supplier<Matrix4f> getModelPartAnimationProvider() {
 			return this.root == null ? () -> null : () -> {
 				PoseStack poseStack = new PoseStack();
 				this.progress(this.root, poseStack, false);
@@ -754,19 +730,17 @@ public class AzureArmorTransformer extends HumanoidModelTransformer {
 					idx++;
 					this.progress(bone, poseStack, idx == this.path.size());
 				}
-				
-				OpenMatrix4f parentTransform = OpenMatrix4f.importFromMojangMatrix(poseStack.last().pose());
+				//mulBack = mul
+				//mulFront = mulLocal
+				Matrix4f parentTransform = new Matrix4f(poseStack.last().pose());
 				GeoBone lastBone = bone;
 				BoneSnapshot boneSnapshot = bone.getInitialSnapshot();
-				OpenMatrix4f partAnimation = OpenMatrix4f.mulMatrices(parentTransform,
-																	  new OpenMatrix4f().mulBack(OpenMatrix4f.fromQuaternion(new Quaternionf().rotationZYX(boneSnapshot.getRotZ(), boneSnapshot.getRotY(), boneSnapshot.getRotX())).transpose().invert())
-																	  					.translate(new Vec3f(lastBone.getPosX() - boneSnapshot.getOffsetX(), lastBone.getPosY() - boneSnapshot.getOffsetY(), lastBone.getPosZ() - boneSnapshot.getOffsetZ()).scale(0.0625F))
-																						.mulBack(OpenMatrix4f.fromQuaternion(new Quaternionf().rotationZYX(boneSnapshot.getRotZ(), boneSnapshot.getRotY(), boneSnapshot.getRotX())).transpose())
-																						.mulBack(OpenMatrix4f.fromQuaternion(new Quaternionf().rotationZYX(boneSnapshot.getRotZ() - lastBone.getRotZ(), boneSnapshot.getRotY() - lastBone.getRotY(), boneSnapshot.getRotX() - lastBone.getRotX())))
-																						.scale(new Vec3f(lastBone.getScaleX(), lastBone.getScaleY(), lastBone.getScaleZ())),
-																	  this.invertedParentTransform);
-				
-				return partAnimation;
+
+
+                return Matrix4fUtils.mulMatrices(parentTransform, new Matrix4f().mul(new Matrix4f().rotation(new Quaternionf().rotationZYX(boneSnapshot.getRotZ(), boneSnapshot.getRotY(), boneSnapshot.getRotX()))).transpose().invert()
+                        .translate(new Vector3f(lastBone.getPosX() - boneSnapshot.getOffsetX(), lastBone.getPosY() - boneSnapshot.getOffsetY(), lastBone.getPosZ() - boneSnapshot.getOffsetZ()).mul(0.0625F))
+                        .mul(new Matrix4f().rotation(new Quaternionf().rotationZYX(boneSnapshot.getRotZ() - lastBone.getRotZ(), boneSnapshot.getRotY() - lastBone.getRotY(), boneSnapshot.getRotX() - lastBone.getRotX())))
+                        .scale(new Vector3f(lastBone.getScaleX(), lastBone.getScaleY(), lastBone.getScaleZ())), this.invertedParentTransform);
 			};
 		}
 		

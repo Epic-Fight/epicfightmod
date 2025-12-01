@@ -7,12 +7,12 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.StunType;
@@ -116,7 +116,7 @@ public class CustomMobPatch<T extends PathfinderMob> extends MobPatch<T> {
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
+	public Matrix4f getModelMatrix(float partialTicks) {
 		float scale = this.provider.getScale();
 		return super.getModelMatrix(partialTicks).scale(scale, scale, scale);
 	}

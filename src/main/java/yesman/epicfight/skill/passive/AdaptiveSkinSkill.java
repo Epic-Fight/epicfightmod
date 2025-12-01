@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.gameasset.EpicFightSounds;
@@ -40,9 +40,9 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 	private static final UUID EVENT_UUID = UUID.fromString("e9cd15f0-72cc-474b-bfee-66276d06157d");
 	
 	public static class Builder extends SkillBuilder<AdaptiveSkinSkill> {
-		protected final Map<TagKey<DamageType>, Vec3f> protectableDamageTypeTags = new LinkedHashMap<> ();
+		protected final Map<TagKey<DamageType>, Vector3f> protectableDamageTypeTags = new LinkedHashMap<> ();
 		
-		public Builder addProtectableDamageTypeTags(Map<TagKey<DamageType>, Vec3f> tags) {
+		public Builder addProtectableDamageTypeTags(Map<TagKey<DamageType>, Vector3f> tags) {
 			this.protectableDamageTypeTags.putAll(tags);
 			return this;
 		}
@@ -52,18 +52,18 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		return new AdaptiveSkinSkill.Builder()
 				.addProtectableDamageTypeTags(
 					ImmutableMap.of(
-						EpicFightDamageTypeTags.IS_MELEE, new Vec3f(227 / 255.0F, 127 / 255.0F, 127 / 255.0F),
-						DamageTypeTags.IS_PROJECTILE, new Vec3f(102 / 255.0F, 197 / 255.0F, 255 / 255.0F),
-						DamageTypeTags.IS_FIRE, new Vec3f(229 / 255.0F, 143 / 255.0F, 66 / 255.0F),
-						EpicFightDamageTypeTags.IS_MAGIC, new Vec3f(226 / 255.0F, 154 / 255.0F, 234 / 255.0F),
-						DamageTypeTags.IS_EXPLOSION, new Vec3f(207 / 255.0F, 205 / 255.0F, 120 / 255.0F)
+						EpicFightDamageTypeTags.IS_MELEE, new Vector3f(227 / 255.0F, 127 / 255.0F, 127 / 255.0F),
+						DamageTypeTags.IS_PROJECTILE, new Vector3f(102 / 255.0F, 197 / 255.0F, 255 / 255.0F),
+						DamageTypeTags.IS_FIRE, new Vector3f(229 / 255.0F, 143 / 255.0F, 66 / 255.0F),
+						EpicFightDamageTypeTags.IS_MAGIC, new Vector3f(226 / 255.0F, 154 / 255.0F, 234 / 255.0F),
+						DamageTypeTags.IS_EXPLOSION, new Vector3f(207 / 255.0F, 205 / 255.0F, 120 / 255.0F)
 					)
 				)
 				.setCategory(SkillCategories.PASSIVE)
 				.setResource(Resource.NONE);
 	}
 	
-	private final Map<TagKey<DamageType>, Vec3f> protectableDamageTypeTags;
+	private final Map<TagKey<DamageType>, Vector3f> protectableDamageTypeTags;
 	
 	private float damageResistance;
 	private int maxResistanceStack;
@@ -144,7 +144,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 			@Override
 			public RenderType getRenderType() {
 				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
-				Vec3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
+				Vector3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
 				return EpicFightRenderTypes.coloredGlintWorldRendertype(container.getExecutor().getOriginal(), color.x, color.y, color.z);
 			}
 			
@@ -165,7 +165,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 				TagKey<DamageType> resistingDamageTypeTagKey = container.getExecutor().getSkill(AdaptiveSkinSkill.this).getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get());
 				
 				if (!EpicFightDamageTypeTags.NONE.equals(resistingDamageTypeTagKey)) {
-					Vec3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
+					Vector3f color = AdaptiveSkinSkill.this.getGlintColor(resistingDamageTypeTagKey);
 					val.x = color.x;
 					val.y = color.y;
 					val.z = color.z;
@@ -201,7 +201,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		}
 	}
 	
-	private Vec3f getGlintColor(TagKey<DamageType> tagKey) {
+	private Vector3f getGlintColor(TagKey<DamageType> tagKey) {
 		return this.protectableDamageTypeTags.get(tagKey);
 	}
 	
@@ -219,7 +219,7 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		poseStack.pushPose();
 		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
 		
-		Vec3f color = this.protectableDamageTypeTags.get(container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get()));
+		Vector3f color = this.protectableDamageTypeTags.get(container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get()));
 		guiGraphics.innerBlit(this.getSkillTexture(), (int)x, (int)x + 24, (int)y, (int)y + 24, 0, 0.0F, 1.0F, 0.0F, 1.0F, color.x, color.y, color.z, 1.0F);
 		int stacks = container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
 		

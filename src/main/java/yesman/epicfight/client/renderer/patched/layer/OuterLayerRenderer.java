@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.model.Meshes;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.world.capabilities.entitypatch.mob.DrownedPatch;
 
@@ -26,7 +26,7 @@ public class OuterLayerRenderer extends ModelRenderLayer<Drowned, DrownedPatch, 
 	
 	@Override
 	protected void renderLayer(DrownedPatch entitypatch, Drowned entityliving, DrownedOuterLayer<Drowned> vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight,
-			OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
+							   Matrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		this.mesh.get().draw(poseStack, buffer, RenderType.entityCutoutNoCull(DROWNED_OUTER_LAYER), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, LivingEntityRenderer.getOverlayCoords(entityliving, 0.0F), entitypatch.getArmature(), poses);
 	}
 	

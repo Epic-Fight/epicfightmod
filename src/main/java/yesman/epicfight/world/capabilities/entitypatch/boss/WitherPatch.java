@@ -3,6 +3,7 @@ package yesman.epicfight.world.capabilities.entitypatch.boss;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import com.google.common.collect.ImmutableList;
@@ -50,8 +51,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
@@ -180,22 +180,22 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 			float headRotO = this.original.yBodyRotO - this.original.yHeadRotO;
 			float headRot = this.original.yBodyRot - this.original.yHeadRot;
 			float partialHeadRot = MathUtils.lerpBetween(headRotO, headRot, partialTicks);
-			Quaternionf headRotation = OpenMatrix4f.createRotatorDeg(-this.original.getXRot(), Vec3f.X_AXIS).mulFront(OpenMatrix4f.createRotatorDeg(partialHeadRot, Vec3f.Y_AXIS)).toQuaternion();
-			pose.orElseEmpty("Head_M").frontResult(JointTransform.rotation(headRotation), OpenMatrix4f::mul);
+			Quaternionf headRotation = new Matrix4f().rotation(org.joml.Math.toRadians(-this.original.getXRot()), 1, 0, 0).mulLocal(new Matrix4f().rotation(org.joml.Math.toRadians(partialHeadRot), 0, 1, 0)).getNormalizedRotation(new Quaternionf());
+			pose.orElseEmpty("Head_M").frontResult(JointTransform.rotation(headRotation), Matrix4fUtils::mulBoth);
 		}
 		
 		if (pose.hasTransform("Head_R")) {
 			float rightHeadYRot = MathUtils.lerpBetween(this.original.yBodyRotO, this.original.yBodyRot, partialTicks) - MathUtils.lerpBetween(this.original.yRotOHeads[1], this.original.yRotHeads[1], partialTicks);
 			float rightHeadXRot = MathUtils.lerpBetween(this.original.xRotOHeads[1], this.original.xRotHeads[1], partialTicks);
-			Quaternionf headRotation = OpenMatrix4f.createRotatorDeg(rightHeadYRot, Vec3f.Y_AXIS).rotateDeg(-rightHeadXRot, Vec3f.X_AXIS).toQuaternion();
-			pose.orElseEmpty("Head_R").frontResult(JointTransform.rotation(headRotation), OpenMatrix4f::mul);
+			Quaternionf headRotation = new Matrix4f().rotation(org.joml.Math.toRadians(rightHeadYRot), 0, 1, 0).rotate(org.joml.Math.toRadians(-rightHeadXRot), 1, 0, 0).getNormalizedRotation(new Quaternionf());
+			pose.orElseEmpty("Head_R").frontResult(JointTransform.rotation(headRotation), Matrix4fUtils::mulBoth);
 		}
 		
 		if (pose.hasTransform("Head_L")) {
 			float leftHeadYRot = MathUtils.lerpBetween(this.original.yBodyRotO, this.original.yBodyRot, partialTicks) - MathUtils.lerpBetween(this.original.yRotOHeads[0], this.original.yRotHeads[0], partialTicks);
 			float leftHeadXRot = MathUtils.lerpBetween(this.original.xRotOHeads[0], this.original.xRotHeads[0], partialTicks);
-			Quaternionf headRotation = OpenMatrix4f.createRotatorDeg(leftHeadYRot, Vec3f.Y_AXIS).rotateDeg(-leftHeadXRot, Vec3f.X_AXIS).toQuaternion();
-			pose.orElseEmpty("Head_L").frontResult(JointTransform.rotation(headRotation), OpenMatrix4f::mul);
+			Quaternionf headRotation = new Matrix4f().rotation(org.joml.Math.toRadians(leftHeadYRot), 0, 1, 0).rotate(org.joml.Math.toRadians(-leftHeadXRot), 1, 0, 0).getNormalizedRotation(new Quaternionf());
+			pose.orElseEmpty("Head_L").frontResult(JointTransform.rotation(headRotation), Matrix4fUtils::mulBoth);
 		}
 	}
 	
@@ -338,7 +338,7 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
+	public Matrix4f getModelMatrix(float partialTicks) {
 		float prevYRot;
 		float yRot;
 		

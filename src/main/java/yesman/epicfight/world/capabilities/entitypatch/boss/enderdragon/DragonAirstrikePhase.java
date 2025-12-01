@@ -12,9 +12,9 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.phases.DragonPhaseInstance;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
@@ -49,13 +49,13 @@ public class DragonAirstrikePhase extends PatchedDragonPhase {
 	public void doClientTick() {
 		super.doClientTick();
 		Vec3 dragonpos = this.dragon.position();
-		OpenMatrix4f mouthpos = this.dragonpatch.getArmature().getBoundTransformFor(this.dragonpatch.getAnimator().getPose(1.0F), Armatures.DRAGON.get().upperMouth);
+		Matrix4f mouthpos = this.dragonpatch.getArmature().getBoundTransformFor(this.dragonpatch.getAnimator().getPose(1.0F), Armatures.DRAGON.get().upperMouth);
 		
 		float f = (float)this.dragon.getLatencyPos(7, 1.0F)[0];
 		float f1 = (float)(this.dragon.getLatencyPos(5, 1.0F)[1] - this.dragon.getLatencyPos(10, 1.0F)[1]);
 		float f2 = MathUtils.rotWrap((this.dragon.getLatencyPos(5, 1.0F)[0] - this.dragon.getLatencyPos(10, 1.0F)[0]));
-		OpenMatrix4f modelMatrix = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, f1, f1, f, f, 1.0F, 1.0F, 1.0F, 1.0F).rotateDeg(-f2 * 1.5F, Vec3f.Z_AXIS);
-		mouthpos.mulFront(modelMatrix);
+		Matrix4f modelMatrix = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, f1, f1, f, f, 1.0F, 1.0F, 1.0F, 1.0F).rotate(org.joml.Math.toRadians(-f2 * 1.5F), 0, 0, 1);
+		mouthpos.mulLocal(modelMatrix);
 		
 		if (this.dragon.getTarget() != null) {
 			Vec3 vec31 = this.dragon.getTarget().position().add(0.0D, 12.0D, 0.0D);
@@ -68,16 +68,16 @@ public class DragonAirstrikePhase extends PatchedDragonPhase {
 		
 		if (this.isActuallyAttacking) {
 			for (int i = 0; i < 60; i++) {
-				Vec3f particleDelta = new Vec3f(0.0F, -1.0F, 0.0F);
+				Vector3f particleDelta = new Vector3f(0.0F, -1.0F, 0.0F);
 				float xDeg = this.dragon.getRandom().nextFloat() * 60.0F - 30.0F;
 				float zDeg = this.dragon.getRandom().nextFloat() * 60.0F - 30.0F;
 				float speed = Math.min((60.0F - (Math.abs(xDeg) + Math.abs(zDeg))) / 20.0F, 1.0F);
 				
-				particleDelta.rotate(xDeg, Vec3f.X_AXIS);
-				particleDelta.rotate(zDeg, Vec3f.Z_AXIS);
-				particleDelta.scale(speed);
+				particleDelta.rotateAxis(org.joml.Math.toRadians(xDeg), 1, 0, 0);
+				particleDelta.rotateAxis(org.joml.Math.toRadians(zDeg), 0, 0, 1);
+				particleDelta.mul(speed);
 				
-				this.dragon.level().addAlwaysVisibleParticle(EpicFightParticles.BREATH_FLAME.get(), mouthpos.m30 + dragonpos.x, mouthpos.m31 + dragonpos.y, mouthpos.m32 + dragonpos.z, particleDelta.x, particleDelta.y, particleDelta.z);
+				this.dragon.level().addAlwaysVisibleParticle(EpicFightParticles.BREATH_FLAME.get(), mouthpos.m30() + dragonpos.x, mouthpos.m31() + dragonpos.y, mouthpos.m32() + dragonpos.z, particleDelta.x, particleDelta.y, particleDelta.z);
 			}
 		}
 	}

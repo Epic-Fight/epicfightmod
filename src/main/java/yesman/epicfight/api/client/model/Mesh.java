@@ -25,8 +25,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.IForgeVertexConsumer;
 import net.minecraftforge.client.model.IQuadTransformer;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 
 @OnlyIn(Dist.CLIENT)
@@ -38,18 +36,18 @@ public interface Mesh {
 	void draw(PoseStack poseStack, VertexConsumer vertexConsumer, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay);
 	
 	/* Draw with mesh deformation */
-	void drawPosed(PoseStack poseStack, VertexConsumer vertexConsumer, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses);
+	void drawPosed(PoseStack poseStack, VertexConsumer vertexConsumer, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses);
 	
 	/* Universal method */
-	default void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	default void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses) {
 		this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public static record RenderProperties(ResourceLocation customTexturePath, Vec3f customColor, boolean isTransparent) {
+    record RenderProperties(ResourceLocation customTexturePath, Vector3f customColor, boolean isTransparent) {
 		public static class Builder {
 			protected String customTexturePath;
-			protected Vec3f customColor = new Vec3f();
+			protected Vector3f customColor = new Vector3f();
 			protected boolean isTransparent;
 			
 			public RenderProperties.Builder customTexturePath(String path) {

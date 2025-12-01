@@ -10,23 +10,22 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderTrident extends RenderItemBase {
-	private static final OpenMatrix4f TRANSFORM_WHEN_AIMING = new OpenMatrix4f().rotateDeg(-80F, Vec3f.X_AXIS).translate(0.0F, 0.1F, 0.0F).unmodifiable();
+	private static final Matrix4f TRANSFORM_WHEN_AIMING = new Matrix4f().rotate(org.joml.Math.toRadians(-80F), 1, 0, 0).translate(0.0F, 0.1F, 0.0F);
 	
 	public RenderTrident(JsonElement jsonElement) {
 		super(jsonElement);
 	}
 	
 	@Override
-	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-		OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
+	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, Matrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+		Matrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
 		
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
@@ -37,11 +36,11 @@ public class RenderTrident extends RenderItemBase {
 	}
 	
 	@Override
-	public OpenMatrix4f getCorrectionMatrix(LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses) {
+	public Matrix4f getCorrectionMatrix(LivingEntityPatch<?> entitypatch, InteractionHand hand, Matrix4f[] poses) {
 		if (entitypatch.getOriginal().getUseItemRemainingTicks() > 0) {
 			Joint parentJoint = entitypatch.getParentJointOfHand(hand);
-			this.transformHolder.load(TRANSFORM_WHEN_AIMING);
-			this.transformHolder.mulFront(poses[parentJoint.getId()]);
+			this.transformHolder.set(TRANSFORM_WHEN_AIMING);
+			this.transformHolder.mulLocal(poses[parentJoint.getId()]);
 			return this.transformHolder;
 		}
 		

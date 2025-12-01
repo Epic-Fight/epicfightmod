@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
+import org.joml.Math;
 import org.joml.Matrix4f;
 
 import com.google.common.collect.ImmutableList;
@@ -43,8 +44,6 @@ import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
@@ -76,8 +75,8 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	
 	protected final T entitypatch;
 	protected final RenderableFigure entityFigure;
-	protected final OpenMatrix4f[] poseMatrices;
-	protected final OpenMatrix4f modelMatrix;
+	protected final Matrix4f[] poseMatrices;
+	protected final Matrix4f modelMatrix;
 	protected final Vec3 position;
 	protected final List<RenderableFigure> armorMeshes;
 	protected final List<Pair<InteractionHand, ItemStack>> handItems;
@@ -87,7 +86,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public EntitySnapshot(T entitypatch) {
 		LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> vanillarenderer = (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>)Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entitypatch.getOriginal());
-		PatchedEntityRenderer patchedrenderer = (PatchedEntityRenderer)ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
+		PatchedEntityRenderer patchedrenderer = ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
 		AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(entitypatch);
 		
 		ResourceLocation textureLocation = vanillarenderer.getTextureLocation(entitypatch.getOriginal());
@@ -192,11 +191,11 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 		}
 	}
 	
-	public OpenMatrix4f[] poseMatrices() {
+	public Matrix4f[] poseMatrices() {
 		return this.poseMatrices;
 	}
 	
-	public OpenMatrix4f getModelMatrix() {
+	public Matrix4f getModelMatrix() {
 		return this.modelMatrix;
 	}
 	
@@ -254,7 +253,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 	@OnlyIn(Dist.CLIENT)
 	public static class PlayerSnapshot extends EntitySnapshot<AbstractClientPlayerPatch<?>> {
 		protected final Matrix4f localMatrix;
-		protected final OpenMatrix4f[] unboundPoseMatrices;
+		protected final Matrix4f[] unboundPoseMatrices;
 		protected RenderableFigure capeFigure;
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -265,23 +264,23 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 			PoseStack poseStack = new PoseStack();
 			patchedrenderer.mulPoseStack(poseStack, entitypatch.getArmature(), entitypatch.getOriginal(), entitypatch, 1.0F);
 			this.localMatrix = poseStack.last().pose();
-			this.unboundPoseMatrices = new OpenMatrix4f[entitypatch.getArmature().getPoseMatrices().length];
+			this.unboundPoseMatrices = new Matrix4f[entitypatch.getArmature().getPoseMatrices().length];
 			
 			for (int i = 0; i < entitypatch.getArmature().getPoseMatrices().length; i++) {
-				this.unboundPoseMatrices[i] = new OpenMatrix4f(entitypatch.getArmature().getPoseMatrices()[i]);
+				this.unboundPoseMatrices[i] = new Matrix4f(entitypatch.getArmature().getPoseMatrices()[i]);
 			}
 			
 			if (entitypatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE) && entitypatch.getOriginal().getCloakTextureLocation() != null) {
 				entitypatch.getSimulator(SimulationTypes.CLOTH).ifPresent(clohtSimulator -> {
 					clohtSimulator.getRunningObject(ClothSimulator.PLAYER_CLOAK).ifPresent(clothObj -> {
 						ClothObject capturedClothObj = clothObj.captureMyself();
-						Function<Float, OpenMatrix4f> partialColliderTransformProvider = (partialFrame) -> {
+						Function<Float, Matrix4f> partialColliderTransformProvider = (partialFrame) -> {
 							Vec3 pos = entitypatch.getOriginal().getPosition(partialFrame);
 							float yRotLerp = Mth.rotLerp(partialFrame, entitypatch.getYRotO(), entitypatch.getYRot());
-							
-							return OpenMatrix4f.createTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotateDeg(180.0F - yRotLerp, Vec3f.Y_AXIS);
+
+							return new Matrix4f().setTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotate(Math.toRadians(180.0F - yRotLerp), 0, 1, 0);
 				        };
-						
+
 						capturedClothObj.tick(entitypatch, partialColliderTransformProvider, 1.0F, entitypatch.getArmature(), this.unboundPoseMatrices);
 						this.capeFigure = new RenderableFigure(capturedClothObj, entitypatch.getOriginal().getCloakTextureLocation());
 					});

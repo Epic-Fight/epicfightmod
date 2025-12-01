@@ -17,8 +17,8 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.model.Meshes;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.VillagerMesh;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
@@ -30,7 +30,7 @@ public class PatchedVillagerProfessionLayer extends ModelRenderLayer<ZombieVilla
 	
 	@Override
 	protected void renderLayer(MobPatch<ZombieVillager> entitypatch, ZombieVillager entityliving, VillagerProfessionLayer<ZombieVillager, ZombieVillagerModel<ZombieVillager>> vanillaLayer, PoseStack postStack, MultiBufferSource buffer, int packedLight,
-			OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
+							   Matrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		
 		if (!entityliving.isInvisible()) {
 			VillagerData villagerdata = ((VillagerDataHolder)entitypatch.getOriginal()).getVillagerData();

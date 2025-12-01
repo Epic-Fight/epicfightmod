@@ -14,9 +14,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
@@ -81,26 +80,27 @@ public abstract class EntityUI {
 		float screenY = posY + y;
 		float screenZ = posZ + z;
 
-		OpenMatrix4f viewMatrix = OpenMatrix4f.importFromMojangMatrix(poseStack.last().pose());
-		OpenMatrix4f finalMatrix = new OpenMatrix4f();
-		finalMatrix.translate(new Vec3f(-screenX, screenY, -screenZ));
+		Matrix4f viewMatrix = new Matrix4f(poseStack.last().pose());
+		Matrix4f finalMatrix = new Matrix4f();
+		finalMatrix.translate(new Vector3f(-screenX, screenY, -screenZ));
 		poseStack.popPose();
 		
 		if (lockRotation) {
-			finalMatrix.m00 = viewMatrix.m00;
-			finalMatrix.m01 = viewMatrix.m10;
-			finalMatrix.m02 = viewMatrix.m20;
-			finalMatrix.m10 = viewMatrix.m01;
-			finalMatrix.m11 = viewMatrix.m11;
-			finalMatrix.m12 = viewMatrix.m21;
-			finalMatrix.m20 = viewMatrix.m02;
-			finalMatrix.m21 = viewMatrix.m12;
-			finalMatrix.m22 = viewMatrix.m22;
+			finalMatrix.m00(viewMatrix.m00());
+			finalMatrix.m01(viewMatrix.m01());
+			finalMatrix.m02(viewMatrix.m02());
+			finalMatrix.m10(viewMatrix.m10());
+			finalMatrix.m11(viewMatrix.m11());
+			finalMatrix.m12(viewMatrix.m12());
+			finalMatrix.m20(viewMatrix.m20());
+			finalMatrix.m21(viewMatrix.m21());
+			finalMatrix.m22(viewMatrix.m22());
+
 		}
 		
-		finalMatrix.mulFront(viewMatrix);
+		finalMatrix.mulLocal(viewMatrix);
 		
-		return OpenMatrix4f.exportToMojangMatrix(finalMatrix);
+		return finalMatrix;
 	}
 	
 	public abstract boolean shouldDraw(LivingEntity entity, @Nullable LivingEntityPatch<?> entitypatch, LocalPlayerPatch playerpatch, float partialTicks);

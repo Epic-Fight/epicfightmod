@@ -37,7 +37,6 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
@@ -175,22 +174,22 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 	}
 	
 	@Override
-	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
+	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses) {
 		// pose setup and upload
 		for (int i = 0; i < poses.length; i++) {
-			TOTAL_POSES[i].load(poses[i]);
+			TOTAL_POSES[i].set(poses[i]);
 			
 			if (armature != null) {
-				TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
+				TOTAL_POSES[i].mul(armature.searchJointById(i).getToOrigin());
 			}
 		}
 		
         Arrays.fill(this.hiddenFlags, 0);
         
 		for (SkinnedMeshPart part : skinnedMesh.getAllParts()) {
-			OpenMatrix4f mat = part.getVanillaPartTransform();
-			if (mat == null) mat = OpenMatrix4f.IDENTITY;
-			TOTAL_POSES[poses.length + part.getPartVBO().partIdx()].load(mat);
+			Matrix4f mat = part.getVanillaPartTransform();
+			if (mat == null) mat = new Matrix4f();
+			TOTAL_POSES[poses.length + part.getPartVBO().partIdx()].set(mat);
 			
 			if (!part.isHidden()) continue;
 			

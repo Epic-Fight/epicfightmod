@@ -54,6 +54,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import yesman.epicfight.api.animation.JointTransform;
@@ -65,8 +66,7 @@ import yesman.epicfight.api.client.input.action.EpicFightInputActions;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.gui.EntityUI;
@@ -564,7 +564,7 @@ public class RenderEngine {
 		}
 		
 		private static final Vector3f CAMERA_ROTATION_EULER = new Vector3f();
-		private static final OpenMatrix4f PLAYER_ROTATION = new OpenMatrix4f();
+		private static final Matrix4f PLAYER_ROTATION = new Matrix4f();
 		
 		@SubscribeEvent
 		public static void cameraSetupEvent(ViewportEvent.ComputeCameraAngles event) {
@@ -606,7 +606,7 @@ public class RenderEngine {
 						float xRot = playerpatch.getOriginal().getXRot();
 						float yRot = playerpatch.getOriginal().getYRot();
 						
-						Vec3f translation = OpenMatrix4f.transform3v(OpenMatrix4f.ofRotationDegree(yRot, Vec3f.Y_AXIS, PLAYER_ROTATION).rotate(xRot, Vec3f.X_AXIS), cameraTransform.translation(), null);
+						Vector3f translation = Matrix4fUtils.transform3v(new Matrix4f().rotation(org.joml.Math.toRadians(yRot), 0, 1, 0).rotate(xRot, 1, 0, 0), cameraTransform.translation(), new Vector3f());
 						Quaternionf rot = cameraTransform.rotation();
 						rot.getEulerAnglesXYZ(CAMERA_ROTATION_EULER);
 						

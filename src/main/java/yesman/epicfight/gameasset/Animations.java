@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -113,10 +114,10 @@ import yesman.epicfight.api.utils.HitEntityList.Priority;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
+import yesman.epicfight.api.utils.math.joml.VectorUtils;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
@@ -608,7 +609,7 @@ public class Animations {
 							float yawOffset = entitypatch.getOriginal().getVehicle() != null ? entitypatch.getOriginal().getYHeadRot() : entitypatch.getOriginal().yBodyRot;
 							rawPose.get("Chest").frontResult(
 								  JointTransform.rotation(QuaternionUtils.YP.rotationDegrees(Mth.wrapDegrees(entitypatch.getOriginal().getYHeadRot() - yawOffset) * ratio))
-								, OpenMatrix4f::mulAsOriginInverse
+								, Matrix4fUtils::mulAsOriginInverse
 							);
 						}
 						
@@ -908,7 +909,7 @@ public class Animations {
 				.addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER))
 				.addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
 				.addProperty(ActionAnimationProperty.MOVE_VERTICAL, false)
-				.addEvents(InTimeEvent.create(0.4F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 1.1D, 0.55F))
+				.addEvents(InTimeEvent.create(0.4F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, Side.CLIENT).params(new Vector3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 1.1D, 0.55F))
 		);
 		
 		SPEAR_ONEHAND_AUTO = builder.nextAccessor("biped/combat/spear_onehand_auto", (accessor) ->
@@ -1235,7 +1236,7 @@ public class Animations {
 					entitypatch.playSound(EpicFightSounds.ENTITY_MOVE.get(), 1.0F, 0.0F, 0.0F);
 				}, Side.CLIENT))
 				.addEvents(InTimeEvent.create(0.25F, Animations.ReusableSources.FRACTURE_METEOR_STRIKE, Side.SERVER)
-										.params(new Vec3f(0.0F, -0.2F, -1.8F), Armatures.BIPED.get().toolR, 0.3F)));
+										.params(new Vector3f(0.0F, -0.2F, -1.8F), Armatures.BIPED.get().toolR, 0.3F)));
 		
 		REVELATION_ONEHAND = builder.nextAccessor("biped/skill/revelation_normal", (accessor) ->
 			new AttackAnimation(0.05F, 0.0F, 0.05F, 0.1F, 0.35F, ColliderPreset.FIST, Armatures.BIPED.get().legR, accessor, Armatures.BIPED)
@@ -1364,10 +1365,10 @@ public class Animations {
 						JointTransform jt0 = transform.getKeyframes()[0].transform();
 						JointTransform jt1 = transform.getKeyframes()[1].transform();
 						JointTransform jt2 = transform.getKeyframes()[2].transform();
-						OpenMatrix4f coordReverse = OpenMatrix4f.createRotatorDeg(90F, Vec3f.X_AXIS);
-						Vec3f jointCoord = OpenMatrix4f.transform3v(coordReverse, new Vec3f(jt0.translation().x, verticalDistance, horizontalDistance), null);
+						Matrix4f coordReverse = new Matrix4f().rotation(org.joml.Math.toRadians(90f), 1, 0, 0);
+						Vector3f jointCoord = Matrix4fUtils.transform3v(coordReverse, new Vector3f(jt0.translation().x, verticalDistance, horizontalDistance), new Vector3f());
 						jt0.translation().set(jointCoord);
-						jt1.translation().set(MathUtils.lerpVector(jt0.translation(), jt2.translation(), transform.getKeyframes()[1].time() / transform.getKeyframes()[2].time()));
+						jt1.translation().set(VectorUtils.lerp(jt0.translation(), jt2.translation(), transform.getKeyframes()[1].time() / transform.getKeyframes()[2].time(), new Vector3f()));
 						
 						transformSheet.readFrom(transform);
 					} else {
@@ -1411,7 +1412,7 @@ public class Animations {
 					
 					if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 						dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
-							Vec3f tipPosition = ikObject.getDestination();
+							Vector3f tipPosition = ikObject.getDestination();
 							entitypatch.getOriginal().level().addParticle(EpicFightParticles.GROUND_SLAM.get(), tipPosition.x, tipPosition.y, tipPosition.z, 0.5D, 100.0D, 0.5D);
 						});
 					}
@@ -1449,7 +1450,7 @@ public class Animations {
 						
 						if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 							dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
-								Vec3f tipPosition = ikObject.getDestination();
+								Vector3f tipPosition = ikObject.getDestination();
 								entitypatch.getOriginal().level().addParticle(EpicFightParticles.GROUND_SLAM.get(), tipPosition.x, tipPosition.y, tipPosition.z, 3.0D, 100.0D, 1.0D);
 							});
 						}
@@ -1539,7 +1540,7 @@ public class Animations {
 					
 					if (entitypatch instanceof EnderDragonPatch dragonpatch) {
 						dragonpatch.getIKSimulator().getRunningObject(Armatures.DRAGON.get().legFrontR3).ifPresent((ikObject) -> {
-							Vec3f tipPosition = ikObject.getDestination();
+							Vector3f tipPosition = ikObject.getDestination();
 							entitypatch.getOriginal().level().addParticle(EpicFightParticles.GROUND_SLAM.get(), tipPosition.x, tipPosition.y, tipPosition.z, 3.0D, 100.0D, 1.0D);
 						});
 					}
@@ -1680,21 +1681,22 @@ public class Animations {
 						Keyframe[] keyframes = transform.getKeyframes();
 						int startFrame = 1;
 						int endFrame = 5;
-						Vec3f keyOrigin = keyframes[startFrame].transform().translation().multiply(1.0F, 1.0F, 0.0F);
-						Vec3f keyLast = keyframes[3].transform().translation();
+						Vector3f keyOrigin = keyframes[startFrame].transform().translation().mul(1.0F, 1.0F, 0.0F);
+						Vector3f keyLast = keyframes[3].transform().translation();
 						Vec3 pos = entitypatch.getOriginal().getEyePosition();
 						Vec3 targetpos = entitypatch.getOriginal().level().getEntity(witherpatch.getOriginal().getAlternativeTarget(0)).position();
 						float horizontalDistance = (float)targetpos.subtract(pos).length();
 						float verticalDistance = (float)(targetpos.y - pos.y);
-						Vec3f prevPosition = Vec3f.sub(keyLast, keyOrigin, null);
-						Vec3f newPosition = new Vec3f(keyLast.x, verticalDistance, -horizontalDistance);
+						
+						Vector3f prevPosition = keyLast.sub(keyOrigin, new Vector3f());
+						Vector3f newPosition = new Vector3f(keyLast.x, verticalDistance, -horizontalDistance);
 						float scale = Math.min(newPosition.length() / prevPosition.length(), 5.0F);
-						Quaternionf rotator = Vec3f.getRotatorBetween(newPosition, keyLast, null);
+						Quaternionf rotator = VectorUtils.getRotatorBetween(newPosition, keyLast, null);
 						
 						for (int i = startFrame; i <= endFrame; i++) {
-							Vec3f translation = keyframes[i].transform().translation();
+							Vector3f translation = keyframes[i].transform().translation();
 							translation.z *= scale;
-							OpenMatrix4f.transform3v(OpenMatrix4f.fromQuaternion(rotator), translation, translation);
+							Matrix4fUtils.transform3v(new Matrix4f().rotation(rotator), translation, translation);
 						}
 						
 						transformSheet.readFrom(transform);
@@ -1856,10 +1858,10 @@ public class Animations {
 									double zLength = hitLocation.z - z;
 									double horizontalDistance = Math.sqrt(xLength * xLength + zLength * zLength);
 									double length = Math.sqrt(xLength * xLength + yLength * yLength + zLength * zLength);
-									float yRot = (float)(-Math.atan2(zLength, xLength) * (180D / Math.PI)) - 90.0F;
-									float xRot = (float)(Math.atan2(yLength, horizontalDistance) * (180D / Math.PI));
+									float yRot = org.joml.Math.toRadians((float)(-Math.atan2(zLength, xLength) * (180D / Math.PI)) - 90.0F);
+									float xRot = org.joml.Math.toRadians((float)(Math.atan2(yLength, horizontalDistance) * (180D / Math.PI)));
 									OBBCollider collider = new OBBCollider(0.25D, 0.25D, length * 0.5D, 0.0D, 0.0D, length * 0.5D);
-									collider.transform(OpenMatrix4f.createTranslation((float)-x, (float)y, (float)-z).rotateDeg(yRot, Vec3f.Y_AXIS).rotateDeg(-xRot, Vec3f.X_AXIS));
+									collider.transform(new Matrix4f().setTranslation((float)-x, (float)y, (float)-z).rotate(yRot, 0, 1, 0).rotate(-xRot, 1, 0, 0));
 									List<Entity> hitEntities = collider.getCollideEntities(witherboss);
 									
 									EpicFightDamageSource damagesource = EpicFightDamageSources.witherBeam(witherboss).setAnimation(WITHER_BEAM);
@@ -2255,16 +2257,16 @@ public class Animations {
 			}
 		};
 		
-		public static final AnimationEvent.E4<Vec3f, Joint, Double, Float> FRACTURE_GROUND_SIMPLE = (entitypatch, animation, params) -> {
+		public static final AnimationEvent.E4<Vector3f, Joint, Double, Float> FRACTURE_GROUND_SIMPLE = (entitypatch, animation, params) -> {
 			Vec3 position = entitypatch.getOriginal().position();
-			OpenMatrix4f modelTransform = entitypatch.getArmature().getBoundTransformFor(animation.get().getPoseByTime(entitypatch, params.fourth(), 1.0F), params.second())
-													 .mulFront(
-														 OpenMatrix4f.createTranslation((float)position.x, (float)position.y, (float)position.z)
-														             .mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS)
-														             .mulBack(entitypatch.getModelMatrix(1.0F))));
+			Matrix4f modelTransform = entitypatch.getArmature().getBoundTransformFor(animation.get().getPoseByTime(entitypatch, params.fourth(), 1.0F), params.second())
+													 .mulLocal(
+														 new Matrix4f().setTranslation((float)position.x, (float)position.y, (float)position.z)
+														             .mul(new Matrix4f().rotation((float) Math.PI, 0, 1, 0)
+														             .mul(entitypatch.getModelMatrix(1.0F))));
 			
 			Level level = entitypatch.getOriginal().level();
-			Vec3 weaponEdge = OpenMatrix4f.transform(modelTransform, (params.first()).toDoubleVector());
+			Vec3 weaponEdge = Matrix4fUtils.transform(modelTransform, new Vec3(params.first()));
 			Vec3 slamStartPos;
 			BlockHitResult hitResult = level.clip(new ClipContext(position.add(0.0D, 0.1D, 0.0D), weaponEdge, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entitypatch.getOriginal()));
 			
@@ -2284,7 +2286,7 @@ public class Animations {
 			LevelUtil.circleSlamFracture(entitypatch.getOriginal(), level, slamStartPos, params.third(), false, false);
 		};
 		
-		public static final AnimationEvent.E3<Vec3f, Joint, Float> FRACTURE_METEOR_STRIKE = (entitypatch, animation, params) -> {
+		public static final AnimationEvent.E3<Vector3f, Joint, Float> FRACTURE_METEOR_STRIKE = (entitypatch, animation, params) -> {
 			if (entitypatch instanceof PlayerPatch<?> playerpatch) {
 				Optional<SkillContainer> skill = playerpatch.getSkillContainerFor(EpicFightSkills.METEOR_STRIKE);
 				
@@ -2310,9 +2312,7 @@ public class Animations {
 				ServerLevel level = (ServerLevel)original.level();
 				float total = damage + ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create().get(original, original.getItemInHand(InteractionHand.MAIN_HAND), null, damage);
 				
-				List<Entity> list = level.getEntities(original, original.getBoundingBox().inflate(10.0D, 4.0D, 10.0D), (e) -> {
-					return !(e.distanceToSqr(original) > 100.0D) && !e.isAlliedTo(original) && entitypatch.getOriginal().hasLineOfSight(e);
-				});
+				List<Entity> list = level.getEntities(original, original.getBoundingBox().inflate(10.0D, 4.0D, 10.0D), (e) -> !(e.distanceToSqr(original) > 100.0D) && !e.isAlliedTo(original) && entitypatch.getOriginal().hasLineOfSight(e));
 				
 				list = HitEntityList.Priority.HOSTILITY.sort(entitypatch, list);
 				int count = 0;
@@ -2504,22 +2504,22 @@ public class Animations {
 			
 			float pitch = entitypatch.getAttackDirectionPitch();
 			JointTransform chest = pose.orElseEmpty("Chest");
-			chest.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(-pitch)), OpenMatrix4f::mulAsOriginInverse);
+			chest.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(-pitch)), Matrix4fUtils::mulAsOriginInverse);
 			
 			if (entitypatch instanceof PlayerPatch) {
 				float xRot = MathUtils.lerpBetween(entitypatch.getOriginal().xRotO, entitypatch.getOriginal().getXRot(), partialTicks);
-				OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBoundTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
-				Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
-				OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(-(pitch + xRot), xAxis);
+				Matrix4f toOriginalRotation = new Matrix4f().rotation(entitypatch.getArmature().getBoundTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).getNormalizedRotation(new Quaternionf())).invert();
+				Vector3f xAxis = Matrix4fUtils.transform3v(toOriginalRotation, new Vector3f(1, 0, 0), new Vector3f());
+				Matrix4f headRotation = new Matrix4f().rotation(org.joml.Math.toRadians(-(pitch + xRot)), xAxis);
 				
-				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
+				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), Matrix4fUtils::mulBoth);
 			}
 		};
 		
 		public static final AnimationProperty.PoseModifier ROOT_X_MODIFIER = (self, pose, entitypatch, time, partialTicks) -> {
 			float pitch = -entitypatch.getOriginal().getXRot();
 			JointTransform chest = pose.orElseEmpty("Root");
-			chest.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(-pitch)), OpenMatrix4f::mulAsOriginInverse);
+			chest.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(-pitch)), Matrix4fUtils::mulAsOriginInverse);
 		};
 		
 		public static final AnimationProperty.PoseModifier FLYING_CORRECTION = (self, pose, entitypatch, elapsedTime, partialTicks) -> {
@@ -2535,7 +2535,7 @@ public class Animations {
                 double d3 = vec3d1.x * vec3d.z - vec3d1.z * vec3d.x;
                 float zRot = Mth.clamp((float)(Math.signum(d3) * Math.acos(d2)), -1.0F, 1.0F);
 
-                root.frontResult(JointTransform.rotation(QuaternionUtils.ZP.rotation(zRot)), OpenMatrix4f::mulAsOriginInverse);
+                root.frontResult(JointTransform.rotation(QuaternionUtils.ZP.rotation(zRot)), Matrix4fUtils::mulAsOriginInverse);
 
                 float xRot = (float) MathUtils.getXRotOfVector(vec3d1) * 2.0F;
 
@@ -2568,17 +2568,17 @@ public class Animations {
 			
 			float trans = xRot / 500.0F;
 			
-			shoulderL.jointLocal(JointTransform.translation(new Vec3f(0.0F, trans, -trans)), OpenMatrix4f::mul);
-			shoulderR.jointLocal(JointTransform.translation(new Vec3f(0.0F, trans, -trans)), OpenMatrix4f::mul);
-			shoulderL.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), OpenMatrix4f::mulAsOriginInverse);
-			shoulderR.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), OpenMatrix4f::mulAsOriginInverse);
+			shoulderL.jointLocal(JointTransform.translation(new Vector3f(0.0F, trans, -trans)), Matrix4fUtils::mulBoth);
+			shoulderR.jointLocal(JointTransform.translation(new Vector3f(0.0F, trans, -trans)), Matrix4fUtils::mulBoth);
+			shoulderL.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), Matrix4fUtils::mulAsOriginInverse);
+			shoulderR.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(xRot)), Matrix4fUtils::mulAsOriginInverse);
 		};
 		
 		public static final AnimationProperty.PoseModifier APPLY_COORD_ROTATION = (self, pose, entitypatch, elapsedTime, partialTicks) -> {
 			if (!entitypatch.getAnimator().getPlayerFor(self.getAccessor()).isEnd()) {
 				self.getProperty(ActionAnimationProperty.COORD).ifPresent(coordTransform -> {
 					Quaternionf rotation = coordTransform.getInterpolatedRotation(elapsedTime);
-					pose.get("Root").parent(JointTransform.rotation(rotation), OpenMatrix4f::mul);
+					pose.get("Root").parent(JointTransform.rotation(rotation), Matrix4fUtils::mulBoth);
 				});
 			}
 		};

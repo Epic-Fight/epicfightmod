@@ -12,11 +12,12 @@ import com.google.gson.JsonObject;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.JsonAssetLoader;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
@@ -26,7 +27,7 @@ public class Armature {
 	private final Map<String, Joint> jointByName;
 	private final Map<String, Joint.HierarchicalJointAccessor> pathIndexMap;
 	private final int jointCount;
-	private final OpenMatrix4f[] poseMatrices;
+	private final Matrix4f[] poseMatrices;
 	public final Joint rootJoint;
 	
 	public Armature(String name, int jointNumber, Joint rootJoint, Map<String, Joint> jointMap) {
@@ -41,7 +42,7 @@ public class Armature {
 			this.jointById.put(joint.getId(), joint);
 		});
 		
-		this.poseMatrices = OpenMatrix4f.allocateMatrixArray(this.jointCount);
+		this.poseMatrices = Matrix4fUtils.allocateArray(this.jointCount);
 	}
 	
 	protected Joint getOrLogException(Map<String, Joint> jointMap, String name) {
@@ -57,28 +58,28 @@ public class Armature {
 	}
 	
 	public void setPose(Pose pose) {
-		this.getPoseTransform(this.rootJoint, new OpenMatrix4f(), pose, this.poseMatrices, false);
+		this.getPoseTransform(this.rootJoint, new Matrix4f(), pose, this.poseMatrices, false);
 	}
 	
 	public void bakeOriginMatrices() {
-		this.rootJoint.initOriginTransform(new OpenMatrix4f());
+		this.rootJoint.initOriginTransform(new Matrix4f());
 	}
 	
-	public OpenMatrix4f[] getPoseMatrices() {
+	public Matrix4f[] getPoseMatrices() {
 		return this.poseMatrices;
 	}
 	
 	/**
 	 * @param applyOriginTransform if you need a final pose of the animations, give it false.
 	 */
-	public OpenMatrix4f[] getPoseAsTransformMatrix(Pose pose, boolean applyOriginTransform) {
-		OpenMatrix4f[] jointMatrices = new OpenMatrix4f[this.jointCount];
-		this.getPoseTransform(this.rootJoint, new OpenMatrix4f(), pose, jointMatrices, applyOriginTransform);
+	public Matrix4f[] getPoseAsTransformMatrix(Pose pose, boolean applyOriginTransform) {
+		Matrix4f[] jointMatrices = new Matrix4f[this.jointCount];
+		this.getPoseTransform(this.rootJoint, new Matrix4f(), pose, jointMatrices, applyOriginTransform);
 		return jointMatrices;
 	}
 	
-	private void getPoseTransform(Joint joint, OpenMatrix4f parentTransform, Pose pose, OpenMatrix4f[] jointMatrices, boolean applyOriginTransform) {
-		OpenMatrix4f result = pose.orElseEmpty(joint.getName()).getAnimationBoundMatrix(joint, parentTransform);
+	private void getPoseTransform(Joint joint, Matrix4f parentTransform, Pose pose, Matrix4f[] jointMatrices, boolean applyOriginTransform) {
+		Matrix4f result = pose.orElseEmpty(joint.getName()).getAnimationBoundMatrix(joint, parentTransform);
 		jointMatrices[joint.getId()] = result;
 		
 		for (Joint joints : joint.getSubJoints()) {
@@ -86,7 +87,7 @@ public class Armature {
 		}
 		
 		if (applyOriginTransform) {
-			result.mulBack(joint.getToOrigin());
+			result.mul(joint.getToOrigin());
 		}
 	}
 	
@@ -94,21 +95,21 @@ public class Armature {
 	 * Inapposite past perfect
 	 */
 	@Deprecated(forRemoval = true, since = "1.21.1")
-	public OpenMatrix4f getBindedTransformFor(Pose pose, Joint joint) {
+	public Matrix4f getBindedTransformFor(Pose pose, Joint joint) {
 		return this.getBoundTransformByJointIndex(pose, this.searchPathIndex(joint.getName()).createAccessTicket(this.rootJoint));
 	}
 	
-	public OpenMatrix4f getBoundTransformFor(Pose pose, Joint joint) {
+	public Matrix4f getBoundTransformFor(Pose pose, Joint joint) {
 		return this.getBoundTransformByJointIndex(pose, this.searchPathIndex(joint.getName()).createAccessTicket(this.rootJoint));
 	}
 	
-	public OpenMatrix4f getBoundTransformByJointIndex(Pose pose, Joint.AccessTicket pathIndices) {
-		return this.getBoundJointTransformRecursively(pose, this.rootJoint, new OpenMatrix4f(), pathIndices);
+	public Matrix4f getBoundTransformByJointIndex(Pose pose, Joint.AccessTicket pathIndices) {
+		return this.getBoundJointTransformRecursively(pose, this.rootJoint, new Matrix4f(), pathIndices);
 	}
 	
-	private OpenMatrix4f getBoundJointTransformRecursively(Pose pose, Joint joint, OpenMatrix4f parentTransform, Joint.AccessTicket pathIndices) {
+	private Matrix4f getBoundJointTransformRecursively(Pose pose, Joint joint, Matrix4f parentTransform, Joint.AccessTicket pathIndices) {
 		JointTransform jt = pose.orElseEmpty(joint.getName());
-		OpenMatrix4f result = jt.getAnimationBoundMatrix(joint, parentTransform);
+		Matrix4f result = jt.getAnimationBoundMatrix(joint, parentTransform);
 		
 		return pathIndices.hasNext() ? this.getBoundJointTransformRecursively(pose, pathIndices.next(), result, pathIndices) : result;
 	}
@@ -192,7 +193,7 @@ public class Armature {
 		oldToNewJoint.put("empty", Joint.EMPTY);
 		
 		Joint newRoot = this.copyHierarchy(this.rootJoint, oldToNewJoint);
-		newRoot.initOriginTransform(new OpenMatrix4f());
+		newRoot.initOriginTransform(new Matrix4f());
 		Armature newArmature = null;
 		
 		// Uses reflection to keep the type of copied armature
@@ -244,14 +245,13 @@ public class Armature {
 		jointJson.addProperty("name", joint.getName());
 		
 		JsonArray transformMatrix = new JsonArray();
-		OpenMatrix4f localMatrixInBlender = new OpenMatrix4f(joint.getLocalTransform());
+		Matrix4f localMatrixInBlender = new Matrix4f(joint.getLocalTransform());
 		
 		if (root) {
-			localMatrixInBlender.mulFront(OpenMatrix4f.invert(JsonAssetLoader.BLENDER_TO_MINECRAFT_COORD, null));
+			localMatrixInBlender.mulLocal(JsonAssetLoader.BLENDER_TO_MINECRAFT_COORD.invert());
 		}
 		
-		localMatrixInBlender.transpose();
-		localMatrixInBlender.toList().forEach(transformMatrix::add);
+		Matrix4fUtils.toList(localMatrixInBlender).forEach(transformMatrix::add);
 		jointJson.add("transform", transformMatrix);
 		parent.add(jointJson);
 		

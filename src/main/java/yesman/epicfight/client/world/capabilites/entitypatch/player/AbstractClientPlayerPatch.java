@@ -2,6 +2,9 @@ package yesman.epicfight.client.world.capabilites.entitypatch.player;
 
 import java.util.Optional;
 
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import net.minecraft.client.Minecraft;
@@ -41,8 +44,7 @@ import yesman.epicfight.api.physics.PhysicsSimulator;
 import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -295,36 +297,36 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
 		if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
 			if (animation.doesHeadRotFollowEntityHead()) {
-				float headRelativeRot = Mth.rotLerp(partialTick, Mth.wrapDegrees(this.modelYRotO - this.original.yHeadRotO), Mth.wrapDegrees(this.modelYRot - this.original.yHeadRot));
-				OpenMatrix4f headTransform = this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"));
-				OpenMatrix4f toOriginalRotation = headTransform.removeScale().removeTranslation().invert();
-				Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
-				Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
-				OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(headRelativeRot, yAxis).rotateDeg(-Mth.rotLerp(partialTick, this.original.xRotO, this.original.getXRot()), xAxis);
-				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
+				float headRelativeRot = org.joml.Math.toRadians(Mth.rotLerp(partialTick, Mth.wrapDegrees(this.modelYRotO - this.original.yHeadRotO), Mth.wrapDegrees(this.modelYRot - this.original.yHeadRot)));
+				Matrix4f headTransform = this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"));
+				Matrix4f toOriginalRotation = new Matrix4f().rotation(headTransform.getNormalizedRotation(new Quaternionf()));
+				Vector3f xAxis = Matrix4fUtils.transform3v(toOriginalRotation, new Vector3f(1, 0, 0), new Vector3f());
+				Vector3f yAxis = Matrix4fUtils.transform3v(toOriginalRotation, new Vector3f(0, 1, 0), new Vector3f());
+				Matrix4f headRotation = new Matrix4f().rotation(headRelativeRot, yAxis).rotate(-org.joml.Math.toRadians(Mth.rotLerp(partialTick, this.original.xRotO, this.original.getXRot())), xAxis);
+				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), Matrix4fUtils::mulBoth);
 			}
 		}
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTick) {
+	public Matrix4f getModelMatrix(float partialTick) {
 		if (this.original.isAutoSpinAttack()) {
-			OpenMatrix4f mat = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, 0, 0, partialTick, PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
-			float yRot = MathUtils.lerpBetween(this.original.yRotO, this.original.getYRot(), partialTick);
-			float xRot = MathUtils.lerpBetween(this.original.xRotO, this.original.getXRot(), partialTick);
+			Matrix4f mat = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, 0, 0, partialTick, PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
+			float yRot = org.joml.Math.toRadians(MathUtils.lerpBetween(this.original.yRotO, this.original.getYRot(), partialTick));
+			float xRot = org.joml.Math.toRadians(MathUtils.lerpBetween(this.original.xRotO, this.original.getXRot(), partialTick));
 			
-			mat.rotateDeg(-yRot, Vec3f.Y_AXIS)
-			   .rotateDeg(-xRot, Vec3f.X_AXIS)
-			   .rotateDeg((this.original.tickCount + partialTick) * -55.0F, Vec3f.Z_AXIS)
+			mat.rotate(-yRot, 0, 1, 0)
+			   .rotate(-xRot, 1, 0, 0)
+			   .rotate(org.joml.Math.toRadians((this.original.tickCount + partialTick) * -55.0F), 0, 0, 1)
 			   .translate(0F, -0.39F, 0F);
 			
 			return mat;
 		} else if (this.original.isFallFlying()) {
-			OpenMatrix4f mat = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, 0, 0, partialTick, PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
+			Matrix4f mat = MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, 0, 0, partialTick, PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
             float f1 = (float)this.original.getFallFlyingTicks() + partialTick;
             float f2 = Mth.clamp(f1 * f1 / 100.0F, 0.0F, 1.0F);
             
-            mat.rotateDeg(-Mth.rotLerp(partialTick, this.original.yBodyRotO, this.original.yBodyRot), Vec3f.Y_AXIS).rotateDeg(f2 * (-this.original.getXRot()), Vec3f.X_AXIS);
+            mat.rotate(-org.joml.Math.toRadians(Mth.rotLerp(partialTick, this.original.yBodyRotO, this.original.yBodyRot)), 0, 1, 0).rotate(org.joml.Math.toRadians(f2 * (-this.original.getXRot())), 1, 0, 0);
             
             Vec3 vec3d = this.original.getViewVector(partialTick);
             Vec3 vec3d1 = this.original.getDeltaMovementLerped(partialTick);
@@ -334,7 +336,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			if (d0 > 0.0D && d1 > 0.0D) {
                 double d2 = (vec3d1.x * vec3d.x + vec3d1.z * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(d1));
                 double d3 = vec3d1.x * vec3d.z - vec3d1.z * vec3d.x;
-                mat.rotate((float)-((Math.signum(d3) * Math.acos(d2))), Vec3f.Z_AXIS);
+                mat.rotate((float)-((Math.signum(d3) * Math.acos(d2))), 0, 0, 1);
             }
 			
 			return mat;

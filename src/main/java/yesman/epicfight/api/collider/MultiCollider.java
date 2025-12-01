@@ -12,13 +12,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public abstract class MultiCollider<T extends Collider> extends Collider {
@@ -60,14 +60,14 @@ public abstract class MultiCollider<T extends Collider> extends Collider {
 		AABB outerBox = null;
 		
 		for (Collider collider : colliders) {
-			OpenMatrix4f transformMatrix;
+			Matrix4f transformMatrix;
 			Armature armature = entitypatch.getArmature();
 			
 			if (armature.rootJoint.equals(joint)) {
 				Pose rootPose = new Pose();
 				rootPose.putJointData("Root", JointTransform.empty());
 				attackAnimation.modifyPose(attackAnimation, rootPose, entitypatch, elapsedTime, 1.0F);
-				transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(entitypatch.getArmature().rootJoint, new OpenMatrix4f()).removeTranslation();
+				transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(entitypatch.getArmature().rootJoint, new Matrix4f()).setTranslation(0, 0, 0);
 			} else {
 				float interpolateTime = prevElapsedTime + (elapsedTime - prevElapsedTime) * interpolation;
 				transformMatrix = armature.getBoundTransformFor(attackAnimation.getPoseByTime(entitypatch, interpolateTime, 1.0F), joint);
@@ -76,8 +76,8 @@ public abstract class MultiCollider<T extends Collider> extends Collider {
 			double x = entitypatch.getXOld() + (original.getX() - entitypatch.getXOld()) * interpolation;
 			double y = entitypatch.getYOld() + (original.getY() - entitypatch.getYOld()) * interpolation;
 			double z = entitypatch.getZOld() + (original.getZ() - entitypatch.getZOld()) * interpolation;
-			OpenMatrix4f mvMatrix = OpenMatrix4f.createTranslation(-(float)x, (float)y, -(float)z);
-			transformMatrix.mulFront(mvMatrix.mulBack(entitypatch.getModelMatrix(interpolation)));
+			Matrix4f mvMatrix = new Matrix4f().setTranslation(-(float)x, (float)y, -(float)z);
+			transformMatrix.mulLocal(mvMatrix.mul(entitypatch.getModelMatrix(interpolation)));
 			collider.transform(transformMatrix);
 			interpolation += partialScale;
 			

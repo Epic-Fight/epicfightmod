@@ -19,7 +19,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.ClassicMesh.ClassicMeshPart;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.main.EpicFightMod;
 
 @OnlyIn(Dist.CLIENT)
@@ -57,13 +56,13 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 	}
 	
 	@Override
-	public void drawPosed(PoseStack poseStack, VertexConsumer vertexConsumer, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
+	public void drawPosed(PoseStack poseStack, VertexConsumer vertexConsumer, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, Matrix4f[] poses) {
 		this.draw(poseStack, vertexConsumer, drawingFunction, packedLight, r, g, b, a, overlay);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public class ClassicMeshPart extends MeshPart {
-		public ClassicMeshPart(List<VertexBuilder> verticies, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
+		public ClassicMeshPart(List<VertexBuilder> verticies, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<Matrix4f> vanillaPartTracer) {
 			super(verticies, renderProperties, vanillaPartTracer);
 		}
 		
@@ -78,10 +77,10 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 			
 			Vector4f color = this.getColor(r, g, b, a);
 			poseStack.pushPose();
-			OpenMatrix4f transform = this.getVanillaPartTransform();
-			
+			Matrix4f transform = this.getVanillaPartTransform();
+
 			if (transform != null) {
-				poseStack.mulPoseMatrix(OpenMatrix4f.exportToMojangMatrix(transform));
+				poseStack.mulPoseMatrix(transform);
 			}
 			
 			Matrix4f matrix4f = poseStack.last().pose();

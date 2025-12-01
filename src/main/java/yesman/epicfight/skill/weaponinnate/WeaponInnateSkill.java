@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -28,7 +29,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -179,14 +179,15 @@ public abstract class WeaponInnateSkill extends Skill {
 		
 		return this;
 	}
+
 	
-	private static final Vec2f[] CLOCK_POS = {
-		new Vec2f(0.5F, 0.5F),
-		new Vec2f(0.5F, 0.0F),
-		new Vec2f(0.0F, 0.0F),
-		new Vec2f(0.0F, 1.0F),
-		new Vec2f(1.0F, 1.0F),
-		new Vec2f(1.0F, 0.0F)
+	private static final Vector2f[] CLOCK_POS = {
+		new Vector2f(0.5F, 0.5F),
+		new Vector2f(0.5F, 0.0F),
+		new Vector2f(0.0F, 0.0F),
+		new Vector2f(0.0F, 1.0F),
+		new Vector2f(1.0F, 1.0F),
+		new Vector2f(1.0F, 0.0F)
 	};
 	
 	@Override

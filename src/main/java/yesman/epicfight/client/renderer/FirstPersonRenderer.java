@@ -34,7 +34,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.EmptyLayer;
@@ -62,7 +61,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 	public void render(LocalPlayer entity, LocalPlayerPatch localPlayerPatch, LivingEntityRenderer<LocalPlayer, PlayerModel<LocalPlayer>> renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		if (localPlayerPatch.getPovSettings() != null) {
 			Pose pose = localPlayerPatch.getFirstPersonLayer().getEnabledPose(localPlayerPatch, true, partialTicks);
-			OpenMatrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
+			Matrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
 			poseStack.pushPose();
 			Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
 			float standingEyeHeight = entity.getStandingEyeHeight(net.minecraft.world.entity.Pose.STANDING, entity.getDimensions(net.minecraft.world.entity.Pose.STANDING));
@@ -125,7 +124,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 			poseStack.popPose();
 		} else {
 			Pose pose = localPlayerPatch.getAnimator().getPose(partialTicks);
-			OpenMatrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
+			Matrix4f[] poses = localPlayerPatch.getArmature().getPoseAsTransformMatrix(pose, false);
 			poseStack.pushPose();
 			
 			Matrix4f lastPose = new Matrix4f(poseStack.last().pose());
@@ -169,7 +168,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 	}
 	
 	@Override
-	protected void renderLayer(LivingEntityRenderer<LocalPlayer, PlayerModel<LocalPlayer>> renderer, LocalPlayerPatch entitypatch, LocalPlayer entity, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+	protected void renderLayer(LivingEntityRenderer<LocalPlayer, PlayerModel<LocalPlayer>> renderer, LocalPlayerPatch entitypatch, LocalPlayer entity, Matrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		Iterator<RenderLayer<LocalPlayer, PlayerModel<LocalPlayer>>> iter = renderer.layers.iterator();
 		
 		float f = MathUtils.lerpBetween(entity.yBodyRotO, entity.yBodyRot, partialTicks);

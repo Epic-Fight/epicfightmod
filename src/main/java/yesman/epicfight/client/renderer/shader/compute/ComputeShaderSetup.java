@@ -31,7 +31,7 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.OutputSSBO;
@@ -43,9 +43,9 @@ import yesman.epicfight.main.EpicFightSharedConstants;
 public abstract class ComputeShaderSetup {
     protected static final int WORK_GROUP_SIZE = 128;
     
-	public static final OpenMatrix4f[] TOTAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-    public static final OpenMatrix4f[] TOTAL_NORMALS = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-    protected static final IArrayBufferProxy POSE_BO = ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, OpenMatrix4f::store); // PoseBuffer
+	public static final Matrix4f[] TOTAL_POSES = Matrix4fUtils.allocateArray(EpicFightSharedConstants.MAX_JOINTS);
+    public static final Matrix4f[] TOTAL_NORMALS = Matrix4fUtils.allocateArray(EpicFightSharedConstants.MAX_JOINTS);
+    protected static final IArrayBufferProxy POSE_BO = ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, Matrix4fUtils::store); // PoseBuffer
     
     protected final StaticSSBO<VertexObj> vObjBO; // VertexBuffer
     protected final StaticSSBO<WeightInfo> jointBO;
@@ -191,7 +191,7 @@ public abstract class ComputeShaderSetup {
 	
     public abstract void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount);
     
-    public abstract void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses);
+    public abstract void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, Matrix4f[] poses);
     
     public abstract int vaoId();
     

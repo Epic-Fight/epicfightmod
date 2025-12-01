@@ -12,11 +12,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 
 public class LineCollider extends Collider {
@@ -41,8 +42,8 @@ public class LineCollider extends Collider {
 	}
 	
 	@Override
-	public void transform(OpenMatrix4f mat) {
-		this.worldVec = OpenMatrix4f.transform(mat.removeTranslation(), this.modelVec);
+	public void transform(Matrix4f mat) {
+		this.worldVec = new Vec3(Matrix4fUtils.transform3v(mat.setTranslation(0, 0, 0), this.modelVec.toVector3f(), new Vector3f()));
 		super.transform(mat);
 	}
 	
@@ -95,8 +96,8 @@ public class LineCollider extends Collider {
 			endY = temp;
 		}
 		
-		maxStart = maxStart < startY ? startY : maxStart;
-		minEnd = minEnd > endY ? endY : minEnd;
+		maxStart = Math.max(maxStart, startY);
+		minEnd = Math.min(minEnd, endY);
 		
 		if (maxStart >= minEnd) {
 			return false;
@@ -117,8 +118,8 @@ public class LineCollider extends Collider {
 			endZ = temp;
 		}
 		
-		maxStart = maxStart < startZ ? startZ : maxStart;
-		minEnd = minEnd > endZ ? endZ : minEnd;
+		maxStart = Math.max(maxStart, startZ);
+		minEnd = Math.min(minEnd, endZ);
 
 		return !(maxStart >= minEnd);
 	}
@@ -136,11 +137,11 @@ public class LineCollider extends Collider {
 	
 	@Override
 	public void drawInternal(PoseStack poseStack, VertexConsumer vertexConsumer, Armature armature, Joint joint, Pose pose1, Pose pose2, float partialTicks, int color) {
-		OpenMatrix4f poseMatrix;
+		Matrix4f poseMatrix;
 		Pose interpolatedPose = Pose.interpolatePose(pose1, pose2, partialTicks);
 		
 		if (armature.rootJoint.equals(joint)) {
-			poseMatrix = interpolatedPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
+			poseMatrix = interpolatedPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new Matrix4f()).setTranslation(0, 0, 0);
 		} else {
 			poseMatrix = armature.getBoundTransformFor(interpolatedPose, joint);
 		}

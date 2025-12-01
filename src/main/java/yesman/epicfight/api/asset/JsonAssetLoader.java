@@ -34,13 +34,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.joml.Math;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
-import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
@@ -61,16 +63,13 @@ import yesman.epicfight.api.exception.AssetLoadingException;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.gameasset.Armatures.ArmatureContructor;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 public class JsonAssetLoader {
-	public static final OpenMatrix4f BLENDER_TO_MINECRAFT_COORD = OpenMatrix4f.createRotatorDeg(-90.0F, Vec3f.X_AXIS);
-	public static final OpenMatrix4f MINECRAFT_TO_BLENDER_COORD = OpenMatrix4f.invert(BLENDER_TO_MINECRAFT_COORD, null);
+	public static final Matrix4f BLENDER_TO_MINECRAFT_COORD = new Matrix4f().rotate((float) (-Math.PI/2f), 1, 0, 0);
+	public static final Matrix4f MINECRAFT_TO_BLENDER_COORD = BLENDER_TO_MINECRAFT_COORD.invert(new Matrix4f());
 	public static final String UNGROUPED_NAME = "noGroups";
 	public static final String COORD_BONE = "Coord";
 	public static final String ROOT_BONE = "Root";
@@ -122,7 +121,7 @@ public class JsonAssetLoader {
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			}
 		} catch (IOException e) {
-			throw new AssetLoadingException("Can't read " + resourceLocation.toString() + " because of " + e);
+			throw new AssetLoadingException("Can't read " + resourceLocation + " because of " + e);
 		} finally {
 			if (jsonReader != null) {
 				try {
@@ -243,13 +242,13 @@ public class JsonAssetLoader {
 				
 				if (weight == 0.0F) {
 					int posId = particlesArray[j * 2];
-					rootParticles.add(new Vec3(positionArray[posId * 3 + 0], positionArray[posId * 3 + 1], positionArray[posId * 3 + 2]));
+					rootParticles.add(new Vec3(positionArray[posId * 3], positionArray[posId * 3 + 1], positionArray[posId * 3 + 2]));
 				}
 			}
 			
 			for (int j = 0; j < particlesArray.length / 2; j++) {
 				int posId = particlesArray[j * 2];
-				Vec3 position = new Vec3(positionArray[posId * 3 + 0], positionArray[posId * 3 + 1], positionArray[posId * 3 + 2]);
+				Vec3 position = new Vec3(positionArray[posId * 3], positionArray[posId * 3 + 1], positionArray[posId * 3 + 2]);
 				Vec3 nearest = MathUtils.getNearestVector(position, rootParticles);
 				rootDistances[j] = (float)position.distanceTo(nearest);
 			}
@@ -285,8 +284,7 @@ public class JsonAssetLoader {
 			
 			for (int i = 0; i < positionArray.length / 3; i++) {
 				int k = i * 3;
-				Vec4f posVector = new Vec4f(positionArray[k], positionArray[k+1], positionArray[k+2], 1.0F);
-				OpenMatrix4f.transform(BLENDER_TO_MINECRAFT_COORD, posVector, posVector);
+				Vector4f posVector = BLENDER_TO_MINECRAFT_COORD.transform(new Vector4f(positionArray[k], positionArray[k+1], positionArray[k+2], 1.0F));
 				positionArray[k] = posVector.x;
 				positionArray[k+1] = posVector.y;
 				positionArray[k+2] = posVector.z;
@@ -296,8 +294,7 @@ public class JsonAssetLoader {
 			
 			for (int i = 0; i < normalArray.length / 3; i++) {
 				int k = i * 3;
-				Vec4f normVector = new Vec4f(normalArray[k], normalArray[k+1], normalArray[k+2], 1.0F);
-				OpenMatrix4f.transform(BLENDER_TO_MINECRAFT_COORD, normVector, normVector);
+				Vector4f normVector = BLENDER_TO_MINECRAFT_COORD.transform(new Vector4f(normalArray[k], normalArray[k+1], normalArray[k+2], 1.0F));
 				normalArray[k] = normVector.x;
 				normalArray[k+1] = normVector.y;
 				normalArray[k+2] = normVector.z;
@@ -351,8 +348,7 @@ public class JsonAssetLoader {
 			
 			for (int i = 0; i < positionArray.length / 3; i++) {
 				int k = i * 3;
-				Vec4f posVector = new Vec4f(positionArray[k], positionArray[k+1], positionArray[k+2], 1.0F);
-				OpenMatrix4f.transform(BLENDER_TO_MINECRAFT_COORD, posVector, posVector);
+				Vector4f posVector = BLENDER_TO_MINECRAFT_COORD.transform(new Vector4f(positionArray[k], positionArray[k+1], positionArray[k+2], 1.0F));
 				positionArray[k] = posVector.x;
 				positionArray[k+1] = posVector.y;
 				positionArray[k+2] = posVector.z;
@@ -362,8 +358,7 @@ public class JsonAssetLoader {
 			
 			for (int i = 0; i < normalArray.length / 3; i++) {
 				int k = i * 3;
-				Vec4f normVector = new Vec4f(normalArray[k], normalArray[k+1], normalArray[k+2], 1.0F);
-				OpenMatrix4f.transform(BLENDER_TO_MINECRAFT_COORD, normVector, normVector);
+				Vector4f normVector = BLENDER_TO_MINECRAFT_COORD.transform(new Vector4f(normalArray[k], normalArray[k+1], normalArray[k+2], 1.0F));
 				normalArray[k] = normVector.x;
 				normalArray[k+1] = normVector.y;
 				normalArray[k+2] = normVector.z;
@@ -476,7 +471,7 @@ public class JsonAssetLoader {
 		
 		Map<String, Joint> jointMap = Maps.newHashMap();
 		Joint joint = getJoint(hierarchy, jointIds, jointMap, true);
-		joint.initOriginTransform(new OpenMatrix4f());
+		joint.initOriginTransform(new Matrix4f());
 		
 		String armatureName = this.resourceLocation.toString().replaceAll("(animmodels/|\\.json)", "");
 		
@@ -500,11 +495,11 @@ public class JsonAssetLoader {
 		}
 		
 		float[] floatArray = ParseUtil.toFloatArrayPrimitive(object.get("transform").getAsJsonArray());
-		OpenMatrix4f localMatrix = OpenMatrix4f.load(null, floatArray);
+		Matrix4f localMatrix = new Matrix4f().set(floatArray);
 		localMatrix.transpose();
-		
+
 		if (root) {
-			localMatrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
+			localMatrix.mulLocal(BLENDER_TO_MINECRAFT_COORD);
 		}
 		
 		if (!jointIdMap.containsKey(name)) {
@@ -569,10 +564,10 @@ public class JsonAssetLoader {
 			
 			if (joint == null) {
 				if (name.equals(COORD_BONE)) {
-					TransformSheet sheet = getTransformSheet(jObject, new OpenMatrix4f(), true, format);
+					TransformSheet sheet = getTransformSheet(jObject, new Matrix4f(), true, format);
 					
 					if (action) {
-						((ActionAnimation)animation).addProperty(ActionAnimationProperty.COORD, sheet);
+						animation.addProperty(ActionAnimationProperty.COORD, sheet);
 					}
 					
 					root = false;
@@ -583,7 +578,7 @@ public class JsonAssetLoader {
 				}
 			}
 
-			TransformSheet sheet = getTransformSheet(jObject, OpenMatrix4f.invert(joint.getLocalTransform(), null), root, format);
+			TransformSheet sheet = getTransformSheet(jObject, joint.getLocalTransform().invert(new Matrix4f()), root, format);
 			
 			if (!noTransformData) {
 				clip.addJointTransform(name, sheet);
@@ -626,7 +621,7 @@ public class JsonAssetLoader {
 				continue;
 			}
 			
-			TransformSheet sheet = getTransformSheet(jObject, OpenMatrix4f.invert(joint.getLocalTransform(), null), root, format);
+			TransformSheet sheet = getTransformSheet(jObject, joint.getLocalTransform().invert(new Matrix4f()), root, format);
 			clip.addJointTransform(name, sheet);
 			float maxFrameTime = sheet.maxFrameTime();
 			
@@ -663,7 +658,7 @@ public class JsonAssetLoader {
 				continue;
 			}
 			
-			TransformSheet sheet = getTransformSheet(element.getAsJsonObject(), OpenMatrix4f.invert(joint.getLocalTransform(), null), root, format);
+			TransformSheet sheet = getTransformSheet(element.getAsJsonObject(), joint.getLocalTransform().invert(new Matrix4f()), root, format);
 			clip.addJointTransform(name, sheet);
 			float maxFrameTime = sheet.maxFrameTime();
 			
@@ -684,7 +679,7 @@ public class JsonAssetLoader {
 	 * @param transformFormat
 	 * @return
 	 */
-	public static TransformSheet getTransformSheet(JsonObject jObject, @Nullable OpenMatrix4f invLocalTransform, boolean rootCorrection, TransformFormat transformFormat) throws AssetLoadingException, JsonParseException {
+	public static TransformSheet getTransformSheet(JsonObject jObject, @Nullable Matrix4f invLocalTransform, boolean rootCorrection, TransformFormat transformFormat) throws AssetLoadingException, JsonParseException {
 		JsonArray timeArray = jObject.getAsJsonArray("time");
 		JsonArray transformArray = jObject.getAsJsonArray("transform");
 		
@@ -714,14 +709,14 @@ public class JsonAssetLoader {
 					matrixElements[j] = matrixArray.get(j).getAsFloat();
 				}
 				
-				OpenMatrix4f matrix = OpenMatrix4f.load(null, matrixElements);
+				Matrix4f matrix = new Matrix4f().set(matrixElements);
 				matrix.transpose();
-				
+
 				if (rootCorrection) {
-					matrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
+					matrix.mulLocal(BLENDER_TO_MINECRAFT_COORD);
 				}
 				
-				matrix.mulFront(invLocalTransform);
+				matrix.mulLocal(invLocalTransform);
 				
 				JointTransform transform = JointTransform.fromMatrix(matrix);
 				transform.rotation().normalize();

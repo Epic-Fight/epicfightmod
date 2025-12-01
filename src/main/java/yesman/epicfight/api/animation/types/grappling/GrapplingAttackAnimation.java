@@ -5,8 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Keyframe;
@@ -18,7 +20,6 @@ import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
@@ -41,9 +42,9 @@ public class GrapplingAttackAnimation extends AttackAnimation {
 	public void begin(LivingEntityPatch<?> entitypatch) {
 		if (entitypatch.shouldMoveOnCurrentSide(this)) {
 			Keyframe[] grapplingAnimCoord = entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(ACTION_ANIMATION_COORD).getKeyframes();
-			Vec3f translation = grapplingAnimCoord[grapplingAnimCoord.length - 1].transform().translation();
+			Vector3f translation = grapplingAnimCoord[grapplingAnimCoord.length - 1].transform().translation();
 			entitypatch.getOriginal().setDeltaMovement(0.0D, 0.0D, 0.0D);
-			entitypatch.getOriginal().setPos(translation.toDoubleVector());
+			entitypatch.getOriginal().setPos(new Vec3(translation));
 		}
 		
 		super.begin(entitypatch);

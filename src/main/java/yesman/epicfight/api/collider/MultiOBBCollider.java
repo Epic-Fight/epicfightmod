@@ -13,6 +13,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
@@ -21,7 +22,6 @@ import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimation
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class MultiOBBCollider extends MultiCollider<OBBCollider> {
@@ -63,8 +63,8 @@ public class MultiOBBCollider extends MultiCollider<OBBCollider> {
 			float pt1 = prevElapsedTime + (elapsedTime - prevElapsedTime) * partialTicks;
 			float pt2 = prevElapsedTime + (elapsedTime - prevElapsedTime) * interpolation;
 			TransformSheet coordTransform = animation.getCoord();
-			Vec3f p1 = coordTransform.getInterpolatedTranslation(pt1);
-			Vec3f p2 = coordTransform.getInterpolatedTranslation(pt2);
+			Vector3f p1 = coordTransform.getInterpolatedTranslation(pt1);
+			Vector3f p2 = coordTransform.getInterpolatedTranslation(pt2);
 			
 			poseStack.pushPose();
 			poseStack.translate(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);

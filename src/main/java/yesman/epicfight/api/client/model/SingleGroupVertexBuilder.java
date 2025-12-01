@@ -11,16 +11,16 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.Vec2f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class SingleGroupVertexBuilder {
-	private Vec3f position;
-	private Vec3f normal;
-	private Vec2f textureCoordinate;
-	private Vec3f effectiveJointIDs;
-	private Vec3f effectiveJointWeights;
+	private Vector3f position;
+	private Vector3f normal;
+	private Vector2f textureCoordinate;
+	private Vector3f effectiveJointIDs;
+	private Vector3f effectiveJointWeights;
 	private int effectiveJointNumber;
 	
 	public SingleGroupVertexBuilder() {
@@ -36,27 +36,27 @@ public class SingleGroupVertexBuilder {
 		this.effectiveJointNumber = vertex.effectiveJointNumber;
 	}
 	
-	public SingleGroupVertexBuilder setPosition(Vec3f position) {
+	public SingleGroupVertexBuilder setPosition(Vector3f position) {
 		this.position = position;
 		return this;
 	}
 	
-	public SingleGroupVertexBuilder setNormal(Vec3f vector) {
+	public SingleGroupVertexBuilder setNormal(Vector3f vector) {
 		this.normal = vector;
 		return this;
 	}
 	
-	public SingleGroupVertexBuilder setTextureCoordinate(Vec2f vector) {
+	public SingleGroupVertexBuilder setTextureCoordinate(Vector2f vector) {
 		this.textureCoordinate = vector;
 		return this;
 	}
 	
-	public SingleGroupVertexBuilder setEffectiveJointIDs(Vec3f effectiveJointIDs) {
+	public SingleGroupVertexBuilder setEffectiveJointIDs(Vector3f effectiveJointIDs) {
 		this.effectiveJointIDs = effectiveJointIDs;
 		return this;
 	}
 	
-	public SingleGroupVertexBuilder setEffectiveJointWeights(Vec3f effectiveJointWeights) {
+	public SingleGroupVertexBuilder setEffectiveJointWeights(Vector3f effectiveJointWeights) {
 		this.effectiveJointWeights = effectiveJointWeights;
 		return this;
 	}
@@ -66,7 +66,7 @@ public class SingleGroupVertexBuilder {
 		return this;
 	}
 	
-	public State compareTextureCoordinateAndNormal(Vec3f normal, Vec2f textureCoord) {
+	public State compareTextureCoordinateAndNormal(Vector3f normal, Vector2f textureCoord) {
 		if (this.textureCoordinate == null) {
 			return State.EMPTY;
 		} else if (this.textureCoordinate.equals(textureCoord) && this.normal.equals(normal)) {
@@ -86,9 +86,9 @@ public class SingleGroupVertexBuilder {
 		
 		for (int i = 0; i < vertices.size(); i++) {
 			SingleGroupVertexBuilder vertex = vertices.get(i);
-			Vec3f position = vertex.position;
-			Vec3f normal = vertex.normal;
-			Vec2f texCoord = vertex.textureCoordinate;
+			Vector3f position = vertex.position;
+			Vector3f normal = vertex.normal;
+			Vector2f texCoord = vertex.textureCoordinate;
 			positions.add(position.x);
 			positions.add(position.y);
 			positions.add(position.z);
@@ -98,8 +98,8 @@ public class SingleGroupVertexBuilder {
 			texCoords.add(texCoord.x);
 			texCoords.add(texCoord.y);
 			
-			Vec3f effectIDs = vertex.effectiveJointIDs;
-			Vec3f weights = vertex.effectiveJointWeights;
+			Vector3f effectIDs = vertex.effectiveJointIDs;
+			Vector3f weights = vertex.effectiveJointWeights;
 			int count = Math.min(vertex.effectiveJointNumber, 3);
 			affectCountList.add(count);
 			

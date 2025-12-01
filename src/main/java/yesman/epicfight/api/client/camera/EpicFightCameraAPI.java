@@ -38,6 +38,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
 import net.minecraftforge.entity.PartEntity;
+import org.joml.Vector3f;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.hook.EpicFightClientHooks;
 import yesman.epicfight.api.client.hook.instances.BuildCameraTransform;
@@ -45,8 +46,7 @@ import yesman.epicfight.api.client.hook.instances.ItemUsedInDecoupledCamera;
 import yesman.epicfight.api.client.input.action.EpicFightInputActions;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
@@ -750,13 +750,13 @@ public final class EpicFightCameraAPI {
 			camera.setRotation(yRot, xRot);
 			
 			Vec3 playerPos = new Vec3(
-				Mth.lerp((double)partialTick, camera.getEntity().xo, camera.getEntity().getX()),
-				Mth.lerp((double)partialTick, camera.getEntity().yo, camera.getEntity().getY()) + Mth.lerp((double)partialTick, camera.eyeHeightOld, camera.eyeHeight),
-				Mth.lerp((double)partialTick, camera.getEntity().zo, camera.getEntity().getZ())
+				Mth.lerp(partialTick, camera.getEntity().xo, camera.getEntity().getX()),
+				Mth.lerp(partialTick, camera.getEntity().yo, camera.getEntity().getY()) + Mth.lerp((double)partialTick, camera.eyeHeightOld, camera.eyeHeight),
+				Mth.lerp(partialTick, camera.getEntity().zo, camera.getEntity().getZ())
 			);
 			
-			Vec3f relocation = new Vec3f(ClientConfig.cameraHorizontalLocation * 0.2F, ClientConfig.cameraVerticalLocation * 0.2F, 0.0F);
-			OpenMatrix4f.transform3v(OpenMatrix4f.createRotatorDeg(-yRot, Vec3f.Y_AXIS), relocation, relocation);
+			Vector3f relocation = new Vector3f(ClientConfig.cameraHorizontalLocation * 0.2F, ClientConfig.cameraVerticalLocation * 0.2F, 0.0F);
+			Matrix4fUtils.transform3v(new Matrix4f().rotate(org.joml.Math.toRadians(-yRot), 0, 1, 0), relocation, relocation);
 			double cameraZoom = ClientConfig.cameraZoom * 0.5D - (partialZoomTick * 0.1D);
 			double hitDistance = 1.0D;
 			
@@ -854,9 +854,7 @@ public final class EpicFightCameraAPI {
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_POST.post(new BuildCameraTransform.Post(this, camera, partialTick));
 	}
 	
-	/**
-	 * REturns a new basis for {@link LivingEntity#yRotHead} instead of coupling it to {@link Entity#getYRot}
-	 */
+
 	@ApiStatus.Internal
 	public float getYRotForHead(LocalPlayer localPlayer) {
 		return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - localPlayer.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : localPlayer.getYRot();

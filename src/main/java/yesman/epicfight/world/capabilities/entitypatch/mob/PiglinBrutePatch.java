@@ -9,9 +9,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
@@ -64,7 +64,7 @@ public class PiglinBrutePatch extends HumanoidMobPatch<PiglinBrute> {
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
-		return super.getModelMatrix(partialTicks).scale(1.1F, 1.1F, 1.1F);
+	public Matrix4f getModelMatrix(float partialTicks) {
+		return super.getModelMatrix(partialTicks).scale(1.1F);
 	}
 }

@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -34,8 +31,6 @@ import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelTransformer.PartTransformer;
 import yesman.epicfight.api.client.model.transformer.VanillaModelTransformer.VanillaMeshPartDefinition;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec2f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.mixin.skinlayers.MixinCustomModelPart;
 import yesman.epicfight.mixin.skinlayers.MixinCustomizableCubeWrapper.SkinLayer3DMixinCustomModelCube;
 
@@ -206,11 +201,11 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 					Vector4f pos = new Vector4f(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0F);
 					pos.mul(poseStack.last().pose());
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z()).scale(0.0625F))
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.u, vertex.v))
-						.setEffectiveJointIDs(new Vec3f(this.jointId, 0, 0))
-						.setEffectiveJointWeights(new Vec3f(1.0F, 0.0F, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z()).mul(0.0625F))
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.u, vertex.v))
+						.setEffectiveJointIDs(new Vector3f(this.jointId, 0, 0))
+						.setEffectiveJointWeights(new Vector3f(1.0F, 0.0F, 0.0F))
 						.setEffectiveJointNumber(1)
 					);
 				}
@@ -342,11 +337,11 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 					}
 					
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z()).scale(0.0625F))
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.u, vertex.v))
-						.setEffectiveJointIDs(new Vec3f(joint1, joint2, 0))
-						.setEffectiveJointWeights(new Vec3f(weight1, weight2, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z()).mul(0.0625F))
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.u, vertex.v))
+						.setEffectiveJointIDs(new Vector3f(joint1, joint2, 0))
+						.setEffectiveJointWeights(new Vector3f(weight1, weight2, 0.0F))
 						.setEffectiveJointNumber(count)
 					);
 				}
@@ -501,11 +496,11 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 				for (AnimatedVertex vertex : quad.animatedVertexPositions) {
 					Vector4f pos = new Vector4f(vertex.pos, 1.0F);
 					vertices.add(new SingleGroupVertexBuilder()
-						.setPosition(new Vec3f(pos.x(), pos.y(), pos.z()).scale(0.0625F))
-						.setNormal(new Vec3f(norm.x(), norm.y(), norm.z()))
-						.setTextureCoordinate(new Vec2f(vertex.u, vertex.v))
-						.setEffectiveJointIDs(new Vec3f(vertex.jointId.getX(), 0, 0))
-						.setEffectiveJointWeights(new Vec3f(1.0F, 0.0F, 0.0F))
+						.setPosition(new Vector3f(pos.x(), pos.y(), pos.z()).mul(0.0625F))
+						.setNormal(new Vector3f(norm.x(), norm.y(), norm.z()))
+						.setTextureCoordinate(new Vector2f(vertex.u, vertex.v))
+						.setEffectiveJointIDs(new Vector3f(vertex.jointId.getX(), 0, 0))
+						.setEffectiveJointWeights(new Vector3f(1.0F, 0.0F, 0.0F))
 						.setEffectiveJointNumber(1)
 					);
 				}
@@ -548,21 +543,21 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 	@OnlyIn(Dist.CLIENT)
 	static class AnimatedVertex extends ModelPart.Vertex {
 		final Vec3i jointId;
-		final Vec3f weight;
+		final Vector3f weight;
 		
 		public AnimatedVertex(ModelPart.Vertex posTexVertx, int jointId) {
 			this(posTexVertx, jointId, 0, 0, 1.0F, 0.0F, 0.0F);
 		}
 		
 		public AnimatedVertex(ModelPart.Vertex posTexVertx, int jointId1, int jointId2, int jointId3, float weight1, float weight2, float weight3) {
-			this(posTexVertx, new Vec3i(jointId1, jointId2, jointId3), new Vec3f(weight1, weight2, weight3));
+			this(posTexVertx, new Vec3i(jointId1, jointId2, jointId3), new Vector3f(weight1, weight2, weight3));
 		}
 		
-		public AnimatedVertex(ModelPart.Vertex posTexVertx, Vec3i ids, Vec3f weights) {
+		public AnimatedVertex(ModelPart.Vertex posTexVertx, Vec3i ids, Vector3f weights) {
 			this(posTexVertx, posTexVertx.u, posTexVertx.v, ids, weights);
 		}
 		
-		public AnimatedVertex(ModelPart.Vertex posTexVertx, float u, float v, Vec3i ids, Vec3f weights) {
+		public AnimatedVertex(ModelPart.Vertex posTexVertx, float u, float v, Vec3i ids, Vector3f weights) {
 			super(posTexVertx.pos.x(), posTexVertx.pos.y(), posTexVertx.pos.z(), u, v);
 			this.jointId = ids;
 			this.weight = weights;

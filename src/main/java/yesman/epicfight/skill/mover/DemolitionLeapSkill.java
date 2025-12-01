@@ -9,13 +9,13 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.handlers.InputManager;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -95,15 +95,15 @@ public class DemolitionLeapSkill extends Skill implements ChargeableSkill {
 		args.readInt(); // discard raw charging ticks
 		int ticks = args.readInt();
 		int modifiedTicks = (int)(7.4668F * Math.log10(ticks + 1.0F) / Math.log10(2));
-		Vec3f jumpDirection = new Vec3f(0, modifiedTicks * 0.05F, 0);
+		Vector3f jumpDirection = new Vector3f(0, modifiedTicks * 0.05F, 0);
 		
 		EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
 		float xRot = Mth.clamp(70.0F + Mth.clamp(cameraApi.getForwardXRot(), -90.0F, 0.0F), 0.0F, 70.0F);
 		
 		jumpDirection.add(0.0F, (xRot / 70.0F) * 0.05F, 0.0F);
-		jumpDirection.rotate(xRot, Vec3f.X_AXIS);
-		jumpDirection.rotate(-cameraApi.getForwardYRot(), Vec3f.Y_AXIS);
-		container.getExecutor().getOriginal().setDeltaMovement(jumpDirection.toDoubleVector());
+		jumpDirection.rotateAxis(org.joml.Math.toRadians(xRot), 1, 0, 0);
+		jumpDirection.rotateAxis(org.joml.Math.toRadians(-cameraApi.getForwardYRot()), 0, 1, 0);
+		container.getExecutor().getOriginal().setDeltaMovement(new Vec3(jumpDirection));
 		container.getExecutor().resetHolding();
 	}
 	

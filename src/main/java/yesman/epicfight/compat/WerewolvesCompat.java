@@ -18,12 +18,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.IEventBus;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.forgeevent.BattleModeSustainableEvent;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.PatchedLayer;
@@ -81,7 +81,7 @@ public class WerewolvesCompat implements ICompatModule {
 				                  , PoseStack poseStack
 				                  , MultiBufferSource buffer
 				                  , int packedLight
-				                  , OpenMatrix4f[] poses
+				                  , Matrix4f[] poses
 				                  , float bob
 				                  , float yRot
 				                  , float xRot

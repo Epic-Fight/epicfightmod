@@ -18,8 +18,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
 
@@ -201,7 +201,7 @@ public record TrailInfo(
 		
 		if (trailObj.has("color")) {
 			JsonArray color = trailObj.get("color").getAsJsonArray();
-			Vec3f colorVec = ParseUtil.toVector3f(color);
+			Vector3f colorVec = ParseUtil.toVector3f(color);
 			trailBuilder.r(colorVec.x / 255F);
 			trailBuilder.g(colorVec.y / 255F);
 			trailBuilder.b(colorVec.z / 255F);

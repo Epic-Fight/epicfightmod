@@ -9,9 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.forgeevent.ProcessEntityPairingPacketEvent;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
 
 public abstract class EntityPatch<T extends Entity> {
@@ -55,7 +55,7 @@ public abstract class EntityPatch<T extends Entity> {
 		return this.original.level().isClientSide();
 	}
 	
-	public OpenMatrix4f getMatrix(float partialTick) {
+	public Matrix4f getMatrix(float partialTick) {
 		return MathUtils.getModelMatrixIntegral(0, 0, 0, 0, 0, 0, this.original.xRotO, this.original.getXRot(), this.original.yRotO, this.original.getYRot(), partialTick, 1, 1, 1);
 	}
 	
@@ -75,7 +75,7 @@ public abstract class EntityPatch<T extends Entity> {
 		return Math.toDegrees(Math.acos(cos));
 	}
 	
-	public abstract OpenMatrix4f getModelMatrix(float partialTick);
+	public abstract Matrix4f getModelMatrix(float partialTick);
 	
 	@OnlyIn(Dist.CLIENT)
 	public void fireEntityPairingEvent(SPEntityPairingPacket msg) {

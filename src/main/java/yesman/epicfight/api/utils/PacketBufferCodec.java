@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.utils.math.Vec3f;
+import org.joml.Vector3f;
 
 /**
  * An simple backport of StreamCodec in 1.21.1
@@ -97,17 +97,17 @@ public interface PacketBufferCodec<T> {
 	/**
 	 * Replaced to ByteBufCodecsExtends.VEC3 in 1.21.1
 	 */
-	public static final PacketBufferCodec<Vec3f> VEC3F = new PacketBufferCodec<> () {
+	public static final PacketBufferCodec<Vector3f> VEC3F = new PacketBufferCodec<> () {
 		@Override
-		public void encode(Vec3f obj, FriendlyByteBuf buffer) {
+		public void encode(Vector3f obj, FriendlyByteBuf buffer) {
 			buffer.writeFloat(obj.x);
 			buffer.writeFloat(obj.y);
 			buffer.writeFloat(obj.z);
 		}
 		
 		@Override
-		public Vec3f decode(FriendlyByteBuf buffer) {
-			return new Vec3f(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
+		public Vector3f decode(FriendlyByteBuf buffer) {
+			return new Vector3f(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
 		}
 	};
 	

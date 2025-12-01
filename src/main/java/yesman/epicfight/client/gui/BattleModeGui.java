@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
-import yesman.epicfight.api.utils.math.Vec2i;
+import org.joml.Vector2i;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
@@ -69,7 +69,7 @@ public class BattleModeGui {
 		float stamina = playerpatch.getStamina();
 		
 		if (maxStamina > 0.0F && stamina < maxStamina) {
-			Vec2i pos = ClientConfig.getStaminaPosition(screenWidth, screenHeight);
+			Vector2i pos = ClientConfig.getStaminaPosition(screenWidth, screenHeight);
 			float prevStamina = playerpatch.getStaminaO();
 			float ratio = (prevStamina + (stamina - prevStamina) * partialTick) / maxStamina;
 
@@ -115,7 +115,7 @@ public class BattleModeGui {
 		int passiveX = horBasis.positionGetter.apply(screenWidth, ClientConfig.passiveX);
 		int passiveY = verBasis.positionGetter.apply(screenHeight, ClientConfig.passiveY);
 		int icons = this.skillIcons.size();
-		Vec2i slotCoord = alignDirection.startCoordGetter.get(passiveX, passiveY, 24, 24, icons, horBasis, verBasis);
+		Vector2i slotCoord = alignDirection.startCoordGetter.get(passiveX, passiveY, 24, 24, icons, horBasis, verBasis);
 		
 		for (SkillContainer container : this.skillIcons) {
 			if (!container.isEmpty()) {
@@ -145,7 +145,7 @@ public class BattleModeGui {
 			Window sr = Minecraft.getInstance().getWindow();
 			int width = sr.getGuiScaledWidth();
 			int height = sr.getGuiScaledHeight();
-			Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
+			Vector2i pos = ClientConfig.getWeaponInnatePosition(width, height);
 			container.getSkill().drawOnGui(this, container, guiGraphics, pos.x, pos.y, partialTick);
 		}
 	}
@@ -165,7 +165,7 @@ public class BattleModeGui {
 			int chargeAmount = playerpatch.getChargingAmount();
 			int prevChargingAmount = playerpatch.getPrevChargingAmount();
 			float ratio = Math.min((prevChargingAmount + (chargeAmount - prevChargingAmount) * partialTick) / chargeableSkill.getMaxChargingTicks(), 1.0F);
-			Vec2i pos = ClientConfig.getChargingBarPosition(screenWidth, screenHeight);
+			Vector2i pos = ClientConfig.getChargingBarPosition(screenWidth, screenHeight);
 
 			guiGraphics.pose().pushPose();
 			guiGraphics.pose().translate(0, this.sliding, 0);

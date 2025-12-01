@@ -8,9 +8,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
@@ -40,15 +39,10 @@ public class WitherSkeletonPatch<T extends PathfinderMob> extends SkeletonPatch<
 		
 		this.weaponAttackMotions.put(WeaponCategories.SWORD, ImmutableMap.of(CapabilityItem.Styles.COMMON, MobCombatBehaviors.SKELETON_SWORD));
 	}
-	
-	@Override
-	public void updateMotion(boolean considerInaction) {
-		super.commonAggressiveRangedMobUpdateMotion(considerInaction);
-	}
-	
-	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
-		OpenMatrix4f mat = super.getModelMatrix(partialTicks);
-		return OpenMatrix4f.scale(new Vec3f(1.2F, 1.2F, 1.2F), mat, mat);
+
+    @Override
+	public Matrix4f getModelMatrix(float partialTicks) {
+		Matrix4f mat = super.getModelMatrix(partialTicks);
+		return mat.scale(1.2F);
 	}
 }

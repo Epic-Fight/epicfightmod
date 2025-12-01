@@ -4,7 +4,7 @@ import java.util.function.BiFunction;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.Vec2i;
+import org.joml.Vector2i;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenCalculations {
@@ -39,43 +39,43 @@ public class ScreenCalculations {
 	
 	@FunctionalInterface
 	public interface StartCoordGetter {
-		Vec2i get(int x, int y, int width, int height, int icons, HorizontalBasis horBasis, VerticalBasis verBasis);
+		Vector2i get(int x, int y, int width, int height, int icons, HorizontalBasis horBasis, VerticalBasis verBasis);
 	}
 	
 	private static final StartCoordGetter START_HORIZONTAL = (x, y, width, height, icons, horBasis, verBasis) -> {
 		if (horBasis == HorizontalBasis.CENTER) {
-			return new Vec2i(x - width * (icons - 1) / 2, y);
+			return new Vector2i(x - width * (icons - 1) / 2, y);
 		} else {
-			return new Vec2i(x, y);
+			return new Vector2i(x, y);
 		}
 	};
 	
 	private static final StartCoordGetter START_VERTICAL = (x, y, width, height, icons, horBasis, verBasis) -> {
 		if (verBasis == VerticalBasis.CENTER) {
-			return new Vec2i(x, y - height * (icons - 1) / 2);
+			return new Vector2i(x, y - height * (icons - 1) / 2);
 		} else {
-			return new Vec2i(x, y);
+			return new Vector2i(x, y);
 		}
 	};
 	
 	@FunctionalInterface
 	public interface NextCoordGetter {
-		Vec2i getNext(HorizontalBasis horBasis, VerticalBasis verBasis, Vec2i prevCoord, int width, int height);
+		Vector2i getNext(HorizontalBasis horBasis, VerticalBasis verBasis, Vector2i prevCoord, int width, int height);
 	}
 	
 	private static final NextCoordGetter NEXT_HORIZONTAL = (horBasis, verBasis, oldPos, width, height) -> {
 		if (horBasis == HorizontalBasis.LEFT || horBasis == HorizontalBasis.CENTER) {
-			return new Vec2i(oldPos.x + width, oldPos.y);
+			return new Vector2i(oldPos.x + width, oldPos.y);
 		} else {
-			return new Vec2i(oldPos.x - width, oldPos.y);
+			return new Vector2i(oldPos.x - width, oldPos.y);
 		}
 	};
 	
 	private static final NextCoordGetter NEXT_VERTICAL = (horBasis, verBasis, oldPos, width, height) -> {
 		if (verBasis == VerticalBasis.TOP || verBasis == VerticalBasis.CENTER) {
-			return new Vec2i(oldPos.x, oldPos.y + height);
+			return new Vector2i(oldPos.x, oldPos.y + height);
 		} else {
-			return new Vec2i(oldPos.x, oldPos.y - height);
+			return new Vector2i(oldPos.x, oldPos.y - height);
 		}
 	};
 	

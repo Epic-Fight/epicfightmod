@@ -10,11 +10,13 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @Deprecated
@@ -64,9 +66,9 @@ public class PlaneCollider extends Collider {
 	}
 
 	@Override
-	public void transform(OpenMatrix4f mat) {
+	public void transform(Matrix4f mat) {
 		for (int i = 0; i < 2; i ++) {
-			this.worldPos[i] = OpenMatrix4f.transform(mat.removeTranslation(), this.modelPos[i]);
+			this.worldPos[i] = new Vec3(Matrix4fUtils.transform3v(mat.setTranslation(0, 0, 0), this.modelPos[i].toVector3f(), new Vector3f()));
 		}
 		
 		super.transform(mat);

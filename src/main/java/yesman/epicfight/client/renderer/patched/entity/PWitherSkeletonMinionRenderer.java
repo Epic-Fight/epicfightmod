@@ -7,12 +7,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 
@@ -24,7 +24,7 @@ public class PWitherSkeletonMinionRenderer extends PHumanoidRenderer<PathfinderM
 
 	@Override
 	public void setJointTransforms(HumanoidMobPatch<PathfinderMob> entitypatch, Armature armature, Pose pose, float partialTicks) {
-		Vec3f rootScale = pose.orElseEmpty("Root").scale();
-		pose.orElseEmpty("Head").jointLocal(JointTransform.scale(new Vec3f(1.0F / rootScale.x, 1.0F / rootScale.y, 1.0F / rootScale.z)), OpenMatrix4f::mul);
+		Vector3f rootScale = pose.orElseEmpty("Root").scale();
+		pose.orElseEmpty("Head").jointLocal(JointTransform.scale(new Vector3f(1.0F / rootScale.x, 1.0F / rootScale.y, 1.0F / rootScale.z)), Matrix4fUtils::mulBoth);
 	}
 }

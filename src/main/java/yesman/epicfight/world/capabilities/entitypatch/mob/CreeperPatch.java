@@ -10,12 +10,11 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
@@ -77,8 +76,8 @@ public class CreeperPatch extends MobPatch<Creeper> {
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
-		OpenMatrix4f mat = super.getModelMatrix(partialTicks);
+	public Matrix4f getModelMatrix(float partialTicks) {
+		Matrix4f mat = super.getModelMatrix(partialTicks);
 
 		if (this.isLogicalClient()) {
 			float f = this.original.getSwelling(partialTicks);
@@ -88,8 +87,8 @@ public class CreeperPatch extends MobPatch<Creeper> {
 	        f = f * f;
 	        float f2 = (1.0F + f * 0.4F) * f1;
 	        float f3 = (1.0F + f * 0.1F) / f1;
-	        
-			OpenMatrix4f.scale(new Vec3f(f2, f3, f2), mat, mat);
+
+			mat.scale(f2, f3, f2);
 		}
 		
 		return mat;

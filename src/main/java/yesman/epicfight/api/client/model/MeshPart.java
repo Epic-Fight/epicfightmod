@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,17 +15,16 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class MeshPart {
 	protected final List<VertexBuilder> verticies;
 	protected final Mesh.RenderProperties renderProperties;
-	protected final Supplier<OpenMatrix4f> vanillaPartTracer;
+	protected final Supplier<Matrix4f> vanillaPartTracer;
 	protected boolean isHidden;
 	
-	public MeshPart(List<VertexBuilder> vertices, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
+	public MeshPart(List<VertexBuilder> vertices, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<Matrix4f> vanillaPartTracer) {
 		this.verticies = vertices;
 		this.renderProperties = renderProperties;
 		this.vanillaPartTracer = vanillaPartTracer;
@@ -44,7 +44,7 @@ public abstract class MeshPart {
 		return this.verticies;
 	}
 	
-	public OpenMatrix4f getVanillaPartTransform() {
+	public Matrix4f getVanillaPartTransform() {
 		if (this.vanillaPartTracer == null) {
 			return null;
 		}

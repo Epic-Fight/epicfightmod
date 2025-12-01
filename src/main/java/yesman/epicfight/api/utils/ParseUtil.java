@@ -37,7 +37,7 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.IForgeRegistry;
-import yesman.epicfight.api.utils.math.Vec3f;
+import org.joml.Vector3f;
 
 public class ParseUtil {
 	public static Integer[] toIntArray(JsonArray array) {
@@ -130,14 +130,14 @@ public class ParseUtil {
 		return jsonObject;
 	}
 	
-	public static Vec3f toVector3f(JsonArray array) {
+	public static Vector3f toVector3f(JsonArray array) {
 		float[] result = toFloatArrayPrimitive(array);
 		
 		if (result.length < 3) {
 			throw new IllegalArgumentException("Requires more than 3 elements to convert into 3d vector.");
 		}
 		
-		return new Vec3f(result[0], result[1], result[2]);
+		return new Vector3f(result[0], result[1], result[2]);
 	}
 	
 	public static Vec3 toVector3d(JsonArray array) {

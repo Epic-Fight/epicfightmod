@@ -16,13 +16,15 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.entity.PartEntity;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public abstract class Collider {
@@ -36,25 +38,25 @@ public abstract class Collider {
 		this.worldCenter = new Vec3(0.0D, 0.0D, 0.0D);
 	}
 	
-	protected void transform(OpenMatrix4f mat) {
-		this.worldCenter = OpenMatrix4f.transform(mat, this.modelCenter);
+	protected void transform(Matrix4f mat) {
+		this.worldCenter = new Vec3(Matrix4fUtils.transform3v(mat, this.modelCenter.toVector3f(), new Vector3f()));
 	}
 	
 	public List<Entity> updateAndSelectCollideEntity(LivingEntityPatch<?> entitypatch, AttackAnimation attackAnimation, float prevElapsedTime, float elapsedTime, Joint joint, float attackSpeed) {
-		OpenMatrix4f transformMatrix;
+		Matrix4f transformMatrix;
 		Armature armature = entitypatch.getArmature();
 		
 		if (armature.rootJoint.equals(joint)) {
 			Pose rootPose = new Pose();
 			rootPose.putJointData("Root", JointTransform.empty());
 			attackAnimation.modifyPose(attackAnimation, rootPose, entitypatch, elapsedTime, 1.0F);
-			transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
+			transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new Matrix4f()).setTranslation(0, 0, 0);
 		} else {
 			transformMatrix = armature.getBoundTransformFor(attackAnimation.getPoseByTime(entitypatch, elapsedTime, 1.0F), joint);
 		}
 		
-		OpenMatrix4f toWorldCoord = OpenMatrix4f.createTranslation(-(float)entitypatch.getOriginal().getX(), (float)entitypatch.getOriginal().getY(), -(float)entitypatch.getOriginal().getZ());
-		transformMatrix.mulFront(toWorldCoord.mulBack(entitypatch.getModelMatrix(1.0F)));
+		Matrix4f toWorldCoord = new Matrix4f().setTranslation(-(float)entitypatch.getOriginal().getX(), (float)entitypatch.getOriginal().getY(), -(float)entitypatch.getOriginal().getZ());
+		transformMatrix.mulLocal(toWorldCoord.mul(entitypatch.getModelMatrix(1.0F)));
 		this.transform(transformMatrix);
 		
 		return this.getCollideEntities(entitypatch.getOriginal());

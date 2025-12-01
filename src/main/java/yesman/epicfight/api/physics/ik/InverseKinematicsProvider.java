@@ -1,20 +1,21 @@
 package yesman.epicfight.api.physics.ik;
 
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.SimulationProvider;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon.EnderDragonPatch;
 
 public interface InverseKinematicsProvider extends SimulationProvider<InverseKinematicsSimulatable, InverseKinematicsSimulator.InverseKinematicsObject, InverseKinematicsSimulator.InverseKinematicsBuilder, InverseKinematicsProvider> {
@@ -26,19 +27,19 @@ public interface InverseKinematicsProvider extends SimulationProvider<InverseKin
 		}
 	}
 	
-	default void startPartAnimation(InverseKinematicsSimulator.BakedInverseKinematicsDefinition bakedIKDefinition, InverseKinematicsSimulator.InverseKinematicsObject ikObject, TransformSheet partAnimation, Vec3f targetpos) {
-		Vec3f footpos = ikObject.getTipPosition(1.0F);
-		Vec3f worldStartToEnd = targetpos.copy().sub(footpos);
+	default void startPartAnimation(InverseKinematicsSimulator.BakedInverseKinematicsDefinition bakedIKDefinition, InverseKinematicsSimulator.InverseKinematicsObject ikObject, TransformSheet partAnimation, Vector3f targetpos) {
+		Vector3f footpos = ikObject.getTipPosition(1.0F);
+		Vector3f worldStartToEnd = new Vector3f(targetpos).sub(footpos);
 		partAnimation.correctAnimationByNewPosition(bakedIKDefinition.startPosition(), bakedIKDefinition.startToEnd(), footpos, worldStartToEnd);
 		ikObject.start(targetpos, partAnimation, 1.0F);
 	}
 	
 	default void startSimple(InverseKinematicsSimulator.InverseKinematicsObject ikObject) {
-		ikObject.start(new Vec3f(0.0F, 0.0F, 0.0F), ikObject.getAnimation(), 1.0F);
+		ikObject.start(new Vector3f(), ikObject.getAnimation(), 1.0F);
 	}
 	
-	default Vec3f getRayCastedTipPosition(InverseKinematicsSimulatable ikSimulatable, Vec3f clipStart, OpenMatrix4f toWorldCoord, float maxYDown, float leastHeight) {
-		Vec3f clipStartWorld = OpenMatrix4f.transform3v(toWorldCoord, clipStart, null);
+	default Vector3f getRayCastedTipPosition(InverseKinematicsSimulatable ikSimulatable, Vector3f clipStart, Matrix4f toWorldCoord, float maxYDown, float leastHeight) {
+		Vector3f clipStartWorld = Matrix4fUtils.transform3v(toWorldCoord, clipStart, null);
 		BlockHitResult clipResult = ikSimulatable.toEntity().level().clip(
 			new ClipContext(
 				  new Vec3(clipStartWorld.x, clipStartWorld.y, clipStartWorld.z)
@@ -49,7 +50,7 @@ public interface InverseKinematicsProvider extends SimulationProvider<InverseKin
 
 		float dy = (clipResult.getType() != HitResult.Type.MISS) ? clipStartWorld.y - clipResult.getBlockPos().getY() - 1 : maxYDown;
 
-		return new Vec3f(clipStartWorld.x, clipStartWorld.y - dy + leastHeight, clipStartWorld.z);
+		return new Vector3f(clipStartWorld.x, clipStartWorld.y - dy + leastHeight, clipStartWorld.z);
 	}
 	
 	default void correctRootRotation(JointTransform rootTransform, EnderDragonPatch enderdragonpatch, float partialTicks) {
@@ -58,15 +59,15 @@ public interface InverseKinematicsProvider extends SimulationProvider<InverseKin
 		Quaternionf quat = QuaternionUtils.ZP.rotationDegrees(zRoot);
 		quat.mul(QuaternionUtils.XP.rotationDegrees(-xRoot));
 
-		rootTransform.frontResult(JointTransform.rotation(quat), OpenMatrix4f::mulAsOriginInverse);
+		rootTransform.frontResult(JointTransform.rotation(quat), Matrix4fUtils::mulAsOriginInverse);
 	}
 	
-	default void applyFabrikToJoint(Vec3f recalculatedPosition, Pose pose, Armature armature, Joint startJoint, Joint endJoint, Quaternionf tipRotation) {
+	default void applyFabrikToJoint(Vector3f recalculatedPosition, Pose pose, Armature armature, Joint startJoint, Joint endJoint, Quaternionf tipRotation) {
 		FABRIK fabrik = new FABRIK(pose, armature, startJoint, endJoint);
     	fabrik.run(recalculatedPosition, 10);
-    	OpenMatrix4f tipRotationMatrix = OpenMatrix4f.fromQuaternion(tipRotation);
-    	OpenMatrix4f animRotation = armature.getBoundTransformFor(pose, endJoint).removeTranslation();
-    	OpenMatrix4f animToTipRotation = OpenMatrix4f.mul(OpenMatrix4f.invert(animRotation, null), tipRotationMatrix, null);
+    	Matrix4f tipRotationMatrix = new Matrix4f().rotation(tipRotation);
+    	Matrix4f animRotation = armature.getBoundTransformFor(pose, endJoint).setTranslation(0, 0, 0);
+    	Matrix4f animToTipRotation = Matrix4fUtils.mulBoth(animRotation.invert(new Matrix4f()), tipRotationMatrix, new Matrix4f());
     	pose.orElseEmpty(endJoint.getName()).overwriteRotation(JointTransform.fromMatrixWithoutScale(animToTipRotation));
 	}
 }

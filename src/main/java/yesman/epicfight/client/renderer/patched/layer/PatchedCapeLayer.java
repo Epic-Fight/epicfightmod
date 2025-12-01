@@ -2,6 +2,7 @@ package yesman.epicfight.client.renderer.patched.layer;
 
 import java.util.function.Function;
 
+import org.joml.Math;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -24,14 +25,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
@@ -42,7 +42,7 @@ import yesman.epicfight.gameasset.Armatures;
 public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, AbstractClientPlayerPatch<AbstractClientPlayer>, PlayerModel<AbstractClientPlayer>, CapeLayer> {
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void renderLayer(AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch, AbstractClientPlayer entityliving, CapeLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTick) {
+	protected void renderLayer(AbstractClientPlayerPatch<AbstractClientPlayer> entitypatch, AbstractClientPlayer entityliving, CapeLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, Matrix4f[] poses, float bob, float yRot, float xRot, float partialTick) {
 		if (ClientConfig.enableCosmetics) {
 			// Prevent simulating cape in inventory screen
 			if (Minecraft.getInstance().screen instanceof EffectRenderingInventoryScreen && entityliving == Minecraft.getInstance().player && partialTick == 1.0F) {
@@ -53,18 +53,18 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 				ResourceLocation capeTexture = entitypatch.isEpicSkinsLoaded() ? entitypatch.getEpicSkinsInformation().cloakTexture().get() : entityliving.getCloakTextureLocation();
 				
 				if (capeTexture != null) {
-					Function<Float, OpenMatrix4f> partialColliderTransformProvider = (partialFrame) -> {
+					Function<Float, Matrix4f> partialColliderTransformProvider = (partialFrame) -> {
 						Vec3 pos = entitypatch.getOriginal().getPosition(partialFrame);
 						float yRotLerp = Mth.rotLerp(partialFrame, entitypatch.getYRotO(), entitypatch.getYRot());
-						
-						return OpenMatrix4f.createTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotateDeg(180.0F - yRotLerp, Vec3f.Y_AXIS);
+
+						return new Matrix4f().setTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotate(Math.toRadians(180.0F - yRotLerp), 0, 1, 0);
 			        };
-			        
+
 					clothObj.tick(entitypatch, partialColliderTransformProvider, partialTick, entitypatch.getArmature(), poses);
 					
-					double entityX = Mth.lerp((double)partialTick, entityliving.xOld, entityliving.getX());
-					double entityY = Mth.lerp((double)partialTick, entityliving.yOld, entityliving.getY());
-					double entityZ = Mth.lerp((double)partialTick, entityliving.zOld, entityliving.getZ());
+					double entityX = Mth.lerp(partialTick, entityliving.xOld, entityliving.getX());
+					double entityY = Mth.lerp(partialTick, entityliving.yOld, entityliving.getY());
+					double entityZ = Mth.lerp(partialTick, entityliving.zOld, entityliving.getZ());
 					
 					PoseStack posestack$2 = new PoseStack();
 					var renderer = ClientEngine.getInstance().renderEngine.getEntityRenderer(EntityType.PLAYER);
@@ -85,8 +85,8 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 				ItemStack itemstack = entityliving.getItemBySlot(EquipmentSlot.CHEST);
 				
 				if (itemstack.getItem() != Items.ELYTRA) {
-					OpenMatrix4f modelMatrix = new OpenMatrix4f();
-					modelMatrix.scale(new Vec3f(-1.0F, -1.0F, 1.0F)).mulFront(poses[8]);
+					Matrix4f modelMatrix = new Matrix4f();
+					modelMatrix.scale(new Vector3f(-1.0F, -1.0F, 1.0F)).mulLocal(poses[8]);
 					poseStack.pushPose();
 					MathUtils.mulStack(poseStack, modelMatrix);
 					poseStack.translate(0.0D, -0.4D, -0.025D);
@@ -96,7 +96,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 			}
 		}
 	}
-	
+
 	public static void renderSimulatingCape(
 		PoseStack poseStack,
 		MultiBufferSource buffers,
@@ -111,7 +111,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 		float b,
 		float a,
 		AbstractClientPlayerPatch<?> entitypatch,
-		OpenMatrix4f[] poses,
+		Matrix4f[] poses,
 		int packedLight,
 		Matrix4f renderLocalMatrix,
 		float yBodyRot
@@ -121,10 +121,10 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 		poseStack.scale(scaler, scaler, scaler);
 		
 		if (entitypatch.getOriginal().hasItemInSlot(EquipmentSlot.CHEST)) {
-			OpenMatrix4f poseMat = poses[Armatures.BIPED.get().chest.getId()];
-			poseStack.translate(poseMat.m30, poseMat.m31, poseMat.m32);
+			Matrix4f poseMat = poses[Armatures.BIPED.get().chest.getId()];
+			poseStack.translate(poseMat.m30(), poseMat.m31(), poseMat.m32());
 			poseStack.scale(1.17F, 1.17F, 1.17F);
-			poseStack.translate(-poseMat.m30, -poseMat.m31, -poseMat.m32);
+			poseStack.translate(-poseMat.m30(), -poseMat.m31(), -poseMat.m32());
 		}
 		
 		clothObj.scaleFromPose(poseStack, poses);

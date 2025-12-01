@@ -12,10 +12,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.Meshes;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.WitherMesh;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.gameasset.Animations;
@@ -30,7 +30,7 @@ public class PatchedWitherArmorLayer extends ModelRenderLayer<WitherBoss, Wither
 	}
 	
 	@Override
-	protected void renderLayer(WitherPatch entitypatch, WitherBoss entityliving, WitherArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffers, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTick) {
+	protected void renderLayer(WitherPatch entitypatch, WitherBoss entityliving, WitherArmorLayer vanillaLayer, PoseStack poseStack, MultiBufferSource buffers, int packedLight, Matrix4f[] poses, float bob, float yRot, float xRot, float partialTick) {
 		if (entitypatch.isArmorActivated()) {
 			float progress = (float)entityliving.tickCount + partialTick;
 			poseStack.pushPose();

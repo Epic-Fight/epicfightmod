@@ -5,6 +5,9 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Matrix4f;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import com.google.common.collect.Lists;
@@ -39,9 +42,6 @@ import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec2i;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.LayerUtil;
 import yesman.epicfight.client.renderer.patched.layer.PatchedLayer;
@@ -109,7 +109,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 					continue;
 				}
 				
-				this.addPatchedLayer(layerClass, new RenderOriginalModelLayer<> ("Root", new Vec3f(0.0F, this.getDefaultLayerHeightCorrection(), 0.0F), new Vec3f(0.0F, 0.0F, 0.0F)));
+				this.addPatchedLayer(layerClass, new RenderOriginalModelLayer<> ("Root", new Vector3f(0.0F, this.getDefaultLayerHeightCorrection(), 0.0F), new Vector3f()));
 			}
 		}
 		
@@ -145,7 +145,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 				
 				int blockLight = (packedLight & 0xF0) >> 4;
 				int skyLight = (packedLight & 0xF00000) >> 20;
-				Vec2i lightUv = new Vec2i(blockLight, skyLight);
+				Vector2i lightUv = new Vector2i(blockLight, skyLight);
 				entitypatch.getEntityDecorations().modifyLight(lightUv, partialTicks);
 				int modifiedLight = LightTexture.pack(lightUv.x, lightUv.y);
 				mesh.draw(poseStack, buffer, renderType, modifiedLight, color.x(), color.y(), color.z(), color.w(), this.getOverlayCoord(entity, entitypatch, partialTicks), armature, armature.getPoseMatrices());
@@ -231,7 +231,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 		mesh.initialize();
 	}
 	
-	protected void renderLayer(LivingEntityRenderer<E, M> renderer, T entitypatch, E entity, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
+	protected void renderLayer(LivingEntityRenderer<E, M> renderer, T entitypatch, E entity, Matrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
 		float f = MathUtils.lerpBetween(entity.yBodyRotO, entity.yBodyRot, partialTicks);
         float f1 = MathUtils.lerpBetween(entity.yHeadRotO, entity.yHeadRot, partialTicks);
         float f2 = f1 - f;
@@ -259,7 +259,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 		int initU = 0;
 		int initV = OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0);
 		
-		Vec2i coord = new Vec2i(initU, initV);
+		Vector2i coord = new Vector2i(initU, initV);
 		entitypatch.getEntityDecorations().modifyOverlay(coord, partialTicks);
 		
 		return OverlayTexture.pack(coord.x, coord.y);

@@ -8,6 +8,8 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -15,8 +17,7 @@ import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.Layer;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
@@ -32,22 +33,22 @@ public class JointMask {
 		JointTransform lowestTransform = baseLayerPose.orElseEmpty(joint.getName());
 		JointTransform currentTransform = currentPose.orElseEmpty(joint.getName());
 		result.orElseEmpty(joint.getName()).translation().y = lowestTransform.translation().y;
-		
-		OpenMatrix4f lowestMatrix = lowestTransform.toMatrix();
-		OpenMatrix4f currentMatrix = currentTransform.toMatrix();
-		OpenMatrix4f currentToLowest = OpenMatrix4f.mul(OpenMatrix4f.invert(currentMatrix, null), lowestMatrix, null);
+
+		Matrix4f lowestMatrix = lowestTransform.toMatrix();
+		Matrix4f currentMatrix = currentTransform.toMatrix();
+		Matrix4f currentToLowest = currentMatrix.invert(new Matrix4f()).mul(lowestMatrix);
 		
 		for (Joint subJoint : joint.getSubJoints()) {
 			if (wholeEntry.isMasked(livingMotion, subJoint.getName())) {
-				OpenMatrix4f lowestLocalTransform = OpenMatrix4f.mul(joint.getLocalTransform(), lowestMatrix, null);
-				OpenMatrix4f currentLocalTransform = OpenMatrix4f.mul(joint.getLocalTransform(), currentMatrix, null);
-				OpenMatrix4f childTransform = OpenMatrix4f.mul(subJoint.getLocalTransform(), result.orElseEmpty(subJoint.getName()).toMatrix(), null);
-				OpenMatrix4f lowestFinal = OpenMatrix4f.mul(lowestLocalTransform, childTransform, null);
-				OpenMatrix4f currentFinal = OpenMatrix4f.mul(currentLocalTransform, childTransform, null);
-				Vec3f vec = new Vec3f((currentFinal.m30 - lowestFinal.m30) * 0.5F, currentFinal.m31 - lowestFinal.m31, currentFinal.m32 - lowestFinal.m32);
+				Matrix4f lowestLocalTransform = joint.getLocalTransform().mul(lowestMatrix, new Matrix4f());
+				Matrix4f currentLocalTransform = joint.getLocalTransform().mul(currentMatrix, new Matrix4f());
+				Matrix4f childTransform = subJoint.getLocalTransform().mul(result.orElseEmpty(subJoint.getName()).toMatrix(), new Matrix4f());
+				Matrix4f lowestFinal = lowestLocalTransform.mul(childTransform, new Matrix4f());
+				Matrix4f currentFinal = currentLocalTransform.mul(lowestFinal, new Matrix4f());
+				Vector3f vec = new Vector3f((currentFinal.m30() - lowestFinal.m30()) * 0.5F, currentFinal.m31() - lowestFinal.m31(), currentFinal.m32() - lowestFinal.m32());
 				JointTransform jt = result.orElseEmpty(subJoint.getName());
-				jt.parent(JointTransform.translation(vec), OpenMatrix4f::mul);
-				jt.jointLocal(JointTransform.fromMatrixWithoutScale(currentToLowest), OpenMatrix4f::mul);
+				jt.parent(JointTransform.translation(vec), Matrix4f::mul);
+				jt.jointLocal(JointTransform.fromMatrixWithoutScale(currentToLowest), Matrix4fUtils::mulBoth);
 			}
 		}
 	};

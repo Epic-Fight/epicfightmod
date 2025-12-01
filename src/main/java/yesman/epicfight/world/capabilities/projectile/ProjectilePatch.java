@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import org.joml.Matrix4f;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
@@ -90,7 +90,7 @@ public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
+	public Matrix4f getModelMatrix(float partialTicks) {
 		return super.getMatrix(partialTicks);
 	}
 	

@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.joml.Math;
 import org.joml.Matrix3f;
@@ -36,12 +34,12 @@ public class MathUtils {
 	public static final Vec3 ZP = new Vec3(0.0D, 0.0D, 1.0D);
 	public static final Vec3 ZN = new Vec3(0.0D, 0.0D, -1.0D);
 	
-	public static OpenMatrix4f getModelMatrixIntegral(float xPosO, float xPos, float yPosO, float yPos, float zPosO, float zPos, float xRotO, float xRot, float yRotO, float yRot, float partialTick, float scaleX, float scaleY, float scaleZ) {
-		OpenMatrix4f modelMatrix = new OpenMatrix4f();
-		Vec3f translation = new Vec3f(-(xPosO + (xPos - xPosO) * partialTick), ((yPosO + (yPos - yPosO) * partialTick)), -(zPosO + (zPos - zPosO) * partialTick));
+	public static Matrix4f getModelMatrixIntegral(float xPosO, float xPos, float yPosO, float yPos, float zPosO, float zPos, float xRotO, float xRot, float yRotO, float yRot, float partialTick, float scaleX, float scaleY, float scaleZ) {
+		Matrix4f modelMatrix = new Matrix4f();
+		Vector3f translation = new Vector3f(-(xPosO + (xPos - xPosO) * partialTick), ((yPosO + (yPos - yPosO) * partialTick)), -(zPosO + (zPos - zPosO) * partialTick));
 		float partialXRot = Mth.rotLerp(partialTick, xRotO, xRot);
 		float partialYRot = Mth.rotLerp(partialTick, yRotO, yRot);
-		modelMatrix.translate(translation).rotateDeg(-partialYRot, Vec3f.Y_AXIS).rotateDeg(-partialXRot, Vec3f.X_AXIS).scale(scaleX, scaleY, scaleZ);
+		modelMatrix.translate(translation).rotate(Math.toRadians(-partialYRot), 0, 1, 0).rotate(Math.toRadians(-partialXRot), 1, 0, 0).scale(scaleX, scaleY, scaleZ);
 		
 		return modelMatrix;
 	}
@@ -278,42 +276,17 @@ public class MathUtils {
 		
 		return min;
 	}
+
+
+    private static final Matrix3f MATRIX3F = new Matrix3f();
 	
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	public static void translateStack(PoseStack poseStack, OpenMatrix4f mat) {
-		poseStack.translate(mat.m30, mat.m31, mat.m32);
-	}
-	
-	private static final OpenMatrix4f OPEN_MATRIX_BUFFER = new OpenMatrix4f();
-	
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	public static void rotateStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.transpose(mat, OPEN_MATRIX_BUFFER);
-		poseStack.mulPose(getQuaternionFromMatrix(OPEN_MATRIX_BUFFER));
-	}
-	
-	@Deprecated(forRemoval = true, since = "1.21.1")
-	public static void scaleStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.transpose(mat, OPEN_MATRIX_BUFFER);
-		Vector3f vector = getScaleVectorFromMatrix(OPEN_MATRIX_BUFFER);
-		poseStack.scale(vector.x(), vector.y(), vector.z());
-	}
-	
-	private static final Matrix4f MATRIX4F = new Matrix4f();
-	private static final Matrix3f MATRIX3F = new Matrix3f();
-	
-	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.exportToMojangMatrix(mat, MATRIX4F);
-		MATRIX3F.set(MATRIX4F);
-		poseStack.mulPoseMatrix(MATRIX4F);
+	public static void mulStack(PoseStack poseStack, Matrix4f mat) {
+
+		MATRIX3F.set(mat);
+		poseStack.mulPoseMatrix(mat);
 		poseStack.last().normal().mul(MATRIX3F);
 	}
-	
-	public static double getAngleBetween(Vec3f a, Vec3f b) {
-		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
-		return Math.toDegrees(Math.acos(cos));
-	}
-	
+
 	public static double getAngleBetween(Vec3 a, Vec3 b) {
 		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
 		return Math.toDegrees(Math.safeAcos(cos));
@@ -333,29 +306,8 @@ public class MathUtils {
 		Vec3 normalized = vec.normalize();
 		return Math.atan2(normalized.z, normalized.x) * (180D / Math.PI) - 90.0F;
 	}
-	
-	private static Quaternionf getQuaternionFromMatrix(OpenMatrix4f mat) {
-		Quaternionf quat = new Quaternionf(0, 0, 0, 1);
-		quat.setFromUnnormalized(OpenMatrix4f.exportToMojangMatrix(mat.transpose(null)));
-		return quat;
-	}
-	
-	public static Vec3f lerpVector(Vec3f start, Vec3f end, float delta) {
-		return lerpVector(start, end, delta, new Vec3f());
-	}
-	
-	public static Vec3f lerpVector(Vec3f start, Vec3f end, float delta, Vec3f dest) {
-		if (dest == null) {
-			dest = new Vec3f();
-		}
-		
-		dest.x = start.x + (end.x - start.x) * delta;
-		dest.y = start.y + (end.y - start.y) * delta;
-		dest.z = start.z + (end.z - start.z) * delta;
-		
-		return dest;
-	}
-	
+
+
 	public static Vec3 lerpVector(Vec3 start, Vec3 end, float delta) {
 		return new Vec3(start.x + (end.x - start.x) * delta, start.y + (end.y - start.y) * delta, start.z + (end.z - start.z) * delta);
 	}
@@ -373,26 +325,7 @@ public class MathUtils {
 		
 		return new Vec3(dot * to.x * normalScale, dot * to.y * normalScale, dot * to.z * normalScale);
 	}
-	
-	public static Vec3f projectVector(Vec3f from, Vec3f to, Vec3f dest) {
-		if (dest == null) {
-			dest = new Vec3f();
-		}
-		
-		float dot = Vec3f.dot(to, from);
-		float normalScale = 1.0F / ((to.x * to.x) + (to.y * to.y) + (to.z * to.z));
-		
-		dest.x = dot * to.x * normalScale;
-		dest.y = dot * to.y * normalScale;
-		dest.z = dot * to.z * normalScale;
-		
-		return dest;
-	}
-	
-	public static void setQuaternion(Quaternionf quat, float x, float y, float z, float w) {
-		quat.set(x, y, z, w);
-	}
-	
+
 	public static Quaternionf mulQuaternion(Quaternionf left, Quaternionf right, Quaternionf dest) {
 		if (dest == null) {
 			dest = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
@@ -412,7 +345,7 @@ public class MathUtils {
 	    float r = f3 * f7 - f * f4 - f1 * f5 - f2 * f6;
 	    
 	    dest.set(i, j, k, r);
-	    
+
 	    return dest;
 	}
 	
@@ -457,14 +390,7 @@ public class MathUtils {
 		
 		return dest;
 	}
-	
-	private static Vector3f getScaleVectorFromMatrix(OpenMatrix4f mat) {
-		Vec3f a = new Vec3f(mat.m00, mat.m10, mat.m20);
-		Vec3f b = new Vec3f(mat.m01, mat.m11, mat.m21);
-		Vec3f c = new Vec3f(mat.m02, mat.m12, mat.m22);
-		return new Vector3f(a.length(), b.length(), c.length());
-	}
-	
+
 	public static <T> Set<Set<T>> getSubset(Collection<T> collection) {
 		Set<Set<T>> subsets = new HashSet<> ();
 		List<T> asList = new ArrayList<> (collection);
@@ -482,30 +408,7 @@ public class MathUtils {
 			createSubset(i + 1, elements, subset, subsets);
 		}
 	}
-	
-	public static int getLeastAngleVectorIdx(Vec3f src, Vec3f... candidates) {
-		int leastVectorIdx = -1;
-		int current = 0;
-		float maxDot = -10000.0F;
-		
-		for (Vec3f normzlizedVec : Stream.of(candidates).map((vec) -> vec.normalize()).collect(Collectors.toList())) {
-			float dot = Vec3f.dot(src, normzlizedVec);
-			
-			if (maxDot < dot) {
-				maxDot = dot;
-				leastVectorIdx = current;
-			}
-			
-			current++;
-		}
-		
-		return leastVectorIdx;
-	}
-	
-	public static Vec3f getLeastAngleVector(Vec3f src, Vec3f... candidates) {
-		return candidates[getLeastAngleVectorIdx(src, candidates)];
-	}
-	
+
 	public static boolean canBeSeen(Entity target, Entity watcher, double maxDistance) {
 		if (target.level() != watcher.level()) {
 			return false;

@@ -18,7 +18,6 @@ import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class MultiLineCollider extends MultiCollider<LineCollider> {
@@ -46,8 +45,8 @@ public class MultiLineCollider extends MultiCollider<LineCollider> {
 			float pt1 = prevElapsedTime + (elapsedTime - prevElapsedTime) * partialTicks;
 			float pt2 = prevElapsedTime + (elapsedTime - prevElapsedTime) * interpolation;
 			TransformSheet coordTransform = animation.getCoord();
-			Vec3f p1 = coordTransform.getInterpolatedTranslation(pt1);
-			Vec3f p2 = coordTransform.getInterpolatedTranslation(pt2);
+			Vector3f p1 = coordTransform.getInterpolatedTranslation(pt1);
+			Vector3f p2 = coordTransform.getInterpolatedTranslation(pt2);
 			Vector3f gap = new Vector3f(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
 			
 			poseStack.pushPose();

@@ -3,6 +3,8 @@ package yesman.epicfight.client.particle;
 import java.util.List;
 import java.util.Optional;
 
+import org.joml.Matrix4f;
+import org.joml.Math;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -34,8 +36,7 @@ import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -62,29 +63,29 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		Vec3 posMid = this.owner.getOriginal().getPosition(0.5F);
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		
-		OpenMatrix4f prvmodelTf
-			= OpenMatrix4f.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(this.owner.getModelMatrix(0.0F));
-		OpenMatrix4f middleModelTf
-			= OpenMatrix4f.createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(this.owner.getModelMatrix(0.5F));
-		OpenMatrix4f curModelTf
-			= OpenMatrix4f.createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(this.owner.getModelMatrix(1.0F));
+		Matrix4f prvmodelTf
+			= new Matrix4f().setTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(this.owner.getModelMatrix(0.0F));
+		Matrix4f middleModelTf
+			= new Matrix4f().setTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(this.owner.getModelMatrix(0.5F));
+		Matrix4f curModelTf
+			= new Matrix4f().setTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(this.owner.getModelMatrix(1.0F));
 		
-		OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-		OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-		OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
+		Matrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulLocal(prvmodelTf);
+		Matrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulLocal(middleModelTf);
+		Matrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulLocal(curModelTf);
 		
-		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
-		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
-		Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
-		Vec3 middleEndPos = OpenMatrix4f.transform(middleJointTf, trailInfo.end());
-		Vec3 currentStartPos = OpenMatrix4f.transform(currentJointTf, trailInfo.start());
-		Vec3 currentEndPos = OpenMatrix4f.transform(currentJointTf, trailInfo.end());
+		Vec3 prevStartPos = Matrix4fUtils.transform(prevJointTf, trailInfo.start());
+		Vec3 prevEndPos = Matrix4fUtils.transform(prevJointTf, trailInfo.end());
+		Vec3 middleStartPos = Matrix4fUtils.transform(middleJointTf, trailInfo.start());
+		Vec3 middleEndPos = Matrix4fUtils.transform(middleJointTf, trailInfo.end());
+		Vec3 currentStartPos = Matrix4fUtils.transform(currentJointTf, trailInfo.start());
+		Vec3 currentEndPos = Matrix4fUtils.transform(currentJointTf, trailInfo.end());
 		
 		this.invisibleTrailEdges.add(new TrailEdge(prevStartPos, prevEndPos, this.trailInfo.trailLifetime()));
 		this.invisibleTrailEdges.add(new TrailEdge(middleStartPos, middleEndPos, this.trailInfo.trailLifetime()));
@@ -116,16 +117,16 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		Pose middlePose = this.owner.getClientAnimator().getPose(0.5F);
 		Pose currentPose = this.owner.getClientAnimator().getPose(1.0F);
 		
-		OpenMatrix4f prevJointTf = armature.getBoundTransformFor(prevPose, this.joint);
-		OpenMatrix4f middleJointTf = armature.getBoundTransformFor(middlePose, this.joint);
-		OpenMatrix4f currentJointTf = armature.getBoundTransformFor(currentPose, this.joint);
+		Matrix4f prevJointTf = armature.getBoundTransformFor(prevPose, this.joint);
+		Matrix4f middleJointTf = armature.getBoundTransformFor(middlePose, this.joint);
+		Matrix4f currentJointTf = armature.getBoundTransformFor(currentPose, this.joint);
 		
-		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
-		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
-		Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
-		Vec3 middleEndPos = OpenMatrix4f.transform(middleJointTf, trailInfo.end());
-		Vec3 currentStartPos = OpenMatrix4f.transform(currentJointTf, trailInfo.start());
-		Vec3 currentEndPos = OpenMatrix4f.transform(currentJointTf, trailInfo.end());
+		Vec3 prevStartPos = Matrix4fUtils.transform(prevJointTf, trailInfo.start());
+		Vec3 prevEndPos = Matrix4fUtils.transform(prevJointTf, trailInfo.end());
+		Vec3 middleStartPos = Matrix4fUtils.transform(middleJointTf, trailInfo.start());
+		Vec3 middleEndPos = Matrix4fUtils.transform(middleJointTf, trailInfo.end());
+		Vec3 currentStartPos = Matrix4fUtils.transform(currentJointTf, trailInfo.start());
+		Vec3 currentEndPos = Matrix4fUtils.transform(currentJointTf, trailInfo.end());
 		
 		this.invisibleTrailEdges.add(new TrailEdge(prevStartPos, prevEndPos, this.trailInfo.trailLifetime()));
 		this.invisibleTrailEdges.add(new TrailEdge(middleStartPos, middleEndPos, this.trailInfo.trailLifetime()));
@@ -183,36 +184,33 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 		
-		OpenMatrix4f prevModelMatrix = this.owner.getModelMatrix(0.0F);
-		OpenMatrix4f curModelMatrix = this.owner.getModelMatrix(1.0F);
+		Matrix4f prevModelMatrix = this.owner.getModelMatrix(0.0F);
+		Matrix4f curModelMatrix = this.owner.getModelMatrix(1.0F);
 		JointTransform lastTransform = JointTransform.fromMatrix(curModelMatrix);
 		JointTransform currentTransform = JointTransform.fromMatrix(curModelMatrix);
 		
-		OpenMatrix4f prvmodelTf
-			= OpenMatrix4f
-				.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(prevModelMatrix);
-		OpenMatrix4f middleModelTf
-			= OpenMatrix4f
-				.createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(JointTransform.interpolate(lastTransform, currentTransform, 0.5F).toMatrix());
-		OpenMatrix4f curModelTf
-			= OpenMatrix4f
-				.createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
-				.rotateDeg(180.0F, Vec3f.Y_AXIS)
-				.mulBack(curModelMatrix);
+		Matrix4f prvmodelTf
+			= new Matrix4f().setTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(prevModelMatrix);
+		Matrix4f middleModelTf
+			= new Matrix4f().setTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(JointTransform.interpolate(lastTransform, currentTransform, 0.5F).toMatrix());
+		Matrix4f curModelTf
+			= new Matrix4f().setTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
+				.rotate(Math.toRadians(180.0F), 0, 1, 0)
+				.mul(curModelMatrix);
 		
-		OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-		OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-		OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
-		Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
-		Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
-		Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
-		Vec3 middleEndPos = OpenMatrix4f.transform(middleJointTf, trailInfo.end());
-		Vec3 currentStartPos = OpenMatrix4f.transform(currentJointTf, trailInfo.start());
-		Vec3 currentEndPos = OpenMatrix4f.transform(currentJointTf, trailInfo.end());
+		Matrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulLocal(prvmodelTf);
+		Matrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulLocal(middleModelTf);
+		Matrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulLocal(curModelTf);
+		Vec3 prevStartPos = Matrix4fUtils.transform(prevJointTf, trailInfo.start());
+		Vec3 prevEndPos = Matrix4fUtils.transform(prevJointTf, trailInfo.end());
+		Vec3 middleStartPos = Matrix4fUtils.transform(middleJointTf, trailInfo.start());
+		Vec3 middleEndPos = Matrix4fUtils.transform(middleJointTf, trailInfo.end());
+		Vec3 currentStartPos = Matrix4fUtils.transform(currentJointTf, trailInfo.start());
+		Vec3 currentEndPos = Matrix4fUtils.transform(currentJointTf, trailInfo.end());
 		
 		List<Vec3> finalStartPositions;
 		List<Vec3> finalEndPositions;

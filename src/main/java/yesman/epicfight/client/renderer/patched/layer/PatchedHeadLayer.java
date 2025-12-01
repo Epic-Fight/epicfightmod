@@ -12,22 +12,22 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
 public class PatchedHeadLayer<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E> & HeadedModel> extends PatchedLayer<E, T, M, CustomHeadLayer<E, M>> {
 	@Override
-	protected void renderLayer(T entitypatch, E entityliving, CustomHeadLayer<E, M> vanillaLayer, PoseStack postStack, MultiBufferSource buffer, int packedLightIn, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
+	protected void renderLayer(T entitypatch, E entityliving, CustomHeadLayer<E, M> vanillaLayer, PoseStack postStack, MultiBufferSource buffer, int packedLightIn, Matrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		ItemStack itemstack = entityliving.getItemBySlot(EquipmentSlot.HEAD);
 		
 		if (!itemstack.isEmpty()) {
 			ModelPart model = vanillaLayer.getParentModel().getHead();
 			E entity = entitypatch.getOriginal();
-			OpenMatrix4f modelMatrix = new OpenMatrix4f();
-			modelMatrix.scale(new Vec3f(-1.0F, -1.0F, 1.0F)).mulFront(poses[9]).translate(0, 0.02F, 0);
+			Matrix4f modelMatrix = new Matrix4f();
+			modelMatrix.scale(new Vector3f(-1.0F, -1.0F, 1.0F)).mulLocal(poses[9]).translate(0, 0.02F, 0);
 			model.x = 0;
 			model.y = 0;
 			model.z = 0;

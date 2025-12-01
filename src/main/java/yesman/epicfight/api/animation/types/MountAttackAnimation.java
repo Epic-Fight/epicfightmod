@@ -1,11 +1,11 @@
 package yesman.epicfight.api.animation.types;
 
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class MountAttackAnimation extends AttackAnimation {
@@ -13,7 +13,7 @@ public class MountAttackAnimation extends AttackAnimation {
 		super(convertTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
 	}
 	
-	protected Vec3f getCoordVector(LivingEntityPatch<?> entitypatch) {
-		return new Vec3f(0, 0, 0);
+	protected Vector3f getCoordVector(LivingEntityPatch<?> entitypatch) {
+		return new Vector3f(0, 0, 0);
 	}
 }

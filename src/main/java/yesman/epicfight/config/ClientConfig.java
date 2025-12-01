@@ -25,10 +25,10 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2i;
 import yesman.epicfight.api.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
@@ -476,22 +476,22 @@ public class ClientConfig {
 		if (chargingBarBaseY != CHARGING_BAR_BASE_Y.get()) CHARGING_BAR_BASE_Y.set(chargingBarBaseY);
 	}
 	
-	public static Vec2i getStaminaPosition(int width, int height) {
+	public static Vector2i getStaminaPosition(int width, int height) {
 		int posX = staminaBarBaseX.positionGetter.apply(width, staminaBarX);
 		int posY = staminaBarBaseY.positionGetter.apply(height, staminaBarY);
-		return new Vec2i(posX, posY);
+		return new Vector2i(posX, posY);
 	}
 	
-	public static Vec2i getWeaponInnatePosition(int width, int height) {
+	public static Vector2i getWeaponInnatePosition(int width, int height) {
 		int posX = weaponInnateBaseX.positionGetter.apply(width, weaponInnateX);
 		int posY = weaponInnateBaseY.positionGetter.apply(height, weaponInnateY);
-		return new Vec2i(posX, posY);
+		return new Vector2i(posX, posY);
 	}
 	
-	public static Vec2i getChargingBarPosition(int width, int height) {
+	public static Vector2i getChargingBarPosition(int width, int height) {
 		int posX = chargingBarBaseX.positionGetter.apply(width, chargingBarX);
 		int posY = chargingBarBaseY.positionGetter.apply(height, chargingBarY);
-		return new Vec2i(posX, posY);
+		return new Vector2i(posX, posY);
 	}
 	
 	/**

@@ -42,6 +42,8 @@ import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
@@ -60,8 +62,7 @@ import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.BakedInverseKinematicsDefinition;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
@@ -206,7 +207,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	    	float xo = (float)this.getOriginal().xo;
 	    	float yo = (float)this.getOriginal().yo;
 	    	float zo = (float)this.getOriginal().zo;
-	    	OpenMatrix4f toModelPos = OpenMatrix4f.mul(OpenMatrix4f.translate(new Vec3f(xo + (x - xo) * partialTicks, yo + (y - yo) * partialTicks, zo + (z - zo) * partialTicks), new OpenMatrix4f(), null), this.getModelMatrix(partialTicks), null).invert();
+	    	Matrix4f toModelPos = new Matrix4f().translate(new Vector3f(xo + (x - xo) * partialTicks, yo + (y - yo) * partialTicks, zo + (z - zo) * partialTicks)).mul(this.getModelMatrix(partialTicks)).invert();
 	    	
 	    	if (pose.hasTransform("Root")) {
 	    		inverseKinematicsProvider.correctRootRotation(pose.get("Root"), this, partialTicks);
@@ -222,8 +223,8 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 		    		
 		    		InverseKinematicsSimulator.InverseKinematicsObject ikObject = this.ikSimulator.getRunningObject(bakedIKInfo.endJoint()).get();
 		    		JointTransform jt = ikObject.getTipTransform(partialTicks);
-			    	Vec3f jointModelpos = OpenMatrix4f.transform3v(toModelPos, jt.translation(), null);
-			    	inverseKinematicsProvider.applyFabrikToJoint(jointModelpos.multiply(-1.0F, 1.0F, -1.0F), pose, this.getArmature(), bakedIKInfo.startJoint(), bakedIKInfo.endJoint(), jt.rotation());
+			    	Vector3f jointModelpos = Matrix4fUtils.transform3v(toModelPos, jt.translation(), new Vector3f());
+			    	inverseKinematicsProvider.applyFabrikToJoint(jointModelpos.mul(-1.0F, 1.0F, -1.0F), pose, this.getArmature(), bakedIKInfo.startJoint(), bakedIKInfo.endJoint(), jt.rotation());
 		    	}
 	    	});
 		}
@@ -432,7 +433,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTick) {
+	public Matrix4f getModelMatrix(float partialTick) {
 		return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, this.original.yRotO, this.original.getYRot(), partialTick, -1.0F, 1.0F, -1.0F);
 	}
 	

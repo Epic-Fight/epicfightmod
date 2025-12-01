@@ -29,6 +29,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -38,7 +39,6 @@ import yesman.epicfight.api.forgeevent.BattleModeSustainableEvent;
 import yesman.epicfight.api.forgeevent.ChangePlayerModeEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
@@ -171,7 +171,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
+	public Matrix4f getModelMatrix(float partialTicks) {
 		float oYRot;
 		float yRot;
 		float scale = (this.original.isBaby() ? 0.5F : 1.0F) * PLAYER_SCALE;

@@ -13,6 +13,8 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.*;
+import org.joml.Math;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
@@ -29,9 +31,7 @@ import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.grappling.GrapplingAttackAnimation;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.api.utils.math.Vec4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
@@ -41,7 +41,7 @@ public class MoveCoordFunctions {
 	 */
 	@FunctionalInterface
 	public interface MoveCoordGetter {
-		Vec3f get(DynamicAnimation animation, LivingEntityPatch<?> entitypatch, TransformSheet transformSheet, float prevElapsedTime, float elapsedTime);
+		Vector3f get(DynamicAnimation animation, LivingEntityPatch<?> entitypatch, TransformSheet transformSheet, float prevElapsedTime, float elapsedTime);
 	}
 	
 	/**
@@ -61,14 +61,14 @@ public class MoveCoordFunctions {
 		LivingEntity livingentity = entitypatch.getOriginal();
 		JointTransform oJt = coord.getInterpolatedTransform(prevElapsedTime);
 		JointTransform jt = coord.getInterpolatedTransform(elapsedTime);
-		Vec4f prevpos = new Vec4f(oJt.translation());
-		Vec4f currentpos = new Vec4f(jt.translation());
+		Vector4f prevpos = new Vector4f(oJt.translation(), 1);
+		Vector4f currentpos = new Vector4f(jt.translation(), 1);
 		
-		OpenMatrix4f rotationTransform = entitypatch.getModelMatrix(1.0F).removeTranslation().removeScale();
-		OpenMatrix4f localTransform = entitypatch.getArmature().searchJointByName("Root").getLocalTransform().removeTranslation();
-		rotationTransform.mulBack(localTransform);
-		currentpos.transform(rotationTransform);
-		prevpos.transform(rotationTransform);
+		Matrix4f rotationTransform = new Matrix4f().rotation(entitypatch.getModelMatrix(1.0F).getNormalizedRotation(new Quaternionf()));
+		Matrix4f localTransform = entitypatch.getArmature().searchJointByName("Root").getLocalTransform().setTranslation(0, 0, 0);
+		rotationTransform.mul(localTransform);
+		rotationTransform.transform(currentpos);
+
 		
 		boolean hasNoGravity = entitypatch.getOriginal().isNoGravity();
 		boolean moveVertical = animation.getProperty(ActionAnimationProperty.MOVE_VERTICAL).orElse(false) || animation.getProperty(ActionAnimationProperty.COORD).isPresent();
@@ -85,7 +85,7 @@ public class MoveCoordFunctions {
 		float speedFactor = (float)(soulboost ? 1.0D : livingentity.level().getBlockState(blockpos).getBlock().getSpeedFactor());
 		float moveMultiplier = (float)(animation.getProperty(ActionAnimationProperty.AFFECT_SPEED).orElse(false) ? (movementSpeed.getValue() / movementSpeed.getBaseValue()) : 1.0F);
 		
-		return new Vec3f(dx * moveMultiplier * speedFactor, dy, dz * moveMultiplier * speedFactor);
+		return new Vector3f(dx * moveMultiplier * speedFactor, dy, dz * moveMultiplier * speedFactor);
 	};
 	
 	/**
@@ -97,7 +97,7 @@ public class MoveCoordFunctions {
 		JointTransform jt = coord.getInterpolatedTransform(elapsedTime);
 		Vec3 entityPos = entitypatch.getOriginal().position();
 		
-		return jt.translation().copy().sub(Vec3f.fromDoubleVector(entityPos));
+		return new Vector3f(jt.translation()).sub(entityPos.toVector3f());
 	};
 	
 	/**
@@ -115,12 +115,12 @@ public class MoveCoordFunctions {
 		
 		TransformSheet rootCoord = animation.getCoord();
 		LivingEntity livingentity = entitypatch.getOriginal();
-		Vec3f model = rootCoord.getInterpolatedTransform(elapsedTime).translation();
-		Vec3f world = OpenMatrix4f.transform3v(OpenMatrix4f.createRotatorDeg(-target.getYRot(), Vec3f.Y_AXIS), model, null);
-		Vec3f dst = Vec3f.fromDoubleVector(target.position()).add(world);
+		Vector3f model = rootCoord.getInterpolatedTransform(elapsedTime).translation();
+		Vector3f world = Matrix4fUtils.transform3v(new Matrix4f().rotate(-Math.toRadians(target.getYRot()), 0, 1, 0), model, new Vector3f());
+		Vector3f dst = target.position().add(new Vec3(world)).toVector3f();
 		entitypatch.setYRot(Mth.wrapDegrees(target.getYRot() + 180.0F));
 		
-		return dst.sub(Vec3f.fromDoubleVector(livingentity.position()));
+		return dst.sub(livingentity.position().toVector3f());
 	};
 	
 	/******************************************************
@@ -235,7 +235,7 @@ public class MoveCoordFunctions {
 		float xRot = entitypatch.getOriginal().getXRot();
 		
 		for (Keyframe kf : sheet.getKeyframes()) {
-			kf.transform().translation().rotate(-xRot, Vec3f.X_AXIS);
+			kf.transform().translation().rotateAxis(org.joml.Math.toRadians(-xRot), 1, 0, 0);
 		}
 		
 		transformSheet.readFrom(sheet);
@@ -264,8 +264,8 @@ public class MoveCoordFunctions {
 		Vec3 destInWorld = self.getRealAnimation().get().getProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER).orElse(NO_DEST).get(self, entitypatch);
 		
 		if (destInWorld == null) {
-			Vec3f beginningPosition = coordKeyframes[0].transform().translation().copy().multiply(1.0F, 1.0F, -1.0F);
-			beginningPosition.rotate(-entitypatch.getYRot(), Vec3f.Y_AXIS);
+			Vector3f beginningPosition = coordKeyframes[0].transform().translation().mul(1.0F, 1.0F, -1.0F, new Vector3f());
+			beginningPosition.rotateAxis(org.joml.Math.toRadians(-entitypatch.getYRot()), 0, 1, 0);
 			destInWorld = entitypatch.getOriginal().position().add(-beginningPosition.x, -beginningPosition.y, -beginningPosition.z);
 		}
 		
@@ -305,7 +305,7 @@ public class MoveCoordFunctions {
 			int startFrame = self.getRealAnimation().get().getProperty(ActionAnimationProperty.COORD_START_KEYFRAME_INDEX).orElse(0);
 			int realAnimationEndFrame = self.getRealAnimation().get().getProperty(ActionAnimationProperty.COORD_DEST_KEYFRAME_INDEX).orElse(self.getRealAnimation().get().getCoord().getKeyframes().length - 1);
 			Vec3 toDestWorld = destLocation.subtract(startInWorld);
-			Vec3f toDestAnim = realAnimationCoord[realAnimationEndFrame].transform().translation();
+			Vector3f toDestAnim = realAnimationCoord[realAnimationEndFrame].transform().translation();
 			LivingEntity attackTarget = entitypatch.getTarget();
 			
 			// Calculate Entity-Entity collide radius
@@ -346,7 +346,7 @@ public class MoveCoordFunctions {
 			int endFrame = self.getRealAnimation().get().getProperty(ActionAnimationProperty.COORD_DEST_KEYFRAME_INDEX).orElse(coord.length - 1);
 			
 			for (int i = startFrame; i <= endFrame; i++) {
-				Vec3f translation = coord[i].transform().translation();
+				Vector3f translation = coord[i].transform().translation();
 				translation.x *= scale;
 				
 				if (translation.z < 0.0F) {
@@ -381,7 +381,7 @@ public class MoveCoordFunctions {
 			int startFrame = self.getRealAnimation().get().getProperty(ActionAnimationProperty.COORD_START_KEYFRAME_INDEX).orElse(0);
 			int endFrame = self.isLinkAnimation() ? coord.length - 1 : self.getRealAnimation().get().getProperty(ActionAnimationProperty.COORD_DEST_KEYFRAME_INDEX).orElse(coord.length - 1);
 			Vec3 toDestWorld = destLocation.subtract(startInWorld);
-			Vec3f toDestAnim = realAnimationCoord[endFrame].transform().translation();
+			Vector3f toDestAnim = realAnimationCoord[endFrame].transform().translation();
 			LivingEntity attackTarget = entitypatch.getTarget();
 			
 			// Calculate Entity-Entity collide radius
@@ -417,7 +417,7 @@ public class MoveCoordFunctions {
 			}
 			
 			for (int i = startFrame; i <= endFrame; i++) {
-				Vec3f translation = coord[i].transform().translation();
+				Vector3f translation = coord[i].transform().translation();
 				translation.x *= scale;
 				
 				if (translation.z < 0.0F) {
@@ -442,7 +442,7 @@ public class MoveCoordFunctions {
 				double flyDistance = Math.max(5.0D, targetpos.subtract(pos).length() * 2);
 				
 				transform.forEach((index, keyframe) -> {
-					keyframe.transform().translation().scale((float)(flyDistance / Math.abs(keyframes[keyframes.length - 1].transform().translation().z)));
+					keyframe.transform().translation().mul((float)(flyDistance / Math.abs(keyframes[keyframes.length - 1].transform().translation().z)));
 				});
 				
 				Vec3 toTarget = targetpos.subtract(pos);
@@ -452,16 +452,16 @@ public class MoveCoordFunctions {
 				entitypatch.setYRot(yRot);
 				
 				transform.forEach((index, keyframe) -> {
-					keyframe.transform().translation().rotateDegree(Vec3f.X_AXIS, xRot);
-					keyframe.transform().translation().rotateDegree(Vec3f.Y_AXIS, 180.0F - yRot);
-					keyframe.transform().translation().add(entitypatch.getOriginal().position());
+					keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(xRot), 1, 0, 0);
+					keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(180.0F - yRot), 0, 1, 0);
+					keyframe.transform().translation().add(entitypatch.getOriginal().position().toVector3f());
 				});
 				
 				transformSheet.readFrom(transform);
 			} else {
 				transform.forEach((index, keyframe) -> {
-					keyframe.transform().translation().rotateDegree(Vec3f.Y_AXIS, 180.0F - entitypatch.getYRot());
-					keyframe.transform().translation().add(entitypatch.getOriginal().position());
+					keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(180.0F - entitypatch.getYRot()), 0, 1, 0);
+					keyframe.transform().translation().add(entitypatch.getOriginal().position().toVector3f());
 				});
 			}
 		}

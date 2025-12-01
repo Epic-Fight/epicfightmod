@@ -13,22 +13,22 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.google.common.collect.Lists;
 
+import org.joml.Matrix4f;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
 public class Joint {
-	public static final Joint EMPTY = new Joint("empty", -1, new OpenMatrix4f());
+	public static final Joint EMPTY = new Joint("empty", -1, new Matrix4f());
 	
 	private final List<Joint> subJoints = Lists.newArrayList();
 	private final int jointId;
 	private final String jointName;
-	private final OpenMatrix4f localTransform;
-	private final OpenMatrix4f toOrigin = new OpenMatrix4f();
+	private final Matrix4f localTransform;
+	private final Matrix4f toOrigin = new Matrix4f();
 	
-	public Joint(String name, int jointId, OpenMatrix4f localTransform) {
+	public Joint(String name, int jointId, Matrix4f localTransform) {
 		this.jointId = jointId;
 		this.jointName = name;
-		this.localTransform = localTransform.unmodifiable();
+		this.localTransform = localTransform;
 	}
 
 	public void addSubJoints(Joint... joints) {
@@ -68,20 +68,20 @@ public class Joint {
 		}
 	}
 	
-	public void initOriginTransform(OpenMatrix4f parentTransform) {
-		OpenMatrix4f modelTransform = OpenMatrix4f.mul(parentTransform, this.localTransform, null);
-		OpenMatrix4f.invert(modelTransform, this.toOrigin);
+	public void initOriginTransform(Matrix4f parentTransform) {
+		Matrix4f modelTransform = parentTransform.mul(this.localTransform, new Matrix4f());
+		modelTransform.invert(this.toOrigin);
 		
 		for (Joint joint : this.subJoints) {
 			joint.initOriginTransform(modelTransform);
 		}
 	}
 	
-	public OpenMatrix4f getLocalTransform() {
+	public Matrix4f getLocalTransform() {
 		return this.localTransform;
 	}
 	
-	public OpenMatrix4f getToOrigin() {
+	public Matrix4f getToOrigin() {
 		return this.toOrigin;
 	}
 	

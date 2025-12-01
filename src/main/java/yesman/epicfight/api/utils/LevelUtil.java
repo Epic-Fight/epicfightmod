@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import org.joml.Quaternionf;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import com.google.common.collect.Lists;
@@ -34,7 +35,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -71,14 +71,14 @@ public class LevelUtil {
 		int xTo = (int)Math.max(Math.floor(center.x), edgeX);
 		int zFrom = (int)Math.min(Math.floor(center.z), edgeZ);
 		int zTo = (int)Math.max(Math.floor(center.z), edgeZ);
-		List<Vec2i> affectedBlocks = Lists.newArrayList();
+		List<Vector2i> affectedBlocks = Lists.newArrayList();
 		List<Entity> entitiesInArea = level.isClientSide ? null : level.getEntities(null, new AABB(xFrom, center.y - length, zFrom, xTo, center.y + length, zTo));
 		
 		double bounceExponentCoef = Math.min(1.0D / (length * length), 0.1D);
 		
 		for (int k = zFrom; k <= zTo; k++) {
 			for (int l = xFrom; l <= xTo; l++) {
-				Vec2i blockCoord = new Vec2i(l, k);
+				Vector2i blockCoord = new Vector2i(l, k);
 				
 				if (isBlockOverlapLine(blockCoord, center, edgeOfShockwave)) {
 					affectedBlocks.add(blockCoord);
@@ -101,7 +101,7 @@ public class LevelUtil {
 		
 		double y = center.y;
 		
-		for (Vec2i block : affectedBlocks) {
+		for (Vector2i block : affectedBlocks) {
 			BlockPos bp = new BlockPos.MutableBlockPos(block.x, y, block.y);
 			BlockState bs = level.getBlockState(bp);
 			BlockPos aboveBp = bp.above();
@@ -288,7 +288,7 @@ public class LevelUtil {
 		return Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN) || (blockState instanceof FractureBlockState);
 	}
 	
-	private static boolean isBlockOverlapLine(Vec2i vec2, Vec3 from, Vec3 to) {
+	private static boolean isBlockOverlapLine(Vector2i vec2, Vec3 from, Vec3 to) {
 		return isLinesCross(vec2.x, vec2.y, vec2.x + 1, vec2.y, from.x, from.z, to.x, to.z)
 			|| isLinesCross(vec2.x, vec2.y, vec2.x, vec2.y + 1, from.x, from.z, to.x, to.z)
 			|| isLinesCross(vec2.x + 1, vec2.y, vec2.x + 1, vec2.y + 1, from.x, from.z, to.x, to.z)

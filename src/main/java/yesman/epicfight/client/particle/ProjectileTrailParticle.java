@@ -18,11 +18,12 @@ import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Math;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -82,38 +83,35 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 		Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 		Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 		
-		float xRotO = this.lastXRot;
-		float xRot = this.owner.getOriginal().getXRot();
-		float xRotMod = Mth.rotLerp(0.5F, xRotO, xRot);
-		float yRotO =  this.lastYRot;
-		float yRot =  180.0F + this.owner.getOriginal().getYRot();
-		float yRotMod = Mth.rotLerp(0.5F, yRotO, yRot);
+		float xRotO = Math.toRadians(this.lastXRot);
+		float xRot = Math.toRadians(this.owner.getOriginal().getXRot());
+		float xRotMod = Math.toRadians(Mth.rotLerp(0.5F, xRotO, xRot));
+		float yRotO =  Math.toRadians(this.lastYRot);
+		float yRot =  Math.toRadians(180.0F + this.owner.getOriginal().getYRot());
+		float yRotMod = Math.toRadians(Mth.rotLerp(0.5F, yRotO, yRot));
 		
-		OpenMatrix4f prevTransform
-			= OpenMatrix4f
-				.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
-				.rotateDeg(yRotO, Vec3f.Y_AXIS)
-				.rotateDeg(xRotO, Vec3f.X_AXIS)
+		Matrix4f prevTransform
+			= new Matrix4f().setTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
+				.rotate(yRotO, 0, 1, 0)
+				.rotate(xRotO, 1, 0, 0)
 		;
-		OpenMatrix4f modTransform
-			= OpenMatrix4f
-				.createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
-				.rotateDeg(yRotMod, Vec3f.Y_AXIS)
-				.rotateDeg(xRotMod, Vec3f.X_AXIS)
+		Matrix4f modTransform
+			= new Matrix4f().setTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
+				.rotate(yRotMod, 0, 1, 0)
+				.rotate(xRotMod, 1, 0, 0)
 		;
-		OpenMatrix4f curTransform
-			= OpenMatrix4f
-				.createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
-				.rotateDeg(yRot, Vec3f.Y_AXIS)
-				.rotateDeg(xRot, Vec3f.X_AXIS)
+		Matrix4f curTransform
+			= new Matrix4f().setTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
+				.rotate(yRot, 1, 0, 0)
+				.rotate(xRot, 0, 1, 0)
 		;
 		
-		Vec3 prevStartPos = OpenMatrix4f.transform(prevTransform, trailInfo.start());
-		Vec3 prevEndPos = OpenMatrix4f.transform(prevTransform, trailInfo.end());
-		Vec3 middleStartPos = OpenMatrix4f.transform(modTransform, trailInfo.start());
-		Vec3 middleEndPos = OpenMatrix4f.transform(modTransform, trailInfo.end());
-		Vec3 currentStartPos = OpenMatrix4f.transform(curTransform, trailInfo.start());
-		Vec3 currentEndPos = OpenMatrix4f.transform(curTransform, trailInfo.end());
+		Vec3 prevStartPos = Matrix4fUtils.transform(prevTransform, trailInfo.start());
+		Vec3 prevEndPos = Matrix4fUtils.transform(prevTransform, trailInfo.end());
+		Vec3 middleStartPos = Matrix4fUtils.transform(modTransform, trailInfo.start());
+		Vec3 middleEndPos = Matrix4fUtils.transform(modTransform, trailInfo.end());
+		Vec3 currentStartPos = Matrix4fUtils.transform(curTransform, trailInfo.start());
+		Vec3 currentEndPos = Matrix4fUtils.transform(curTransform, trailInfo.end());
 		List<Vec3> finalStartPositions;
 		List<Vec3> finalEndPositions;
 		List<Vec3> startPosList = Lists.newArrayList();

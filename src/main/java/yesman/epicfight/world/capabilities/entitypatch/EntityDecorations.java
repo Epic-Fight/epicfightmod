@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.joml.Vector2i;
 import org.joml.Vector4f;
 
 import net.minecraft.client.renderer.RenderType;
@@ -13,15 +14,14 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
-import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public final class EntityDecorations {
-	private final Map<ResourceLocation, RenderAttributeModifier<Vec2i>> overlay = new HashMap<> ();
+	private final Map<ResourceLocation, RenderAttributeModifier<Vector2i>> overlay = new HashMap<> ();
 	private final Map<ResourceLocation, RenderAttributeModifier<Vector4f>> colors = new HashMap<> ();
-	private final Map<ResourceLocation, RenderAttributeModifier<Vec2i>> lights = new HashMap<> ();
+	private final Map<ResourceLocation, RenderAttributeModifier<Vector2i>> lights = new HashMap<> ();
 	private final Map<ResourceLocation, AnimationPropertyModifier<SoundEvent, CapabilityItem>> swingSound = new HashMap<> ();
 	private final Map<ResourceLocation, AnimationPropertyModifier<SoundEvent, CapabilityItem>> hurtSound = new HashMap<> ();
 	private final Map<ResourceLocation, AnimationPropertyModifier<TrailInfo, CapabilityItem>> trail = new HashMap<> ();
@@ -46,7 +46,7 @@ public final class EntityDecorations {
 	public static final ResourceLocation SWORDMASTER_TRAIL_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "swordmaster_trail_modifier");
 	public static final ResourceLocation VENGEANCE_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "vengeance_overlay");
 	
-	public void addOverlayCoordModifier(ResourceLocation id, RenderAttributeModifier<Vec2i> overlayModifier) {
+	public void addOverlayCoordModifier(ResourceLocation id, RenderAttributeModifier<Vector2i> overlayModifier) {
 		this.overlay.put(id, overlayModifier);
 	}
 	
@@ -62,7 +62,7 @@ public final class EntityDecorations {
 		return this.colors.remove(id) != null;
 	}
 	
-	public void addLightModifier(ResourceLocation id, RenderAttributeModifier<Vec2i> lightModifier) {
+	public void addLightModifier(ResourceLocation id, RenderAttributeModifier<Vector2i> lightModifier) {
 		this.lights.put(id, lightModifier);
 	}
 	
@@ -110,8 +110,8 @@ public final class EntityDecorations {
 		this.decorationOverlays.remove(id);
 	}
 	
-	public void modifyOverlay(Vec2i overlayCoord, float partialTick) {
-		for (RenderAttributeModifier<Vec2i> modifier : this.overlay.values()) {
+	public void modifyOverlay(Vector2i overlayCoord, float partialTick) {
+		for (RenderAttributeModifier<Vector2i> modifier : this.overlay.values()) {
 			if (!modifier.shouldRemove()) modifier.modifyValue(overlayCoord, partialTick);
 		}
 		
@@ -130,8 +130,8 @@ public final class EntityDecorations {
 		vec.w = Mth.clamp(vec.w, 0.0F, 1.0F);
 	}
 	
-	public void modifyLight(Vec2i mi, float partialTick) {
-		for (RenderAttributeModifier<Vec2i> modifier : this.lights.values()) {
+	public void modifyLight(Vector2i mi, float partialTick) {
+		for (RenderAttributeModifier<Vector2i> modifier : this.lights.values()) {
 			if (!modifier.shouldRemove()) modifier.modifyValue(mi, partialTick);
 		}
 		

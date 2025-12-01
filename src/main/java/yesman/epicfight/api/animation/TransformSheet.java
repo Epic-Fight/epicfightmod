@@ -4,20 +4,21 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
+import yesman.epicfight.api.utils.math.joml.VectorUtils;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class TransformSheet {
 	public static final TransformSheet EMPTY_SHEET = new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.empty()), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
-	public static final Function<Vec3, TransformSheet> EMPTY_SHEET_PROVIDER = translation -> {
-		return new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.translation(new Vec3f(translation))), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
-	};
+	public static final Function<Vec3, TransformSheet> EMPTY_SHEET_PROVIDER = translation -> new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.translation(new Vector3f(translation.toVector3f()))), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
 	
 	private Keyframe[] keyframes;
 	
@@ -102,15 +103,14 @@ public class TransformSheet {
 		}
 	}
 	
-	public Vec3f getInterpolatedTranslation(float currentTime) {
+	public Vector3f getInterpolatedTranslation(float currentTime) {
 		InterpolationInfo interpolInfo = this.getInterpolationInfo(currentTime);
 		
 		if (interpolInfo == InterpolationInfo.INVALID) {
-			return new Vec3f();
+			return new Vector3f();
 		}
-		
-		Vec3f vec3f = MathUtils.lerpVector(this.keyframes[interpolInfo.prev].transform().translation(), this.keyframes[interpolInfo.next].transform().translation(), interpolInfo.delta);
-		return vec3f;
+
+        return VectorUtils.lerp(this.keyframes[interpolInfo.prev].transform().translation(), this.keyframes[interpolInfo.next].transform().translation(), interpolInfo.delta, new Vector3f());
 	}
 	
 	public Quaternionf getInterpolatedRotation(float currentTime) {
@@ -119,9 +119,8 @@ public class TransformSheet {
 		if (interpolInfo == InterpolationInfo.INVALID) {
 			return new Quaternionf();
 		}
-		
-		Quaternionf quat = MathUtils.lerpQuaternion(this.keyframes[interpolInfo.prev].transform().rotation(), this.keyframes[interpolInfo.next].transform().rotation(), interpolInfo.delta);
-		return quat;
+
+        return MathUtils.lerpQuaternion(this.keyframes[interpolInfo.prev].transform().rotation(), this.keyframes[interpolInfo.next].transform().rotation(), interpolInfo.delta);
 	}
 	
 	public JointTransform getInterpolatedTransform(float currentTime) {
@@ -132,25 +131,22 @@ public class TransformSheet {
 		if (interpolationInfo == InterpolationInfo.INVALID) {
 			return JointTransform.empty();
 		}
-		
-		JointTransform trasnform = JointTransform.interpolate(this.keyframes[interpolationInfo.prev].transform(), this.keyframes[interpolationInfo.next].transform(), interpolationInfo.delta);
-		return trasnform;
+
+        return JointTransform.interpolate(this.keyframes[interpolationInfo.prev].transform(), this.keyframes[interpolationInfo.next].transform(), interpolationInfo.delta);
 	}
 	
 	public TransformSheet extend(TransformSheet target) {
 		int newKeyLength = this.keyframes.length + target.keyframes.length;
 		Keyframe[] newKeyfrmaes = new Keyframe[newKeyLength];
-		
-		for (int i = 0; i < this.keyframes.length; i++) {
-			newKeyfrmaes[i] = this.keyframes[i];
-		}
+
+        System.arraycopy(this.keyframes, 0, newKeyfrmaes, 0, this.keyframes.length);
 		
 		for (int i = this.keyframes.length; i < newKeyLength; i++) {
 			newKeyfrmaes[i] = new Keyframe(target.keyframes[i - this.keyframes.length]);
 		}
 		
 		this.keyframes = newKeyfrmaes;
-		
+
 		return this;
 	}
 	
@@ -162,23 +158,23 @@ public class TransformSheet {
 		return part;
 	}
 	
-	public void correctAnimationByNewPosition(Vec3f startpos, Vec3f startToEnd, Vec3f modifiedStart, Vec3f modifiedStartToEnd) {
+	public void correctAnimationByNewPosition(Vector3f startpos, Vector3f startToEnd, Vector3f modifiedStart, Vector3f modifiedStartToEnd) {
 		Keyframe[] keyframes = this.getKeyframes();
 		Keyframe startKeyframe = keyframes[0];
 		Keyframe endKeyframe = keyframes[keyframes.length - 1];
-		float pitchDeg = (float) Math.toDegrees(Mth.atan2(modifiedStartToEnd.y - startToEnd.y, modifiedStartToEnd.length()));
-		float yawDeg = (float) MathUtils.getAngleBetween(modifiedStartToEnd.copy().multiply(1.0F, 0.0F, 1.0F).normalize(), startToEnd.copy().multiply(1.0F, 0.0F, 1.0F).normalize());
+		float pitch = (float) Mth.atan2(modifiedStartToEnd.y - startToEnd.y, modifiedStartToEnd.length());
+		float yaw = (float) Math.toRadians(VectorUtils.getAngleBetween(new Vector3f(modifiedStartToEnd).mul(1.0F, 0.0F, 1.0F).normalize(), new Vector3f(startToEnd).mul(1.0F, 0.0F, 1.0F).normalize()));
 		
 		for (Keyframe kf : keyframes) {
 			float lerp = (kf.time() - startKeyframe.time()) / (endKeyframe.time() - startKeyframe.time());
-			Vec3f line = MathUtils.lerpVector(new Vec3f(0F, 0F, 0F), startToEnd, lerp);
-			Vec3f modifiedLine = MathUtils.lerpVector(new Vec3f(0F, 0F, 0F), modifiedStartToEnd, lerp);
-			Vec3f keyTransform = kf.transform().translation();
-			Vec3f startToKeyTransform = keyTransform.copy().sub(startpos).multiply(-1.0F, 1.0F, -1.0F);
-			Vec3f animOnLine = startToKeyTransform.copy().sub(line);
-			OpenMatrix4f rotator = OpenMatrix4f.createRotatorDeg(pitchDeg, Vec3f.X_AXIS).mulFront(OpenMatrix4f.createRotatorDeg(yawDeg, Vec3f.Y_AXIS));
-			Vec3f toNewKeyTransform = modifiedLine.add(OpenMatrix4f.transform3v(rotator, animOnLine, null));
-			keyTransform.set(modifiedStart.copy().add((toNewKeyTransform)));
+			Vector3f line = VectorUtils.lerp(new Vector3f(0F, 0F, 0F), startToEnd, lerp, new Vector3f());
+			Vector3f modifiedLine = VectorUtils.lerp(new Vector3f(0F, 0F, 0F), modifiedStartToEnd, lerp, new Vector3f());
+			Vector3f keyTransform = kf.transform().translation();
+			Vector3f startToKeyTransform = new Vector3f(keyTransform).sub(startpos).mul(-1.0F, 1.0F, -1.0F);
+			Vector3f animOnLine = new Vector3f(startToKeyTransform).sub(line);
+			Matrix4f rotator = new Matrix4f().rotate(pitch, 1, 0, 0).mulLocal(new Matrix4f().rotate(yaw, 0, 1, 0));
+			Vector3f toNewKeyTransform = modifiedLine.add(Matrix4fUtils.transform3v(rotator, animOnLine, new Vector3f()));
+			keyTransform.set(new Vector3f(modifiedStart).add((toNewKeyTransform)));
 		}
 	}
 	
@@ -188,13 +184,13 @@ public class TransformSheet {
 		float verticalDistance = (float) Math.abs(dest.y - start.y);
 		JointTransform startJt = transform.getKeyframes()[startFrame].transform();
 		JointTransform endJt = transform.getKeyframes()[endFrame].transform();
-		Vec3f jointCoord = new Vec3f(startJt.translation().x, verticalDistance, horizontalDistance);
+		Vector3f jointCoord = new Vector3f(startJt.translation().x, verticalDistance, horizontalDistance);
 		
 		startJt.translation().set(jointCoord);
 		
 		for (int i = startFrame + 1; i < endFrame; i++) {
 			JointTransform middleJt = transform.getKeyframes()[i].transform();
-			middleJt.translation().set(MathUtils.lerpVector(startJt.translation(), endJt.translation(), transform.getKeyframes()[i].time() / transform.getKeyframes()[endFrame].time()));
+			middleJt.translation().set(VectorUtils.lerp(startJt.translation(), endJt.translation(), transform.getKeyframes()[i].time() / transform.getKeyframes()[endFrame].time(), new Vector3f()));
 		}
 		
 		return transform;
@@ -207,7 +203,7 @@ public class TransformSheet {
 		for (int i = 0; i < endFrame + 1; i++) {
 			Keyframe kf = transform.getKeyframes()[i];
 			float prevZ = kf.transform().translation().z;
-			kf.transform().translation().multiply(1.0F, 1.0F, multiplier);
+			kf.transform().translation().mul(1.0F, 1.0F, multiplier);
 			float extendedZ = kf.transform().translation().z;
 			extend = extendedZ - prevZ;
 		}
@@ -220,40 +216,29 @@ public class TransformSheet {
 		return transform;
 	}
 	
-	/**
-	 * Transform the animation coord system to world coord system regarding origin point as @param worldDest
-	 * 
-	 * @param entitypatch
-	 * @param worldStart
-	 * @param worldDest
-	 * @param xRot
-	 * @param entityYRot
-	 * @param startFrame
-	 * @param endFrame
-	 * @return
-	 */
+
 	public TransformSheet transformToWorldCoordOriginAsDest(LivingEntityPatch<?> entitypatch, Vec3 startInWorld, Vec3 destInWorld, float entityYRot, float destYRot, int startFrmae, int destFrame) {
 		TransformSheet byStart = this.copy(0, destFrame + 1);
 		TransformSheet byDest = this.copy(0, destFrame + 1);
 		TransformSheet result = new TransformSheet(destFrame + 1);
 		Vec3 toTargetInWorld = destInWorld.subtract(startInWorld);
 		double worldMagnitude = toTargetInWorld.horizontalDistance();
-		double animMagnitude = this.keyframes[0].transform().translation().horizontalDistance();
+		double animMagnitude = new Vec3(this.keyframes[0].transform().translation()).horizontalDistance();
 		float scale = (float)(worldMagnitude / animMagnitude);
 		
 		byStart.forEach((idx, keyframe) -> {
 			keyframe.transform().translation().sub(this.keyframes[0].transform().translation());
-			keyframe.transform().translation().multiply(1.0F, 1.0F, scale);
-			keyframe.transform().translation().rotate(-entityYRot, Vec3f.Y_AXIS);
-			keyframe.transform().translation().multiply(-1.0F, 1.0F, -1.0F);
-			keyframe.transform().translation().add(startInWorld);
+			keyframe.transform().translation().mul(1.0F, 1.0F, scale);
+			keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(-entityYRot), 0, 1, 0);
+			keyframe.transform().translation().mul(-1.0F, 1.0F, -1.0F);
+			keyframe.transform().translation().add(startInWorld.toVector3f());
 		});
 		
 		byDest.forEach((idx, keyframe) -> {
-			keyframe.transform().translation().multiply(1.0F, 1.0F, Mth.lerp((idx / (float)destFrame), scale, 1.0F));
-			keyframe.transform().translation().rotate(-destYRot, Vec3f.Y_AXIS);
-			keyframe.transform().translation().multiply(-1.0F, 1.0F, -1.0F);
-			keyframe.transform().translation().add(destInWorld);
+			keyframe.transform().translation().mul(1.0F, 1.0F, Mth.lerp((idx / (float)destFrame), scale, 1.0F));
+			keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(-destYRot), 0, 1, 0);
+			keyframe.transform().translation().mul(-1.0F, 1.0F, -1.0F);
+			keyframe.transform().translation().add(destInWorld.toVector3f());
 		});
 		
 		for (int i = 0; i < destFrame + 1; i++) {
@@ -261,7 +246,7 @@ public class TransformSheet {
 				result.getKeyframes()[i] = new Keyframe(this.keyframes[i].time(), JointTransform.translation(byStart.getKeyframes()[i].transform().translation()));
 			} else {
 				float lerp = this.keyframes[i].time() == 0.0F ? 0.0F : this.keyframes[i].time() / this.keyframes[destFrame].time();
-				Vec3f lerpTranslation = Vec3f.interpolate(byStart.getKeyframes()[i].transform().translation(), byDest.getKeyframes()[i].transform().translation(), lerp, null);
+				Vector3f lerpTranslation = VectorUtils.lerp(byStart.getKeyframes()[i].transform().translation(), byDest.getKeyframes()[i].transform().translation(), lerp, new Vector3f());
 				result.getKeyframes()[i] = new Keyframe(this.keyframes[i].time(), JointTransform.translation(lerpTranslation));
 			}
 		}
@@ -271,8 +256,8 @@ public class TransformSheet {
 			
 			behindDestination.forEach((idx, keyframe) -> {
 				keyframe.transform().translation().sub(this.keyframes[destFrame].transform().translation());
-				keyframe.transform().translation().rotate(entityYRot, Vec3f.Y_AXIS);
-				keyframe.transform().translation().multiply(-1.0F, 1.0F, -1.0F);
+				keyframe.transform().translation().rotateAxis(org.joml.Math.toRadians(entityYRot), 0, 1, 0);
+				keyframe.transform().translation().mul(-1.0F, 1.0F, -1.0F);
 				keyframe.transform().translation().add(result.getKeyframes()[destFrame].transform().translation());
 			});
 			

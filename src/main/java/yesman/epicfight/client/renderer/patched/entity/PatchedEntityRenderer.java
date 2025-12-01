@@ -11,12 +11,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderNameTagEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event.Result;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.mixin.client.MixinEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -35,7 +35,7 @@ public abstract class PatchedEntityRenderer<E extends LivingEntity, T extends Li
 	}
 	
 	public void mulPoseStack(PoseStack poseStack, Armature armature, E entity, T entitypatch, float partialTicks) {
-		OpenMatrix4f modelMatrix = entitypatch.getModelMatrix(partialTicks);
+		Matrix4f modelMatrix = entitypatch.getModelMatrix(partialTicks);
         poseStack.mulPose(QuaternionUtils.YP.rotationDegrees(180.0F));
         MathUtils.mulStack(poseStack, modelMatrix);
         

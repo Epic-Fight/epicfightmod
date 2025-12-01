@@ -1,5 +1,6 @@
 package yesman.epicfight.world.capabilities.entitypatch;
 
+import java.lang.Math;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.ApiStatus;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import com.mojang.datafixers.util.Pair;
 
@@ -68,9 +69,7 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
 import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec2i;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Armatures;
@@ -238,11 +237,11 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
 			if (animation.doesHeadRotFollowEntityHead()) {
 				float headRelativeRot = Mth.rotLerp(partialTick, Mth.wrapDegrees(this.original.yBodyRotO - this.original.yHeadRotO), Mth.wrapDegrees(this.original.yBodyRot - this.original.yHeadRot));
-				OpenMatrix4f toOriginalRotation = new OpenMatrix4f(this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"))).removeScale().removeTranslation().invert();
-				Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
-				Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
-				OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(headRelativeRot, yAxis).rotateDeg(-Mth.rotLerp(partialTick, this.original.xRotO, this.original.getXRot()), xAxis);
-				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
+				Matrix4f toOriginalRotation = new Matrix4f().rotation(this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head")).getNormalizedRotation(new Quaternionf())).invert();
+				Vector3f xAxis = Matrix4fUtils.transform3v(toOriginalRotation, new Vector3f(1, 0, 0), new Vector3f());
+				Vector3f yAxis = Matrix4fUtils.transform3v(toOriginalRotation, new Vector3f(0, 1, 0), new Vector3f());
+				Matrix4f headRotation = new Matrix4f().rotation(org.joml.Math.toRadians(headRelativeRot), yAxis).rotate(org.joml.Math.toRadians(-Mth.rotLerp(partialTick, this.original.xRotO, this.original.getXRot())), xAxis);
+				pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), Matrix4fUtils::mulBoth);
 			}
 		}
 	}
@@ -303,7 +302,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 				
 				this.entityDecorations.addOverlayCoordModifier(EntityDecorations.STAMINA_PILLAGER_ASHES_OVERLAY, new RenderAttributeModifier<> () {
 					@Override
-					public void modifyValue(Vec2i value, float partialTick) {
+					public void modifyValue(Vector2i value, float partialTick) {
 						value.x = OverlayTexture.NO_WHITE_U;
 						value.y = OverlayTexture.WHITE_OVERLAY_V;
 					}
@@ -312,8 +311,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 				this.entityDecorations.addParticleGenerator(EntityDecorations.STAMINA_PILLAGER_ASHES_PARTICLE, new ParticleGenerator() {
 					@Override
 					public void generateParticles() {
-						OpenMatrix4f boundRootTransform = LivingEntityPatch.this.armature.getBoundTransformFor(LivingEntityPatch.this.animator.getPose(1.0F), LivingEntityPatch.this.armature.rootJoint);
-						Vec3f boundRootPos = boundRootTransform.toTranslationVector().add((float)LivingEntityPatch.this.getOriginal().getX(), (float)LivingEntityPatch.this.getOriginal().getY(), (float)LivingEntityPatch.this.getOriginal().getZ());
+						Matrix4f boundRootTransform = LivingEntityPatch.this.armature.getBoundTransformFor(LivingEntityPatch.this.animator.getPose(1.0F), LivingEntityPatch.this.armature.rootJoint);
+						Vector3f boundRootPos = boundRootTransform.getTranslation(new Vector3f()).add((float)LivingEntityPatch.this.getOriginal().getX(), (float)LivingEntityPatch.this.getOriginal().getY(), (float)LivingEntityPatch.this.getOriginal().getZ());
 						RandomSource random = LivingEntityPatch.this.original.getRandom();
 						Vec3 lookVec = LivingEntityPatch.this.original.getLookAngle().scale(0.1D);
 						
@@ -341,7 +340,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 					private int tickCount;
 					
 					@Override
-					public void modifyValue(Vec2i value, float partialTick) {
+					public void modifyValue(Vector2i value, float partialTick) {
 						float f = Mth.sin((this.tickCount + partialTick) / (durationTick + 1.0F) * (float)Math.PI) * maxOverlay;
 						value.x = (int)f;
 						
@@ -365,7 +364,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 					private int tickCount;
 					
 					@Override
-					public void modifyValue(Vec2i value, float partialTick) {
+					public void modifyValue(Vector2i value, float partialTick) {
 						float f = Mth.sin((this.tickCount + partialTick) / (durationTick + 1.0F) * (float)Math.PI) * maxBrightness;
 						value.x += (int)f;
 					}
@@ -624,7 +623,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTicks) {
+	public Matrix4f getModelMatrix(float partialTicks) {
 		float yRotO;
 		float yRot;
 		float scale = this.original.isBaby() ? 0.5F : 1.0F;

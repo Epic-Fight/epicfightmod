@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -19,7 +20,6 @@ import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class StaticMesh<P extends MeshPart> implements Mesh, SoftBodyTranslatable {
@@ -109,11 +109,11 @@ public abstract class StaticMesh<P extends MeshPart> implements Mesh, SoftBodyTr
 		dest.set(this.normals[index], this.normals[index + 1], this.normals[index + 2]);
 	}
 	
-	public void getVertexPosition(int positionIndex, Vector4f dest, @Nullable OpenMatrix4f[] poses) {
+	public void getVertexPosition(int positionIndex, Vector4f dest, @Nullable Matrix4f[] poses) {
 		this.getVertexPosition(positionIndex, dest);
 	}
 	
-	public void getVertexNormal(int positionIndex, int normalIndex, Vector3f dest, @Nullable OpenMatrix4f[] poses) {
+	public void getVertexNormal(int positionIndex, int normalIndex, Vector3f dest, @Nullable Matrix4f[] poses) {
 		this.getVertexNormal(normalIndex, dest);
 	}
 	

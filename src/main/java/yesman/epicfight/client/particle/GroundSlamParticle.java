@@ -2,6 +2,7 @@ package yesman.epicfight.client.particle;
 
 import java.util.Random;
 
+import org.joml.Math;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.NoRenderParticle;
@@ -14,8 +15,9 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
 @OnlyIn(Dist.CLIENT)
@@ -42,9 +44,9 @@ public class GroundSlamParticle extends NoRenderParticle {
 		Minecraft mc = Minecraft.getInstance();
 		
 		for (int i = 0; i < (int)dy; i ++) {
-			OpenMatrix4f mat = OpenMatrix4f.createRotatorDeg((float)Math.random() * 360.0F, Vec3f.Y_AXIS);
-			Vec3f positionVec = OpenMatrix4f.transform3v(mat, Vec3f.Z_AXIS, null).scale((float)dx);
-			Vec3f moveVec = OpenMatrix4f.transform3v(mat, Vec3f.Z_AXIS, null).scale((float)dz);
+			Matrix4f mat = new Matrix4f().rotation((float) Math.toRadians(Math.random() * 360.0F), 0.0F, 1.0F, 0.0F);
+			Vector3f positionVec = Matrix4fUtils.transform3v(mat, new Vector3f(0, 0, 1), new Vector3f()).mul((float)dx);
+			Vector3f moveVec = Matrix4fUtils.transform3v(mat, new Vector3f(0, 0, 1), new Vector3f()).mul((float)dz);
 			
 			Particle blockParticle = new TerrainParticle(level, x + positionVec.x, y, z + positionVec.z, 0, 0, 0, bs, bp);
 			blockParticle.setParticleSpeed((moveVec.x + (Math.random() - 0.5)) * 0.3D, (Math.random()) * 0.5D, (moveVec.z + (Math.random() - 0.5)) * 0.3D);

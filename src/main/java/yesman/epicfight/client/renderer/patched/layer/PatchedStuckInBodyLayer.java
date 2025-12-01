@@ -11,18 +11,18 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class PatchedStuckInBodyLayer<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends PlayerModel<E>, R extends StuckInBodyLayer<E, M>> extends PatchedLayer<E, T, M, R> {
-	private static final Vec3f VECTOR = new Vec3f();
+	private static final Vector3f VECTOR = new Vector3f();
 	
 	@Override
-	protected void renderLayer(T entitypatch, E entityliving, R vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
+	protected void renderLayer(T entitypatch, E entityliving, R vanillaLayer, PoseStack poseStack, MultiBufferSource buffer, int packedLight, Matrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		int i = Math.min(ClientConfig.maxStuckProjectiles, this.numStuck(entityliving));
 		RandomSource randomsource = RandomSource.create((long) entityliving.getId());
 		
@@ -32,7 +32,7 @@ public abstract class PatchedStuckInBodyLayer<E extends LivingEntity, T extends 
 				
 				int randomJoint = Math.abs(randomsource.nextInt()) % entitypatch.getArmature().getJointNumber();
 				MathUtils.mulStack(poseStack, poses[randomJoint]);
-	            entitypatch.getArmature().searchJointById(randomJoint).getLocalTransform().toTranslationVector(VECTOR);
+	            entitypatch.getArmature().searchJointById(randomJoint).getLocalTransform().getTranslation(VECTOR);
 	            
 				float f = randomsource.nextFloat();
 				float f1 = randomsource.nextFloat();

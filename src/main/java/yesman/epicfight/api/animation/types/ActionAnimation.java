@@ -11,6 +11,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeMod;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.AnimationVariables;
@@ -34,8 +36,7 @@ import yesman.epicfight.api.client.animation.property.JointMaskEntry;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -208,14 +209,14 @@ public class ActionAnimation extends MainFrameAnimation {
 	
 	public void correctRootJoint(DynamicAnimation animation, Pose pose, LivingEntityPatch<?> entitypatch, float time, float partialTicks) {
 		JointTransform jt = pose.orElseEmpty("Root");
-		Vec3f jointPosition = jt.translation();
-		OpenMatrix4f toRootTransformApplied = entitypatch.getArmature().searchJointByName("Root").getLocalTransform().removeTranslation();
-		OpenMatrix4f toOrigin = OpenMatrix4f.invert(toRootTransformApplied, null);
-		Vec3f worldPosition = OpenMatrix4f.transform3v(toRootTransformApplied, jointPosition, null);
+		Vector3f jointPosition = jt.translation();
+		Matrix4f toRootTransformApplied = entitypatch.getArmature().searchJointByName("Root").getLocalTransform().setTranslation(0, 0, 0);
+		Matrix4f toOrigin = toRootTransformApplied.invert(new Matrix4f());
+		Vector3f worldPosition = Matrix4fUtils.transform3v(toRootTransformApplied, jointPosition, new Vector3f());
 		worldPosition.x = 0.0F;
 		worldPosition.y = (this.getProperty(ActionAnimationProperty.MOVE_VERTICAL).orElse(false) && worldPosition.y > 0.0F) ? 0.0F : worldPosition.y;
 		worldPosition.z = 0.0F;
-		OpenMatrix4f.transform3v(toOrigin, worldPosition, worldPosition);
+		Matrix4fUtils.transform3v(toOrigin, worldPosition, worldPosition);
 		jointPosition.x = worldPosition.x;
 		jointPosition.y = worldPosition.y;
 		jointPosition.z = worldPosition.z;
@@ -340,9 +341,9 @@ public class ActionAnimation extends MainFrameAnimation {
 		moveCoordSetter.set(this, entitypatch, coordTransform);
 		
 		MoveCoordGetter moveGetter = this.getProperty(ActionAnimationProperty.COORD_GET).orElse(MoveCoordFunctions.MODEL_COORD);
-		Vec3f move = moveGetter.get(this, entitypatch, coordTransform, 0.0F, elapseTime);
+		Vector3f move = moveGetter.get(this, entitypatch, coordTransform, 0.0F, elapseTime);
 		
-		return move.toDoubleVector();
+		return new Vec3(move);
 	}
 	
 	protected Vec3 getCoordVector(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
@@ -361,7 +362,7 @@ public class ActionAnimation extends MainFrameAnimation {
 		boolean moveVertical = this.getProperty(ActionAnimationProperty.MOVE_VERTICAL).orElse(this.getProperty(ActionAnimationProperty.COORD).isPresent());
 		MoveCoordGetter moveGetter = getRawCoord ? MoveCoordFunctions.MODEL_COORD : this.getProperty(ActionAnimationProperty.COORD_GET).orElse(MoveCoordFunctions.MODEL_COORD);
 		
-		Vec3f move = moveGetter.get(animation.get(), entitypatch, transformSheet, player.getPrevElapsedTime(), player.getElapsedTime());
+		Vector3f move = moveGetter.get(animation.get(), entitypatch, transformSheet, player.getPrevElapsedTime(), player.getElapsedTime());
 		LivingEntity livingentity = entitypatch.getOriginal();
 		Vec3 motion = livingentity.getDeltaMovement();
 		
@@ -389,7 +390,7 @@ public class ActionAnimation extends MainFrameAnimation {
 			});
 		}
 		
-		return move.toDoubleVector();
+		return new Vec3(move);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

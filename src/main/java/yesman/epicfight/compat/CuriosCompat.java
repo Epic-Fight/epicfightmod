@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import org.joml.Matrix4f;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
@@ -34,7 +35,6 @@ import yesman.epicfight.api.client.model.Mesh.DrawingFunction;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
@@ -87,7 +87,7 @@ public class CuriosCompat implements ICompatModule {
 			, PoseStack poseStack
 			, MultiBufferSource buffers
 			, int packedLight
-			, OpenMatrix4f[] poses
+			, Matrix4f[] poses
 			, float bob
 			, float yRot
 			, float xRot
@@ -168,7 +168,7 @@ public class CuriosCompat implements ICompatModule {
 			// Render vanilla model when no epic fight model is found
 			if (!renderedEpicFightModel.booleanValue()) {
 				poseStack.pushPose();
-				OpenMatrix4f modelMatrix = poses[entitypatch.getArmature().searchJointByName("Root").getId()];
+				Matrix4f modelMatrix = poses[entitypatch.getArmature().searchJointByName("Root").getId()];
 				MathUtils.mulStack(poseStack, modelMatrix);
 				poseStack.translate(0.0F, 0.75F, 0.0F);
 				poseStack.scale(-1.0F, -1.0F, 1.0F);
@@ -189,7 +189,7 @@ public class CuriosCompat implements ICompatModule {
 			, PoseStack poseStack
 			, MultiBufferSource buffer
 			, int packedLight
-			, OpenMatrix4f[] poses
+			, Matrix4f[] poses
 			, float bob
 			, float yRot
 			, float xRot

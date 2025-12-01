@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
@@ -17,14 +19,12 @@ import yesman.epicfight.api.client.physics.AbstractSimulator;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.SimulationObject;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.InverseKinematicsBuilder;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 
 public class InverseKinematicsSimulator extends AbstractSimulator<Joint, InverseKinematicsBuilder, InverseKinematicsProvider, InverseKinematicsSimulatable, InverseKinematicsSimulator.InverseKinematicsObject> {
 	public static class InverseKinematicsObject implements SimulationObject<InverseKinematicsBuilder, InverseKinematicsProvider, InverseKinematicsSimulatable> {
 		private final TransformSheet animation;
 		private final BakedInverseKinematicsDefinition ikDefinition;
-		private Vec3f destination;
+		private Vector3f destination;
 		private float time;
 		private float startTime;
 		private float totalTime;
@@ -53,7 +53,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			return this.ikDefinition;
 		}
 		
-		public void start(Vec3f targetpos, TransformSheet animation, float speed) {
+		public void start(Vector3f targetpos, TransformSheet animation, float speed) {
 			this.isWorking = true;
 			this.time = 0.0F;
 			this.destination = targetpos;
@@ -67,9 +67,9 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			}
 		}
 		
-		public void newTargetPosition(Vec3f targetpos) {
-			Vec3f dv = targetpos.copy().sub(this.destination);
-			this.destination = targetpos;
+		public void newTargetPosition(Vector3f targetPos) {
+			Vector3f dv = new Vector3f(targetPos).sub(this.destination);
+			this.destination = targetPos;
 			Keyframe[] keyframes = this.animation.getKeyframes();
 			float curTime = this.getTime(1.0F);
 			int startFrame = 0;
@@ -79,7 +79,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			}
 			
 			for (int i = startFrame; i < keyframes.length; i++) {
-				keyframes[i].transform().translation().add(dv.copy());
+				keyframes[i].transform().translation().add(new Vector3f(dv));
 			}
 		}
 		
@@ -110,7 +110,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			}
 		}
 		
-		public Vec3f getTipPosition(float partialTicks) {
+		public Vector3f getTipPosition(float partialTicks) {
 			return this.animation.getInterpolatedTranslation(this.getTime(partialTicks));
 		}
 		
@@ -118,7 +118,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			return this.animation.getInterpolatedTransform(this.getTime(partialTicks));
 		}
 		
-		public Vec3f getDestination() {
+		public Vector3f getDestination() {
 			return this.destination;
 		}
 		
@@ -132,17 +132,17 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 	}
 	
 	public static class InverseKinematicsBuilder extends SimulationObject.SimulationObjectBuilder {
-		private Vec3f initPos;
+		private Vector3f initPos;
 		private TransformSheet transformSheet;
 		private BakedInverseKinematicsDefinition ikDefinition;
 		
-		private InverseKinematicsBuilder(Vec3f initPos, TransformSheet transformSheet, BakedInverseKinematicsDefinition ikDefinition) {
+		private InverseKinematicsBuilder(Vector3f initPos, TransformSheet transformSheet, BakedInverseKinematicsDefinition ikDefinition) {
 			this.initPos = initPos;
 			this.transformSheet = transformSheet;
 			this.ikDefinition = ikDefinition;
 		}
 		
-		public static InverseKinematicsBuilder create(Vec3f initpos, TransformSheet transformSheet, BakedInverseKinematicsDefinition ikDefinition) {
+		public static InverseKinematicsBuilder create(Vector3f initpos, TransformSheet transformSheet, BakedInverseKinematicsDefinition ikDefinition) {
 			return new InverseKinematicsBuilder(initpos, transformSheet, ikDefinition);
 		}
 	}
@@ -158,9 +158,9 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 		, float rayLeastHeight
 		, boolean[] touchingGround
 		, List<String> pathToEndJoint
-		, Vec3f startPosition
-		, Vec3f endPosition
-		, Vec3f startToEnd
+		, Vector3f startPosition
+		, Vector3f endPosition
+		, Vector3f startToEnd
 		, TransformSheet terminalBoneTransform
 	) {
 	}
@@ -217,7 +217,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 					pose.putJointData(jointName, animationClip.get(jointName).getInterpolatedTransform(kf.time()));
 				}
 				
-				OpenMatrix4f boundPoseMatrix = armature.get().getBoundTransformFor(pose, this.endJoint);
+				Matrix4f boundPoseMatrix = armature.get().getBoundTransformFor(pose, this.endJoint);
 				JointTransform boundJointTransform = JointTransform.fromMatrixWithoutScale(boundPoseMatrix);
 				boundTransformKeyframes[i] = new Keyframe(kf);
 				JointTransform tipTransform = boundTransformKeyframes[i].transform();
@@ -225,7 +225,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 				
 				if (correctY || correctZ) {
 					JointTransform rootTransform = animationClip.get("Root").getInterpolatedTransform(kf.time());
-					Vec3f rootPos = rootTransform.translation();
+					Vector3f rootPos = rootTransform.translation();
 					float yCorrection = correctY ? -rootPos.z : 0.0F;
 					float zCorrection = correctZ ? rootPos.y : 0.0F;
 					tipTransform.translation().add(0.0F, yCorrection, zCorrection);
@@ -233,8 +233,8 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 			}
 			
 			TransformSheet terminalBoneTransform = new TransformSheet(boundTransformKeyframes);
-			Vec3f startPos;
-			Vec3f endPos;
+			Vector3f startPos;
+			Vector3f endPos;
 			
 			if (this.clipAnimation) {
 				TransformSheet part = terminalBoneTransform.copy(this.startFrame, this.endFrame);
@@ -246,7 +246,7 @@ public class InverseKinematicsSimulator extends AbstractSimulator<Joint, Inverse
 				endPos = startPos;
 			}
 			
-			Vec3f startToEnd = Vec3f.sub(endPos, startPos, null).multiply(-1.0F, 1.0F, -1.0F);
+			Vector3f startToEnd = endPos.sub(startPos, new Vector3f()).mul(-1.0F, 1.0F, -1.0F);
 			
 			return new BakedInverseKinematicsDefinition(
 				  this.startJoint

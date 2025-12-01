@@ -9,11 +9,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObjectBuilder;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class CompositeMesh implements Mesh, SoftBodyTranslatable {
@@ -37,7 +37,7 @@ public class CompositeMesh implements Mesh, SoftBodyTranslatable {
 	}
 	
 	@Override
-	public void drawPosed(PoseStack poseStack, VertexConsumer bufferBuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, OpenMatrix4f[] poses) {
+	public void drawPosed(PoseStack poseStack, VertexConsumer bufferBuilder, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, Armature armature, Matrix4f[] poses) {
 		this.staticMesh.drawPosed(poseStack, bufferBuilder, drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 		this.softBodyMesh.getOriginalMesh().drawPosed(poseStack, bufferBuilder, drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 	}

@@ -24,6 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
@@ -34,8 +35,7 @@ import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -161,7 +161,7 @@ public class EndermanPatch extends MobPatch<EnderMan> {
 		super.poseTick(animation, pose, elapsedTime, partialTicks);
 		
 		if (this.isRaging() && pose.hasTransform("Head_Top")) {
-			pose.orElseEmpty("Head_Top").frontResult(JointTransform.translation(new Vec3f(0.0F, 0.25F, 0.0F)), OpenMatrix4f::mul);
+			pose.orElseEmpty("Head_Top").frontResult(JointTransform.translation(new Vector3f(0.0F, 0.25F, 0.0F)), Matrix4fUtils::mulBoth);
 		}
 	}
 	
@@ -253,8 +253,8 @@ public class EndermanPatch extends MobPatch<EnderMan> {
 		if (this.isLogicalClient()) {
 			for (int i = 0; i < 100; i++) {
 				RandomSource rand = original.getRandom();
-				Vec3f vec = new Vec3f(rand.nextInt(), rand.nextInt(), rand.nextInt());
-				vec.normalize().scale(0.5F);
+				Vector3f vec = new Vector3f(rand.nextInt(), rand.nextInt(), rand.nextInt());
+				vec.normalize().mul(0.5F);
 				Minecraft minecraft = Minecraft.getInstance();
 				minecraft.particleEngine.createParticle(EpicFightParticles.ENDERMAN_DEATH_EMIT.get(), this.original.getX(), this.original.getY() + this.original.getDimensions(net.minecraft.world.entity.Pose.STANDING).height / 2, this.original.getZ(), vec.x, vec.y, vec.z);
 			}
@@ -332,8 +332,8 @@ public class EndermanPatch extends MobPatch<EnderMan> {
 	        mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
 	        
 			if (this.delayCounter-- < 0 && !this.mobpatch.getEntityState().inaction()) {
-				Vec3f vec = new Vec3f((float)(mob.getX() - target.getX()), 0, (float)(mob.getZ() - target.getZ()));
-	        	vec.normalize().scale(1.414F);
+				Vector3f vec = new Vector3f((float)(mob.getX() - target.getX()), 0, (float)(mob.getZ() - target.getZ()));
+	        	vec.normalize().mul(1.414F);
 	        	boolean flag = mob.randomTeleport(target.getX() + vec.x, target.getY(), target.getZ() + vec.z, true);
 	        	
 				if (flag) {

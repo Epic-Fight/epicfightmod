@@ -20,6 +20,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -52,8 +54,8 @@ import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.BakedInverseKinematicsDefinition;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.InverseKinematicsObject;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
+
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.RenderingTool;
@@ -601,7 +603,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	public void renderDebugging(PoseStack poseStack, MultiBufferSource buffer, LivingEntityPatch<?> entitypatch, float playTime, float partialTicks) {
 		if (entitypatch instanceof InverseKinematicsSimulatable ikSimulatable) {
 			this.getProperty(StaticAnimationProperty.BAKED_IK_DEFINITION).ifPresent((ikDefinitions) -> {
-				OpenMatrix4f modelmat = ikSimulatable.getModelMatrix(partialTicks);
+				Matrix4f modelmat = ikSimulatable.getModelMatrix(partialTicks);
 				LivingEntity originalEntity = entitypatch.getOriginal();
 				Vec3 entitypos = originalEntity.position();
 				float x = (float)entitypos.x;
@@ -610,17 +612,17 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 		       	float xo = (float)originalEntity.xo;
 		       	float yo = (float)originalEntity.yo;
 		       	float zo = (float)originalEntity.zo;
-		       	OpenMatrix4f toModelPos = OpenMatrix4f.mul(OpenMatrix4f.createTranslation(xo + (x - xo) * partialTicks, yo + (y - yo) * partialTicks, zo + (z - zo) * partialTicks), modelmat, null).invert();
+		       	Matrix4f toModelPos = new Matrix4f().setTranslation(xo + (x - xo) * partialTicks, yo + (y - yo) * partialTicks, zo + (z - zo) * partialTicks).mul(modelmat).invert();
 		       	
 				for (BakedInverseKinematicsDefinition bakedIKInfo : this.getProperty(StaticAnimationProperty.BAKED_IK_DEFINITION).orElse(null)) {
 					ikSimulatable.getIKSimulator().getRunningObject(bakedIKInfo.endJoint()).ifPresent((ikObjet) -> {
 						VertexConsumer vertexBuilder = buffer.getBuffer(EpicFightRenderTypes.debugQuads());
-						Vec3f worldtargetpos = ikObjet.getDestination();
-						Vec3f modeltargetpos = OpenMatrix4f.transform3v(toModelPos, worldtargetpos, null).multiply(-1.0F, 1.0F, -1.0F);
+						Vector3f worldtargetpos = ikObjet.getDestination();
+						Vector3f modeltargetpos = Matrix4fUtils.transform3v(toModelPos, worldtargetpos, null).mul(-1.0F, 1.0F, -1.0F);
 						RenderingTool.drawQuad(poseStack, vertexBuilder, modeltargetpos, 0.5F, 1.0F, 0.0F, 0.0F);
-				       	Vec3f jointWorldPos = ikObjet.getTipPosition(partialTicks);
-				       	Vec3f jointModelpos = OpenMatrix4f.transform3v(toModelPos, jointWorldPos, null);
-				       	RenderingTool.drawQuad(poseStack, vertexBuilder, jointModelpos.multiply(-1.0F, 1.0F, -1.0F), 0.4F, 0.0F, 0.0F, 1.0F);
+				       	Vector3f jointWorldPos = ikObjet.getTipPosition(partialTicks);
+				       	Vector3f jointModelpos = Matrix4fUtils.transform3v(toModelPos, jointWorldPos, null);
+				       	RenderingTool.drawQuad(poseStack, vertexBuilder, jointModelpos.mul(-1.0F, 1.0F, -1.0F), 0.4F, 0.0F, 0.0F, 1.0F);
 				       	
 				       	Pose pose = new Pose();
 				       	

@@ -1,6 +1,8 @@
 package yesman.epicfight.api.utils.math;
 
+import org.joml.Matrix4f;
+
 @FunctionalInterface
 public interface MatrixOperation {
-	OpenMatrix4f mul(OpenMatrix4f left, OpenMatrix4f right, OpenMatrix4f dest);
+	Matrix4f mul(Matrix4f left, Matrix4f right, Matrix4f dest);
 }

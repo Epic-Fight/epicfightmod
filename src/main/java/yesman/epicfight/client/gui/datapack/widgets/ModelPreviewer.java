@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -84,10 +85,8 @@ import yesman.epicfight.api.physics.SimulatableObject;
 import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.api.utils.math.Vec4f;
+import yesman.epicfight.api.utils.math.joml.Matrix4fUtils;
 import yesman.epicfight.client.particle.AnimationTrailParticle;
 import yesman.epicfight.client.renderer.EpicFightShaders;
 import yesman.epicfight.gameasset.Animations;
@@ -95,6 +94,7 @@ import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
+import org.joml.Math;
 
 @OnlyIn(Dist.CLIENT)
 public class ModelPreviewer extends AbstractWidget implements ResizableComponent {
@@ -126,7 +126,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 	private List<TrailInfo> trailInfoList = Lists.newArrayList();
 	private Item item;
 	
-	private Vec4f backgroundClearColor;
+	private Vector4f backgroundClearColor;
 	private boolean cameraMoveEnabled = true;
 	private boolean cameraRotationEnabled = true;
 	private boolean zoomingCameraEnabled = true;
@@ -134,7 +134,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 	private ClothSimulator clothSimulator;
 	private SoftBodyTranslatable cloakMesh;
 	private ResourceLocation cloakTexture;
-	private Vec3f cloakColor = new Vec3f(1.0F, 1.0F, 1.0F);
+	private Vector3f cloakColor = new Vector3f(1.0F, 1.0F, 1.0F);
 	
 	public ModelPreviewer(int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, AssetAccessor<? extends Armature> armature, AssetAccessor<? extends SkinnedMesh> mesh) {
 		super(x1, y1, x2, y2, Component.literal(""));
@@ -195,14 +195,14 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		float g = ((colorCode & 65280) >> 8) / 255.0F;
 		float r = ((colorCode & 16711680) >> 16) / 255.0F;
 		
-		this.cloakColor = new Vec3f(r, g, b);
+		this.cloakColor = new Vector3f(r, g, b);
 	}
 	
 	public void setCloakColor(float r, float g, float b) {
-		this.cloakColor = new Vec3f(r, g, b);
+		this.cloakColor = new Vector3f(r, g, b);
 	}
 	
-	public Vec3f getCloakColor() {
+	public Vector3f getCloakColor() {
 		return this.cloakColor;
 	}
 	
@@ -272,7 +272,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		this.attackTimeEnd = attackTimeEnd;
 	}
 	
-	public void setBackgroundClearColor(Vec4f clearColor) {
+	public void setBackgroundClearColor(Vector4f clearColor) {
 		this.backgroundClearColor = clearColor;
 	}
 	
@@ -339,7 +339,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 		
 		this.yRotO = this.yRot;
-		this.trailParticles.forEach((trail) -> trail.tick());
+		this.trailParticles.forEach(CustomTrailParticle::tick);
 		this.trailParticles.removeIf((trail) -> !trail.isAlive());
 		
 		if (this.entitypatch != null && this.clothSimulator != null) {
@@ -388,12 +388,12 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			if (button == 0) {
 				if (this.cameraRotationEnabled) {
 					this.xRot = (float)Mth.clamp(this.xRot + dy * 2.5D, -30.0D, 45.0D);
-					this.yRot += dx * 2.5D;
+					this.yRot += (float) (dx * 2.5D);
 				}
 			} else if (button == 2) {
 				if (this.cameraMoveEnabled) {
-					this.xMove += (float)dx * 0.015F * -this.zoom;
-					this.yMove += -(float)dy * 0.015F * -this.zoom;
+					this.xMove += (float) ((float)dx * 0.015F * -this.zoom);
+					this.yMove += (float) (-(float)dy * 0.015F * -this.zoom);
 				}
 			}
 			
@@ -418,7 +418,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			if (this.animator != null) {
 				Pose pose = this.animator.getPose(partialTicks);
 				this.mesh.get().initialize();
-				OpenMatrix4f[] poseMatrices = this.entitypatch.getArmature().getPoseAsTransformMatrix(pose, false);
+				Matrix4f[] poseMatrices = this.entitypatch.getArmature().getPoseAsTransformMatrix(pose, false);
 				
 				if (this.figureTexture != null) {
 					RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
@@ -437,8 +437,8 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 					ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 					ItemStack itemstack = new ItemStack(this.item);
-					OpenMatrix4f correction = new OpenMatrix4f().translate(0F, 0F, -0.13F).rotateDeg(-90.0F, Vec3f.X_AXIS);
-					OpenMatrix4f handTransform = correction.mulFront(this.entitypatch.getArmature().getBoundTransformFor(pose, this.getArmature().get().searchJointByName("Tool_R")));
+					Matrix4f correction = new Matrix4f().setTranslation(0F, 0F, -0.13F).rotate(Math.toRadians(-90.0F), 1, 0, 0);
+					Matrix4f handTransform = correction.mulLocal(this.entitypatch.getArmature().getBoundTransformFor(pose, this.getArmature().get().searchJointByName("Tool_R")), new Matrix4f());
 					
 					guiGraphics.pose().pushPose();
 					MathUtils.mulStack(guiGraphics.pose(), handTransform);
@@ -534,10 +534,10 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 				
 				if (this.animator != null && this.entitypatch != null && this.clothSimulator != null) {
 					this.clothSimulator.getRunningObject(ClothSimulator.MODELPREVIEWER_CLOAK).ifPresent((clothObj) -> {
-			            Function<Float, OpenMatrix4f> partialColliderTransformProvider = (partialFrame) -> {
+			            Function<Float, Matrix4f> partialColliderTransformProvider = (partialFrame) -> {
 							Vec3 pos = this.entitypatch.getAccuratePartialLocation(partialFrame);
 							float yRotLerp = this.entitypatch.getAccurateYRot(partialFrame);
-							return OpenMatrix4f.createTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotateDeg(180.0F - yRotLerp, Vec3f.Y_AXIS);
+							return new Matrix4f().setTranslation((float)pos.x, (float)pos.y, (float)pos.z).rotate(Math.toRadians(180.0F - yRotLerp), 0, 1, 0);
 			            };
 			            
 			            Pose pose = this.animator.getPose(partialTicks);
@@ -722,7 +722,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 		
 		@Override
-		public OpenMatrix4f getModelMatrix(float partialTicks) {
+		public Matrix4f getModelMatrix(float partialTicks) {
 			return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, partialTicks, 1.0F, 1.0F, 1.0F);
 		}
 		
@@ -1200,15 +1200,15 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			Pose prevPose = this.owner.getAnimator().getPose(0.0F);
 			Pose middlePose = this.owner.getAnimator().getPose(0.5F);
 			Pose currentPose = this.owner.getAnimator().getPose(1.0F);
-			OpenMatrix4f prevJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(prevPose, this.joint);
-			OpenMatrix4f middleJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(middlePose, this.joint);
-			OpenMatrix4f currentJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(currentPose, this.joint);
-			Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
-			Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
-			Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
-			Vec3 middleEndPos = OpenMatrix4f.transform(middleJointTf, trailInfo.end());
-			Vec3 currentStartPos = OpenMatrix4f.transform(currentJointTf, trailInfo.start());
-			Vec3 currentEndPos = OpenMatrix4f.transform(currentJointTf, trailInfo.end());
+			Matrix4f prevJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(prevPose, this.joint);
+			Matrix4f middleJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(middlePose, this.joint);
+			Matrix4f currentJointTf = ModelPreviewer.this.entitypatch.getArmature().getBoundTransformFor(currentPose, this.joint);
+			Vec3 prevStartPos = Matrix4fUtils.transform(prevJointTf, trailInfo.start());
+			Vec3 prevEndPos = Matrix4fUtils.transform(prevJointTf, trailInfo.end());
+			Vec3 middleStartPos = Matrix4fUtils.transform(middleJointTf, trailInfo.start());
+			Vec3 middleEndPos = Matrix4fUtils.transform(middleJointTf, trailInfo.end());
+			Vec3 currentStartPos = Matrix4fUtils.transform(currentJointTf, trailInfo.start());
+			Vec3 currentEndPos = Matrix4fUtils.transform(currentJointTf, trailInfo.end());
 			
 			List<Vec3> finalStartPositions;
 			List<Vec3> finalEndPositions;

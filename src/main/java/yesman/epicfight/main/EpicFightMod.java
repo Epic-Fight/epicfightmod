@@ -187,6 +187,16 @@ public class EpicFightMod {
                 .filter(mod -> ModList.get().isLoaded(mod.getModId()))
                 // Includes all mods on client. Skips client-only mods on server
                 .filter(mod -> isClientSide || !mod.isClientOnly())
+                .filter(mod -> {
+                    // Workaround AzureLib breaking changes: https://github.com/Epic-Fight/epicfight/issues/2269
+                    if (mod == MinecraftMod.AZURE_LIB || mod == MinecraftMod.AZURE_LIB_ARMOR) {
+                        final Integer major = mod.getVersionComponent(MinecraftMod.VersionComponent.MAJOR);
+                        if (major != null) {
+                            return major <= 2;
+                        }
+                    }
+                    return true;
+                })
                 .map(MinecraftMod::getCompatibilityModule)
                 .toList();
     }

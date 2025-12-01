@@ -1,6 +1,8 @@
 package yesman.epicfight.compat;
 
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.compat.azurelib.AzureLibArmorCompat;
 import yesman.epicfight.compat.azurelib.AzureLibCompat;
 import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
@@ -12,6 +14,7 @@ import yesman.epicfight.compat.playeranimator.PlayerAnimatorCompat;
 import yesman.epicfight.compat.skinlayer3d.SkinLayer3DCompat;
 import yesman.epicfight.compat.vampirism.VampirismCompat;
 import yesman.epicfight.compat.werewolves.WerewolvesCompat;
+import yesman.epicfight.main.EpicFightMod;
 
 // List of mods with custom compatibility modules.
 // Only includes mods requiring manual registration via ICompatModule.
@@ -46,6 +49,33 @@ public enum MinecraftMod {
 
     public boolean isClientOnly() {
         return isClientOnly;
+    }
+
+    public String versionString() {
+        return ModList.get().getModFileById(modId).versionString();
+    }
+
+    // https://semver.org
+    public enum VersionComponent {
+        MAJOR(0), MINOR(1), PATCH(2);
+
+        final int index;
+
+        VersionComponent(int index) {
+            this.index = index;
+        }
+    }
+
+    public @Nullable Integer getVersionComponent(@NotNull VersionComponent component) {
+        final String version = versionString();
+
+        try {
+            final String[] parts = version.split("\\.");
+            return Integer.parseInt(parts[component.index]);
+        } catch (Exception e) {
+            EpicFightMod.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
+            return null;
+        }
     }
 
     public @NotNull Class<? extends ICompatModule> getCompatibilityModule() {

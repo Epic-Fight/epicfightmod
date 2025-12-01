@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed:** The **Shoulder Surfing compatibility module** was not being registered,
   causing issues with its intended functionality.
 - Fixed the mining crosshair not to show in vanilla mode
+- Disabled the `AzureLib` and `AzureLibArmor` compatibility modules for version `3.X.X` and newer as a workaround to
+  address breaking changes and prevent crashes.
 
 ### For Devs
 

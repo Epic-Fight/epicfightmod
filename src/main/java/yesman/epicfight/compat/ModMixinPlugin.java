@@ -10,20 +10,17 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Enables registering mixins for other mods only when those mods are installed.
- * <p>
- * Maintainers: Do not reference any game or Epic Fight classes here.
- * This runs during early game loading. {@link LoadingModList} is used because
- * the mod loader is already initialized and is loading all mods, including Epic Fight.
- *
- * @see IMixinConfigPlugin
- */
+/// Enables registering mixins for other mods only when those mods are installed.
+///
+/// Maintainers: Do not reference any game or Epic Fight classes here.
+/// This runs during early game loading.
+/// [LoadingModList] is used because the mod loader is already initialized and is loading all mods,
+/// including Epic Fight.
+///
+/// @see IMixinConfigPlugin
 @ApiStatus.Internal
 public abstract class ModMixinPlugin implements IMixinConfigPlugin {
-    /**
-     * Whether the is installed and is currently loading.
-     */
+    /// Whether the is installed and is currently loading.
     private final boolean isModInstalled;
 
     protected ModMixinPlugin() {

@@ -352,9 +352,7 @@ public final class EpicFightCameraAPI {
         return next.isPresent();
     }
 
-    /**
-     * Creates a compact projection matrix without view, hurt bob
-     */
+     /// Creates a compact projection matrix without view, hurt bob
     private Matrix4f getCompactProjectionMatrix() {
         PoseStack posestack = new PoseStack();
         double fov = this.minecraft.gameRenderer.getFov(this.minecraft.gameRenderer.getMainCamera(), 1.0F, true);

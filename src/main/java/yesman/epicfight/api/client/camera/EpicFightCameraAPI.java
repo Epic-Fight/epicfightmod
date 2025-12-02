@@ -799,7 +799,7 @@ public final class EpicFightCameraAPI {
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_PRE.post(event);
 		
 		if (event.hasCanceled()) {
-			return event.useVanillaCameraBuild();
+			return event.cancelVanillaCameraSetup();
 		}
 		
 		if (this.isTPSMode()) {

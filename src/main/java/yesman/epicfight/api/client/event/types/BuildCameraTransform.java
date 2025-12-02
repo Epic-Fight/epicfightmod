@@ -40,7 +40,7 @@ public abstract class BuildCameraTransform extends CameraAPIEvent {
 			this.cancelVanillaCameraSetup = flag;
 		}
 		
-		public boolean useVanillaCameraBuild() {
+		public boolean cancelVanillaCameraSetup() {
 			return this.cancelVanillaCameraSetup;
 		}
 	}

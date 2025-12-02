@@ -1,0 +1,79 @@
+name: 🐛 Bug Report
+description: Submit a Minecraft bug report related to Epic Fight, including mod conflicts, gameplay issues, or unexpected behavior.
+title: "[Bug]: "
+labels: [ "bug" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this report!
+        
+        Ensure that you have searched the [existing issues](https://github.com/Epic-Fight/epicfight/issues) before submitting a new one.
+
+        Please consider following these steps to help us evaluate your report effectively:
+
+        1. **Reproduce the bug** in a fresh Minecraft instance with as few mods as possible (direct download links are a bonus).
+        2. **Share the log** as a link using [mclo.gs](https://mclo.gs) (or any similar service).
+        3. **Prepare and Submit the report** with detailed relevant information:
+            - Versions for: Minecraft, Epic Fight, mod-loader, and any relevant mod versions (with links if possible)
+            - Step-by-step instructions to reproduce the bug
+            - Whether the bug occurs in single-player, multiplayer, or both
+            - Whether the bug has appeared in older Epic Fight versions if tested (i.e., is this a regression?)
+            - Screenshots or videos if applicable
+            - Any additional context, such as the expected behavior, and the current behavior.
+
+        > [!IMPORTANT]
+        > **Always:** reproduce the bug report with a **minimal set of mods**.  
+        > Sharing reports from heavily modded instances (100+ mods) makes it nearly impossible to debug each mod individually due to the high volume of reports and limited resources.  
+        > We **only** focus on issues that **originate from Epic Fight mod itself** and may not investigate issues caused entirely by other mods.
+
+  - type: dropdown
+    id: mc-version
+    attributes:
+      label: Minecraft Version
+      description: The currently supported Minecraft versions
+      options:
+        - 1.21.1
+        - 1.20.1
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Epic Fight Version
+      description: "Epic Fight versions can be found on: https://modrinth.com/mod/epic-fight/versions"
+      placeholder: e.g., 21.14.0
+    validations:
+      required: true
+
+  - type: input
+    id: log-link
+    attributes:
+      label: Minecraft Log Link
+      description: "The full Minecraft log where the bug happens, uploaded via https://mclo.gs (or a similar web service)"
+      placeholder: e.g., https://mclo.gs/whUNiDf
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Bug Details
+      description: Provide a clear, step-by-step explanation of the bug.
+      placeholder: |
+        Example:
+        1. Equip the sword
+        2. Right-click on a creeper
+        3. Observe that the creeper disappears and the game behaves unexpectedly
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Epic-Fight/epicfight/blob/HEAD/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

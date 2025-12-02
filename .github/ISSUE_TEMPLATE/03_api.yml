@@ -1,0 +1,33 @@
+name: 🖥️ API Enhancement
+description: Propose an enhancement for the Epic Fight's public API or internal code improvements.
+labels: 'public api'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this report!
+
+        This template is intended for addon or mod developers to submit feature requests for integrating their mods with Epic Fight, ensuring compatibility, or adding new functionality.
+
+        Please provide the following details to help us evaluate your feature request.
+  - type: textarea
+    attributes:
+      label: Use case
+      description: |
+        Describe the problem or challenge that led to this API feature request. 
+        Include any alternative solutions you’ve considered and why they don’t work.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposal
+      description: |
+        Describe your proposed solution and what you’d like Epic Fight to do.
+
+        You can include additional resources such as:
+         - Code block samples
+         - Images
+         - Videos
+
+    validations:
+      required: true

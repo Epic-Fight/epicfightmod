@@ -1,0 +1,38 @@
+name: ✨ Feature Request
+description: Share a feature request or suggestion for Epic Fight mod.
+title: "[Feature]: "
+labels: [ "enhancement" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to share your suggestion!
+        
+        Ensure that you have searched the [existing issues](https://github.com/Epic-Fight/epicfight/issues) before submitting a new one.
+        
+        To help us understand and consider your idea, please provide clear and concise information:
+
+        1. **Feature / Suggestion:** Describe the feature or improvement you'd like to see.
+        2. **Motivation:** Explain why this feature would be useful or improve the experience.
+        3. **Optional:** Any references, images, or examples to illustrate your idea.
+
+        > [!NOTE]
+        > We don't have plans to backport newer features to older Minecraft versions, due to the massive amount 
+        > of changes and effort required in maintaining different Minecraft versions.
+  - type: textarea
+    id: description
+    attributes:
+      label: Details
+      description: Provide a clear explanation of your feature request or suggestion.
+      placeholder: |
+        Add special sword attack abilities...
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Epic-Fight/epicfight/blob/HEAD/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

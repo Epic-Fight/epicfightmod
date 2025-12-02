@@ -10,6 +10,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
+import yesman.epicfight.api.client.event.types.BuildCameraTransform;
 
 @Mixin(value = Camera.class)
 public abstract class MixinCamera {
@@ -31,11 +32,14 @@ public abstract class MixinCamera {
 		
 		EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
 		Camera camera = (Camera)(Object)this;
+		BuildCameraTransform.Pre buildEvent = cameraApi.setupCamera(camera, partialTick);
 		
-		if (cameraApi.setupCamera(camera, partialTick)) {
-			callbackInfo.cancel();
-		}
-		
-		cameraApi.fireCameraBuildPost(camera, partialTick);
+		if (!buildEvent.hasCanceled()) {
+            if (buildEvent.isVanillaCameraSetupCanceled()) {
+                callbackInfo.cancel();
+            } else {
+                cameraApi.fireCameraBuildPost(camera, partialTick);
+            }
+        }
 	}
 }

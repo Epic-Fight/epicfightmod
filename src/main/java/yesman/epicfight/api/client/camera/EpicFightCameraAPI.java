@@ -790,16 +790,18 @@ public final class EpicFightCameraAPI {
 	 * @return true when vanilla camera calculation shouldn't done
 	 */
 	@ApiStatus.Internal
-	public boolean setupCamera(Camera camera, float partialTick) {
+	public BuildCameraTransform.Pre setupCamera(Camera camera, float partialTick) {
+		BuildCameraTransform.Pre event = new BuildCameraTransform.Pre(this, camera, partialTick);
+		
 		if (!camera.getEntity().is(this.minecraft.player)) {
-			return false;
+			event.cancel();
+			return event;
 		}
 		
-		BuildCameraTransform.Pre event = new BuildCameraTransform.Pre(this, camera, partialTick);
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_PRE.post(event);
 		
 		if (event.hasCanceled()) {
-			return event.cancelVanillaCameraSetup();
+			return event;
 		}
 		
 		if (this.isTPSMode()) {
@@ -871,7 +873,9 @@ public final class EpicFightCameraAPI {
 				);
 			}
 			
-			return true;
+			event.setVanillaCameraSetupCanceled(true);
+			
+			return event;
 		} else if (this.lockingOnTarget && this.focusingEntity != null) {
 			if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK) {
 				float xRot = Mth.rotLerp(partialTick, this.cameraXRotO, this.cameraXRot);
@@ -891,7 +895,10 @@ public final class EpicFightCameraAPI {
 					camera.setRotation(direction != null ? direction.toYRot() - 180.0F : 0.0F, 0.0F);
 					camera.move(0.0D, 0.3D, 0.0D);
 				}
-				return true;
+				
+				event.setVanillaCameraSetupCanceled(true);
+				
+				return event;
 			} else if (this.minecraft.options.getCameraType() == CameraType.FIRST_PERSON) {
 				if (!InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY)) {
 					camera.getEntity().setXRot(Mth.rotLerp(partialTick, this.cameraXRotO, this.cameraXRot));
@@ -903,7 +910,7 @@ public final class EpicFightCameraAPI {
 			}
 		}
 		
-		return false;
+		return event;
 	}
 	
 	/**

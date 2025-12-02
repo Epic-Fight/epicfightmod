@@ -36,11 +36,11 @@ public abstract class BuildCameraTransform extends CameraAPIEvent {
 		 * 
 		 * @see MixinCamera#epicfight$setup
 		 */
-		public void setCancelVanillaCameraSetup(boolean flag) {
+		public void setVanillaCameraSetupCanceled(boolean flag) {
 			this.cancelVanillaCameraSetup = flag;
 		}
 		
-		public boolean cancelVanillaCameraSetup() {
+		public boolean isVanillaCameraSetupCanceled() {
 			return this.cancelVanillaCameraSetup;
 		}
 	}

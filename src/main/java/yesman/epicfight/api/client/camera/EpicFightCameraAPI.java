@@ -1,5 +1,7 @@
 package yesman.epicfight.api.client.camera;
 
+import com.github.exopandora.shouldersurfing.api.client.IShoulderSurfing;
+import com.github.exopandora.shouldersurfing.api.client.ShoulderSurfing;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Camera;
@@ -20,7 +22,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -862,8 +868,21 @@ public final class EpicFightCameraAPI {
             return true;
         } else if (this.lockingOnTarget && this.focusingEntity != null) {
             if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK) {
+				Vec3 playerPosition = this.minecraft.player.position();
+				Vec3 targetPosition = this.focusingEntity.position();
+				Vec3 toTarget = targetPosition.subtract(playerPosition);
+				this.cameraYRot = (float) MathUtils.getYRotOfVector(toTarget);
                 float xRot = Mth.rotLerp(partialTick, this.cameraXRotO, this.cameraXRot);
                 float yRot = Mth.rotLerp(partialTick, this.cameraYRotO, this.cameraYRot);
+				camera.getEntity().setXRot(xRot);
+				camera.getEntity().setYRot(yRot);
+
+				IShoulderSurfing instance = ShoulderSurfing.getInstance();
+				if (instance.isShoulderSurfing()) {
+					instance.getCamera().setXRot(xRot);
+					instance.getCamera().setYRot(yRot);
+					return false;
+				}
 
                 camera.setRotation(yRot, xRot);
                 camera.setPosition(

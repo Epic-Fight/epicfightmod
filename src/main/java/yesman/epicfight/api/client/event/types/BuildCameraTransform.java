@@ -30,11 +30,11 @@ public abstract class BuildCameraTransform extends CameraAPIEvent {
             super(cameraApi, camera, partialTick);
         }
 
-        /// Set true if you want to disable the vanilla camera setup process
-        /// This means, you have modified the camera transform through this event
-        /// and don't want it to be overwrite by vanilla camera setups.
-        ///
-        /// @see MixinCamera#epicfight$setup
+		/// Set to `true` to disable the vanilla camera setup process.
+		/// Indicates that the camera transform has been modified through this event
+		/// and should not be overwritten by vanilla camera setups.
+		///
+		/// @see MixinCamera#epicfight$setup
         public void setCancelVanillaCameraSetup(boolean flag) {
             this.cancelVanillaCameraSetup = flag;
         }

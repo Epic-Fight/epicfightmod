@@ -41,6 +41,7 @@ import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
 import net.minecraftforge.entity.PartEntity;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
+import yesman.epicfight.api.client.event.types.ActivateTPSCamera;
 import yesman.epicfight.api.client.event.types.BuildCameraTransform;
 import yesman.epicfight.api.client.event.types.ItemUsedInDecoupledCamera;
 import yesman.epicfight.api.client.input.InputManager;
@@ -126,7 +127,13 @@ public final class EpicFightCameraAPI {
 	 * When zooming ranged weapons or TPS mode is turned on by config
 	 */
 	public boolean isTPSMode() {
-		return this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK && ClientConfig.cameraMode.shouldSwitch(this);
+		if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK && ClientConfig.cameraMode.shouldSwitch(this)) {
+			ActivateTPSCamera event = new ActivateTPSCamera(this);
+			EpicFightClientHooks.Camera.ACTIVATE_TPS_CAMERA.post(event);
+			return !event.hasCanceled();
+		}
+		
+		return false;
 	}
 	
 	public boolean isFirstPerson() {
@@ -792,7 +799,7 @@ public final class EpicFightCameraAPI {
 		EpicFightClientHooks.Camera.BUILD_TRANSFORM_PRE.post(event);
 		
 		if (event.hasCanceled()) {
-			return true;
+			return event.useVanillaCameraBuild();
 		}
 		
 		if (this.isTPSMode()) {

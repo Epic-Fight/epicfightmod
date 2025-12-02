@@ -45,16 +45,16 @@ public class EventHook<T extends Event> {
 	/**
 	 * Register an event with default name and priority
 	 */
-	public void registerPassiveEvent(DefaultEventSubscription<T> subscription) {
-		this.registerPassiveEvent(subscription, getDefaultSubscriberName(), 0);
+	public void registerEvent(DefaultEventSubscription<T> subscription) {
+		this.registerEvent(subscription, getDefaultSubscriberName(), 0);
 	}
 	
 	/**
 	 * Register an event with default name
 	 * @param priority determines the order of the event in descending order
 	 */
-	public void registerPassiveEvent(DefaultEventSubscription<T> subscription, int priority) {
-		this.registerPassiveEvent(subscription, getDefaultSubscriberName(), priority);
+	public void registerEvent(DefaultEventSubscription<T> subscription, int priority) {
+		this.registerEvent(subscription, getDefaultSubscriberName(), priority);
 	}
 	
 	/**
@@ -62,14 +62,14 @@ public class EventHook<T extends Event> {
 	 * @param name you can specify the subscriber name to be referenced by other events, it will be stored
 	 * 			   at {@link EventContext}
 	 */
-	public void registerPassiveEvent(DefaultEventSubscription<T> subscription, String name) {
-		this.registerPassiveEvent(subscription, name, 0);
+	public void registerEvent(DefaultEventSubscription<T> subscription, String name) {
+		this.registerEvent(subscription, name, 0);
 	}
 	
 	/**
 	 * Register an event with full parameters
 	 */
-	public void registerPassiveEvent(DefaultEventSubscription<T> subscription, String name, int priority) {
+	public void registerEvent(DefaultEventSubscription<T> subscription, String name, int priority) {
 		this.subscriptions.put(priority, new EventListener<>(name, subscription));
 	}
 	

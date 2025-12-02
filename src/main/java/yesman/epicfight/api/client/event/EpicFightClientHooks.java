@@ -1,5 +1,6 @@
 package yesman.epicfight.api.client.event;
 
+import yesman.epicfight.api.client.event.types.ActivateTPSCamera;
 import yesman.epicfight.api.client.event.types.BuildCameraTransform;
 import yesman.epicfight.api.client.event.types.ItemUsedInDecoupledCamera;
 import yesman.epicfight.api.event.CancelableEventHook;
@@ -18,6 +19,7 @@ public final class EpicFightClientHooks {
 		public static final CancelableEventHook<BuildCameraTransform.Pre> BUILD_TRANSFORM_PRE = CancelableEventHook.createCancelableEventHook();
 		public static final EventHook<BuildCameraTransform.Post> BUILD_TRANSFORM_POST = EventHook.createEventHook();
 		public static final EventHook<ItemUsedInDecoupledCamera> ITEM_USED_WHEN_DECOUPLED = EventHook.createEventHook();
+		public static final EventHook<ActivateTPSCamera> ACTIVATE_TPS_CAMERA = CancelableEventHook.createCancelableEventHook();
 	}
 	
 	private EpicFightClientHooks() {}

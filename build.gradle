@@ -248,8 +248,7 @@ publishMods {
     
     // No publishing without matching changelog
     if (!found) {
-    	println ("No matching changelog found for version ${mod_version} in CHANGELOG.md. Publishing is skipped.")
-    	return
+    	throw new RuntimeException("No changelog found for version $mod_version in CHANGELOG.md file")
     }
     
     // Extract the latest changelog without the header and API change part

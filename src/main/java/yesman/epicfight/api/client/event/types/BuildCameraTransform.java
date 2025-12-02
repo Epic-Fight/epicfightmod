@@ -3,6 +3,7 @@ package yesman.epicfight.api.client.event.types;
 import net.minecraft.client.Camera;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.event.CancelableEvent;
+import yesman.epicfight.mixin.client.MixinCamera;
 
 public abstract class BuildCameraTransform extends CameraAPIEvent {
     private final Camera camera;
@@ -23,8 +24,23 @@ public abstract class BuildCameraTransform extends CameraAPIEvent {
     }
 
     public static final class Pre extends BuildCameraTransform implements CancelableEvent {
+        private boolean cancelVanillaCameraSetup = false;
+
         public Pre(EpicFightCameraAPI cameraApi, Camera camera, float partialTick) {
             super(cameraApi, camera, partialTick);
+        }
+
+        /// Set true if you want to disable the vanilla camera setup process
+        /// This means, you have modified the camera transform through this event
+        /// and don't want it to be overwrite by vanilla camera setups.
+        ///
+        /// @see MixinCamera#epicfight$setup
+        public void setCancelVanillaCameraSetup(boolean flag) {
+            this.cancelVanillaCameraSetup = flag;
+        }
+
+        public boolean cancelVanillaCameraSetup() {
+            return this.cancelVanillaCameraSetup;
         }
     }
 

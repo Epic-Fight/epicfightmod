@@ -20,6 +20,7 @@ public final class EpicFightClientHooks {
         public static final EventHook<LockOnEvent.Start> LOCK_ON_START = CancelableEventHook.createCancelableEventHook();
         public static final EventHook<LockOnEvent.Tick> LOCK_ON_TICK = EventHook.createEventHook();
         public static final EventHook<LockOnEvent.Release> LOCK_ON_RELEASED = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<ActivateTPSCamera> ACTIVATE_TPS_CAMERA = CancelableEventHook.createCancelableEventHook();
     }
 
     private EpicFightClientHooks() {

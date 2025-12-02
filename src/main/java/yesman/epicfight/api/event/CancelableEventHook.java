@@ -1,8 +1,7 @@
 package yesman.epicfight.api.event;
 
-import yesman.epicfight.api.event.subscriptions.CancelableEventSubscription;
 import yesman.epicfight.api.event.subscriptions.ContextAwareEventSubscription;
-import yesman.epicfight.api.event.subscriptions.PassiveEventSubscription;
+import yesman.epicfight.api.event.subscriptions.DefaultEventSubscription;
 
 /**
  * EventHook definition for {@link CancelableEvent}
@@ -10,7 +9,6 @@ import yesman.epicfight.api.event.subscriptions.PassiveEventSubscription;
 public class CancelableEventHook<T extends Event & CancelableEvent> extends EventHook<T> {
 	/**
 	 * Executes the subscribers' task by their priorities
-	 * {@link CancelableEventSubscription} will be ignored if the event is canceled
 	 * {@link ContextAwareEventSubscription} will ignore the canceled state and fired always, developers must
 	 * validate whether fire the event or not by provided {@link EventContext}
 	 * 
@@ -23,14 +21,9 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 		for (EventListener<T> subscriber : this.subscriptions.values()) {
 			eventContext.subscriptionStart(subscriber.name());
 			
-			if (subscriber.subscription() instanceof PassiveEventSubscription<T> passiveSubscription) {
+			if (subscriber.subscription() instanceof DefaultEventSubscription<T> passiveSubscription) {
 				if (!eventInstance.hasCanceled()) {
 					passiveSubscription.fire(eventInstance);
-					eventContext.onCalled();
-				}
-			} else if (subscriber.subscription() instanceof CancelableEventSubscription<T> cancelableSubscription) {
-				if (!eventInstance.hasCanceled()) {
-					cancelableSubscription.fire(eventInstance);
 					eventContext.onCalled();
 				}
 			} else if (subscriber.subscription() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
@@ -43,39 +36,7 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 		
 		return eventInstance.hasCanceled();
 	}
-	
-	/**
-	 * Registers an event with default name and priority
-	 */
-	public void registerCancelableEvent(CancelableEventSubscription<T> subscription) {
-		this.registerCancelableEvent(subscription, getDefaultSubscriberName(), 0);
-	}
-	
-	/**
-	 * Registers an event with default name
-	 * @param priority determines the order of the event in descending order
-	 * 				   if a higher priority event cancels the event, 
-	 */
-	public void registerCancelableEvent(CancelableEventSubscription<T> subscription, int priority) {
-		this.registerCancelableEvent(subscription, getDefaultSubscriberName(), priority);
-	}
-	
-	/**
-	 * Registers an event with default priority
-	 * @param name you can specify the subscriber name to be referenced by other events, it will be stored
-	 * 		  at {@link EventContext}
-	 */
-	public void registerCancelableEvent(CancelableEventSubscription<T> subscription, String name) {
-		this.registerCancelableEvent(subscription, name, 0);
-	}
-	
-	/**
-	 * Registers an event with full parameters
-	 */
-	public void registerCancelableEvent(CancelableEventSubscription<T> subscription, String name, int priority) {
-		this.subscriptions.put(priority, new EventListener<>(name, subscription));
-	}
-	
+
 	/**
 	 * Registers an event with default name and priority
 	 */

@@ -14,7 +14,7 @@ public abstract class Event {
 	 * Holds information about whose called the event by hook so far,
 	 * and who canceled the event
 	 * <p>
-	 * the name of subscribers are specified as parameter in {@link EventHook#registerPassiveEvent} and
+	 * the name of subscribers are specified as parameter in {@link EventHook#registerEvent} and
 	 * {@link CancelableEventHook#registerCancelableEvent} and {@link CancelableEventHook#registerContextAwareEvent}
 	 */
 	private EventContext eventContext;

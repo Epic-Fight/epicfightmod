@@ -288,8 +288,15 @@ public final class EpicFightCameraAPI {
                 if (!flag) {
                     this.minecraft.player.setXRot(this.cameraXRot);
                 } else {
-                    this.setCameraRotations(this.minecraft.player.getXRot(), this.minecraft.player.getYRot(), true);
-                }
+					float xRot = this.minecraft.player.getXRot();
+					float yRot = this.minecraft.player.getYRot();
+					IShoulderSurfing instance = ShoulderSurfing.getInstance();
+					if (instance.isShoulderSurfing()) {
+						xRot = instance.getCamera().getXRot();
+						yRot = instance.getCamera().getYRot();
+					}
+					this.setCameraRotations(xRot, yRot, true);
+				}
             }
         }
     }

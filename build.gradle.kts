@@ -174,7 +174,7 @@ dependencies {
     compileOnly("maven.modrinth:first-person-model:QWJDSZiH") // 2.5.0
 
     // Shoulder Surfing Reloaded compatibility (uncomment the runtimeOnly to test the mod)
-    implementation("curse.maven:shoulder-surfing-reloaded-243190:7279980") // API only
+    compileOnly("curse.maven:shoulder-surfing-reloaded-243190:7279980") // API only
 //    runtimeOnly("maven.modrinth:shoulder-surfing-reloaded:1.21.1-4.16.2+neoforge") // Full mod JAR file
 
     // Controlify (controller support) compatibility.

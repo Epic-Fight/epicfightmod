@@ -270,6 +270,10 @@ public final class EpicFightCameraAPI {
         return this.focusingEntity;
     }
 
+    public Minecraft getMinecraft() {
+        return this.minecraft;
+    }
+
     /**
      * Activates or deactivates camera lock-on to the entity that is focused by crosshair scan.
      */
@@ -293,6 +297,7 @@ public final class EpicFightCameraAPI {
 
             if (!eventCanceled) {
                 this.lockingOnTarget = flag;
+            }
 
             // Sycn the camera rotation according to the camera mode
             if (!this.isTPSMode()) {

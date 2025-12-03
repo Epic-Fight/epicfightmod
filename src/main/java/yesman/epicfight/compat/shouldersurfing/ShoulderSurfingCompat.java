@@ -52,26 +52,36 @@ import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerP
 public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
     @Override
     public void register(IShoulderSurfingRegistrar registrar) {
-        registrar.registerCameraCouplingCallback(new ForceCameraCouplingWhenAttackingCallback());
-        registrar.registerCameraCouplingCallback(new ForceCameraCouplingWhenHoldingSkillCallback());
+        disableEpicFightCamera();
+        registerShoulderSurfingEvents(registrar);
+        registerEpicFightEvents();
+    }
+
+    private void disableEpicFightCamera() {
         EpicFightTpsCameraDisableState.disable(EpicFightTpsCameraDisabledReason.ShoulderSurfing);
+    }
 
+    private void registerShoulderSurfingEvents(IShoulderSurfingRegistrar registrar) {
+        registrar.registerCameraCouplingCallback(new CameraCouplingOnAttack());
+        registrar.registerCameraCouplingCallback(new CameraCouplingOnChargingSkill());
+    }
+
+    private void registerEpicFightEvents() {
         EpicFightClientHooks.Camera.BUILD_TRANSFORM_PRE.registerEvent(ShoulderSurfingCompat::buildCameraTransform);
-
         EpicFightClientHooks.Camera.LOCK_ON_TICK.registerEvent(ShoulderSurfingCompat::lockOnTick);
     }
 
-    private static class ForceCameraCouplingWhenAttackingCallback implements ICameraCouplingCallback {
+    private static class CameraCouplingOnAttack implements ICameraCouplingCallback {
         @Override
         public boolean isForcingCameraCoupling(Minecraft minecraft) {
             return InputManager.isActionActive(EpicFightInputAction.ATTACK) || InputManager.isActionActive(MinecraftInputAction.ATTACK_DESTROY);
         }
     }
 
-    private static class ForceCameraCouplingWhenHoldingSkillCallback implements ICameraCouplingCallback {
+    private static class CameraCouplingOnChargingSkill implements ICameraCouplingCallback {
         @Override
         public boolean isForcingCameraCoupling(Minecraft minecraft) {
-            LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
+            final LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
             if (localPlayerPatch == null) {
                 return false;
             }
@@ -83,49 +93,54 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
     }
 
     private static void buildCameraTransform(BuildCameraTransform.Pre event) {
-        IShoulderSurfing instance = ShoulderSurfing.getInstance();
+        final IShoulderSurfing shoulderSurfing = ShoulderSurfing.getInstance();
 
-        // Turn completely off epic fight camera transform modification when Shoulder Surfing camera activated
-        if (instance.isShoulderSurfing()) {
+        // Prevents Epic Fight from applying camera transform modifications to Shoulder Surfing's perspective
+        if (shoulderSurfing.isShoulderSurfing()) {
             if (event.getCameraApi().isLockingOnTarget()) {
-                // Copy the Lock-on rotations to the SSR camera
-                float camXRot = Mth.rotLerp(event.getPartialTick(), event.getCameraApi().getCameraXRotO(), event.getCameraApi().getCameraXRot());
-                float camYRot = Mth.rotLerp(event.getPartialTick(), event.getCameraApi().getCameraYRotO(), event.getCameraApi().getCameraYRot());
-
-                instance.getCamera().setXRot(camXRot);
-                instance.getCamera().setYRot(camYRot);
+                syncLockOnRotations(event, shoulderSurfing);
             }
 
             event.cancel();
         }
     }
 
+    /// Sync the Epic Fight's lock-on rotation updates to the Shoulder Surfing's camera perspective
+    private static void syncLockOnRotations(BuildCameraTransform.Pre event, IShoulderSurfing shoulderSurfing) {
+        final float camXRot = Mth.rotLerp(event.getPartialTick(), event.getCameraApi().getCameraXRotO(), event.getCameraApi().getCameraXRot());
+        final float camYRot = Mth.rotLerp(event.getPartialTick(), event.getCameraApi().getCameraYRotO(), event.getCameraApi().getCameraYRot());
+
+        shoulderSurfing.getCamera().setXRot(camXRot);
+        shoulderSurfing.getCamera().setYRot(camYRot);
+    }
+
     private static void lockOnTick(LockOnEvent.Tick event) {
-        IShoulderSurfing instance = ShoulderSurfing.getInstance();
+        final IShoulderSurfing instance = ShoulderSurfing.getInstance();
 
         // Calculates lock-on rotations based on the SSR's camera position, store those rotations to Epic Fight camera API's rotations
         // since they will eventually be written to SSR's camera rotation in BUILD_TRANSFORM_PRE.
         if (!instance.isShoulderSurfing()) {
             return;
         }
-        LocalPlayer localPlayer = event.getCameraApi().getMinecraft().player;
-        double toTargetDistanceSqr = localPlayer.position().distanceToSqr(event.getLockOnTarget().position());
+        final LocalPlayer localPlayer = event.getCameraApi().getMinecraft().player;
+        assert localPlayer != null;
+        final double toTargetDistanceSqr = localPlayer.position().distanceToSqr(event.getLockOnTarget().position());
 
-        // Lerp the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
-        Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float) Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
-        Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float) Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
+        // Leaps the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
+        final Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float) Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
+        final Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float) Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
 
-        float clamp = 30.0F;
-        Vec3 toTarget = lockEnd.subtract(lockStart);
+        final float clamp = 30.0F;
+        final Vec3 toTarget = lockEnd.subtract(lockStart);
         float xRot = (float) MathUtils.getXRotOfVector(toTarget);
-        float yRot = (float) MathUtils.getYRotOfVector(toTarget);
+        final float yRot = (float) MathUtils.getYRotOfVector(toTarget);
 
-        CameraType cameraType = event.getCameraApi().getMinecraft().options.getCameraType();
+        final CameraType cameraType = event.getCameraApi().getMinecraft().options.getCameraType();
         if (!cameraType.isFirstPerson()) xRot = Mth.clamp(xRot, -clamp, clamp);
 
-        float xLerp = Mth.clamp(Mth.wrapDegrees(xRot - instance.getCamera().getXRot()) * 0.4F, -clamp, clamp);
-        float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - instance.getCamera().getYRot()) * 0.4F, -clamp, clamp);
-        Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
+        final float xLerp = Mth.clamp(Mth.wrapDegrees(xRot - instance.getCamera().getXRot()) * 0.4F, -clamp, clamp);
+        final float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - instance.getCamera().getYRot()) * 0.4F, -clamp, clamp);
+        final Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
         event.getCameraApi().setCameraRotations(instance.getCamera().getXRot() + xLerp, instance.getCamera().getYRot() + yLerp, false);
         event.setXRot((float) MathUtils.getXRotOfVector(playerToTarget));
         event.setYRot((float) MathUtils.getYRotOfVector(playerToTarget));

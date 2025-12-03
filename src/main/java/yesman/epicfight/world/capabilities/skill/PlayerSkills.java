@@ -1,31 +1,20 @@
 package yesman.epicfight.world.capabilities.skill;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-
 import com.google.common.collect.HashMultimap;
 import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.registry.EpicFightRegistries;
-import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.Skill.SkillEventSubscriber;
-import yesman.epicfight.skill.SkillCategory;
-import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillEvent;
-import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class PlayerSkills {
 	public static final PlayerSkills EMPTY = new PlayerSkills(null);
@@ -138,8 +127,13 @@ public class PlayerSkills {
 	public void clearContainersAndLearnedSkills(boolean isLocalOrServerPlayer) {
 		for (SkillContainer container : this.skillContainers) {
 			if (container.getSlot().category().learnable()) {
-				if (isLocalOrServerPlayer) { container.setSkill(null); container.setReplaceCooldown(0); }
-				else { container.setSkillRemote(null); container.setReplaceCooldown(0); }
+				if (isLocalOrServerPlayer) {
+                    container.setSkill(null);
+                } else {
+                    container.setSkillRemote(null);
+                }
+
+                container.setReplaceCooldown(0);
 			}
 		}
 		

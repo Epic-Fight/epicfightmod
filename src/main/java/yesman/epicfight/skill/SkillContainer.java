@@ -66,9 +66,7 @@ public class SkillContainer {
 	}
 	
 	public boolean setSkill(@Nullable Skill skill, boolean initialize) {
-		/**
-		 * For remote players, call setSkillRemote instead
-		 */
+        // For remote players, call setSkillRemote instead
 		if (this.executor.isLogicalClient() && !this.executor.getOriginal().isLocalPlayer()) {
 			return false;
 		}
@@ -127,9 +125,7 @@ public class SkillContainer {
 	
 	@OnlyIn(Dist.CLIENT)
 	public void setSkillRemote(@Nullable Skill skill) {
-		/**
-		 * For server players or a local player, call setSkill instead
-		 */
+        // For server players or a local player, call setSkill instead
 		if (!this.executor.isLogicalClient() || this.executor.getOriginal().isLocalPlayer()) {
 			return;
 		}
@@ -146,7 +142,7 @@ public class SkillContainer {
 			this.skill.onRemoveClient(this);
 			this.executor.getPlayerSkills().removeSkillFromContainer(this.skill);
 		}
-		
+
 		this.skill = skill;
 		this.resetValues();
 		
@@ -154,6 +150,12 @@ public class SkillContainer {
 		this.skillDataManager.clearData();
 		
 		if (skill != null) {
+            Set<Holder<SkillDataKey<?>>> datakeys = SkillDataKeyCallbacks.getSkillDataKeyMap().get(skill.getClass());
+
+            if (datakeys != null && !datakeys.isEmpty()) {
+                datakeys.stream().filter(holder -> holder.value().syncronizeToRemotePlayers()).forEach(this.skillDataManager::registerData);
+            }
+
 			skill.onInitiateClient(this);
 			this.executor.getPlayerSkills().setSkillToContainer(skill, this);
 			

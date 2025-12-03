@@ -106,7 +106,7 @@ public class SkillDataManager {
 	public void onTracked(EpicFightNetworkManager.PayloadBundleBuilder bundleBuilder) {
 		this.data.forEach((key, val) -> {
 			if (key.value().syncronizeToRemotePlayers()) {
-				SPHandleSkillData msg = new SPHandleSkillData(SPHandleSkillData.WorkType.REGISTER, this.container.getSlot(), this.container.executor.getOriginal().getId(), key);
+				SPHandleSkillData msg = new SPHandleSkillData(SPHandleSkillData.WorkType.MODIFY, this.container.getSlot(), this.container.executor.getOriginal().getId(), key);
 				((SkillDataKey<Object>)key.value()).encode(msg.buffer(), val);
 				
 				bundleBuilder.and(msg);

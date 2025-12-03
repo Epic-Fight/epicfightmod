@@ -30,11 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
-import yesman.epicfight.api.client.event.types.ActivateTPSCamera;
-import yesman.epicfight.api.client.event.types.BuildCameraTransform;
-import yesman.epicfight.api.client.event.types.CoupleTPSCamera;
-import yesman.epicfight.api.client.event.types.ItemUsedInDecoupledCamera;
-import yesman.epicfight.api.client.event.types.LockOnEvent;
+import yesman.epicfight.api.client.event.types.*;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.utils.math.MathUtils;
@@ -298,13 +294,12 @@ public final class EpicFightCameraAPI {
             if (!eventCanceled) {
                 this.lockingOnTarget = flag;
 
-                // Sycn the camera rotation according to the camera mode
-                if (!this.isTPSMode()) {
-                    if (!flag) {
-                        this.minecraft.player.setXRot(this.cameraXRot);
-                    } else {
-                        this.setCameraRotations(this.minecraft.player.getXRot(), this.minecraft.player.getYRot(), true);
-                    }
+            // Sycn the camera rotation according to the camera mode
+            if (!this.isTPSMode()) {
+                if (!flag) {
+                    this.minecraft.player.setXRot(this.cameraXRot);
+                } else {
+                    this.setCameraRotations(this.minecraft.player.getXRot(), this.minecraft.player.getYRot(), true);
                 }
             }
         }

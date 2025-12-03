@@ -5,12 +5,12 @@ import com.github.exopandora.shouldersurfing.api.client.IShoulderSurfing;
 import com.github.exopandora.shouldersurfing.api.client.ShoulderSurfing;
 import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingPlugin;
 import com.github.exopandora.shouldersurfing.api.plugin.IShoulderSurfingRegistrar;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.InputManager;
-import net.minecraft.client.CameraType;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -111,28 +111,29 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
 
         // Calculates lock-on rotations based on the SSR's camera position, store those rotations to Epic Fight camera API's rotations
         // since they will eventually be written to SSR's camera rotation in BUILD_TRANSFORM_PRE.
-        if (instance.isShoulderSurfing()) {
-        	LocalPlayer localPlayer = event.getCameraApi().getMinecraft().player;
-            double toTargetDistanceSqr = localPlayer.position().distanceToSqr(event.getLockOnTarget().position());
-
-            // Lerp the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
-            Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float)Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
-            Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float)Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
-
-            float clamp = 30.0F;
-            Vec3 toTarget = lockEnd.subtract(lockStart);
-            float xRot = (float)MathUtils.getXRotOfVector(toTarget);
-            float yRot = (float)MathUtils.getYRotOfVector(toTarget);
-
-            CameraType cameraType = event.getCameraApi().getMinecraft().options.getCameraType();
-            if (!cameraType.isFirstPerson()) xRot = Mth.clamp(xRot, -clamp, clamp);
-
-            float xLerp = Mth.clamp(Mth.wrapDegrees(xRot - instance.getCamera().getXRot()) * 0.4F, -clamp, clamp);
-            float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - instance.getCamera().getYRot()) * 0.4F, -clamp, clamp);
-            Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
-            event.getCameraApi().setCameraRotations(instance.getCamera().getXRot() + xLerp, instance.getCamera().getYRot() + yLerp, false);
-            event.setXRot((float)MathUtils.getXRotOfVector(playerToTarget));
-            event.setYRot((float)MathUtils.getYRotOfVector(playerToTarget));
+        if (!instance.isShoulderSurfing()) {
+        	return;
         }
+        LocalPlayer localPlayer = event.getCameraApi().getMinecraft().player;
+        double toTargetDistanceSqr = localPlayer.position().distanceToSqr(event.getLockOnTarget().position());
+
+        // Lerp the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
+        Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float)Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
+        Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float)Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
+
+        float clamp = 30.0F;
+        Vec3 toTarget = lockEnd.subtract(lockStart);
+        float xRot = (float)MathUtils.getXRotOfVector(toTarget);
+        float yRot = (float)MathUtils.getYRotOfVector(toTarget);
+
+        CameraType cameraType = event.getCameraApi().getMinecraft().options.getCameraType();
+        if (!cameraType.isFirstPerson()) xRot = Mth.clamp(xRot, -clamp, clamp);
+
+        float xLerp = Mth.clamp(Mth.wrapDegrees(xRot - instance.getCamera().getXRot()) * 0.4F, -clamp, clamp);
+        float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - instance.getCamera().getYRot()) * 0.4F, -clamp, clamp);
+        Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
+        event.getCameraApi().setCameraRotations(instance.getCamera().getXRot() + xLerp, instance.getCamera().getYRot() + yLerp, false);
+        event.setXRot((float)MathUtils.getXRotOfVector(playerToTarget));
+        event.setYRot((float)MathUtils.getYRotOfVector(playerToTarget));
     }
 }

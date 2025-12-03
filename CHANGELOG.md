@@ -1,7 +1,11 @@
-# Epic Fight in Minecraft 1.20.1 Changelog
-# Changelog on publishing websites and Discord will be parsed between version header ([x.x.x] - yyyy-mm-dd) and (For Devs) section
+# Changelog
 
-## [20.14.1] - Unreleased
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
 
 ### Added
 

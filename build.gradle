@@ -240,7 +240,7 @@ java {
 }
 
 publishMods {
-    def readme = project.file('RELEASE_NOTES.md')
+    def readme = project.file('CHANGELOG.md')
     def readmeContent = readme.getText()
     def pattern = """(?s)## \\[""" + mod_version + """\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"""
     def matcher = (readmeContent =~ pattern)
@@ -248,8 +248,7 @@ publishMods {
     
     // No publishing without matching changelog
     if (!found) {
-    	println ("No matching changelog found for version ${mod_version} in RELEASE_NOTES.md. Publishing is skipped.")
-    	return
+    	throw new RuntimeException("No changelog found for version $mod_version in CHANGELOG.md file")
     }
     
     // Extract the latest changelog without the header and API change part

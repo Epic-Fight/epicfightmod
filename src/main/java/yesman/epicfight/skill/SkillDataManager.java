@@ -1,22 +1,21 @@
 package yesman.epicfight.skill;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import org.jetbrains.annotations.ApiStatus;
-
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPHandleSkillData;
 import yesman.epicfight.network.server.SPHandleSkillData;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 public class SkillDataManager {
 	private final Map<Holder<SkillDataKey<?>>, Object> data = new HashMap<> ();

@@ -24,36 +24,32 @@ import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 
-/**
- * Background:
- * The Shoulder Surfing Reloaded mod includes a camera decoupling feature, allowing the player to rotate the camera 360°
- * without rotating their controlled character. When the vanilla Attack key is pressed,
- * Shoulder Surfing automatically detects it and rotates the player to face the crosshair target as needed to attack
- * enemies.
- * <p>
- * <p>
- * The Epic Fight mod added a custom Attack keybind in this commit: <a href="https://github.com/Epic-Fight/epicfight/compare/e963d283e2ec...35e8aa9ea4ba#diff-9dc988ba2888a8eece19c042d1412fc79025c1c46370f5c0b5974a597c56ba5bL76">...</a>
- * to support controller mods (more details: <a href="https://github.com/Epic-Fight/epicfight/issues/1297">...</a>).
- * However, Shoulder Surfing Reloaded cannot detect this custom keybind if the vanilla Attack key
- * differs from the Epic Fight Attack key, which is usually the case when using a controller.
- * This means players must always disable the camera decoupling feature to make the mod playable with a controller
- * and are forced to use the same Attack key as in vanilla and Epic Fight.
- * <p>
- * <p>
- * This Shoulder Surfing plugin works around the issue by bypassing the
- * <a href="https://github.com/Exopandora/ShoulderSurfing/blob/7f0df83beb4f7158810e188150eb7e9812981529/common/src/main/java/com/github/exopandora/shouldersurfing/client/ShoulderSurfingImpl.java#L188-L191">
- * ShoulderSurfingImpl.isAttacking
- * </a> method,
- * allowing the Shoulder Surfing mod to support the Epic Fight Attack keybind as well.
- * <p>
- * <p>
- * This plugin always forces the player to turn when attacking, regardless of the Shoulder Surfing "player.turning" config.
- * By default, Shoulder Surfing only turns the player when a target is detected ("REQUIRES_TARGET"),
- * which works for vanilla mechanics but is incompatible with Epic Fight.
- * Overriding it to always turn ensures proper behavior with the Epic Fight Attack keybind and controller input.
- * <p>
- */
-@OnlyIn(Dist.CLIENT)
+/// Adds compatibility for Shoulder Surfing Reloaded mod.
+///
+/// The Shoulder Surfing Reloaded mod includes a camera decoupling feature,
+/// allowing the player to rotate the camera 360° without rotating their controlled character.
+///
+/// ### Fixes
+///
+/// This makes the following changes:
+///
+/// - Automatically rotates the player to face the crosshair target as needed to attack,
+///   when attacking via sword or charging a skill (e.g., demolition leap).
+///   This is regardless of the Shoulder Surfing's config,
+///   as the default configs (e.g., `"REQUIRES_TARGET"``) are meant for vanilla combat mechanics.
+/// - Explicit lock-on support
+/// - Disables Epic Fight TPS camera, to prevent undefined behavior from
+///   using both Shoulder Surfing and Epic Fight perspectives.
+///
+/// ### Related issues
+///
+/// For reference:
+///
+/// - [Add lock-on support for Shoulder Surfing](https://github.com/Epic-Fight/epicfight/issues/2258)
+/// - [Player doesn’t turn in Shoulder Surfing when holding Epic Fight skills](https://github.com/Epic-Fight/epicfight/issues/2114)
+/// - [Shoulder Surfing mod doesn't turn player when attacking by default](https://github.com/Epic-Fight/epicfight/issues/2113)
+/// - [Shoulder Surfing mod does not detect Epic Fight custom Attack keybind](https://github.com/Epic-Fight/epicfight/issues/2111)
+/// - [Handle Epic Fight Breaking Changes from Shoulder Surfing's side](https://github.com/Exopandora/ShoulderSurfing/issues/359)
 @SuppressWarnings("unused") // Referenced in src/main/resources/shouldersurfing_plugin.json
 public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
     @Override
@@ -112,19 +108,19 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
         // Calculates lock-on rotations based on the SSR's camera position, store those rotations to Epic Fight camera API's rotations
         // since they will eventually be written to SSR's camera rotation in BUILD_TRANSFORM_PRE.
         if (!instance.isShoulderSurfing()) {
-        	return;
+            return;
         }
         LocalPlayer localPlayer = event.getCameraApi().getMinecraft().player;
         double toTargetDistanceSqr = localPlayer.position().distanceToSqr(event.getLockOnTarget().position());
 
         // Lerp the start and end location of the camera arm for lock-on based on the distance between the player and the focusing entity
-        Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float)Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
-        Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float)Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
+        Vec3 lockStart = MathUtils.lerpVector(localPlayer.getEyePosition(), event.getCameraApi().getMinecraft().gameRenderer.getMainCamera().getPosition(), (float) Mth.clampedMap(toTargetDistanceSqr, 1.0F, 18.0F, 0.2F, 1.0F));
+        Vec3 lockEnd = MathUtils.lerpVector(event.getLockOnTarget().getEyePosition(), event.getLockOnTarget().getBoundingBox().getCenter(), (float) Mth.clampedMap(toTargetDistanceSqr, 0.0F, 18.0F, 0.5F, 1.0F));
 
         float clamp = 30.0F;
         Vec3 toTarget = lockEnd.subtract(lockStart);
-        float xRot = (float)MathUtils.getXRotOfVector(toTarget);
-        float yRot = (float)MathUtils.getYRotOfVector(toTarget);
+        float xRot = (float) MathUtils.getXRotOfVector(toTarget);
+        float yRot = (float) MathUtils.getYRotOfVector(toTarget);
 
         CameraType cameraType = event.getCameraApi().getMinecraft().options.getCameraType();
         if (!cameraType.isFirstPerson()) xRot = Mth.clamp(xRot, -clamp, clamp);
@@ -133,7 +129,7 @@ public class ShoulderSurfingCompat implements IShoulderSurfingPlugin {
         float yLerp = Mth.clamp(Mth.wrapDegrees(yRot - instance.getCamera().getYRot()) * 0.4F, -clamp, clamp);
         Vec3 playerToTarget = lockEnd.subtract(localPlayer.getEyePosition());
         event.getCameraApi().setCameraRotations(instance.getCamera().getXRot() + xLerp, instance.getCamera().getYRot() + yLerp, false);
-        event.setXRot((float)MathUtils.getXRotOfVector(playerToTarget));
-        event.setYRot((float)MathUtils.getYRotOfVector(playerToTarget));
+        event.setXRot((float) MathUtils.getXRotOfVector(playerToTarget));
+        event.setYRot((float) MathUtils.getYRotOfVector(playerToTarget));
     }
 }

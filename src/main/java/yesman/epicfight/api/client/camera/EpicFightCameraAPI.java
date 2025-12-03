@@ -43,6 +43,7 @@ import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.BuildCameraTransform;
 import yesman.epicfight.api.client.event.types.ItemUsedInDecoupledCamera;
+import yesman.epicfight.api.client.event.types.LockOnEvent;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.utils.math.MathUtils;
@@ -94,7 +95,7 @@ public final class EpicFightCameraAPI {
 	private float fpvXRot;
 	private float fpvYRotO;
 	private float fpvYRot;
-	private int fpvLerpTick;
+	private int fpvLerpTick = -1;
 	private int maxFpvLerpTick;
 	
 	/**
@@ -272,23 +273,35 @@ public final class EpicFightCameraAPI {
 	 */
 	public void setLockOn(boolean flag) {
 		if (this.lockingOnTarget == flag) {
-			return;
-		}
-		
-		if (flag && this.focusingEntity == null) {
-			this.lockingOnTarget = false;
-		} else {
-			this.lockingOnTarget = flag;
-			
-			// Sycn the camera rotation according to the camera mode
-			if (!this.isTPSMode()) {
-				if (!flag) {
-					this.minecraft.player.setXRot(this.cameraXRot);
-				} else {
-					this.setCameraRotations(this.minecraft.player.getXRot(), this.minecraft.player.getYRot(), true);
-				}
-			}
-		}
+            return;
+        }
+
+        if (!flag || this.focusingEntity != null) {
+            boolean eventCanceled;
+
+            if (flag) {
+                LockOnEvent.Start lockOnEvent = new LockOnEvent.Start(this, this.focusingEntity);
+                EpicFightClientHooks.Camera.LOCK_ON_START.post(lockOnEvent);
+                eventCanceled = lockOnEvent.hasCanceled();
+            } else {
+                LockOnEvent.Release lockOnEvent = new LockOnEvent.Release(this, this.focusingEntity);
+                EpicFightClientHooks.Camera.LOCK_ON_RELEASED.post(lockOnEvent);
+                eventCanceled = lockOnEvent.hasCanceled();
+            }
+
+            if (!eventCanceled) {
+                this.lockingOnTarget = flag;
+
+                // Sycn the camera rotation according to the camera mode
+                if (!this.isTPSMode()) {
+                    if (!flag) {
+                        this.minecraft.player.setXRot(this.cameraXRot);
+                    } else {
+                        this.setCameraRotations(this.minecraft.player.getXRot(), this.minecraft.player.getYRot(), true);
+                    }
+                }
+            }
+        }
 	}
 	
 	public void toggleLockOn() {
@@ -763,6 +776,13 @@ public final class EpicFightCameraAPI {
 					clamp = 15.0F;
 				}
 			}
+			
+			if (this.focusingEntity != null && this.lockingOnTarget) {
+                LockOnEvent.Tick lockOnEventTick = new LockOnEvent.Tick(this, this.focusingEntity, desiredXRot, desiredYRot);
+                EpicFightClientHooks.Camera.LOCK_ON_TICK.post(lockOnEventTick);
+                desiredXRot = lockOnEventTick.getModifiedXRot();
+                desiredYRot = lockOnEventTick.getModifiedYRot();
+            }
 			
 			// Turns the player to desired rotation, based on the player state and camera setup
 			if (

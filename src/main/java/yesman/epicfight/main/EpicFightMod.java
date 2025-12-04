@@ -87,6 +87,7 @@ import yesman.epicfight.world.item.SkillBookItem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -250,7 +251,7 @@ public class EpicFightMod {
     		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();
     		ModLoader.postEvent(animationregistryevent);
-    		animationregistryevent.getBuilders().stream().sorted((b1, b2) -> b1.namespace().compareTo(b2.namespace())).forEach((builder) -> builder.task().accept(builder));
+    		animationregistryevent.getBuilders().stream().sorted(Comparator.comparing(AnimationManager.AnimationBuilder::namespace)).forEach(builder -> builder.task().accept(builder));
     	});
     }
 
@@ -335,10 +336,8 @@ public class EpicFightMod {
     }
 
 	private void buildCreativeTabWithSkillBooks(final BuildCreativeModeTabContentsEvent event) {
-		/**
-		 * Accept learnable skills for each mod by {@link EpicFightExtensions#skillBookCreativeTab}.
-		 * If the extension doesn't exist, add them to {@link EpicFightCreativeTabs.ITEMS} tab.
-		 */
+        //Accept learnable skills for each mod by [EpicFightExtensions#skillBookCreativeTab].
+		// If the extension doesn't exist, add them to [EpicFightCreativeTabs.ITEMS] tab.
 		EpicFightRegistries.SKILL.keySet().stream().map(id -> id.getNamespace()).distinct().forEach((modid) -> {
 			ModList.get().getModContainerById(modid).flatMap(modcontainer -> modcontainer.getCustomExtension(EpicFightExtensions.class)).ifPresentOrElse(extension -> {
 				if (extension.skillBookCreativeTab().get() == event.getTab()) {

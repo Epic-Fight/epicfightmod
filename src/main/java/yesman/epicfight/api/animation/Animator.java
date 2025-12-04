@@ -1,14 +1,8 @@
 package yesman.epicfight.api.animation;
 
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-
 import net.neoforged.neoforge.common.NeoForge;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
@@ -18,6 +12,10 @@ import yesman.epicfight.api.neoevent.InitAnimatorEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Optional;
 
 public abstract class Animator {
 	protected final Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingAnimations = Maps.newHashMap();
@@ -110,7 +108,7 @@ public abstract class Animator {
 	}
 	
 	public void addLivingAnimation(LivingMotion livingMotion, AssetAccessor<? extends StaticAnimation> animation) {
-		if (!AnimationManager.checkNonNull(animation)) {
+		if (AnimationManager.checkNull(animation)) {
 			EpicFightMod.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
 			return;
 		}

@@ -236,7 +236,7 @@ public class WeaponCapability extends CapabilityItem {
 		}
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
-			if (!AnimationManager.checkNonNull(animation)) {
+			if (AnimationManager.checkNull(animation)) {
 				EpicFightMod.LOGGER.warn("Unable to put an empty animation to weapon capability builder: " + livingMotion + ", " + animation);
 				return this;
 			}

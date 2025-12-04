@@ -10,8 +10,10 @@ public class AnimationClip {
 	
 	protected Map<String, TransformSheet> jointTransforms = new HashMap<> ();
 	protected float clipTime;
-	protected float bakedTimes[];
-	
+	protected float[] bakedTimes;
+
+    /// To modify existing keyframes in runtime and keep the baked state, call [#setBaked] again
+    /// after finishing clip modification. (Frequent calls of this method will cause a performance issue)
 	public void addJointTransform(String jointName, TransformSheet sheet) {
 		this.jointTransforms.put(jointName, sheet);
 		this.bakedTimes = null;
@@ -20,7 +22,8 @@ public class AnimationClip {
 	public boolean hasJointTransform(String jointName) {
 		return this.jointTransforms.containsKey(jointName);
 	}
-	
+
+    /// Bakes all keyframes to optimize calculating current pose,
 	public void bakeKeyframes() {
 		Set<Float> timestamps = new HashSet<> ();
 		
@@ -47,9 +50,7 @@ public class AnimationClip {
 		this.bakedTimes = bakedTimestamps;
 	}
 	
-	/**
-	 * Supposes the keyframes are aligned (when creating link animations)
-	 */
+	/// Bake keyframes supposing all keyframes are aligned (mainly used when creating link animations)
 	public void setBaked() {
 		TransformSheet transformSheet = this.jointTransforms.get("Root");
 		
@@ -108,11 +109,7 @@ public class AnimationClip {
 		return pose;
 	}
 	
-	/**
-	 * Warn: do not add or modify the existing entries by native map methods since it breaks baked state
-	 * 
-	 * @return
-	 */
+    /// @return returns protected keyframes of each joint to keep the baked state of keyframes.
 	public Map<String, TransformSheet> getJointTransforms() {
 		return Collections.unmodifiableMap(this.jointTransforms);
 	}

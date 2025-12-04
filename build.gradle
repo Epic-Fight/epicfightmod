@@ -175,9 +175,9 @@ dependencies {
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
     
-    // Shoulder Surfing Reloaded compatibility (optional, have to choose one)
-    compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993792") // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993792)
-    //compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993788") // Actual mod file (for test)
+    // Shoulder Surfing Reloaded compatibility (optional, uncomment runtimeOnly to test in-game)
+    compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:7279955") // API only
+//    runtimeOnly fg.deobf("maven.modrinth:shoulder-surfing-reloaded:1.20.1-4.16.2+forge") // Actual mod file (for test)
     
     compileOnly fg.deobf("dev.echoellet:controlify-forgified:${project.controlify_version}")
     runtimeOnly fg.deobf("maven.modrinth:yacl:3.6.6+1.20.1-forge") // Required dependency to run Controlify

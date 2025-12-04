@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Epic Fight's TPS perspective will be automatically disabled when a conflicting mod, such
   as [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
   or [Better Third Person](https://modrinth.com/mod/better-third-person), is detected to prevent issues.
+- Explicit Shoulder Surfing compatibility with the new enhanced lock-on (credit [Exopandora](https://github.com/Exopandora)).
 
 ### Fixed
 

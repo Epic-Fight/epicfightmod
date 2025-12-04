@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed a bug that allowed the player to replace the current skill slot even during cooldown.
 - Fixed the mining crosshair not to show in vanilla mode
+- Fixed the massive memory consume on loading the game caused by animation loads
 
 ### For Devs
 

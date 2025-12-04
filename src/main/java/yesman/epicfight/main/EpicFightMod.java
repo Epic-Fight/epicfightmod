@@ -1,13 +1,15 @@
 package yesman.epicfight.main;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import com.mojang.logging.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+
+import com.mojang.logging.LogUtils;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -293,7 +295,7 @@ public class EpicFightMod {
     		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();
     		ModLoader.get().postEvent(animationregistryevent);
-    		animationregistryevent.getBuilders().stream().sorted((b1, b2) -> b1.namespace().compareTo(b2.namespace())).forEach((builder) -> builder.task().accept(builder));
+    		animationregistryevent.getBuilders().stream().sorted(Comparator.comparing(AnimationManager.AnimationBuilder::namespace)).forEach((builder) -> builder.task().accept(builder));
     	});
     }
     

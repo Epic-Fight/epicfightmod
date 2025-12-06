@@ -33,6 +33,7 @@ import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.*;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
+import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -966,7 +967,7 @@ public final class EpicFightCameraAPI {
         CoupleTPSCamera coupleTPSCameraEvent = new CoupleTPSCamera(
             this,
             InputManager.getInputState(this.minecraft.player.input).getMoveVector().lengthSquared() > 0.0F,                             // When moving
-            this.minecraft.options.keyAttack.isDown(),                                                                                  // When pressing left button
+            InputManager.isActionActive(MinecraftInputAction.ATTACK_DESTROY),                                                           // When pressing left button
             this.minecraft.player.isUsingItem() && tpsItemAnimations.contains(this.minecraft.player.getUseItem().getUseAnimation()),    // When using an item with pre-defined use animations
             this.isZooming(),                                                                                                           // When zooming
             (playerpatch == null || playerpatch.isHoldingAny()),                                                                        // When holding a skill

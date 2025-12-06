@@ -292,7 +292,46 @@ the [Epic Fight WIKI](https://epicfight-docs.readthedocs.io/).
 For contribution guidelines,
 please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight/blob/1.21.1/CONTRIBUTING.md).
 
-## **Disclaimer**
+## **License**
+
+- **Source Code (Java, Kotlin, C++, C, Groovy, etc.):** [CC BY-NC-SA 4.0](./LICENSE)
+    - Applies only to the source code in this repository.
+
+- **Assets (images, models, textures, sounds, translations, animations, native libraries, etc.):**
+  [All Rights Reserved](./LICENSE-ASSETS)
+    - Applies only to the mod assets (under `src/main/resources/assets`) in this repository.
+
+### **You CAN**
+
+- Use this mod in a modpack.
+- Write your own code that uses this code as a dependency (such as addons, resource packs or datapacks).
+- Submit Pull Requests to this repository.
+- Fork and modify the code as long as modifications are not distributed publicly.
+- Third-party redistribution is allowed only if all the following conditions are met:
+    - All assets under `src/main/resources/assets` are removed and replaced with custom, original-made assets.
+    - The mod and project use a different name to avoid confusion with Epic Fight.
+    - Credit and a link to the original Epic Fight project are provided.
+    - You grant the Epic Fight project a non-exclusive, royalty-free, worldwide license to use, copy, modify, and
+      distribute your modifications, provided that appropriate credit or attribution is given to you.
+
+### **You CANNOT**
+
+- Redistribute ANY assets from this mod (located under `src/main/resources/assets`).
+    - **Note:** You may replace all original assets with your own to redistribute your fork publicly.
+- Sell addons, mods, or other derivative works that use any Epic Fight assets, including but not limited to animations,
+  textures, sounds, or models.
+
+### **Disclaimer**
+
+<sub> 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</sub>
 
 To comply with the [Minecraft Essential guidelines](https://www.minecraft.net/en-us/usage-guidelines),
 the following disclaimer is included:

@@ -6,14 +6,11 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.patched.layer.LayerUtil;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class RegisterResourceLayersEvent<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> extends Event {
 	private final Map<ResourceLocation, LayerUtil.LayerProvider<E, T, M, R, AM>> layersbyid;
 	

@@ -38,8 +38,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.neoforge.client.ClientHooks;
 import yesman.epicfight.api.client.neoevent.AttributeIconRegisterEvent;
@@ -59,7 +57,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.item.SkillBookItem;
 
-@OnlyIn(Dist.CLIENT)
 public class SkillBookScreen extends Screen {
 	private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = new HashMap<> ();
 	private static final Map<Holder<Attribute>, TextureInfo> ATTRIBUTE_ICONS = new HashMap<> ();
@@ -402,7 +399,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private class SkillTooltipList extends ObjectSelectionList<SkillTooltipList.TooltipLine> {
 		public SkillTooltipList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
 			super(minecraft, width, height, y, itemHeight);
@@ -427,7 +423,6 @@ public class SkillBookScreen extends Screen {
 			return this.getRight() - 6;
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		private class TooltipLine extends ObjectSelectionList.Entry<SkillTooltipList.TooltipLine> {
 			private final FormattedCharSequence tooltip;
 			
@@ -447,7 +442,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private class AvailableItemsList extends AbstractWidget {
 		private static final float ICON_LENGTH = 21.25F;
 		private final List<WeaponCategory> availableCategories = Lists.newArrayList();
@@ -533,7 +527,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class AttributeIconList extends ContainerObjectSelectionList<AttributeIconList.ProvidingAttributeEntry> {
 		public AttributeIconList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
 			super(minecraft, width, height, y, itemHeight);
@@ -567,7 +560,6 @@ public class SkillBookScreen extends Screen {
 			return this.getX() + 2;
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		private class ProvidingAttributeEntry extends ContainerObjectSelectionList.Entry<AttributeIconList.ProvidingAttributeEntry> {
 			private List<AbstractWidget> icons = Lists.newArrayList();
 			
@@ -627,7 +619,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class AttributeIcon extends AbstractWidget {
 		private final TextureInfo textureInfo;
 		
@@ -659,7 +650,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class TextureInfo {
 		final ResourceLocation resourceLocation;
 		final int u;
@@ -676,7 +666,6 @@ public class SkillBookScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private class LearnButton extends Button {
 		protected static final WidgetSprites SPRITES = new WidgetSprites(
 	        ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "widget/skillbook_button"),

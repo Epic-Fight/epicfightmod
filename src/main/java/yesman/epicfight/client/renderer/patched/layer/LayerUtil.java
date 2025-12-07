@@ -19,8 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
@@ -34,7 +32,6 @@ import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class LayerUtil {
 	@FunctionalInterface
 	public interface LayerProvider<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> {

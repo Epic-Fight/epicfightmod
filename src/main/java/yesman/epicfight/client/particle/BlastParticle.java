@@ -8,10 +8,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class BlastParticle extends HitParticle {
 	public BlastParticle(ClientLevel world, double x, double y, double z, SpriteSet animatedSprite) {
 		super(world, x, y, z, animatedSprite);
@@ -40,7 +37,6 @@ public class BlastParticle extends HitParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet spriteSet;
 

@@ -27,13 +27,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class HumanoidModelBaker {
 	static final Map<ResourceLocation, SkinnedMesh> BAKED_MODELS = new HashMap<> ();
 	static final List<HumanoidModelTransformer> MODEL_TRANSFORMERS = new ArrayList<> ();
@@ -43,7 +40,6 @@ public class HumanoidModelBaker {
 	
 	public static final HumanoidModelTransformer VANILLA_TRANSFORMER = new VanillaModelTransformer();
 	
-	@OnlyIn(Dist.CLIENT)
 	public interface ModelProvider {
 		public Model get(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot slot, HumanoidModel<?> _default);
 	}

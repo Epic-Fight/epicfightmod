@@ -17,8 +17,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
 import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
@@ -31,7 +29,6 @@ import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 
-@OnlyIn(Dist.CLIENT)
 public class OffhandValidatorScreen extends Screen {
 	private final Screen parentScreen;
 	private final List<CompoundTag> conditionList = Lists.newLinkedList();

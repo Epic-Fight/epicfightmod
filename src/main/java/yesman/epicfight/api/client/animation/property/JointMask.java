@@ -6,8 +6,6 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -19,9 +17,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class JointMask {
-	@OnlyIn(Dist.CLIENT)
 	@FunctionalInterface
 	public interface BindModifier {
 		public void modify(LivingEntityPatch<?> entitypatch, Pose baseLayerPose, Pose resultPose, LivingMotion livingMotion, JointMaskEntry wholeEntry, Layer.Priority priority, Joint joint, Map<Layer.Priority, Pair<AssetAccessor<? extends DynamicAnimation>, Pose>> poses);
@@ -68,7 +64,6 @@ public class JointMask {
 		this.bindModifier = bindModifier;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class JointMaskSet {
 		final Map<String, BindModifier> masks = Maps.newHashMap();
 		

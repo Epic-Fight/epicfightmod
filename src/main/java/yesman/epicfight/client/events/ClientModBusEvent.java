@@ -7,7 +7,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,7 +32,6 @@ import yesman.epicfight.skill.SkillCategory;
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 public final class ClientModBusEvent {
 	private ClientModBusEvent() {}

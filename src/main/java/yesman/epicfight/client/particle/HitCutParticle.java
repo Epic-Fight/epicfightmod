@@ -5,11 +5,8 @@ import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public class HitCutParticle extends NoRenderParticle {
 	public HitCutParticle(ClientLevel world, double x, double y, double z, double width, double height, double _null) {
 		super(world, x, y, z);
@@ -28,7 +25,6 @@ public class HitCutParticle extends NoRenderParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

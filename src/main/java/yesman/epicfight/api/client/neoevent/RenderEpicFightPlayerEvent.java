@@ -1,11 +1,8 @@
 package yesman.epicfight.api.client.neoevent;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class RenderEpicFightPlayerEvent extends Event {
 	private final PlayerPatch<?> playerpatch;
 	private final boolean shouldRenderOriginal;

@@ -8,10 +8,7 @@ import org.lwjgl.opengl.GL43C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class OutputSSBO implements Closeable {
     public final int glSSBO;
     

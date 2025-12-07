@@ -14,11 +14,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.datapack.widgets.DataBindingComponent;
 
-@OnlyIn(Dist.CLIENT)
 public class MessageScreen<T> extends Screen {
 	protected final Button.OnPress onOkPress;
 	protected final Button.OnPress onCancelPress;

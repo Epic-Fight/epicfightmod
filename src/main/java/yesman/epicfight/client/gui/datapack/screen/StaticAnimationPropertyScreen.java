@@ -16,8 +16,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.datapack.EditorAnimation;
@@ -33,7 +31,6 @@ import yesman.epicfight.client.gui.datapack.widgets.PopupBox;
 import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.HorizontalSizing;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 
-@OnlyIn(Dist.CLIENT)
 public class StaticAnimationPropertyScreen extends Screen {
 	private final InputComponentList<JsonObject> inputComponentsList;
 	private final ComboBox<LayerOptions> layerTypeCombo;
@@ -471,7 +468,6 @@ public class StaticAnimationPropertyScreen extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public enum LayerOptions {
 		BASE_LAYER, COMPOSITE_LAYER, MULTILAYER
 	}

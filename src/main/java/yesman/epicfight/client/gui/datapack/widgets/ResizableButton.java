@@ -3,10 +3,7 @@ package yesman.epicfight.client.gui.datapack.widgets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class ResizableButton extends Button implements ResizableComponent {
 	public ResizableButton(ResizableButton.Builder builder) {
 		super(builder);
@@ -138,7 +135,6 @@ public class ResizableButton extends Button implements ResizableComponent {
 		return this.getMessage();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class Builder extends Button.Builder {
 		private int x1;
 		private int x2;

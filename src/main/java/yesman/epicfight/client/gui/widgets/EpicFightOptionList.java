@@ -12,10 +12,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class EpicFightOptionList extends ContainerObjectSelectionList<EpicFightOptionList.OptionEntry> {
 	public EpicFightOptionList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
         super(minecraft, width, height, y, itemHeight);
@@ -40,7 +37,6 @@ public class EpicFightOptionList extends ContainerObjectSelectionList<EpicFightO
 		return super.getScrollbarPosition() + 46;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	protected static class OptionEntry extends ContainerObjectSelectionList.Entry<EpicFightOptionList.OptionEntry> {
 		final List<AbstractWidget> children;
 		

@@ -7,8 +7,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -18,7 +16,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class EntityUI {
 	public static final List<EntityUI> ENTITY_UI_LIST = Lists.newArrayList();
 	public static final TargetIndicator TARGET_INDICATOR = new TargetIndicator();

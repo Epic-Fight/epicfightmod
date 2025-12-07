@@ -8,18 +8,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.model.HumanoidModel;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class HumanoidModelTransformer {
 	public abstract SkinnedMesh transformArmorModel(HumanoidModel<?> humanoidModel);
 	
-	@OnlyIn(Dist.CLIENT)
 	public static abstract class PartTransformer<T> {
 		public abstract void bakeCube(PoseStack poseStack, MeshPartDefinition partDefinition, T cube, List<SingleGroupVertexBuilder> vertices, Map<MeshPartDefinition, IntList> indices, IndexCounter indexCounter);
 
@@ -55,7 +51,6 @@ public abstract class HumanoidModelTransformer {
 			indexCounter.count();
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public static class IndexCounter {
 			private int indexCounter = 0;
 			

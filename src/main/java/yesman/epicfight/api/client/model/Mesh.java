@@ -20,15 +20,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 
-@OnlyIn(Dist.CLIENT)
 public interface Mesh {
 	
 	void initialize();
@@ -44,7 +41,6 @@ public interface Mesh {
 		this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static record RenderProperties(ResourceLocation customTexturePath, Vec3f customColor, boolean isTransparent) {
 		public static class Builder {
 			protected String customTexturePath;
@@ -78,7 +74,6 @@ public interface Mesh {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	@FunctionalInterface
 	public interface DrawingFunction {
 		public static final DrawingFunction NEW_ENTITY = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {

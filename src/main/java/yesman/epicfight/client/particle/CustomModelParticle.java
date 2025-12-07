@@ -11,13 +11,10 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class CustomModelParticle<M extends Mesh> extends Particle {
 	protected final AssetAccessor<M> particleMeshProvider;
 	protected float pitch;

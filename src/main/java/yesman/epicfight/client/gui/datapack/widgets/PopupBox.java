@@ -21,8 +21,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
@@ -49,7 +47,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class PopupBox<T> extends AbstractWidget implements DataBindingComponent<T, Pair<String, T>> {
 	public static final ResourceLocation POPUP_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/widget/popup_icon.png");
 	
@@ -149,7 +146,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		narrationElementInput.add(NarratedElementType.TITLE, this.createNarrationMessage());
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class RegistryPopupBox<T> extends PopupBox<T> {
 		protected final Registry<T> registry;
 		protected final Consumer<T> onPressRow;
@@ -173,7 +169,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class SoundPopupBox extends RegistryPopupBox<SoundEvent> {
 		public SoundPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, SoundEvent>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, BuiltInRegistries.SOUND_EVENT, (soundevent) -> {
@@ -182,7 +177,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class AnimationPopupBox extends PopupBox<AssetAccessor<? extends StaticAnimation>> {
 		private AssetAccessor<? extends Armature> armature;
 		private AssetAccessor<? extends SkinnedMesh> mesh;
@@ -208,7 +202,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ColliderPopupBox extends PopupBox<Collider> {
 		public ColliderPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, Collider>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (collider) -> ParseUtil.nullOrToString(collider, (c) -> ParseUtil.nullParam(ColliderPreset.getKey(c))), responder);
@@ -222,7 +215,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class WeaponTypePopupBox extends PopupBox<Function<Item, CapabilityItem.Builder<?>>> {
 		public WeaponTypePopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, Function<Item, CapabilityItem.Builder<?>>>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (builder) -> {
@@ -283,7 +275,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class JointMaskPopupBox extends PopupBox<JointMaskSet> {
 		public JointMaskPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, JointMaskSet>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (jointMask) -> ParseUtil.nullParam(JointMaskReloadListener.getKey(jointMask)), responder);
@@ -297,7 +288,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class BuiltinMobpatchPopupBox extends PopupBox<EntityType<?>> {
 		public BuiltinMobpatchPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, EntityType<?>>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (entityType) -> ParseUtil.nullParam(EntityType.getKey(entityType)), responder);
@@ -313,7 +303,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class MeshPopupBox extends PopupBox<AssetAccessor<? extends SkinnedMesh>> {
 		public MeshPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, AssetAccessor<? extends SkinnedMesh>>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (mesh) -> ParseUtil.nullOrToString(mesh, (accessor) -> ParseUtil.nullOrToString(accessor, accessor$2 -> accessor$2.registryName().toString())), responder);
@@ -333,7 +322,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ArmaturePopupBox extends PopupBox<AssetAccessor<Armature>> {
 		public ArmaturePopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, AssetAccessor<Armature>>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (accessor) -> ParseUtil.nullOrToString(accessor, accessor$2 -> accessor$2.registryName().toString()), responder);
@@ -357,7 +345,6 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class RendererPopupBox extends PopupBox<ResourceLocation> {
 		public RendererPopupBox(Screen owner, Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontal, VerticalSizing vertical, Component title, Consumer<Pair<String, ResourceLocation>> responder) {
 			super(owner, font, x1, x2, y1, y2, horizontal, vertical, title, (entityType) -> ParseUtil.nullOrToString(entityType, (rl) -> rl.toString()), responder);

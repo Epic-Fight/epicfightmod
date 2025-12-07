@@ -12,10 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class BlendingTextureOverlay extends OverlayManager.Overlay {
 	public ResourceLocation texture;
 	private boolean isAlive = true;

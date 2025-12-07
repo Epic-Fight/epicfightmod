@@ -38,8 +38,6 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.ModLoader;
@@ -94,7 +92,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
-@OnlyIn(Dist.CLIENT)
 public class RenderEngine implements IEventBasedEngine {
 	private static final RenderEngine INSTANCE = new RenderEngine();
 	

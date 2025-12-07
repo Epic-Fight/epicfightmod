@@ -7,8 +7,6 @@ import java.util.function.Function;
 import org.lwjgl.opengl.GL33C;
 
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
@@ -20,7 +18,6 @@ import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputePr
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class ComputeShaderProvider {
     public static ComputeProgram meshComputeVanilla;
     public static ComputeProgram meshComputeIris;

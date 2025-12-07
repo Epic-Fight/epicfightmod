@@ -9,8 +9,6 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
@@ -19,7 +17,6 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon.DragonCrystalLinkPhase;
 
-@OnlyIn(Dist.CLIENT)
 public class ForceFieldParticle extends TexturedCustomModelParticle {
 	private LivingEntityPatch<?> caster;
 	
@@ -68,7 +65,6 @@ public class ForceFieldParticle extends TexturedCustomModelParticle {
 		return 240 | k << 16;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

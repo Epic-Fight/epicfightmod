@@ -7,8 +7,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModContainer;
 import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.client.ClientEngine;
@@ -18,7 +16,6 @@ import yesman.epicfight.main.AuthenticationHelper;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
-@OnlyIn(Dist.CLIENT)
 public class IngameConfigurationScreen extends Screen {
 	protected final Screen parentScreen;
 	

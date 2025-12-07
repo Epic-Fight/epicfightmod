@@ -16,13 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.property.JointMask.BindModifier;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class JointMaskReloadListener extends SimpleJsonResourceReloadListener {
 	private static final BiMap<ResourceLocation, JointMaskSet> JOINT_MASKS = HashBiMap.create();
 	private static final Map<String, JointMask.BindModifier> BIND_MODIFIERS = Maps.newHashMap();

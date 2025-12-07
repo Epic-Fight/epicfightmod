@@ -16,12 +16,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillContainer;
 
-@OnlyIn(Dist.CLIENT)
 public class SlotSelectScreen extends Screen {
 	private static final int MAX_ROWS = 2;
 	private static final int MAX_COLUMNS = 3;
@@ -184,7 +181,6 @@ public class SlotSelectScreen extends Screen {
         }
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class ScrollArrow extends Button {
 		final boolean up;
 		
@@ -206,7 +202,6 @@ public class SlotSelectScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class SlotButton extends Button {
 		final ResourceLocation texture;
 		

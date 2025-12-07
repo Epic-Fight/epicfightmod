@@ -14,14 +14,11 @@ import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.VillagerMesh;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PatchedVillagerProfessionLayer extends ModelRenderLayer<ZombieVillager, MobPatch<ZombieVillager>, ZombieVillagerModel<ZombieVillager>, VillagerProfessionLayer<ZombieVillager, ZombieVillagerModel<ZombieVillager>>, VillagerMesh> {
 	public PatchedVillagerProfessionLayer() {
 		super(Meshes.VILLAGER_ZOMBIE);

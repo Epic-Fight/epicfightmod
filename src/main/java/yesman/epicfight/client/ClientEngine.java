@@ -4,8 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import yesman.epicfight.client.particle.EpicFightParticleRenderTypes;
@@ -18,7 +16,6 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
 public class ClientEngine {
 	private static ClientEngine instance = new ClientEngine();
 	

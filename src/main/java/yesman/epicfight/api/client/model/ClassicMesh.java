@@ -15,14 +15,11 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.ClassicMesh.ClassicMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 	public ClassicMesh(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<VertexBuilder>> partBuilders, ClassicMesh parent, RenderProperties properties) {
 		super(arrayMap, partBuilders, parent, properties);
@@ -61,7 +58,6 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 		this.draw(poseStack, vertexConsumer, drawingFunction, packedLight, r, g, b, a, overlay);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class ClassicMeshPart extends MeshPart {
 		public ClassicMeshPart(List<VertexBuilder> verticies, @Nullable Mesh.RenderProperties renderProperties, @Nullable Supplier<OpenMatrix4f> vanillaPartTracer) {
 			super(verticies, renderProperties, vanillaPartTracer);

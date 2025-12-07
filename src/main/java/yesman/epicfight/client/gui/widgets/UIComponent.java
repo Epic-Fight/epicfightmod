@@ -14,8 +14,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
@@ -24,7 +22,6 @@ import yesman.epicfight.client.gui.screen.config.UISetupScreen;
 import yesman.epicfight.client.gui.widgets.UIComponentPop.PassivesUIComponentPop;
 import yesman.epicfight.config.OptionHandler;
 
-@OnlyIn(Dist.CLIENT)
 public class UIComponent extends Button {
 	protected final UISetupScreen parentScreen;
 	protected final ResourceLocation texture;
@@ -213,7 +210,6 @@ public class UIComponent extends Button {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class PassiveUIComponent extends UIComponent {
 		public final OptionHandler<AlignDirection> alignDirection;
 		protected final ResourceLocation texture2;

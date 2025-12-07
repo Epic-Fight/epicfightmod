@@ -14,8 +14,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -59,7 +57,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import java.util.List;
 import java.util.Optional;
 
-@OnlyIn(Dist.CLIENT)
 public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	private final Minecraft minecraft;
     private final FirstPersonLayer firstPersonLayer = new FirstPersonLayer();
@@ -466,7 +463,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
         }
     }
 
-	@OnlyIn(Dist.CLIENT)
 	public class FirstPersonLayer extends Layer {
 		private final TransformSheet linkCameraTransform = new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.empty()), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));
 		

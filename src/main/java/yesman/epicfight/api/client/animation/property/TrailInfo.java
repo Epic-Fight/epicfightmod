@@ -16,14 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public record TrailInfo(
 	  Vec3 start
 	, Vec3 end
@@ -315,7 +312,6 @@ public record TrailInfo(
 		return trailBuilder.create();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Builder {
 		private Vec3 start;
 		private Vec3 end;

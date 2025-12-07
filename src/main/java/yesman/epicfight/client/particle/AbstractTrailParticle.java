@@ -21,12 +21,9 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends TextureSheetParticle {
 	protected final TrailInfo trailInfo;
 	protected final T owner;
@@ -217,7 +214,6 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class TrailEdge {
 		public final Vec3 start;
 		public final Vec3 end;

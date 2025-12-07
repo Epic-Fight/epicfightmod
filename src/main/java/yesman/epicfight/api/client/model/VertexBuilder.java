@@ -4,12 +4,9 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 
 // Vertex Indices
-@OnlyIn(Dist.CLIENT)
 public class VertexBuilder {
 	public static List<VertexBuilder> create(int[] drawingIndices) {
 		List<VertexBuilder> vertexIndicators = Lists.newArrayList();

@@ -6,8 +6,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
@@ -17,7 +15,6 @@ import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.OptionHandler;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class UISetupScreen extends Screen {
 	protected final Screen parentScreen;
 	private UIComponent draggingButton;

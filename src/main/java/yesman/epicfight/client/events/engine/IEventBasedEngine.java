@@ -1,10 +1,7 @@
 package yesman.epicfight.client.events.engine;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 
-@OnlyIn(Dist.CLIENT)
 public interface IEventBasedEngine {
 	public void gameEventBus(IEventBus gameEventBus);
 	

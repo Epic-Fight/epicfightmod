@@ -16,14 +16,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.gui.datapack.widgets.ModelPreviewer;
 
-@OnlyIn(Dist.CLIENT)
 public class SelectModelScreen extends Screen {
 	private final Screen parentScreen;
 	private final ModelList modelList;
@@ -122,7 +119,6 @@ public class SelectModelScreen extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class ModelList extends ObjectSelectionList<ModelList.ModelEntry> {
 		public ModelList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
 			super(minecraft, width, height, y, itemHeight);
@@ -165,7 +161,6 @@ public class SelectModelScreen extends Screen {
 														.sorted((entry$1, entry$2) -> entry$1.registryName.compareTo(entry$2.registryName)).forEach(this::addEntry);
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class ModelEntry extends ObjectSelectionList.Entry<ModelList.ModelEntry> {
 			private final String registryName;
 			private final AssetAccessor<SkinnedMesh> mesh;

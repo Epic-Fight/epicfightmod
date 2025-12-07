@@ -1,10 +1,7 @@
 package yesman.epicfight.api.client.animation.property;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.Layer;
 
-@OnlyIn(Dist.CLIENT)
 public class LayerInfo {
 	public final JointMaskEntry jointMaskEntry;
 	public final Layer.Priority priority;

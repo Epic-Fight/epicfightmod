@@ -9,11 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.RenderEngine;
 
-@OnlyIn(Dist.CLIENT)
 public class ItemSkinsReloadListener extends SimpleJsonResourceReloadListener {
 	public static final ItemSkinsReloadListener INSTANCE = new ItemSkinsReloadListener();
 	

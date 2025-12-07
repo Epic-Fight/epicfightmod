@@ -9,11 +9,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.renderer.LightningRenderHelper;
 
-@OnlyIn(Dist.CLIENT)
 public class DroppedNetherStarRenderer extends ItemEntityRenderer {
 	public DroppedNetherStarRenderer(Context context) {
 		super(context);

@@ -30,13 +30,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.PopupBoxProvider;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.RegistryPopupBox;
 
-@OnlyIn(Dist.CLIENT)
 public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingComponent<Object, Object> {
 	private final Screen owner;
 	private final Map<String, Column<?, ?>> columns = Maps.newLinkedHashMap();
@@ -570,7 +567,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		return this.getRight() - 6;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class Row extends ObjectSelectionList.Entry<Grid.Row> {
 		private Map<String, Object> values = Maps.newLinkedHashMap();
 		
@@ -719,7 +715,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		return new WildcardColumnBuilder<>(string);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class GridBuilder {
 		private final Minecraft minecraft;
 		private final Screen owner;
@@ -824,7 +819,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static abstract class Column<T, W extends AbstractWidget> {
 		final Function<T, String> toDisplayText;
 		final Consumer<ValueChangeEvent<T>> onValueChanged;
@@ -851,7 +845,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		public abstract ResizableComponent createEditWidget(Screen owner, Font font, int x, int y, int height, int rowposition, Row row, String colName, T value);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class EditBoxColumn extends Column<String, EditBox> {
 		private EditBoxColumn(Function<String, String> toDisplayText, Consumer<ValueChangeEvent<String>> onValueChanged, Consumer<EditBox> onEditWidgetCreate, String defaultVal, boolean editable, int size) {
 			super(toDisplayText, onValueChanged, onEditWidgetCreate, defaultVal, editable, size);
@@ -873,7 +866,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class ComboColumn<T> extends Column<T, ComboBox<T>> {
 		final Collection<T> comboItemCollection;
 		
@@ -896,7 +888,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class RegistryPopupColumn<T> extends Column<T, PopupBox.RegistryPopupBox<T>> {
 		final Registry<T> registry;
 		final Predicate<T> filter;
@@ -923,7 +914,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class PopupColumn<T, P extends PopupBox<T>> extends Column<T, P> {
 		final PopupBoxProvider<T, P> popupBoxProvider;
 		final Predicate<T> filter;
@@ -951,7 +941,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	}
 	
 	@SuppressWarnings("rawtypes")
-	@OnlyIn(Dist.CLIENT)
 	private static class WildcardColumn<T, W extends AbstractWidget & DataBindingComponent> extends Column<T, W> {
 		Function<Row, AbstractWidget> editWidgetProvider;
 		
@@ -988,7 +977,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public abstract static class ColumnBuilder<T, C extends Column<T, W>, W extends AbstractWidget> {
 		protected final String name;
 		protected Function<T, String> toDisplayText = ParseUtil::nullParam;
@@ -1035,7 +1023,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		protected abstract C create();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class EditBoxColumnBuilder extends ColumnBuilder<String, EditBoxColumn, EditBox> {
 		protected EditBoxColumnBuilder(String name) {
 			super(name);
@@ -1047,7 +1034,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ComboBoxColumnBuilder<T> extends ColumnBuilder<T, ComboColumn<T>, ComboBox<T>> {
 		private final Collection<T> enums;
 		
@@ -1064,7 +1050,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class RegistryPopupColumnBuilder<T> extends ColumnBuilder<T, RegistryPopupColumn<T>, RegistryPopupBox<T>> {
 		final Registry<T> registry;
 		Predicate<T> filter = (item) -> true;
@@ -1086,7 +1071,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class PopupColumnBuilder<T, P extends PopupBox<T>> extends ColumnBuilder<T, PopupColumn<T, P>, P> {
 		final PopupBoxProvider<T, P> popupProvider;
 		Predicate<T> filter = (item) -> true;
@@ -1110,7 +1094,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	}
 	
 	@SuppressWarnings("rawtypes")
-	@OnlyIn(Dist.CLIENT)
 	public static class WildcardColumnBuilder<T, W extends AbstractWidget & DataBindingComponent> extends ColumnBuilder<T, WildcardColumn<T, W>, W> {
 		Function<Row, AbstractWidget> editWidgetProvider;
 		
@@ -1129,7 +1112,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class PackImporter {
 		List<Map<String, Object>> rows = Lists.newArrayList();
 		
@@ -1144,7 +1126,6 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ValueChangeEvent<T> {
 		public final Grid grid;
 		public final int rowposition;

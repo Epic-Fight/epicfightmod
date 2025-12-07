@@ -13,10 +13,7 @@ import org.lwjgl.opengl.GL43C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class StaticSSBO<T> implements Closeable {
     public final int glSSBO;
     private int lastBinding = -1;

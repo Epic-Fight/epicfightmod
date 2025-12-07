@@ -6,14 +6,11 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class AirBurstParticle extends TexturedCustomModelParticle {
 	public static final ResourceLocation AIR_BURST_PARTICLE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/air_burst.png");
 	
@@ -40,7 +37,6 @@ public class AirBurstParticle extends TexturedCustomModelParticle {
 		this.scale += 0.5F;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

@@ -7,10 +7,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class EnderParticle extends TextureSheetParticle {
 	private EnderParticle.Usage usage;
 	
@@ -55,7 +52,6 @@ public class EnderParticle extends TextureSheetParticle {
 		DRAGON_BREATH_FLAME, ENDERMAN_DEATH
     }
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class EndermanDeathEmitProvider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet spriteSet;
 
@@ -72,7 +68,6 @@ public class EnderParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class BreathFlameProvider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet spriteSet;
 

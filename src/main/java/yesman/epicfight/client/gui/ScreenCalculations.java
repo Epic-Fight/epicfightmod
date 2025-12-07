@@ -2,11 +2,8 @@ package yesman.epicfight.client.gui;
 
 import java.util.function.BiFunction;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 
-@OnlyIn(Dist.CLIENT)
 public class ScreenCalculations {
 	private static final BiFunction<Integer, Integer, Integer> ORIGIN = ((screenLength, value) -> value);
 	private static final BiFunction<Integer, Integer, Integer> SCREEN_EDGE = ((screenLength, value) -> screenLength - value);

@@ -4,11 +4,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.WitherSkeletonRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class WitherSkeletonMinionRenderer extends WitherSkeletonRenderer {
 	private static final ResourceLocation WITHER_SKELETON_LOCATION = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/wither_skeleton_minion.png");
 

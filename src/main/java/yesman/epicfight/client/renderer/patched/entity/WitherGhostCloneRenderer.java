@@ -7,8 +7,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.Layer;
@@ -19,7 +17,6 @@ import yesman.epicfight.client.renderer.entity.WitherGhostRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherGhostPatch;
 import yesman.epicfight.world.entity.WitherGhostClone;
 
-@OnlyIn(Dist.CLIENT)
 public class WitherGhostCloneRenderer extends PatchedEntityRenderer<WitherGhostClone, WitherGhostPatch, WitherGhostRenderer, WitherMesh> {
 	@Override
 	public void render(WitherGhostClone entity, WitherGhostPatch entitypatch, WitherGhostRenderer renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {

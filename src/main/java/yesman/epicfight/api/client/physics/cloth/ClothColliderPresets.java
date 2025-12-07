@@ -6,8 +6,6 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
 /**
@@ -33,7 +31,6 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
  * 19: "Elbow_L"
 **/
 
-@OnlyIn(Dist.CLIENT)
 public class ClothColliderPresets {
 	public static final List<Pair<Function<ClothSimulatable, OpenMatrix4f>, ClothSimulator.ClothOBBCollider>> BIPED_SLIM = ImmutableList.<Pair<Function<ClothSimulatable, OpenMatrix4f>, ClothSimulator.ClothOBBCollider>>builder()
 			.add(Pair.of((simObject) -> simObject.getArmature().getPoseMatrices()[1], new ClothSimulator.ClothOBBCollider(0.125D, 0.24D, 0.125D, 0.0D, 0.22D, 0.0D)))

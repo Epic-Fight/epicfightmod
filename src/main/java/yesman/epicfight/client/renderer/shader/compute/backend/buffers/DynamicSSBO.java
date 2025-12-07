@@ -12,10 +12,7 @@ import org.lwjgl.opengl.GL43C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
     public final T[] src;
     public final short srcSize;
@@ -89,7 +86,6 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
         }
     }
     
-    @OnlyIn(Dist.CLIENT)
     public enum DataMode {
         STATIC(GL15C.GL_STATIC_DRAW), DYNAMIC(GL15C.GL_DYNAMIC_DRAW), STREAM(GL15C.GL_STREAM_DRAW);
     	

@@ -15,8 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.Mesh.RenderProperties;
@@ -37,7 +35,6 @@ import yesman.epicfight.client.mesh.VillagerMesh;
 import yesman.epicfight.client.mesh.WitherMesh;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class Meshes implements PreparableReloadListener {
 	private static final Map<ResourceLocation, MeshAccessor<? extends Mesh>> ACCESSORS = new HashMap<> ();
 	private static final Map<MeshAccessor<? extends Mesh>, Mesh> MESHES = new HashMap<> ();
@@ -124,12 +121,10 @@ public class Meshes implements PreparableReloadListener {
 	}
 	
 	@FunctionalInterface
-	@OnlyIn(Dist.CLIENT)
 	public interface MeshContructor<P extends MeshPart, V extends VertexBuilder, M extends StaticMesh<P>> {
 		M invoke(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<V>> parts, M parent, RenderProperties properties);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static record MeshAccessor<M extends Mesh> (ResourceLocation registryName, Function<JsonAssetLoader, M> jsonLoader, boolean inRegistry) implements AssetAccessor<M>, SoftBodyTranslatable {
 		public static <M extends Mesh> MeshAccessor<M> create(String namespaceId, String path, Function<JsonAssetLoader, M> jsonLoader) {
 			return create(ResourceLocation.fromNamespaceAndPath(namespaceId, path), jsonLoader, true);

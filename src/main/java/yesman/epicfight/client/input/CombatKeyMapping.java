@@ -3,8 +3,6 @@ package yesman.epicfight.client.input;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.client.ClientEngine;
@@ -35,7 +33,6 @@ import yesman.epicfight.client.ClientEngine;
 ///
 /// Future maintainers should consider refactoring or removing this class
 /// if it becomes problematic or a maintenance burden.
-@OnlyIn(Dist.CLIENT)
 public class CombatKeyMapping extends KeyMapping {
     public CombatKeyMapping(String description, int code, String category) {
         this(description, InputConstants.Type.KEYSYM, code, category);

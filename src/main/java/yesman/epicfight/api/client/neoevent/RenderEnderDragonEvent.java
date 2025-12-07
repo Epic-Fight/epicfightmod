@@ -5,12 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
-@OnlyIn(Dist.CLIENT)
 public class RenderEnderDragonEvent extends Event implements ICancellableEvent {
 	private final EnderDragon entity;
     private final EnderDragonRenderer renderer;

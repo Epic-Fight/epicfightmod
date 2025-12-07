@@ -13,15 +13,12 @@ import org.joml.Vector4f;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class StaticMesh<P extends MeshPart> implements Mesh, SoftBodyTranslatable {
 	protected final float[] positions;
 	protected final float[] normals;

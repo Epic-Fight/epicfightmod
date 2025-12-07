@@ -6,12 +6,9 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public class EviscerateParticle extends NoRenderParticle {
 	protected EviscerateParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
 		super(world, x, y, z, motionX, motionY, motionZ);
@@ -24,7 +21,6 @@ public class EviscerateParticle extends NoRenderParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

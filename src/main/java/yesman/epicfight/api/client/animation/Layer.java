@@ -6,8 +6,6 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.Pose;
@@ -20,7 +18,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class Layer {
 	protected AssetAccessor<? extends StaticAnimation> nextAnimation;
 	protected final LinkAnimation linkAnimation;
@@ -230,7 +227,6 @@ public class Layer {
 		return sb.toString();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class BaseLayer extends Layer {
 		protected Map<Layer.Priority, Layer> compositeLayers = Maps.newLinkedHashMap();
 		protected Layer.Priority baseLayerPriority;
@@ -318,12 +314,10 @@ public class Layer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public enum LayerType {
 		BASE_LAYER, COMPOSITE_LAYER
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public enum Priority {
 		/**
 		 * The common usage of each layer

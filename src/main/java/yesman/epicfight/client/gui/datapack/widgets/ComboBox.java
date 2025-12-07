@@ -17,10 +17,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<T, T> {
 	private final ComboItemList comboItemList;
 	private final Font font;
@@ -213,7 +210,6 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	class ComboItemList extends ObjectSelectionList<ComboItemList.ComboItemEntry> {
 		private final Map<T, ComboItemEntry> entryMap = Maps.newHashMap();
 		
@@ -268,7 +264,6 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 			return this.getY() + 2 - (int) this.getScrollAmount() + row * this.itemHeight;
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class ComboItemEntry extends ObjectSelectionList.Entry<ComboItemList.ComboItemEntry> {
 			private final T item;
 			private final String displayName;

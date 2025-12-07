@@ -35,13 +35,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.FakeBlockRenderer;
 
-@OnlyIn(Dist.CLIENT)
 public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 	private static final Direction[] DIRECTIONS = Direction.values();
 	

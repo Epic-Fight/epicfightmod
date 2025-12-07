@@ -16,8 +16,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
@@ -31,7 +29,6 @@ import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.modules.ChargeableSkill;
 
-@OnlyIn(Dist.CLIENT)
 public class BattleModeGui {
 	private final List<SkillContainer> skillIcons = new ArrayList<> ();
 	private Minecraft minecraft;

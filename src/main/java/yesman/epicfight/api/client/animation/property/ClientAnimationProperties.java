@@ -2,14 +2,11 @@ package yesman.epicfight.api.client.animation.property;
 
 import java.util.List;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
 import yesman.epicfight.api.animation.types.DirectStaticAnimation;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.animation.Layer;
 
-@OnlyIn(Dist.CLIENT)
 public class ClientAnimationProperties {
 	/**
 	 * Layer type. (BASE: Living, attack animations, COMPOSITE: Aiming, weapon holding, digging animation)

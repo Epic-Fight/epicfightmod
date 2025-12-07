@@ -75,8 +75,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.validation.DirectoryValidator;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -131,7 +129,6 @@ import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
 import yesman.epicfight.world.damagesource.StunType;
 
-@OnlyIn(Dist.CLIENT)
 public class DatapackEditScreen extends Screen {
 	public static final Component GUI_EXPORT = Component.translatable("gui.epicfight.export");
 	private static DatapackEditScreen workingPackScreen;
@@ -728,7 +725,6 @@ public class DatapackEditScreen extends Screen {
 		return this.userAnimations;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	abstract class DatapackTab<T> extends GridLayoutTab implements TickableComponent {
 		protected Grid packListGrid;
 		protected InputComponentList<CompoundTag> inputComponentsList;
@@ -822,7 +818,6 @@ public class DatapackEditScreen extends Screen {
 		public abstract void exportEntries(ZipOutputStream out) throws Exception;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class WeaponTypeTab extends DatapackTab<ResourceLocation> {
 		private final ModelPreviewer modelPreviewer;
 		
@@ -1245,7 +1240,6 @@ public class DatapackEditScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class ItemCapabilityTab extends DatapackTab<Item> {
 		private ModelPreviewer modelPreviewer;
 		private ComboBox<ItemType> itemTypeCombo;
@@ -2176,7 +2170,6 @@ public class DatapackEditScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class MobCapabilityTab extends DatapackTab<EntityType<?>> {
 		private final ModelPreviewer modelPreviewer;
 		private final ComboBox<EntityType<?>> presetCombo = new ComboBox<>(DatapackEditScreen.this, DatapackEditScreen.this.font, 0, 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,

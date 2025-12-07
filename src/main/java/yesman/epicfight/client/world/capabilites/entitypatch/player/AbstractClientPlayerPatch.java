@@ -13,8 +13,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -49,7 +47,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.Optional;
 
-@OnlyIn(Dist.CLIENT)
 public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends PlayerPatch<T> implements ClothSimulatable {
 	private Item prevHeldItem;
 	private Item prevHeldItemOffHand;

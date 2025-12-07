@@ -17,8 +17,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.datapack.EditorAnimation;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
@@ -33,7 +31,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.VerticalS
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 
-@OnlyIn(Dist.CLIENT)
 public class AttackAnimationPropertyScreen extends Screen {
 	private final Screen parentScreen;
 	private final EditorAnimation animation;
@@ -331,7 +328,6 @@ public class AttackAnimationPropertyScreen extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public enum LayerOptions {
 		BASE_LAYER, COMPOSITE_LAYER, MULTILAYER
 	}

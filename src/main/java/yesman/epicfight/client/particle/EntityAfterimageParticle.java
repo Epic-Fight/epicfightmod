@@ -19,8 +19,6 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -31,7 +29,6 @@ import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 	protected final EntitySnapshot<?> entitySnapshot;
 	protected final Consumer<EntityAfterimageParticle> ticktask;
@@ -117,7 +114,6 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 		poseStack.popPose();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class WhiteAfterimageParticle extends EntityAfterimageParticle {
 		public WhiteAfterimageParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, EntitySnapshot<?> entitySnapshot, Consumer<EntityAfterimageParticle> ticktask) {
 			super(level, x, y, z, xd, yd, zd, entitySnapshot, ticktask);
@@ -141,7 +137,6 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class AdrenalineParticleProvider implements ParticleProvider<SimpleParticleType> {
 		public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 			Entity entity = level.getEntity((int) Double.doubleToLongBits(xSpeed));
@@ -169,7 +164,6 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class WhiteAfterimageProvider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

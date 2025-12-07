@@ -9,7 +9,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.UseAnim;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,7 +29,6 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
-@OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 public final class ClientEvents {
 	private ClientEvents() {}

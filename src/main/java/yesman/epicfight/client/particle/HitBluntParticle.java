@@ -5,11 +5,8 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public class HitBluntParticle extends HitParticle {
 	public HitBluntParticle(ClientLevel world, double x, double y, double z, double argX, double argY, double argZ, SpriteSet animatedSprite) {
 		super(world, x, y, z, animatedSprite);
@@ -29,7 +26,6 @@ public class HitBluntParticle extends HitParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet spriteSet;
 		public Provider(SpriteSet spriteSet) {

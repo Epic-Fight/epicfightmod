@@ -2,11 +2,8 @@ package yesman.epicfight.client.gui.screen.overlay;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.RenderEngine;
 
-@OnlyIn(Dist.CLIENT)
 public class FlickeringOverlay extends OverlayManager.Overlay {
 	private float time = (float)-Math.PI;
 	private final float deltaTime;

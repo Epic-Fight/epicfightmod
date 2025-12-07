@@ -6,15 +6,12 @@ import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.layers.WitchItemLayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Witch;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.client.mesh.VillagerMesh;
 import yesman.epicfight.client.renderer.patched.layer.PatchedItemInHandLayer;
 import yesman.epicfight.world.capabilities.entitypatch.mob.WitchPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PWitchRenderer extends PatchedLivingEntityRenderer<Witch, WitchPatch, WitchModel<Witch>, WitchRenderer, VillagerMesh> {
 	public PWitchRenderer(EntityRendererProvider.Context context, EntityType<?> entityType) {
 		super(context, entityType);

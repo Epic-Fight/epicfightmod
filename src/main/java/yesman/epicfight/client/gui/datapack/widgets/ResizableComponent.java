@@ -6,10 +6,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public interface ResizableComponent extends GuiEventListener, NarratableEntry {
 	default void resize(ScreenRectangle screenRectangle) {
 		if (this.getHorizontalSizingOption() != null) {
@@ -56,7 +53,6 @@ public interface ResizableComponent extends GuiEventListener, NarratableEntry {
 	HorizontalSizing getHorizontalSizingOption();
 	VerticalSizing getVerticalSizingOption();
 	
-	@OnlyIn(Dist.CLIENT)
 	public static enum HorizontalSizing {
 		LEFT_WIDTH((component, screenRectangle, v1, v2) -> {
 			component._setX(screenRectangle.left() + v1);
@@ -80,7 +76,6 @@ public interface ResizableComponent extends GuiEventListener, NarratableEntry {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static enum VerticalSizing {
 		TOP_HEIGHT((component, screenRectangle, v1, v2) -> {
 			component._setY(v1);
@@ -104,7 +99,6 @@ public interface ResizableComponent extends GuiEventListener, NarratableEntry {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	@FunctionalInterface
 	interface ResizeFunction {
 		public void resize(ResizableComponent component, ScreenRectangle screenRectangle, int v1, int v2);

@@ -22,8 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
@@ -35,7 +33,6 @@ import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
-@OnlyIn(Dist.CLIENT)
 public class SkillEditScreen extends Screen {
 	public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/empty.png");
 	public static final ResourceLocation SCROLL_ARROW_UP = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/scroll_arrow_up.png");
@@ -295,7 +292,6 @@ public class SkillEditScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class SlotButton extends Button {
         private static final int SIZE = 18;
 		private final SkillContainer skillContainer;
@@ -366,7 +362,6 @@ public class SkillEditScreen extends Screen {
         }
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class ScrollArrow extends Button {
 		final boolean up;
 		
@@ -387,7 +382,6 @@ public class SkillEditScreen extends Screen {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class EquipSkillButton extends Button {
         private static final int SPACING = 26;
 

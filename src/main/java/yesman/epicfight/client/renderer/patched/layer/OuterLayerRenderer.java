@@ -9,14 +9,11 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.DrownedOuterLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Drowned;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.world.capabilities.entitypatch.mob.DrownedPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class OuterLayerRenderer extends ModelRenderLayer<Drowned, DrownedPatch, DrownedModel<Drowned>, DrownedOuterLayer<Drowned>, HumanoidMesh> {
 	public static final ResourceLocation DROWNED_OUTER_LAYER = ResourceLocation.withDefaultNamespace("textures/entity/zombie/drowned_outer_layer.png");
 	

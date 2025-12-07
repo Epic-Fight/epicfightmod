@@ -7,8 +7,6 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FeatherParticle extends TextureSheetParticle {
 	protected FeatherParticle(ClientLevel level, double x, double y, double z, double dx, double dy, double dz) {
@@ -33,7 +31,6 @@ public class FeatherParticle extends TextureSheetParticle {
 		return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet sprite;
 

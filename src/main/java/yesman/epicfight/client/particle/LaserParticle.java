@@ -14,13 +14,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 
-@OnlyIn(Dist.CLIENT)
 public class LaserParticle extends CustomModelParticle<ClassicMesh> {
 	private final float length;
 	private final float xRot;
@@ -73,7 +70,6 @@ public class LaserParticle extends CustomModelParticle<ClassicMesh> {
 		return EpicFightParticleRenderTypes.TRANSLUCENT_GLOWING;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		@Override
 		public Particle createParticle(SimpleParticleType typeIn, ClientLevel level, double startX, double startY, double startZ, double endX, double endY, double endZ) {

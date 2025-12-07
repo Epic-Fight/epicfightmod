@@ -1,9 +1,6 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.buffers;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public interface IArrayBufferProxy {
     void updateFromTo(int from, int to);
     void bindBufferBase(int binding);

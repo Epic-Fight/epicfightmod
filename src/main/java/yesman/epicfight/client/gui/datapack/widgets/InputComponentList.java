@@ -10,10 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class InputComponentList<T> extends ContainerObjectSelectionList<InputComponentList<T>.InputComponentEntry> {
 	private final Screen owner;
 	private final List<DataBindingComponent<?, ?>> dataBindingComponent = Lists.newArrayList();
@@ -234,7 +231,6 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 		return super.mouseDragged(mouseX, mouseY, button, dx, dy);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class InputComponentEntry extends ContainerObjectSelectionList.Entry<InputComponentList<T>.InputComponentEntry> {
 		final List<ResizableComponent> children = Lists.newArrayList();
 		

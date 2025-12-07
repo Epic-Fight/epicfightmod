@@ -9,12 +9,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
 
-@OnlyIn(Dist.CLIENT)
 public class JointMaskEntry {
 	public static final JointMaskSet BIPED_UPPER_JOINTS_WITH_ROOT = JointMaskSet.of(
 		JointMask.of("Root", JointMask.KEEP_CHILD_LOCROT), JointMask.of("Torso"),
@@ -78,7 +75,6 @@ public class JointMaskEntry {
 		return builder.toString();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Builder {
 		private final List<Pair<LivingMotion, JointMaskSet>> masks = Lists.newArrayList();
 		private JointMaskSet defaultMask = null;

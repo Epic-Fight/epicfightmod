@@ -9,11 +9,8 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.particle.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public class DustParticle extends TextureSheetParticle {
 	private final DustParticle.PhysicsType physicsType;
 	
@@ -59,7 +56,6 @@ public class DustParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ExpansiveMetaParticle extends NoRenderParticle {
 		public ExpansiveMetaParticle(ClientLevel level, double x, double y, double z, double radius, int density) {
 			super(level, x, y, z);
@@ -74,7 +70,6 @@ public class DustParticle extends TextureSheetParticle {
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public static class Provider implements ParticleProvider<SimpleParticleType> {
 			@Override
 			public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
@@ -84,7 +79,6 @@ public class DustParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ContractiveMetaParticle extends NoRenderParticle {
 		private final double radius;
 		private final int density;
@@ -112,7 +106,6 @@ public class DustParticle extends TextureSheetParticle {
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public static class Provider implements ParticleProvider<SimpleParticleType> {
 			@Override
 			public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
@@ -122,7 +115,6 @@ public class DustParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ExpansiveDustProvider implements ParticleProvider<SimpleParticleType> {
 		protected SpriteSet sprite;
 		
@@ -138,7 +130,6 @@ public class DustParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ContractiveDustProvider implements ParticleProvider<SimpleParticleType> {
 		protected SpriteSet sprite;
 		
@@ -154,7 +145,6 @@ public class DustParticle extends TextureSheetParticle {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class NormalDustProvider implements ParticleProvider<SimpleParticleType> {
 		protected SpriteSet sprite;
 		

@@ -23,8 +23,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.TransformSheet;
@@ -44,7 +42,6 @@ import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class AnimationSubFileReader {
 	public static final SubFileType<ClientProperty> SUBFILE_CLIENT_PROPERTY = new ClientPropertyType();
 	public static final SubFileType<PovSettings> SUBFILE_POV_ANIMATION = new PovAnimationType();
@@ -68,7 +65,6 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static abstract class SubFileType<T> {
 		private final String directory;
 		private final AnimationSubFileDeserializer<T> deserializer;
@@ -100,11 +96,9 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private record ClientProperty(LayerInfo layerInfo, LayerInfo multilayerInfo, List<TrailInfo> trailInfo) {
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class ClientPropertyType extends SubFileType<ClientProperty> {
 		private ClientPropertyType() {
 			super("data", new AnimationSubFileReader.ClientAnimationPropertyDeserializer());
@@ -153,7 +147,6 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class ClientAnimationPropertyDeserializer implements AnimationSubFileDeserializer<ClientProperty> {
 		private static LayerInfo deserializeLayerInfo(JsonObject jsonObject) {
 			return deserializeLayerInfo(jsonObject, null);
@@ -216,7 +209,6 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static record PovSettings(
 		@Nullable TransformSheet cameraTransform,
 		Map<String, Boolean> visibilities,
@@ -226,17 +218,14 @@ public class AnimationSubFileReader {
 		boolean hasUniqueAnimation,
 		boolean syncFrame
 	) {
-		@OnlyIn(Dist.CLIENT)
 		public enum RootTransformation {
 			CAMERA, WORLD
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public record ViewLimit(float xRotMin, float xRotMax, float yRotMin, float yRotMax) {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class PovAnimationType extends SubFileType<PovSettings> {
 		private PovAnimationType() {
 			super("pov", new AnimationSubFileReader.PovAnimationDeserializer());
@@ -267,7 +256,6 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class PovAnimationDeserializer implements AnimationSubFileDeserializer<PovSettings> {
 		@Override
 		public PovSettings deserialize(StaticAnimation animation, JsonElement json) throws AssetLoadingException, JsonParseException {
@@ -321,7 +309,6 @@ public class AnimationSubFileReader {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public interface AnimationSubFileDeserializer<T> {
 		public T deserialize(StaticAnimation animation, JsonElement json) throws JsonParseException;
 	}

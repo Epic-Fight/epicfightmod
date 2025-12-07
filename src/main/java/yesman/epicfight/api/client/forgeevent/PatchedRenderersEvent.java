@@ -8,14 +8,11 @@ import com.google.gson.JsonElement;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 
-@OnlyIn(Dist.CLIENT)
 @SuppressWarnings("rawtypes")
 public abstract class PatchedRenderersEvent extends Event implements IModBusEvent {
 	public static class RegisterItemRenderer extends PatchedRenderersEvent {
@@ -52,7 +49,6 @@ public abstract class PatchedRenderersEvent extends Event implements IModBusEven
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Modify extends PatchedRenderersEvent {
 		private final Map<EntityType<?>, PatchedEntityRenderer> renderers;
 		

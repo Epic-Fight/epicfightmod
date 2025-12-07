@@ -30,10 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed the license from GNU-V3 to CC BY-NC-SA and assets are now under All Rights Reserved
-    - Developers can create folks of this project, but they're still required to use our license and follow its rules
-    - Users are still allowed to include the mod file inside their modpack without restriction
-    - Addon developers are still allowed to use our code without any restriction, assuming that they depend on this project.
+- Changed the asset license to All Rights Reserved, whereas the source code license keeps GNU GPLv3.
+    - This means, we still allow forks of our project, but they're required to replace assets into custom and
+      their original-made ones to redistribute.
+    - You're still allowed to use assets via datapack editor or addons. Nevertheless, we can claim copyright
+      of our assets if we find some abuse, or your behaviors that don't respect our efforts on it.
 
 ### Fixed
 

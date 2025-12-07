@@ -294,7 +294,7 @@ please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight
 
 ## **License**
 
-- **Source Code (Java, Kotlin, C++, C, Groovy, etc.):** [CC BY-NC-SA 4.0](./LICENSE)
+- **Source Code (Java, Kotlin, C++, C, Groovy, etc.):** [GNU GPLv3](./LICENSE)
     - Applies only to the source code in this repository.
 
 - **Assets (images, models, textures, sounds, translations, animations, native libraries, etc.):**

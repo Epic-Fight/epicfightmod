@@ -362,7 +362,7 @@ public final class EpicFightCameraAPI {
                     this.minecraft.getEntityRenderDispatcher().shouldRender(entity, this.minecraft.levelRenderer.getFrustum(), cameraLocation.x(), cameraLocation.y(), cameraLocation.z()) || // Excludes entities out of the view frustum
                         entity.hasIndirectPassenger(this.minecraft.player)    // Excludes riding entities
                 ) &&
-                entity.distanceToSqr(this.minecraft.player) < lockOnRange/// lockOnRange
+                entity.distanceToSqr(this.minecraft.player) < lockOnRange * lockOnRange
             )
             .map(entity -> Pair.of((LivingEntity) entity, MathUtils.worldToScreenCoord(compactProjection, this.minecraft.gameRenderer.getMainCamera(), entity.getBoundingBox().getCenter()).x))
             .filter(pair -> pair.getSecond() >= -1.0F && pair.getSecond() <= 1.0F && (direction == 0 || MathUtils.getSign(pair.getSecond()) == MathUtils.getSign(direction)))

@@ -1,6 +1,3 @@
-import dev.echoellet.minecraft_safe_resources.GenerateJsonKeysTask
-import dev.echoellet.minecraft_safe_resources.OutputLanguage
-
 plugins {
     id 'eclipse'
     id 'idea'
@@ -9,7 +6,7 @@ plugins {
 	id 'org.spongepowered.mixin' version '0.7.+'
 	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 	id "me.modmuss50.mod-publish-plugin" version "1.1.0"
-    id("dev.echoellet.minecraft-safe-resources") version("0.0.1")
+    id("dev.echoellet.mc-safe-resources") version("0.0.1")
 }
 
 version = mod_version
@@ -329,23 +326,11 @@ publishMods {
     }
 }
 
-def modAssetsDirPath = "src/main/resources/assets/$mod_id"
-
-def generateLangKeys = tasks.register('generateLangKeys', GenerateJsonKeysTask) {
-    def enUsResourcePath = "$modAssetsDirPath/lang/en_us.json"
-
-    inputResourceFile.set(project.file(enUsResourcePath))
-    outputClassName.set("LangKeys")
-    outputLanguage.set(OutputLanguage.JAVA)
-    outputClassDescription.set("""
-    A generated object that represents the keys in `${enUsResourcePath}` resource file,
-    to avoid hardcoding the keys across the codebase, which is error-prone, inefficient, and less type-safe.
-
-    **Note:** Breaking changes may occur. This approach is preferred over hardcoding keys, which can lead to runtime errors or crashes.
-""".stripIndent().trim())
-    outputPackage.set("${mod_group_id}.generated")
-    keyNamespaceToStrip.set(mod_id)
+mcSafeResources {
+    namespace.set(mod_id)
+    outputPackage.set("yesman.${mod_id}.generated")
 }
 
-java.sourceSets.main.java.srcDir(generateLangKeys.map { it.outputs.files.singleFile })
-tasks.compileJava.dependsOn(generateLangKeys)
+sourceSets.main.java.srcDir tasks.generateLangKeys.outputs.files.singleFile
+tasks.compileJava.dependsOn tasks.generateLangKeys
+

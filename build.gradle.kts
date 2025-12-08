@@ -1,12 +1,9 @@
-import dev.echoellet.minecraft_safe_resources.GenerateJsonKeysTask
-import dev.echoellet.minecraft_safe_resources.OutputLanguage
-
 plugins {
     `java-library`
     id("net.neoforged.moddev").version("2.0.120")
     idea
     id("me.modmuss50.mod-publish-plugin").version("1.1.0")
-    id("dev.echoellet.minecraft-safe-resources") version ("0.0.1")
+    id("dev.echoellet.mc-safe-resources") version("0.0.1")
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -223,30 +220,17 @@ idea {
     }
 }
 
-val modAssetsDirPath = "src/main/resources/assets/$modId"
-
-val generateLangKeys = tasks.register<GenerateJsonKeysTask>("generateLangKeys") {
-    val enUsResourcePath = "$modAssetsDirPath/lang/en_us.json"
-
-    inputResourceFile.set(project.file(enUsResourcePath))
-    outputClassName.set("LangKeys")
-    outputLanguage.set(OutputLanguage.JAVA)
-    outputClassDescription.set(buildString {
-        append("A generated object that represents the keys in `$enUsResourcePath` resource file,"); appendLine()
-        append("to avoid hardcoding the keys across the codebase, which is error-prone, inefficient, and less type-safe.")
-        appendLine(); appendLine()
-        append("**Note:** Breaking changes may occur. This approach is preferred over hardcoding keys, which can lead to runtime errors or crashes.")
-    })
-    outputPackage.set("$modGroupId.generated")
-    keyNamespaceToStrip.set(modId)
+mcSafeResources {
+    namespace.set(modId)
+    outputPackage.set("yesman.${modId}.generated")
 }
 
 java.sourceSets.main.get().apply {
-    java.srcDir(generateLangKeys.map { it.outputs.files.singleFile })
+    java.srcDir(tasks.generateLangKeys.map { it.outputs.files.singleFile })
 }
 
 tasks.compileJava {
-    dependsOn(generateLangKeys)
+    dependsOn(tasks.generateLangKeys)
 }
 
 // The API JAR file includes only classes from the API package.

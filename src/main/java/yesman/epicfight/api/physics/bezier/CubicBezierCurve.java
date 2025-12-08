@@ -1,19 +1,15 @@
 package yesman.epicfight.api.physics.bezier;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
-
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+
+/// Get more informations about cubic bezier curve here:
+/// [...](https://omaraflak.medium.com/bézier-interpolation-8033e9a262c2)
 public class CubicBezierCurve {
-	
-	/**
-	 * Get more informations about cubic bezier curve here:
-	 * https://towardsdatascience.com/b%C3%A9zier-interpolation-8033e9a262c2
-	 */
 	private static final DoubleList MATRIX_CONSTANTS = new DoubleArrayList();
 	
 	static {

@@ -15,26 +15,26 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 	 * @return whether the event is canceled
 	 */
 	@Override
-	public boolean post(T eventInstance) {
-		EventContext eventContext = eventInstance.initEventContext();
+	public boolean post(T event) {
+		EventContext eventContext = event.getEventContext();
 		
 		for (EventListener<T> subscriber : this.subscriptions.values()) {
 			eventContext.subscriptionStart(subscriber.name());
 			
 			if (subscriber.subscription() instanceof DefaultEventSubscription<T> passiveSubscription) {
-				if (!eventInstance.hasCanceled()) {
-					passiveSubscription.fire(eventInstance);
+				if (!event.hasCanceled()) {
+					passiveSubscription.fire(event);
 					eventContext.onCalled();
 				}
 			} else if (subscriber.subscription() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
-				contextAwareSubscription.fire(eventInstance, eventContext);
+				contextAwareSubscription.fire(event, eventContext);
 				eventContext.onCalled();
 			}
 		}
 		
 		eventContext.subscriptionEnd();
 		
-		return eventInstance.hasCanceled();
+		return event.hasCanceled();
 	}
 	
 	/**

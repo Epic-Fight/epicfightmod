@@ -488,13 +488,13 @@ public class RenderEngine {
 			
 			if (!renderEngine.minecraft.options.hideGui && !EpicFightGameRules.DISABLE_ENTITY_UI.getRuleValue(livingentity.level())) {
 				EpicFightCapabilities.getUnparameterizedEntityPatch(renderEngine.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
-					EpicFightCapabilities.getUnparameterizedEntityPatch(livingentity, LivingEntityPatch.class).ifPresent(entitypatch -> {
-						for (EntityUI entityIndicator : EntityUI.ENTITY_UI_LIST) {
-							if (entityIndicator.shouldDraw(livingentity, entitypatch, playerpatch, event.getPartialTick())) {
-								entityIndicator.draw(livingentity, entitypatch, playerpatch, event.getPoseStack(), event.getMultiBufferSource(), event.getPartialTick());
-							}
+					LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
+					
+					for (EntityUI entityIndicator : EntityUI.ENTITY_UI_LIST) {
+						if (entityIndicator.shouldDraw(livingentity, entityPatch, playerpatch, event.getPartialTick())) {
+							entityIndicator.draw(livingentity, entityPatch, playerpatch, event.getPoseStack(), event.getMultiBufferSource(), event.getPartialTick());
 						}
-					});
+					}
 				});
 			}
 		}

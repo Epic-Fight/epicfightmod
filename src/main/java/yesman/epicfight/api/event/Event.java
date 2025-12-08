@@ -17,7 +17,7 @@ public abstract class Event {
 	 * the name of subscribers are specified as parameter in {@link EventHook#registerPassiveevent} and
 	 * {@link CancelableEventHook#registerCancelableevent} and {@link CancelableEventHook#registerContextAwareevent}
 	 */
-	private EventContext eventContext;
+	private final EventContext eventContext = new EventContext();
 	
 	/**
 	 * Returns whether the event event canceled
@@ -45,12 +45,11 @@ public abstract class Event {
 	}
 	
 	/**
-	 * Initialize {@link EventContext}, which is used by {@link ContextAwareEventSubscription}
+	 * Returns the holding event context used by {@link ContextAwareEventSubscription}
 	 * only called by {@link EventHook#post}
 	 */
 	@ApiStatus.Internal
-	public EventContext initEventContext() {
-		this.eventContext = new EventContext();
+	public EventContext getEventContext() {
 		return this.eventContext;
 	}
 }

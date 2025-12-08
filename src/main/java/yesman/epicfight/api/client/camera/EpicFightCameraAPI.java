@@ -288,23 +288,38 @@ public final class EpicFightCameraAPI {
 		if (this.lockingOnTarget == flag) {
             return;
         }
-
+		
+		boolean newlyFoundFocusingEntity = false;
+		
+		// Search a next target when trying to lock there is no focusing entity
+		if (flag && this.focusingEntity == null) {
+			newlyFoundFocusingEntity = this.setNextLockOnTarget(0, false, false);
+		}
+		
         if (!flag || this.focusingEntity != null) {
             boolean eventCanceled;
-
+            
             if (flag) {
                 LockOnEvent.Start lockOnEvent = new LockOnEvent.Start(this, this.focusingEntity);
                 EpicFightClientHooks.Camera.LOCK_ON_START.post(lockOnEvent);
                 eventCanceled = lockOnEvent.hasCanceled();
+                
+                if (eventCanceled && newlyFoundFocusingEntity) {
+                	this.focusingEntity = null;
+                }
             } else {
                 LockOnEvent.Release lockOnEvent = new LockOnEvent.Release(this, this.focusingEntity);
                 EpicFightClientHooks.Camera.LOCK_ON_RELEASED.post(lockOnEvent);
                 eventCanceled = lockOnEvent.hasCanceled();
             }
-
+            
             if (!eventCanceled) {
                 this.lockingOnTarget = flag;
-
+                
+                if (flag && newlyFoundFocusingEntity) {
+                	this.sendTargeting(this.focusingEntity);
+                }
+                
                 // Sycn the camera rotation according to the camera mode
                 if (!this.isTPSMode()) {
                     if (!flag) {
@@ -332,18 +347,28 @@ public final class EpicFightCameraAPI {
 	}
 	
 	/**
+	 * @Deprecated Use more parameters friendly version below
+	 */
+	@Deprecated(forRemoval = true)
+	public boolean setNextLockOnTarget(int direction) {
+		return this.setNextLockOnTarget(direction, false, true);
+	}
+	
+	/**
 	 * Find a new target on the screen based on the direction
 	 * <p>
 	 * @param direction 	determines which direction it will start to find a new target
 	 * 							-1: right
 	 * 							 1: left
 	 * 							 0: not considering a direction
+	 * @param necessarilyLockingOn 	whether it allows searching target when it's not locking
+	 * @param sendChange			whether it sends the switched focusing entity or not
 	 * <p>
 	 * @return 				true when found new lock-on target, else false
 	 */
-	public boolean setNextLockOnTarget(int direction) {
+	public boolean setNextLockOnTarget(int direction, boolean necessarilyLockingOn, boolean sendChange) {
 		// terminates when not locking-on
-		if (!this.lockingOnTarget) {
+		if (!this.lockingOnTarget && necessarilyLockingOn) {
 			return false;
 		}
 		
@@ -373,6 +398,7 @@ public final class EpicFightCameraAPI {
 		
 		next.ifPresent(pair -> {
 			this.focusingEntity = pair.getFirst();
+			if (sendChange) this.sendTargeting(this.focusingEntity);
 		});
 		
 		return next.isPresent();
@@ -531,7 +557,7 @@ public final class EpicFightCameraAPI {
 					this.accumulatedX += -dy * 0.15F;
 					
 					if (Math.abs(this.accumulatedX) > 20.0D && this.lockingOnTarget) {
-						this.setNextLockOnTarget(Mth.sign(this.accumulatedX));
+						this.setNextLockOnTarget(Mth.sign(this.accumulatedX), true, true);
 						this.accumulatedX = 0.0D;
 						this.quickShiftDelay = 4;
 					}
@@ -641,7 +667,7 @@ public final class EpicFightCameraAPI {
 				}
 				
 				if (this.focusingEntity != null) {
-					EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(this.focusingEntity.getId()));
+					this.sendTargeting(this.focusingEntity);
 				}
 			}
 		}
@@ -675,7 +701,7 @@ public final class EpicFightCameraAPI {
 		// Tick the target entity
 		if (this.focusingEntity != null) {
 			if (this.lockingOnTarget && !this.focusingEntity.isAlive()) {
-				boolean releaseLockOn = !ClientConfig.lockOnQuickShift || !this.setNextLockOnTarget(0);
+				boolean releaseLockOn = !ClientConfig.lockOnQuickShift || !this.setNextLockOnTarget(0, true, true);
 
                 // Searches a new lock-on target when current target is dead
                 if (releaseLockOn) {
@@ -702,7 +728,7 @@ public final class EpicFightCameraAPI {
 					}
 					
 					this.focusingEntity = null;
-					EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(-1));
+					this.sendTargeting(null);
 				}
 			}
 		}
@@ -961,6 +987,11 @@ public final class EpicFightCameraAPI {
 		return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : player.getYRot();
 	}
 	
+	@ApiStatus.Internal
+	public void onItemUseEvent(Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
+		if (this.isTPSMode()) EpicFightClientHooks.Camera.ITEM_USED_WHEN_DECOUPLED.post(new ItemUsedInDecoupledCamera(this, player, playerpatch, itemstack, hand));
+	}
+	
 	private boolean predicateFocusableEntity(Entity entity) {
         return entity instanceof LivingEntity livingEntity && !entity.isSpectator() && entity.isPickable() && entity.isAlive() && !entity.is(this.minecraft.player) && this.minecraft.player.canAttack(livingEntity);
     }
@@ -985,8 +1016,7 @@ public final class EpicFightCameraAPI {
         return coupleTPSCameraEvent.shouldCoupleCamera();
 	}
 	
-	@ApiStatus.Internal
-	public void onItemUseEvent(Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
-		if (this.isTPSMode()) EpicFightClientHooks.Camera.ITEM_USED_WHEN_DECOUPLED.post(new ItemUsedInDecoupledCamera(this, player, playerpatch, itemstack, hand));
+	private void sendTargeting(@Nullable LivingEntity target) {
+		EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(target == null ? -1 : target.getId()));
 	}
 }

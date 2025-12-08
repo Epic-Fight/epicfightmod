@@ -491,11 +491,11 @@ public class ControlEngine {
     }
     
     private void searchNewTargetFromLeft() {
-    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(1);
+    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(1, true, true);
     }
     
     private void searchNewTargetFromRight() {
-    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(-1);
+    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(-1, true, true);
     }
     
 	private void inputTick(Input input) {

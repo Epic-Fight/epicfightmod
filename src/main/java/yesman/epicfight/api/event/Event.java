@@ -15,9 +15,9 @@ public abstract class Event {
 	 * and who canceled the event
 	 * <p>
 	 * the name of subscribers are specified as parameter in {@link EventHook#registerEvent} and
-	 * {@link CancelableEventHook#registerCancelableEvent} and {@link CancelableEventHook#registerContextAwareEvent}
+	 * {@link CancelableEventHook#registerEvent} and {@link CancelableEventHook#registerContextAwareEvent}
 	 */
-	private EventContext eventContext;
+	private final EventContext eventContext = new EventContext();
 	
 	/**
 	 * Returns whether the event hook canceled
@@ -49,8 +49,7 @@ public abstract class Event {
 	 * only called by {@link EventHook#post}
 	 */
 	@ApiStatus.Internal
-	public EventContext initEventContext() {
-		this.eventContext = new EventContext();
+	public EventContext getEventContext() {
 		return this.eventContext;
 	}
 }

@@ -16,7 +16,7 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 	 */
 	@Override
 	public boolean post(T eventInstance) {
-		EventContext eventContext = eventInstance.initEventContext();
+		EventContext eventContext = eventInstance.getEventContext();
 		
 		for (EventListener<T> subscriber : this.subscriptions.values()) {
 			eventContext.subscriptionStart(subscriber.name());

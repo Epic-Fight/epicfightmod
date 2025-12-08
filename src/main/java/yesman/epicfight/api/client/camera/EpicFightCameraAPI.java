@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
+import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.*;
 import yesman.epicfight.api.client.input.InputManager;
@@ -53,16 +53,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Provides access to Epic Fight's camera and third-person systems, including
- * lock-on functionality, zoom controls, camera rotation, and entity focusing.
- * <p>
- * This API can be used to integrate with Epic Fight's custom third-person
- * camera or by addons to extend its functionality, modify camera variables,
- * and provide explicit support for directional animations (e.g., fixing
- * first-person view while climbing ladders).
- */
 
+/// Provides access to Epic Fight's camera and third-person systems, including
+/// lock-on functionality, zoom controls, camera rotation, and entity focusing.
+///
+/// This API can be used to integrate with Epic Fight's custom third-person
+/// camera or by addons to extend its functionality, modify camera variables,
+/// and provide explicit support for directional animations (e.g., fixing
+/// first-person view while climbing ladders).
 public final class EpicFightCameraAPI {
     private static final EpicFightCameraAPI INSTANCE = new EpicFightCameraAPI();
     private static final int MAX_ZOOM_TICK = 8;
@@ -94,17 +92,13 @@ public final class EpicFightCameraAPI {
     private int fpvLerpTick = -1;
     private int maxFpvLerpTick;
 
-    /**
-     * Temporary storage for crosshair destination in TPS mode
-     * This replaces {@link Minecraft#hitResult} in each frame when TPS mode is activated
-     */
+    /// Temporary storage for crosshair destination in TPS mode
+    /// This replaces [Minecraft#hitResult] in each frame when TPS mode is activated
     @Nullable
     private HitResult crosshairHitResult;
 
-    /**
-     * An entity targeted by the crosshair
-     * This doesn't replace {@link Minecraft#crosshairPickEntity} since their usages are disparate
-     */
+    /// An entity targeted by the crosshair
+    /// This doesn't replace [Minecraft#crosshairPickEntity] since their usages are disparate
     @Nullable
     private LivingEntity focusingEntity;
 
@@ -118,10 +112,8 @@ public final class EpicFightCameraAPI {
         this.minecraft = Minecraft.getInstance();
     }
 
-    /**
-     * Returns if the camera is TPS mode
-     * When zooming ranged weapons or TPS mode is turned on by config
-     */
+    /// Returns if the camera is TPS mode
+    /// When zooming ranged weapons or TPS mode is turned on by config
     public boolean isTPSMode() {
         if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK && ClientConfig.cameraMode.shouldSwitch(this)) {
             ActivateTPSCamera event = new ActivateTPSCamera(this);
@@ -192,17 +184,15 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * You can manually couple the player look vector into the camera's
-     * <p>
-     * This is a scoped state that developers have to call decoupling method again, or the player
-     * will look at the crosshair forever.
-     * <p>
-     * Alternatively, if you want to focus the player to crosshair for specific item use, you can
-     * consider registering {@link EpicFightClientHooks.Camera#ITEM_USED_WHEN_DECOUPLED} for better maintenance
-     * <p>
-     * @param flag 	whether the player should follow the camera view
-     */
+    /// You can manually couple the player look vector into the camera's
+    ///
+    /// This is a scoped state that developers have to call decoupling method again, or the player
+    /// will look at the crosshair forever.
+    ///
+    /// Alternatively, if you want to focus the player to crosshair for specific item use, you can
+    /// consider registering [EpicFightClientHooks.Camera#ITEM_USED_WHEN_DECOUPLED] for better maintenance
+    ///
+    /// @param flag 	whether the player should follow the camera view
     public void setCouplingState(boolean flag) {
         if (this.isTPSMode()) {
             this.couplingYRot = flag;
@@ -211,31 +201,23 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * Returns the player-camera coupling state
-     */
+    /// Returns the player-camera coupling state
     public boolean getCouplingState() {
         return this.couplingYRot;
     }
 
-    /**
-     * Returns the x rotation of the forward vector of the camera
-     */
+    /// Returns the x rotation of the forward vector of the camera
     public float getForwardXRot() {
         return this.isTPSMode() ? this.cameraXRot : this.minecraft.player.getXRot();
     }
 
-    /**
-     * Returns the y rotation of the forward vector of the camera
-     */
+    /// Returns the y rotation of the forward vector of the camera
     public float getForwardYRot() {
         return this.isTPSMode() ? this.cameraYRot : this.minecraft.player.getYRot();
     }
 
-    /**
-     * Fixes the first-person rotation to destination with a given lerping time
-     * Normally used to center the first-person angle defined in {@link PovSettings.ViewLimit}
-     */
+    /// Fixes the first-person rotation to destination with a given lerping time
+    /// Normally used to center the first-person angle defined in [AnimationSubFileReader.PovSettings.ViewLimit]
     public void fixFpvRotation(float xRot, float yRot, int lerpTick) {
         if (this.minecraft.player == null) return;
 
@@ -275,12 +257,17 @@ public final class EpicFightCameraAPI {
         return this.minecraft;
     }
 
-    /**
-     * Activates or deactivates camera lock-on to the entity that is focused by crosshair scan.
-     */
+    /// Activates or deactivates camera lock-on to the entity that is focused by crosshair scan.
     public void setLockOn(boolean flag) {
         if (this.lockingOnTarget == flag) {
             return;
+        }
+
+        boolean newlyFoundFocusingEntity = false;
+
+        // Search a next target when trying to lock there is no focusing entity
+        if (flag && this.focusingEntity == null) {
+            newlyFoundFocusingEntity = this.setNextLockOnTarget(0, false, false);
         }
 
         if (!flag || this.focusingEntity != null) {
@@ -290,6 +277,10 @@ public final class EpicFightCameraAPI {
                 LockOnEvent.Start lockOnEvent = new LockOnEvent.Start(this, this.focusingEntity);
                 EpicFightClientHooks.Camera.LOCK_ON_START.post(lockOnEvent);
                 eventCanceled = lockOnEvent.hasCanceled();
+
+                if (eventCanceled && newlyFoundFocusingEntity) {
+                    this.focusingEntity = null;
+                }
             } else {
                 LockOnEvent.Release lockOnEvent = new LockOnEvent.Release(this, this.focusingEntity);
                 EpicFightClientHooks.Camera.LOCK_ON_RELEASED.post(lockOnEvent);
@@ -298,6 +289,10 @@ public final class EpicFightCameraAPI {
 
             if (!eventCanceled) {
                 this.lockingOnTarget = flag;
+            }
+
+            if (flag && newlyFoundFocusingEntity) {
+                this.sendTargeting(this.focusingEntity);
             }
 
             // Sycn the camera rotation according to the camera mode
@@ -325,19 +320,25 @@ public final class EpicFightCameraAPI {
         return ClientConfig.lockOnRange;
     }
 
-    /**
-     * Find a new target on the screen based on the direction
-     * <p>
-     * @param direction 	determines which direction it will start to find a new target
-     * 							-1: right
-     * 							 1: left
-     * 							 0: not considering a direction
-     * <p>
-     * @return 				true when found new lock-on target, else false
-     */
+    /// @Deprecated Use more parameters friendly version below
+    @Deprecated(forRemoval = true)
     public boolean setNextLockOnTarget(int direction) {
+        return this.setNextLockOnTarget(direction, false, true);
+    }
+
+    /// Find a new target on the screen based on the direction
+    ///
+    /// @param direction 	            determines which direction it will start to find a new target
+    /// 							    -1: right
+    /// 							     1: left
+    /// 							     0: not considering a direction
+    /// @param necessarilyLockingOn 	whether it allows searching target when it's not locking
+    /// @param sendChange			    whether it sends the switched focusing entity or not
+    ///
+    /// @return 				true when found new lock-on target, else false
+    public boolean setNextLockOnTarget(int direction, boolean necessarilyLockingOn, boolean sendChange) {
         // terminates when not locking-on
-        if (!this.lockingOnTarget) {
+        if (!this.lockingOnTarget && necessarilyLockingOn) {
             return false;
         }
 
@@ -361,7 +362,7 @@ public final class EpicFightCameraAPI {
                     this.minecraft.getEntityRenderDispatcher().shouldRender(entity, this.minecraft.levelRenderer.getFrustum(), cameraLocation.x(), cameraLocation.y(), cameraLocation.z()) || // Excludes entities out of the view frustum
                         entity.hasIndirectPassenger(this.minecraft.player)    // Excludes riding entities
                 ) &&
-                entity.distanceToSqr(this.minecraft.player) < lockOnRange * lockOnRange
+                entity.distanceToSqr(this.minecraft.player) < lockOnRange/// lockOnRange
             )
             .map(entity -> Pair.of((LivingEntity) entity, MathUtils.worldToScreenCoord(compactProjection, this.minecraft.gameRenderer.getMainCamera(), entity.getBoundingBox().getCenter()).x))
             .filter(pair -> pair.getSecond() >= -1.0F && pair.getSecond() <= 1.0F && (direction == 0 || MathUtils.getSign(pair.getSecond()) == MathUtils.getSign(direction)))
@@ -370,12 +371,13 @@ public final class EpicFightCameraAPI {
 
         next.ifPresent(pair -> {
             this.focusingEntity = pair.getFirst();
+            if (sendChange) this.sendTargeting(this.focusingEntity);
         });
 
         return next.isPresent();
     }
 
-     /// Creates a compact projection matrix without view, hurt bob
+    /// Creates a compact projection matrix without view, hurt bob
     private Matrix4f getCompactProjectionMatrix() {
         PoseStack posestack = new PoseStack();
         double fov = this.minecraft.gameRenderer.getFov(this.minecraft.gameRenderer.getMainCamera(), 1.0F, true);
@@ -383,13 +385,11 @@ public final class EpicFightCameraAPI {
         return posestack.last().pose();
     }
 
-    /**
-     * Aligns the player's look to have same rotations as camera
-     * @param noInterpolation	resets old rotation values to new rotations
-     * @param syncBodyRot       whether tosync body rotation too. if you want natural movement give it false
-     * @param syncToServer      whether to send a packet to synchronize rotations right away, consider not sending
-     *                          packets if you call this method in each tick for optimized networking
-     */
+    /// Aligns the player's look to have same rotations as camera
+    /// @param noInterpolation	 resets old rotation values to new rotations
+    /// @param syncBodyRot       whether tosync body rotation too. if you want natural movement give it false
+    /// @param syncToServer      whether to send a packet to synchronize rotations right away, consider not sending
+    ///                          packets if you call this method in each tick for optimized networking
     public void alignPlayerLookToCameraRotation(boolean noInterpolation, boolean syncBodyRot, boolean syncToServer) {
         if (this.minecraft.player == null) return;
 
@@ -416,20 +416,18 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * Sets the player to look at the crosshair's destination
-     * <p>
-     * Comapred to {@link #alignPlayerLookToCameraRotation}, this method makes the player to look at the crosshair so
-     * there will be a decouple if the desination of the camera is too close.
-     * <p>
-     * Consider using {@link #alignPlayerLookToCameraRotation} if you just want to couple the player rotation with the
-     * camera.
-     * <p>
-     * @param noInterpolation	resets old rotation values to new rotations
-     * @param syncBodyRot       whether tosync body rotation too. if you want natural movement give it false
-     * @param syncToServer      whether to send a packet to synchronize rotations right away, consider not sending
-     *                          packets if you call this method in each tick for optimized networking
-     */
+    /// Sets the player to look at the crosshair's destination
+    ///
+    /// Comapred to [#alignPlayerLookToCameraRotation], this method makes the player to look at the crosshair so
+    /// there will be a decouple if the desination of the camera is too close.
+    ///
+    /// Consider using [#alignPlayerLookToCameraRotation] if you just want to couple the player rotation with the
+    /// camera.
+    ///
+    /// @param noInterpolation	 resets old rotation values to new rotations
+    /// @param syncBodyRot       whether tosync body rotation too. if you want natural movement give it false
+    /// @param syncToServer      whether to send a packet to synchronize rotations right away, consider not sending
+    ///                          packets if you call this method in each tick for optimized networking
     public void alignPlayerLookToCrosshair(boolean noInterpolation, boolean syncBodyRot, boolean syncToServer) {
         if (this.minecraft.player == null) return;
 
@@ -466,22 +464,18 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * Returns a rotated movement vector for @param relative, scaled by @param magnitude
-     */
+    /// Returns a rotated movement vector for @param relative, scaled by @param magnitude
     public Vec3 getRelativeMove(Vec3 relative, float magnitude) {
         return Entity.getInputVector(relative, magnitude, this.isTPSMode() && !this.lockingOnTarget ? this.cameraYRot : this.minecraft.player.getYRot());
     }
 
-    /**
-     * Returns whether apply the entity outliner for current target & player's next behavior
-     * Appearing outline means the player will do Epic Fight attack instead of vanilla swings to hit entities or break blocks
-     */
+    /// Returns whether apply the entity outliner for current target & player's next behavior
+    /// Appearing outline means the player will do Epic Fight attack instead of vanilla swings to hit entities or break blocks
     public boolean shouldHighlightTarget(@NotNull Entity entity) {
         // Checks the giant rule for target entity outline: config option, in-game state, and focusing entity
         if (!ClientConfig.enableTargetEntityGuide || this.minecraft.player == null || !entity.is(this.focusingEntity)) return false;
 
-        /// When the outline is disabled by {@link EntityPatch#isOutlineVisible}
+        /// When the outline is disabled by [EntityPatch#isOutlineVisible]
         if (!EpicFightCapabilities.getUnparameterizedEntityPatch(entity, EntityPatch.class).map(entitypatch -> entitypatch.isOutlineVisible(this.minecraft.player)).orElse(false)) {
             return false;
         }
@@ -506,10 +500,8 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * This method called when camera turns both in first-person and thrid-person.
-     * @return whether cancel the classic turn that rotates player head and camera at the same time
-     */
+    /// This method called when camera turns both in first-person and thrid-person.
+    /// @return whether cancel the classic turn that rotates player head and camera at the same time
     @ApiStatus.Internal
     public boolean turnCamera(double dy, double dx) {
         MutableBoolean cancel = new MutableBoolean(false);
@@ -525,7 +517,7 @@ public final class EpicFightCameraAPI {
                     this.accumulatedX += -dy * 0.15F;
 
                     if (Math.abs(this.accumulatedX) > 20.0D && this.lockingOnTarget) {
-                        this.setNextLockOnTarget(Mth.sign(this.accumulatedX));
+                        this.setNextLockOnTarget(Mth.sign(this.accumulatedX), true, true);
                         this.accumulatedX = 0.0D;
                         this.quickShiftDelay = 4;
                     }
@@ -538,9 +530,7 @@ public final class EpicFightCameraAPI {
         return cancel.booleanValue();
     }
 
-    /**
-     * An update task that is conducted before the client tick starts
-     */
+    /// An update task that is conducted before the client tick starts
     @ApiStatus.Internal
     public void preClientTick() {
         this.cameraXRotO = this.cameraXRot;
@@ -560,9 +550,7 @@ public final class EpicFightCameraAPI {
         if (this.quickShiftDelay > 0) --this.quickShiftDelay;
     }
 
-    /**
-     * An update task that is conducted after the client tick ends, where all the player states are updated
-     */
+    /// An update task that is conducted after the client tick ends, where all the player states are updated
     @ApiStatus.Internal
     public void postClientTick() {
         if (this.minecraft.isPaused() || this.minecraft.player == null) return;
@@ -634,7 +622,7 @@ public final class EpicFightCameraAPI {
                 }
 
                 if (this.focusingEntity != null) {
-                    EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(this.focusingEntity.getId()));
+                    this.sendTargeting(this.focusingEntity);
                 }
             }
         }
@@ -668,7 +656,7 @@ public final class EpicFightCameraAPI {
         // Tick the target entity
         if (this.focusingEntity != null) {
             if (this.lockingOnTarget && !this.focusingEntity.isAlive()) {
-                boolean releaseLockOn = !ClientConfig.lockOnQuickShift || !this.setNextLockOnTarget(0);
+                boolean releaseLockOn = !ClientConfig.lockOnQuickShift || !this.setNextLockOnTarget(0, true, true);
 
                 // Searches a new lock-on target when current target is dead
                 if (releaseLockOn) {
@@ -695,7 +683,7 @@ public final class EpicFightCameraAPI {
                     }
 
                     this.focusingEntity = null;
-                    EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(-1));
+                    this.sendTargeting(null);
                 }
             }
         }
@@ -803,10 +791,8 @@ public final class EpicFightCameraAPI {
         }
     }
 
-    /**
-     * Sets up the camera transform before {@link ViewportEvent.ComputeCameraAngles} is called, so that Minecraft doesn't calculate the transform twice
-     * @return true when vanilla camera calculation shouldn't be done
-     */
+    /// Sets up the camera transform before [ViewportEvent.ComputeCameraAngles] is called, so that Minecraft doesn't calculate the transform twice
+    /// @return the result of the event state
     @ApiStatus.Internal
     public BuildCameraTransform.Pre setupCamera(Camera camera, float partialTick) {
         BuildCameraTransform.Pre buildCameraEventPre = new BuildCameraTransform.Pre(this, camera, partialTick);
@@ -931,9 +917,7 @@ public final class EpicFightCameraAPI {
         return buildCameraEventPre;
     }
 
-    /**
-     * Called after {@link #setupCamera} to apply a simple transform
-     */
+    /// Called after [#setupCamera] to apply a simple transform
     @ApiStatus.Internal
     public void fireCameraBuildPost(Camera camera, float partialTick) {
         EpicFightClientHooks.Camera.BUILD_TRANSFORM_POST.post(new BuildCameraTransform.Post(this, camera, partialTick));
@@ -953,6 +937,11 @@ public final class EpicFightCameraAPI {
         }
 
         return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : player.getYRot();
+    }
+
+    @ApiStatus.Internal
+    public void onItemUseEvent(Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
+        if (this.isTPSMode()) EpicFightClientHooks.Camera.ITEM_USED_WHEN_DECOUPLED.post(new ItemUsedInDecoupledCamera(this, player, playerpatch, itemstack, hand));
     }
 
     private boolean predicateFocusableEntity(Entity entity) {
@@ -979,8 +968,7 @@ public final class EpicFightCameraAPI {
         return coupleTPSCameraEvent.shouldCoupleCamera();
     }
 
-    @ApiStatus.Internal
-    public void onItemUseEvent(Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
-        if (this.isTPSMode()) EpicFightClientHooks.Camera.ITEM_USED_WHEN_DECOUPLED.post(new ItemUsedInDecoupledCamera(this, player, playerpatch, itemstack, hand));
+    private void sendTargeting(@Nullable LivingEntity target) {
+        EpicFightNetworkManager.sendToServer(new CPSetPlayerTarget(target == null ? -1 : target.getId()));
     }
 }

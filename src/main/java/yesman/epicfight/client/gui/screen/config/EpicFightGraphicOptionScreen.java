@@ -19,6 +19,7 @@ import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.config.ClientConfig;
+import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.main.EpicFightMod;
 
 import java.io.File;
@@ -81,15 +82,6 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
             button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))));
             cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
         }).pos(this.width / 2 - 165, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.tooltip")))).build();
-
-        final EpicFightTpsCameraDisabledReason tpsDisabledReason = EpicFightTpsCameraDisableState.getReason();
-        if (tpsDisabledReason != null) {
-            cameraTypeButton.active = false;
-            final Tooltip disabledReasonTooltip = Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.disabled_due_to_mod_conflict"), tpsDisabledReason.getModName()));
-
-            cameraTypeButton.setTooltip(disabledReasonTooltip);
-            cameraSetupButton.setTooltip(disabledReasonTooltip);
-        }
 
         cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
         this.optionsList.addSmall(cameraTypeButton, cameraSetupButton);
@@ -282,7 +274,21 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
         );
 		
 		this.addWidget(this.optionsList);
+
+        maybeDisableCameraButtons(cameraTypeButton, cameraSetupButton);
 	}
+
+    private void maybeDisableCameraButtons(Button cameraTypeButton, Button cameraSetupButton) {
+        final EpicFightTpsCameraDisabledReason tpsDisabledReason = EpicFightTpsCameraDisableState.getReason();
+        if (tpsDisabledReason != null) {
+            cameraTypeButton.active = false;
+            cameraSetupButton.active = false;
+            final Tooltip disabledReasonTooltip = Tooltip.create(Component.translatable(LangKeys.GUI_TPS_PERSPECTIVE_DISABLED_DUE_TO_MOD_CONFLICT, tpsDisabledReason.getModName()));
+
+            cameraTypeButton.setTooltip(disabledReasonTooltip);
+            cameraSetupButton.setTooltip(disabledReasonTooltip);
+        }
+    }
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {

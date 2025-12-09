@@ -288,11 +288,13 @@ public class MathUtils {
 		poseStack.scale(vector.x(), vector.y(), vector.z());
 	}
 	
-	private static final Matrix4f BUFFER = new Matrix4f();
+	private static final Matrix4f BUFFER4F = new Matrix4f();
+    private static final Matrix3f BUFFER3F = new Matrix3f();
 	
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER);
-		poseStack.mulPose(BUFFER);
+		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER4F);
+        poseStack.last().pose().mul(BUFFER4F);
+        poseStack.last().normal().mul(BUFFER3F);
 	}
 
     public static double getAngleBetween(Vec3f a, Vec3f b) {

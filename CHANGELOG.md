@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed the target indicator invisible for non Epic Fight patched entities
 - Fixed the lock-on target not being synced to the server when using mouse snap to change the target
+- Fixed the player being dark in inventory screen
 
 ### Changed
 

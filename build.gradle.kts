@@ -352,3 +352,10 @@ publishMods {
         }
     }
 }
+
+tasks.jar {
+    from(rootProject.file("LICENSE"))
+    from(rootProject.file("LICENSE-ASSETS"))
+    from(rootProject.file("LICENSE-ASSETS")) { into("assets/$modId") }
+    from(rootProject.file("LICENSE-ASSETS")) { into("assets/minecraft") }
+}

@@ -26,8 +26,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
@@ -39,7 +37,6 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.mixin.skinlayers.MixinCustomModelPart;
 import yesman.epicfight.mixin.skinlayers.MixinCustomizableCubeWrapper.SkinLayer3DMixinCustomModelCube;
 
-@OnlyIn(Dist.CLIENT)
 public class SkinLayer3DTransformer extends CustomizableCube {
 	private SkinLayer3DTransformer() {
 		super(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new dev.tr7zw.skinlayers.versionless.util.Direction[] {}, new dev.tr7zw.skinlayers.versionless.util.Direction[][] {{}});
@@ -54,7 +51,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 	static final PartTransformer<CustomizableCube> RIGHT_LEG = new LimbPartTransformer(1, 2, 3, 6.0F, true);
 	static final PartTransformer<CustomizableCube> CHEST = new ChestPartTransformer(18.0F);
 	
-	@OnlyIn(Dist.CLIENT)
 	static class ModelPartition {
 		final PartTransformer<ModelPart.Cube> vanillaPartTransformer;
 		final PartTransformer<CustomizableCube> partTransformer;
@@ -182,7 +178,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 		poseStack.popPose();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class SimpleTransformer extends PartTransformer<CustomizableCube> {
 		final int jointId;
 		
@@ -220,7 +215,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class ChestPartTransformer extends PartTransformer<CustomizableCube> {
 		static final float X_PLANE = 0.0F;
 		static final VertexWeight[] WEIGHT_ALONG_Y = { new VertexWeight(13.6666F, 0.230F, 0.770F), new VertexWeight(15.8333F, 0.254F, 0.746F), new VertexWeight(18.0F, 0.5F, 0.5F), new VertexWeight(20.1666F, 0.744F, 0.256F), new VertexWeight(22.3333F, 0.770F, 0.230F)};
@@ -396,7 +390,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class LimbPartTransformer extends PartTransformer<CustomizableCube> {
 		final int upperJoint;
 		final int lowerJoint;
@@ -545,7 +538,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 		return new ModelPart.Vertex(translatedPosition.x(), translatedPosition.y(), translatedPosition.z(), original.u, original.v);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedVertex extends ModelPart.Vertex {
 		final Vec3i jointId;
 		final Vec3f weight;
@@ -569,7 +561,6 @@ public class SkinLayer3DTransformer extends CustomizableCube {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedPolygon {
 		public final AnimatedVertex[] animatedVertexPositions;
 		public final Vector3f normal;

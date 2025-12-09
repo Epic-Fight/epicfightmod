@@ -25,8 +25,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
@@ -39,7 +37,6 @@ import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSB
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class ComputeShaderSetup {
     protected static final int WORK_GROUP_SIZE = 128;
     
@@ -229,12 +226,10 @@ public abstract class ComputeShaderSetup {
 		format.clearBufferState();
     }
     
-	@OnlyIn(Dist.CLIENT)
 	public interface BufferUploadable {
 		public void store(FloatBuffer buffer);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public interface MeshPartBuffer {
 		// For vanilla compute shader
 		int vboId();
@@ -243,7 +238,6 @@ public abstract class ComputeShaderSetup {
 		int partIdx();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
     // VertexData
 	public record VertexObj(
 		float px, float py, float pz,
@@ -269,7 +263,6 @@ public abstract class ComputeShaderSetup {
 		}
 	}
 	
-    @OnlyIn(Dist.CLIENT)
     public record ElemInfo(int poolId, int partId) implements BufferUploadable {
         @Override
         public void store(FloatBuffer buffer) {
@@ -278,7 +271,6 @@ public abstract class ComputeShaderSetup {
         }
     }
     
-    @OnlyIn(Dist.CLIENT)
     public record WeightInfo(int jtId, float weight) implements BufferUploadable {
         @Override
         public void store(FloatBuffer buffer) {
@@ -287,7 +279,6 @@ public abstract class ComputeShaderSetup {
         }
     }
     
-    @OnlyIn(Dist.CLIENT)
     public static class PartBuffer implements MeshPartBuffer {
         private final int partIdx;
         

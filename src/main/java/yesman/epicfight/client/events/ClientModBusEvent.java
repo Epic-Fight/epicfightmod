@@ -10,7 +10,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
 import net.minecraftforge.client.event.ModelEvent;
@@ -56,7 +55,6 @@ import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
 
-@OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid=EpicFightMod.MODID, value=Dist.CLIENT, bus=EventBusSubscriber.Bus.MOD)
 public class ClientModBusEvent {
 	@SubscribeEvent(priority = EventPriority.LOWEST)

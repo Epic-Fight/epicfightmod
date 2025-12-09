@@ -16,8 +16,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.utils.math.MathUtils;
@@ -26,7 +24,6 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class RenderItemBase {
 	protected static final Map<String, OpenMatrix4f> GLOBAL_MAINHAND_ITEM_TRANSFORMS = ImmutableMap.<String, OpenMatrix4f>builder()
 		.put("Tool_L", new OpenMatrix4f().translate(0F, 0F, -0.13F).rotateDeg(-90.0F, Vec3f.X_AXIS).unmodifiable())

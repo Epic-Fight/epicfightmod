@@ -34,8 +34,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.model.CompositeMesh;
 import yesman.epicfight.api.client.model.Mesh;
@@ -60,13 +58,11 @@ import yesman.epicfight.main.EpicFightSharedConstants;
  * 
  * https://www.youtube.com/@TenMinutePhysics
  **/
-@OnlyIn(Dist.CLIENT)
 public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObjectBuilder, SoftBodyTranslatable, ClothSimulatable, ClothSimulator.ClothObject> {
 	public static final ResourceLocation PLAYER_CLOAK = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "ingame_cloak");
 	public static final ResourceLocation MODELPREVIEWER_CLOAK = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "previewer_cloak");
 	private static final float SPATIAL_HASH_SPACING = 0.05F;
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ClothObjectBuilder extends SimulationObject.SimulationObjectBuilder {
 		List<Pair<Function<ClothSimulatable, OpenMatrix4f>, ClothSimulator.ClothOBBCollider>> clothColliders = Lists.newArrayList();
 		Joint joint;
@@ -120,7 +116,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 		DRAW_OUTLINES = flag;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ClothObject implements SimulationObject<ClothObjectBuilder, SoftBodyTranslatable, ClothSimulatable>, Mesh {
 		private final SoftBodyTranslatable provider;
 		private final Map<String, ClothPart> parts;
@@ -594,7 +589,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 		public void initialize() {
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class Particle {
 			final Vec3f position;
 			final Vec3f modelPosition;
@@ -619,7 +613,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public class ClothPart {
 			final List<Particle> particleList;
 			final List<ConstraintList> constraints;
@@ -961,23 +954,19 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 				return Math.abs(hash) % this.hashTableSize;
 			}
 			
-			@OnlyIn(Dist.CLIENT)
 			public enum ConstraintType {
 				STRETCHING, SHAPING, BENDING, VOLUME
 			}
 			
-			@OnlyIn(Dist.CLIENT)
 			public static record ConstraintList(float compliance, ConstraintType constraintType, List<? extends Constraint> constraints) {
 			}
 			
-			@OnlyIn(Dist.CLIENT)
 			public static record OffsetParticle(int offsetVertexId, float length, Particle rootParticle, Vec3f position, List<Integer> positionNormalMembers, List<Integer> inverseNormal) {
 				public OffsetParticle copy() {
 					return new OffsetParticle(this.offsetVertexId, this.length, this.rootParticle, this.position.copy(), this.positionNormalMembers, this.inverseNormal);
 				}
 			}
 			
-			@OnlyIn(Dist.CLIENT)
 			abstract class Constraint {
 				abstract void solve(float alpha, int stepcount);
 			}
@@ -985,7 +974,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			/**
 			 * A constraint that restricts stretching of two particles
 			 */
-			@OnlyIn(Dist.CLIENT)
 			class StretchingConstraint extends Constraint {
 				final Particle p1;
 				final Particle p2;
@@ -1035,7 +1023,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			 * 
 			 * Be used to prevent streching too much in gravity direction in low fps
 			 */
-			@OnlyIn(Dist.CLIENT)
 			class ShapingConstraint extends Constraint {
 				final Particle p1;
 				final Particle p2;
@@ -1083,7 +1070,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			/**
 			 * A constraint that restricts bending of member particles. p2, p3 are adjacent edge particles, and p1, p4 are opponent each other
 			 */
-			@OnlyIn(Dist.CLIENT)
 			class BendingConstraint extends Constraint {
 				final Particle p1;
 				final Particle p2;
@@ -1198,7 +1184,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 			 * 
 			 * Note: This constraint is expensive. Consider using NormalMappedParticle instead.
 			 */
-			@OnlyIn(Dist.CLIENT)
 			class VolumeConstraint extends Constraint {
 				final Particle[] particles;
 				final float restVolume;
@@ -1264,7 +1249,6 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ClothOBBCollider extends OBBCollider {
 		public ClothOBBCollider(double vertexX, double vertexY, double vertexZ, double centerX, double centerY, double centerZ) {
 			super(vertexX, vertexY, vertexZ, centerX, centerY, centerZ);

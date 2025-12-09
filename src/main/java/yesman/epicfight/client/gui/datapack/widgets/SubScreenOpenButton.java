@@ -5,10 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class SubScreenOpenButton extends ResizableButton {
 	protected final Supplier<Screen> subScreenProvider;
 	
@@ -27,7 +24,6 @@ public class SubScreenOpenButton extends ResizableButton {
 		return new SubScreenOpenButton.Builder();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Builder extends ResizableButton.Builder {
 		Supplier<Screen> subScreenProvider;
 		

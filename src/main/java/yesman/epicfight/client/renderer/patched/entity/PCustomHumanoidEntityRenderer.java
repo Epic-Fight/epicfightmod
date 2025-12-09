@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -24,7 +22,6 @@ import yesman.epicfight.client.renderer.patched.layer.PatchedItemInHandLayer;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PCustomHumanoidEntityRenderer<AM extends HumanoidMesh> extends PatchedLivingEntityRenderer<LivingEntity, LivingEntityPatch<LivingEntity>, HumanoidModel<LivingEntity>, LivingEntityRenderer<LivingEntity, HumanoidModel<LivingEntity>>, AM> {
 	private final AssetAccessor<AM> mesh;
 	

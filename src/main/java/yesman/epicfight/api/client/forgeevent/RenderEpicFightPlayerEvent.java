@@ -1,11 +1,8 @@
 package yesman.epicfight.api.client.forgeevent;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class RenderEpicFightPlayerEvent extends Event {
 	private final PlayerPatch<?> playerpatch;
 	private final boolean shouldRenderOriginal;

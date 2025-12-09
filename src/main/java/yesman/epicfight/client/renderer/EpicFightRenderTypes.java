@@ -24,11 +24,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public final class EpicFightRenderTypes extends RenderType {
 	public static RenderType makeTriangulated(RenderType renderType) {
 		if (renderType.mode() == VertexFormat.Mode.TRIANGLES) {
@@ -124,7 +121,6 @@ public final class EpicFightRenderTypes extends RenderType {
 	// Custom shards
 	protected static final RenderStateShard.ShaderStateShard PARTICLE_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getParticleShader);
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ShaderColorStateShard extends RenderStateShard {
 		private Vector4f color;
 		
@@ -147,7 +143,6 @@ public final class EpicFightRenderTypes extends RenderType {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class MutableCompositeState extends CompositeState {
 		private ShaderColorStateShard shaderColorState = new ShaderColorStateShard(new Vector4f(1.0F));
 		
@@ -180,7 +175,6 @@ public final class EpicFightRenderTypes extends RenderType {
 	        return new EpicFightRenderTypes.MutableCompositeState.MutableCompositeStateBuilder();
 	    }
 		
-		@OnlyIn(Dist.CLIENT)
 		public static class MutableCompositeStateBuilder {
 			private RenderStateShard.EmptyTextureStateShard textureState = RenderStateShard.NO_TEXTURE;
 			private RenderStateShard.ShaderStateShard shaderState = RenderStateShard.NO_SHADER;

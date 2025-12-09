@@ -23,8 +23,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
@@ -43,7 +41,6 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
 
-@OnlyIn(Dist.CLIENT)
 public class GeoModelTransformer extends HumanoidModelTransformer {
 	static final PartTransformer<GeoCube> HEAD = new SimpleTransformer(9);
 	static final PartTransformer<GeoCube> LEFT_FEET = new SimpleTransformer(5);
@@ -54,7 +51,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 	static final PartTransformer<GeoCube> RIGHT_LEG = new LimbPartTransformer(1, 2, 3, 0.375F, true, AABB.ofSize(new Vec3(0.15D, 0.375D, 0), 0.5D, 0.85D, 0.5D));
 	static final PartTransformer<GeoCube> CHEST = new ChestPartTransformer(8, 7, 1.125F, AABB.ofSize(new Vec3(0, 1.125D, 0), 0.9D, 0.85D, 0.45D));
 	
-	@OnlyIn(Dist.CLIENT)
 	static class GeoModelPartition {
 		final PartTransformer<GeoCube> partTransformer;
 		final GeoBone geoBone;
@@ -219,7 +215,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		poseStack.popPose();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class SimpleTransformer extends PartTransformer<GeoCube> {
 		final int jointId;
 		
@@ -255,7 +250,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class ChestPartTransformer extends PartTransformer<GeoCube> {
 		static final float X_PLANE = 0.0F;
 		static final VertexWeight[] WEIGHT_ALONG_Y = { new VertexWeight(13.6666F, 0.230F, 0.770F), new VertexWeight(15.8333F, 0.254F, 0.746F), new VertexWeight(18.0F, 0.5F, 0.5F), new VertexWeight(20.1666F, 0.744F, 0.256F), new VertexWeight(22.3333F, 0.770F, 0.230F)};
@@ -445,7 +439,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class LimbPartTransformer extends PartTransformer<GeoCube> {
 		final int upperJoint;
 		final int lowerJoint;
@@ -651,7 +644,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		return new ModelPart.Vertex(translatedPosition.x(), translatedPosition.y(), translatedPosition.z(), original.texU(), original.texV());
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedVertex extends ModelPart.Vertex {
 		final Vec3i jointId;
 		final Vec3f weight;
@@ -675,7 +667,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedPolygon {
 		public final AnimatedVertex[] animatedVertexPositions;
 		public final Vector3f normal;
@@ -695,7 +686,6 @@ public class GeoModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public record GeoMeshPartDefinition(String partName, List<String> path, OpenMatrix4f invertedParentTransform, GeoBone root) implements MeshPartDefinition {
 		public static MeshPartDefinition of(String partName) {
 			return new GeoMeshPartDefinition(partName, null, null, null);

@@ -22,8 +22,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh.RenderProperties;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
@@ -34,7 +32,6 @@ import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.mixin.client.MixinAgeableListModel;
 
-@OnlyIn(Dist.CLIENT)
 public class VanillaModelTransformer extends HumanoidModelTransformer {
 	public static final SimpleTransformer HEAD = new SimpleTransformer(AABB.ofSize(new Vec3(0.0D, -4.0D, 0.0D), 8.0D, 8.0D, 8.0D), 9);
 	public static final SimpleTransformer LEFT_FEET = new SimpleTransformer(AABB.ofSize(new Vec3(0.0D, -4.0D, 0.0D), 8.0D, 8.0D, 8.0D), 5);
@@ -67,7 +64,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		return CHEST;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static record VanillaModelPartition(PartTransformer<ModelPart.Cube> partTransformer, ModelPart modelPart, String partName) {
 	}
 	
@@ -205,7 +201,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		poseStack.popPose();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class SimpleTransformer extends PartTransformer<ModelPart.Cube> {
 		final int jointId;
 		final AABB coverArea;
@@ -238,7 +233,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class ChestPartTransformer extends PartTransformer<ModelPart.Cube> {
 		static final float X_PLANE = 0.0F;
 		static final VertexWeight[] WEIGHT_ALONG_Y = { new VertexWeight(13.6666F, 0.230F, 0.770F), new VertexWeight(15.8333F, 0.254F, 0.746F), new VertexWeight(18.0F, 0.5F, 0.5F), new VertexWeight(20.1666F, 0.744F, 0.256F), new VertexWeight(22.3333F, 0.770F, 0.230F)};
@@ -431,7 +425,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class LimbPartTransformer extends PartTransformer<ModelPart.Cube> {
 		final int upperJoint;
 		final int lowerJoint;
@@ -626,7 +619,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		return new ModelPart.Vertex(translatedPosition.x(), translatedPosition.y(), translatedPosition.z(), original.u, original.v);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedVertex extends ModelPart.Vertex {
 		final Vec3i jointId;
 		final Vec3f weight;
@@ -650,7 +642,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	static class AnimatedPolygon {
 		public final AnimatedVertex[] animatedVertexPositions;
 		public final Vector3f normal;
@@ -670,7 +661,6 @@ public class VanillaModelTransformer extends HumanoidModelTransformer {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public record VanillaMeshPartDefinition(String partName, RenderProperties renderProperties, List<String> path, OpenMatrix4f invertedParentTransform, ModelPart root) implements MeshPartDefinition {
 		public static MeshPartDefinition of(String partName, RenderProperties renderProperties) {
 			return new VanillaMeshPartDefinition(partName, renderProperties, null, null, null);

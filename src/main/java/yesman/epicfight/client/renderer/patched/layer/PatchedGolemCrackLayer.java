@@ -12,14 +12,11 @@ import net.minecraft.client.renderer.entity.layers.IronGolemCrackinessLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.IronGolemMesh;
 import yesman.epicfight.world.capabilities.entitypatch.mob.IronGolemPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PatchedGolemCrackLayer extends ModelRenderLayer<IronGolem, IronGolemPatch, IronGolemModel<IronGolem>, IronGolemCrackinessLayer, IronGolemMesh> {
 	private static final Map<IronGolem.Crackiness, ResourceLocation> CRACK_MAP = ImmutableMap.of(
 			IronGolem.Crackiness.LOW, ResourceLocation.withDefaultNamespace("textures/entity/iron_golem/iron_golem_crackiness_low.png"),

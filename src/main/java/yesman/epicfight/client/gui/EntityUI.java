@@ -12,8 +12,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -24,7 +22,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import org.joml.Matrix4f;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class EntityUI {
 	public static final List<EntityUI> ENTITY_UI_LIST = Lists.newArrayList();
 	public static final TargetIndicator TARGET_INDICATOR = new TargetIndicator();

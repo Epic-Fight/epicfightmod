@@ -29,8 +29,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
@@ -48,7 +46,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 /**
  * This class is for LivingEntity with renderer that doesn't extend LivingEntityRenderer (e.g. Geckolib renderer based entities)
  */
-@OnlyIn(Dist.CLIENT)
 public class PresetRenderer extends PatchedEntityRenderer<LivingEntity, LivingEntityPatch<LivingEntity>, EntityRenderer<LivingEntity>, SkinnedMesh> implements LayerRenderer<LivingEntity, LivingEntityPatch<LivingEntity>, EntityModel<LivingEntity>> {
 	private final LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> presetRenderer;
 	protected final Map<Class<?>, PatchedLayer<LivingEntity, LivingEntityPatch<LivingEntity>, EntityModel<LivingEntity>, ? extends RenderLayer<LivingEntity, EntityModel<LivingEntity>>>> patchedLayers = Maps.newHashMap();

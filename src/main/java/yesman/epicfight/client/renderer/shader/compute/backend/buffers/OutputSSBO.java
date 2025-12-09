@@ -6,10 +6,7 @@ import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class OutputSSBO implements Closeable {
     public final int glSSBO;
     

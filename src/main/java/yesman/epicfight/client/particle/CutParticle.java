@@ -7,11 +7,8 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.config.ClientConfig;
 
-@OnlyIn(Dist.CLIENT)
 public class CutParticle extends HitParticle {
 	public CutParticle(ClientLevel world, double x, double y, double z, SpriteSet animatedSprite) {
 		super(world, x, y, z, animatedSprite);
@@ -27,7 +24,6 @@ public class CutParticle extends HitParticle {
 		this.roll = angle;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet spriteSet;
 

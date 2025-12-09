@@ -3,10 +3,7 @@ package yesman.epicfight.client.gui.datapack.screen;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class PackEntry<K, T> implements Map.Entry<K, T> {
 	public static <K, T> PackEntry<K, T> of(K packKey, Supplier<T> valueGetter) {
 		return new PackEntry<>(packKey, valueGetter.get());

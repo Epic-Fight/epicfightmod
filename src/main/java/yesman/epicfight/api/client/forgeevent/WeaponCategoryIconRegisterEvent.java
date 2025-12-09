@@ -4,13 +4,10 @@ import java.util.Map;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
-@OnlyIn(Dist.CLIENT)
 public class WeaponCategoryIconRegisterEvent extends Event implements IModBusEvent {
 	final Map<WeaponCategory, ItemStack> registry;
 	

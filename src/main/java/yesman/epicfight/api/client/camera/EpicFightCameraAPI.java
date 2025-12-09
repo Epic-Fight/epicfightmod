@@ -346,10 +346,6 @@ public final class EpicFightCameraAPI {
 		return ClientConfig.lockOnRange;
 	}
 	
-	/**
-	 * @Deprecated Use more parameters friendly version below
-	 */
-	@Deprecated(forRemoval = true)
 	public boolean setNextLockOnTarget(int direction) {
 		return this.setNextLockOnTarget(direction, false, true);
 	}

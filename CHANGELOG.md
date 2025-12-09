@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Now Lock-on automatically searches a new target if there is no currently focusing entity
+- Now TPS mode applies 8 directional movement to the player
 
 ## [20.14.1] - 2025-12-07
 

@@ -986,7 +986,7 @@ public final class EpicFightCameraAPI {
 	@ApiStatus.Internal
 	public float getYRotForHead(Player player) {
 		if (!player.isLocalPlayer()) {
-			throw new IllegalArgumentException("Only LocalPlayer are allowed to this parameter");
+			throw new IllegalArgumentException("Must pass a LocalPlayer to getYRotForHead(Player)");
 		}
 		
 		if (!this.isTPSMode()) {

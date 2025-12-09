@@ -349,3 +349,15 @@ def generateLangKeys = tasks.register('generateLangKeys', GenerateJsonKeysTask) 
 
 java.sourceSets.main.java.srcDir(generateLangKeys.map { it.outputs.files.singleFile })
 tasks.compileJava.dependsOn(generateLangKeys)
+
+tasks.jar {
+    from(rootProject.file("LICENSE"))
+    from(rootProject.file("LICENSE-ASSETS"))
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/${mod_id}"
+    }
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/minecraft"
+    }
+}
+

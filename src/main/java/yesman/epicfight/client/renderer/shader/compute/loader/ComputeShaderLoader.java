@@ -8,13 +8,10 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeShader;
 
-@OnlyIn(Dist.CLIENT)
 public final class ComputeShaderLoader {
 	public static ComputeProgram loadComputeShaderProgram(ResourceProvider resourceManager, ResourceLocation resourceLocation, BarrierFlags... barrierFlags) throws IllegalStateException {
 		Optional<Resource> resource = resourceManager.getResource(resourceLocation);
@@ -62,7 +59,6 @@ public final class ComputeShaderLoader {
 		return program;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
     public record ShaderSource(String source, int barrierFlags) {
     }
     

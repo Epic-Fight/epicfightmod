@@ -4,15 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 
-@OnlyIn(Dist.CLIENT)
 public class HumanoidMesh extends SkinnedMesh {
 	public final SkinnedMeshPart head;
 	public final SkinnedMeshPart torso;

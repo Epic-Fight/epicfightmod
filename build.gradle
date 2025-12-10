@@ -334,3 +334,13 @@ mcSafeResources {
 sourceSets.main.java.srcDir tasks.generateLangKeys.outputs.files.singleFile
 tasks.compileJava.dependsOn tasks.generateLangKeys
 
+tasks.jar {
+    from(rootProject.file("LICENSE"))
+    from(rootProject.file("LICENSE-ASSETS"))
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/${mod_id}"
+    }
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/minecraft"
+    }
+}

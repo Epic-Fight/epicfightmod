@@ -21,8 +21,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -36,7 +34,6 @@ import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
-@OnlyIn(Dist.CLIENT)
 public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	protected final float[] weights;
 	protected final int[] affectingJointCounts;
@@ -271,7 +268,6 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		return this.affectingJointIndices;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class SkinnedMeshPart extends MeshPart {
 		private ComputeShaderSetup.MeshPartBuffer partVBO;
 

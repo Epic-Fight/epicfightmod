@@ -18,8 +18,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
@@ -27,7 +25,6 @@ import yesman.epicfight.client.gui.widgets.UIComponent.PassiveUIComponent;
 import yesman.epicfight.config.OptionHandler;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class UIComponentPop<T extends UIComponent> extends Screen implements ContainerEventHandler {
 	protected final T parentWidget;
 	protected int width;
@@ -158,7 +155,6 @@ public class UIComponentPop<T extends UIComponent> extends Screen implements Con
 		guiGraphics.fillGradient(j2 - 3, k2 + j + 2, j2 + i + 3, k2 + j + 3, 0, boarderEnd, boarderEnd);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class PassivesUIComponentPop extends UIComponentPop<PassiveUIComponent> {
 		public PassivesUIComponentPop(int width, int height, PassiveUIComponent parentWidget) {
 			super(width, height, parentWidget);

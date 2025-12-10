@@ -16,8 +16,6 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
@@ -28,7 +26,6 @@ import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
 
-@OnlyIn(Dist.CLIENT)
 public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePatch<AbstractArrow>> {
 	protected float lastXRot;
 	protected float lastYRot;
@@ -153,7 +150,6 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 		this.lastYRot = yRot;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		public static final TrailInfo ARROW_TRAIL_DEFAULT
 			= TrailInfo

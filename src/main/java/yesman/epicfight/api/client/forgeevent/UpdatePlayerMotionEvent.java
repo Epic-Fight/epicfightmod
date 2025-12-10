@@ -1,13 +1,10 @@
 package yesman.epicfight.api.client.forgeevent;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.DetachablePlayerEvent;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class UpdatePlayerMotionEvent extends Event implements DetachablePlayerEvent<AbstractClientPlayerPatch<?>> {
 	private final AbstractClientPlayerPatch<?> playerpatch;
 	private LivingMotion motion;
@@ -30,7 +27,6 @@ public abstract class UpdatePlayerMotionEvent extends Event implements Detachabl
 		return this.motion;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class BaseLayer extends UpdatePlayerMotionEvent {
 		private final boolean inaction;
 		
@@ -45,7 +41,6 @@ public abstract class UpdatePlayerMotionEvent extends Event implements Detachabl
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class CompositeLayer extends UpdatePlayerMotionEvent {
 		public CompositeLayer(AbstractClientPlayerPatch<?> playerpatch, LivingMotion motion) {
 			super(playerpatch, motion);

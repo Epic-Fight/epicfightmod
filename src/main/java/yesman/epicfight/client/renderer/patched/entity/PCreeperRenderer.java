@@ -7,15 +7,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.mesh.CreeperMesh;
 import yesman.epicfight.world.capabilities.entitypatch.mob.CreeperPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PCreeperRenderer extends PatchedLivingEntityRenderer<Creeper, CreeperPatch, CreeperModel<Creeper>, CreeperRenderer, CreeperMesh> {
 	public PCreeperRenderer(EntityRendererProvider.Context context, EntityType<?> entityType) {
 		super(context, entityType);

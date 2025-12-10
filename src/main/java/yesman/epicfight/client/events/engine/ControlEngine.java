@@ -20,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
@@ -64,7 +63,6 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 import java.util.Set;
 
-@OnlyIn(Dist.CLIENT)
 public class ControlEngine {
 	private final Set<Object> packets = Sets.newHashSet();
 	private final Minecraft minecraft;
@@ -941,7 +939,6 @@ public class ControlEngine {
 		return this.weaponInnatePressToggle;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 	public static class Events {
 		static ControlEngine controlEngine;

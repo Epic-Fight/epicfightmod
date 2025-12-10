@@ -17,8 +17,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.asset.SelfAccessor;
@@ -32,7 +30,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.VerticalS
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 
-@OnlyIn(Dist.CLIENT)
 public class ImportModelScreen extends Screen {
 	private final SelectModelScreen parentScreen;
 	private final Grid meshGrid;

@@ -52,8 +52,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
@@ -96,7 +94,6 @@ import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
-@OnlyIn(Dist.CLIENT)
 public class ModelPreviewer extends AbstractWidget implements ResizableComponent {
 	private final ModelRenderTarget modelRenderTarget;
 	private final List<AssetAccessor<? extends StaticAnimation>> animationsToPlay = Lists.newArrayList();
@@ -682,7 +679,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		this.modelRenderTarget.destroyBuffers();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class FakeEntityPatch extends LivingEntityPatch<LivingEntity> implements SimulatableObject, ClothSimulatable {
 		public FakeEntityPatch(Armature armature) {
 			this.armature = armature.deepCopy();
@@ -805,7 +801,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class NoEntityAnimator extends ClientAnimator {
 		public NoEntityAnimator(LivingEntityPatch<?> entitypatch) {
 			super(entitypatch, NoEntityBaseLayer::new);
@@ -851,7 +846,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			return this.entitypatch;
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		static class NoEntityAnimationPlayer extends AnimationPlayer {
 			@Override
 			public void tick(LivingEntityPatch<?> entitypatch) {
@@ -889,7 +883,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		static class NoEntityLayer extends Layer {
 			public NoEntityLayer(Priority priority) {
 				super(priority, NoEntityAnimationPlayer::new);
@@ -983,7 +976,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		static class NoEntityBaseLayer extends Layer.BaseLayer {
 			public NoEntityBaseLayer() {
 				super(NoEntityAnimationPlayer::new);
@@ -1120,7 +1112,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class ModelRenderTarget extends RenderTarget {
 		public ModelRenderTarget() {
 			super(true);
@@ -1160,7 +1151,6 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class CustomTrailParticle extends AnimationTrailParticle {
 		@SuppressWarnings("deprecation")
 		protected CustomTrailParticle(Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {

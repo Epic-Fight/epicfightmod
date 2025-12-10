@@ -7,10 +7,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class TsunamiSplashParticle extends TextureSheetParticle {
 	private final SpriteSet sprites;
 
@@ -34,7 +31,6 @@ public class TsunamiSplashParticle extends TextureSheetParticle {
 		super.tick();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class Provider implements ParticleProvider<SimpleParticleType> {
 		private final SpriteSet sprites;
 

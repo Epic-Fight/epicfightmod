@@ -13,12 +13,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class TPSSettingScreen extends Screen {
 	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/widget/camera_settings.png");
 	protected final Screen parentScreen;
@@ -113,7 +110,6 @@ public class TPSSettingScreen extends Screen {
 		return true;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private class CameraMoveButton extends Button {
 		private final Direction direction;
 		
@@ -150,13 +146,11 @@ public class TPSSettingScreen extends Screen {
 			guiGraphics.pose().popPose();
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public enum Direction {
 			UP, DOWN, LEFT, RIGHT
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private class ZoomScroll extends AbstractWidget {
 		private double scrollPosition;
 		

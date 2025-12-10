@@ -22,8 +22,6 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
@@ -38,7 +36,6 @@ import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClie
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Armatures;
 
-@OnlyIn(Dist.CLIENT)
 public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, AbstractClientPlayerPatch<AbstractClientPlayer>, PlayerModel<AbstractClientPlayer>, CapeLayer> {
 	@SuppressWarnings("unchecked")
 	@Override

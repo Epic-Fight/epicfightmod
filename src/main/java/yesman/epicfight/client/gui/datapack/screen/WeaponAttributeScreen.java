@@ -21,8 +21,6 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen.ItemCapabilityTab.ItemType;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
@@ -35,7 +33,6 @@ import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.Style;
 
-@OnlyIn(Dist.CLIENT)
 public class WeaponAttributeScreen extends Screen {
 	private final Map<String, ParameterEditor> weaponAttributeEditors = Maps.newLinkedHashMap();
 	private final Map<String, ParameterEditor> armorAttributeEditors = Maps.newLinkedHashMap();

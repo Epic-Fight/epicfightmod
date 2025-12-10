@@ -17,8 +17,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -42,7 +40,6 @@ import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.data.conditions.EpicFightConditions;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class CombatBehaviorScreen extends Screen {
 	private InputComponentList<CompoundTag> inputComponentsList;
 	private final List<CompoundTag> movesetList = Lists.newLinkedList();

@@ -200,9 +200,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
                 } catch (IOException | JsonParseException | IllegalArgumentException resourceReadException) {
-                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId);
+                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
                 } catch (Exception e) {
-                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId);
+                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
         
@@ -259,7 +259,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	
 	/// Converts animation id, acquired by [StaticAnimation#getRegistryName], to animation resource path acquired by [StaticAnimation#getLocation]
     public static ResourceLocation idToPath(ResourceLocation rl) {
-        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + rl.getPath() + ".json");
+        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + "/" + rl.getPath() + ".json");
     }
 
     /// Converts animation resource path, acquired by [StaticAnimation#getLocation], to animation id acquired by [StaticAnimation#getRegistryName]

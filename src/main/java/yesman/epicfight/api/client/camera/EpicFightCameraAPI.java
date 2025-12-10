@@ -36,6 +36,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
 import net.minecraftforge.entity.PartEntity;
@@ -784,27 +785,35 @@ public final class EpicFightCameraAPI {
 				desiredXRot = this.cameraXRot;
 				desiredYRot = this.cameraYRot;
 			} else if (tpsMode) { // Handle camera tps rotation
-				boolean shouldCoupling = this.predicateCouplingPlayer();
+				CoupleTPSCamera coupleCameraEvent = this.predicateCouplingPlayer();
+				boolean shouldCoupling = coupleCameraEvent.shouldCoupleCamera();
 				
 				// The player follows the camera look when the head rotation is not clamped by body rotation
 				// This gives a slight control of the player's head within the allowed angles
 				if (Mth.abs(Mth.wrapDegrees(this.cameraYRot - localPlayer.yBodyRot)) <= 51.0F || shouldCoupling) {
-					Vec3 toHitResult;
-					
-					if (this.lockingOnTarget) {
-						toHitResult = this.focusingEntity.getEyePosition();
-					} else if (this.crosshairHitResult.getType() == HitResult.Type.MISS) {
-						// Determines lookscale based on x rotation for parabola-trajectory projectiles
-						double delta = Mth.clamp(localPlayer.getXRot(), -30.0F, 0.0F) / -30.0F;
-						double lookVecScale = Mth.clampedLerp(30.0D, 75.0D, delta);
-						toHitResult = cameraPos.add(lookVec.scale(lookVecScale));
+					if (coupleCameraEvent.isOnlyMoving()) {
+						Vec2 movemoventPulse = localPlayer.input.getMoveVector();
+						desiredYRot = this.cameraYRot + (float)MathUtils.getYRotOfVector(new Vec3((double)movemoventPulse.x, 0.0D, (double)movemoventPulse.y));
+						// No head x rotation while moving in a modified direction from the camera looking
+						desiredXRot = desiredYRot == this.cameraYRot ? this.cameraXRot : 0.0F;
 					} else {
-						toHitResult = this.crosshairHitResult.getLocation();
+						Vec3 toHitResult;
+						
+						if (this.lockingOnTarget) {
+							toHitResult = this.focusingEntity.getEyePosition();
+						} else if (this.crosshairHitResult.getType() == HitResult.Type.MISS) {
+							// Determines lookscale based on x rotation for parabola-trajectory projectiles
+							double delta = Mth.clamp(localPlayer.getXRot(), -30.0F, 0.0F) / -30.0F;
+							double lookVecScale = Mth.clampedLerp(30.0D, 75.0D, delta);
+							toHitResult = cameraPos.add(lookVec.scale(lookVecScale));
+						} else {
+							toHitResult = this.crosshairHitResult.getLocation();
+						}
+						
+						toHitResult = toHitResult.subtract(localPlayer.getEyePosition());
+						desiredXRot = (float)MathUtils.getXRotOfVector(toHitResult);
+						desiredYRot = shouldCoupling ? (Math.abs(this.cameraXRot) > 80.0F ? this.cameraYRot : (float)MathUtils.getYRotOfVector(toHitResult)) : this.cameraYRot;
 					}
-					
-					toHitResult = toHitResult.subtract(localPlayer.getEyePosition());
-					desiredXRot = (float)MathUtils.getXRotOfVector(toHitResult);
-					desiredYRot = shouldCoupling ? (Math.abs(this.cameraXRot) > 80.0F ? this.cameraYRot : (float)MathUtils.getYRotOfVector(toHitResult)) : this.cameraYRot;
 				} else {
 					desiredXRot = 0.0F;
 					desiredYRot = localPlayer.yBodyRot;
@@ -977,10 +986,20 @@ public final class EpicFightCameraAPI {
 	@ApiStatus.Internal
 	public float getYRotForHead(Player player) {
 		if (!player.isLocalPlayer()) {
-			throw new IllegalArgumentException("Only LocalPlayer are allowed to this parameter");
+			throw new IllegalArgumentException("Must pass a LocalPlayer to getYRotForHead(Player)");
 		}
 		
-		return (this.isTPSMode() && (Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F || this.predicateCouplingPlayer())) ? this.cameraYRot : player.getYRot();
+		if (!this.isTPSMode()) {
+			return player.getYRot();
+		}
+		
+		CoupleTPSCamera coupleCamera = this.predicateCouplingPlayer();
+		
+		if (coupleCamera.shouldCoupleCamera()) {
+			return coupleCamera.isOnlyMoving() ? player.getYRot() : this.cameraYRot;
+		} else {
+			return Mth.abs(Mth.wrapDegrees(this.cameraYRot - player.yBodyRot)) <= 51.0F ? this.cameraYRot : player.getYRot();
+		}
 	}
 	
 	@ApiStatus.Internal
@@ -992,7 +1011,7 @@ public final class EpicFightCameraAPI {
         return entity instanceof LivingEntity livingEntity && !entity.isSpectator() && entity.isPickable() && entity.isAlive() && !entity.is(this.minecraft.player) && this.minecraft.player.canAttack(livingEntity);
     }
 	
-	private boolean predicateCouplingPlayer() {
+	private CoupleTPSCamera predicateCouplingPlayer() {
         // We do assume playerpatch is never null, but check the null for the crash resistancy
         @Nullable
         LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(this.minecraft.player, LocalPlayerPatch.class);
@@ -1009,7 +1028,7 @@ public final class EpicFightCameraAPI {
 
         EpicFightClientHooks.Camera.COUPLE_CAMERA.post(coupleTPSCameraEvent);
 
-        return coupleTPSCameraEvent.shouldCoupleCamera();
+        return coupleTPSCameraEvent;
 	}
 	
 	private void sendTargeting(@Nullable LivingEntity target) {

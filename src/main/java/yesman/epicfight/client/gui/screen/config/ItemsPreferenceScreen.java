@@ -26,8 +26,6 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen.ItemList.ItemEntry;
@@ -38,7 +36,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.item.WeaponItem;
 
-@OnlyIn(Dist.CLIENT)
 public class ItemsPreferenceScreen extends Screen {
 	private static final Set<Class<? extends Item>> WEAPON_CATEGORIZED_ITEM_CLASSES = new HashSet<> ();
 	private static final Set<Class<? extends Item>> TOOL_CATEGORIZED_ITEM_CLASSES = new HashSet<> ();
@@ -299,7 +296,6 @@ public class ItemsPreferenceScreen extends Screen {
 		this.minecraft.setScreen(this.parentScreen);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	class ItemList extends ObjectSelectionList<ItemsPreferenceScreen.ItemList.ItemEntry> {
 		private final Component title;
 		private final Component tooltip;
@@ -385,7 +381,6 @@ public class ItemsPreferenceScreen extends Screen {
 			}).sorted(ItemEntry::compare).forEach(this::addEntry);
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class ItemEntry extends ObjectSelectionList.Entry<ItemsPreferenceScreen.ItemList.ItemEntry> {
 			private static final Set<Item> UNRENDERABLE_ITEMS = Sets.newHashSet();
 			

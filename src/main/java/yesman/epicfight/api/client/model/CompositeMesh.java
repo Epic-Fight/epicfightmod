@@ -7,15 +7,12 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObjectBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 
-@OnlyIn(Dist.CLIENT)
 public class CompositeMesh implements Mesh, SoftBodyTranslatable {
 	private final StaticMesh<?> staticMesh;
 	private final SoftBodyTranslatable softBodyMesh;

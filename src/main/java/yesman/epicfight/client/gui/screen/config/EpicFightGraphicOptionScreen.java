@@ -7,8 +7,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.ClientEngine;
@@ -25,7 +23,6 @@ import yesman.epicfight.main.EpicFightMod;
 import java.io.File;
 import java.io.IOException;
 
-@OnlyIn(Dist.CLIENT)
 public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 	private EpicFightOptionList optionsList;
 	

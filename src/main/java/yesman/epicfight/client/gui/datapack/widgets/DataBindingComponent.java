@@ -4,10 +4,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public interface DataBindingComponent<T, R> extends ResizableComponent {
 	public void reset();
 	public T _getValue();

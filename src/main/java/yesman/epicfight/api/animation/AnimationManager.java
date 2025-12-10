@@ -200,9 +200,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
                 } catch (IOException | JsonParseException | IllegalArgumentException resourceReadException) {
-                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId);
+                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
                 } catch (Exception e) {
-                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId);
+                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
         

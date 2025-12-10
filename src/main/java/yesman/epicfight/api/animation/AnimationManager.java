@@ -259,7 +259,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	
 	/// Converts animation id, acquired by [StaticAnimation#getRegistryName], to animation resource path acquired by [StaticAnimation#getLocation]
     public static ResourceLocation idToPath(ResourceLocation rl) {
-        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + rl.getPath() + ".json");
+        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + "/" + rl.getPath() + ".json");
     }
 
     /// Converts animation resource path, acquired by [StaticAnimation#getLocation], to animation id acquired by [StaticAnimation#getRegistryName]

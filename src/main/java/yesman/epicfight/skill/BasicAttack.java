@@ -115,7 +115,7 @@ public class BasicAttack extends Skill {
 		SkillDataManager dataManager = skillContainer.getDataManager();
 		int comboCounter = dataManager.getDataValue(SkillDataKeys.COMBO_COUNTER.get());
         boolean dashAttack = player.isSprinting();
-        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater();
+        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater() && skillContainer.getExecutor().getOriginal().getDeltaMovement().y() > -0.05D;
 		
 		if (player.isPassenger()) {
 			Entity entity = player.getVehicle();
@@ -180,7 +180,8 @@ public class BasicAttack extends Skill {
 	 */
     protected boolean checkConsumption(SkillContainer container, boolean dash, boolean air) {
     	float finalConsumption = air ? this.airAttackConsumption : this.dashAttackConsumption;
-    	
+    	if (finalConsumption <= 0)
+            return true;
     	if (this.resource == Resource.STAMINA) {
     		finalConsumption = container.getExecutor().getModifiedStaminaConsume(finalConsumption);
     	}

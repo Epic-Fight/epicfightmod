@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import com.mojang.logging.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

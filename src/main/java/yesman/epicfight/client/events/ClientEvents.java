@@ -13,7 +13,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -175,6 +177,13 @@ public class ClientEvents {
 		ClientEngine.getInstance().controlEngine.setPlayerPatch(newCap);
 		ClientEngine.getInstance().renderEngine.initHUD();
 	}
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (MINECRAFT.getOverlay() == null && MINECRAFT.screen == null) {
+            ClientEngine.getInstance().controlEngine.handleEpicFightKeyMappings();
+        }
+    }
 	
 	@SubscribeEvent
 	public static void clientLogoutEvent(ClientPlayerNetworkEvent.LoggingOut event) {

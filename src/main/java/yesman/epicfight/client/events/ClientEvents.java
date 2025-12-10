@@ -175,13 +175,6 @@ public class ClientEvents {
 		ClientEngine.getInstance().controlEngine.setPlayerPatch(newCap);
 		ClientEngine.getInstance().renderEngine.initHUD();
 	}
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (MINECRAFT.getOverlay() == null && MINECRAFT.screen == null) {
-            ClientEngine.getInstance().controlEngine.handleEpicFightKeyMappings();
-        }
-    }
 	
 	@SubscribeEvent
 	public static void clientLogoutEvent(ClientPlayerNetworkEvent.LoggingOut event) {

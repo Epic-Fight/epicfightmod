@@ -7,7 +7,7 @@ import net.minecraft.world.entity.monster.AbstractSkeleton;
 import yesman.epicfight.main.EpicFightMod;
 
 public class WitherSkeletonMinionRenderer extends WitherSkeletonRenderer {
-	private static final ResourceLocation WITHER_SKELETON_LOCATION = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/wither_skeleton_minion.png");
+    private static final ResourceLocation WITHER_SKELETON_LOCATION = EpicFightMod.identifier("textures/entity/wither_skeleton_minion.png");
 
 	public WitherSkeletonMinionRenderer(Context context) {
 		super(context);

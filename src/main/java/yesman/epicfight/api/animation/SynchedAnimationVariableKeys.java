@@ -15,7 +15,7 @@ import yesman.epicfight.main.EpicFightMod;
 public class SynchedAnimationVariableKeys {
 	private static final Supplier<RegistryBuilder<SynchedAnimationVariableKey<?>>> BUILDER = () -> new RegistryBuilder<SynchedAnimationVariableKey<?>>().addCallback(SynchedAnimationVariableKey.getRegistryCallback());
 	
-	public static final DeferredRegister<SynchedAnimationVariableKey<?>> SYNCHED_ANIMATION_VARIABLE_KEYS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "synched_animation_variable_keys"), EpicFightMod.MODID);
+	public static final DeferredRegister<SynchedAnimationVariableKey<?>> SYNCHED_ANIMATION_VARIABLE_KEYS = DeferredRegister.create(EpicFightMod.identifier("synched_animation_variable_keys"), EpicFightMod.MODID);
 	public static final Supplier<IForgeRegistry<SynchedAnimationVariableKey<?>>> REGISTRY = SYNCHED_ANIMATION_VARIABLE_KEYS.makeRegistry(BUILDER);
 	
 	public static final RegistryObject<SynchedIndependentAnimationVariableKey<Vec3>> DESTINATION = SYNCHED_ANIMATION_VARIABLE_KEYS.register("destination", () ->

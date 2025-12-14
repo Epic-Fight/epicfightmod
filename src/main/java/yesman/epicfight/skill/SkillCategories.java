@@ -5,14 +5,14 @@ import yesman.epicfight.main.EpicFightMod;
 
 public enum SkillCategories implements SkillCategory {
 	BASIC_ATTACK(false, false, false),
-	DODGE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_dodge")),
-	PASSIVE(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_passive")),
+	DODGE(true, true, true, EpicFightMod.identifier("skillbook_dodge")),
+	PASSIVE(true, true, true, EpicFightMod.identifier("skillbook_passive")),
 	WEAPON_PASSIVE(false, false, false),
 	WEAPON_INNATE(false, true, false),
-	GUARD(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_guard")),
+	GUARD(true, true, true, EpicFightMod.identifier("skillbook_guard")),
 	KNOCKDOWN_WAKEUP(false, false, false),
-	MOVER(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_mover")),
-	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
+	MOVER(true, true, true, EpicFightMod.identifier("skillbook_mover")),
+	IDENTITY(true, true, true, EpicFightMod.identifier("skillbook_identity"));
 	
 	
 	final boolean shouldSave;

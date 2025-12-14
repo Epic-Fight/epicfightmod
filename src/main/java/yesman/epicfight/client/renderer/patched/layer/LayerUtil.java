@@ -41,9 +41,9 @@ public class LayerUtil {
 	public static <E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> void addLayer(LayerRenderer<E, T, M> renderer, EntityType<?> entityType, List<Pair<ResourceLocation, JsonElement>> layers) {
 		Map<ResourceLocation, LayerProvider<E, T, M, R, AM>> layersbyid = Maps.newHashMap();
 		
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "invisible"), LayerUtil::getInvisibleLayer);
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "eyes"), LayerUtil::getEyesLayer);
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "model_original"), LayerUtil::getOriginalModelLayer);
+		layersbyid.put(EpicFightMod.identifier("invisible"), LayerUtil::getInvisibleLayer);
+		layersbyid.put(EpicFightMod.identifier("eyes"), LayerUtil::getEyesLayer);
+		layersbyid.put(EpicFightMod.identifier("model_original"), LayerUtil::getOriginalModelLayer);
 		
 		MinecraftForge.EVENT_BUS.post(new RegisterResourceLayersEvent<> (layersbyid));
 		

@@ -155,7 +155,7 @@ public class ClientModBusEvent {
 			
 			ItemOverrides overrides = event.getModels().get(skillbookLocation).getOverrides();
 			overrides.overrides = skillCategoryOverrides.toArray(i -> new ItemOverrides.BakedOverride[i]);
-			overrides.properties = new ResourceLocation[] {ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill")};
+			overrides.properties = new ResourceLocation[]{EpicFightMod.identifier("skill")};
 		}
 	}
 }

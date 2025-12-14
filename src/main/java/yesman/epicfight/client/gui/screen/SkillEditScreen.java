@@ -34,11 +34,11 @@ import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 public class SkillEditScreen extends Screen {
-	public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/empty.png");
-	public static final ResourceLocation SCROLL_ARROW_UP = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/scroll_arrow_up.png");
-	public static final ResourceLocation SCROLL_ARROW_DOWN = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/scroll_arrow_down.png");
-	
-	private static final ResourceLocation SKILL_EDIT_UI = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/screen/skill_edit.png");
+    public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = EpicFightMod.identifier("textures/gui/empty.png");
+    public static final ResourceLocation SCROLL_ARROW_UP = EpicFightMod.identifier("textures/gui/scroll_arrow_up.png");
+    public static final ResourceLocation SCROLL_ARROW_DOWN = EpicFightMod.identifier("textures/gui/scroll_arrow_down.png");
+
+    private static final ResourceLocation SKILL_EDIT_UI = EpicFightMod.identifier("textures/gui/screen/skill_edit.png");
 	private static final MutableComponent NO_SKILLS = Component.translatable(EpicFightMod.format("gui.%s.no_skills"));
 	
 	private static final int MAX_SKILL_OPTIONS_ROWS = 6;

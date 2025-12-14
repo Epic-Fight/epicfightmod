@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### For Devs
+
+- Deprecated `EpicFightMod.rl` and added `EpicFightMod.identifier` since
+  [Mojang renamed `ResourceLocation` to
+  `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+
 ## [20.14.3] - 2025-12-11
 
 ### Fixed

@@ -754,7 +754,7 @@ public class DatapackEditScreen extends Screen {
 										} else {
 											grid.setValueChangeEnabled(false);
 											int rowposition = grid.addRowWithDefaultValues("pack_item", EpicFightMod.prefix(""));
-											this.packList.add(rowposition, PackEntry.of(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, ""), CompoundTag::new));
+											this.packList.add(rowposition, PackEntry.of(EpicFightMod.identifier(""), CompoundTag::new));
 											grid.setGridFocus(rowposition, "pack_item");
 											grid.setValueChangeEnabled(true);
 										}

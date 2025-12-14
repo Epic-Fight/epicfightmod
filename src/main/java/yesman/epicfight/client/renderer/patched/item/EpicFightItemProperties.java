@@ -9,14 +9,14 @@ import yesman.epicfight.world.item.SkillBookItem;
 
 public class EpicFightItemProperties {
 	public static void registerItemProperties() {
-		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill"), (itemstack, level, entity, i) -> {
-			Skill skill = SkillBookItem.getContainSkill(itemstack);
-			
-			if (skill != null) {
-				return skill.getCategory().universalOrdinal();
-			}
-			
-			return Float.NEGATIVE_INFINITY;
-		});
+		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), EpicFightMod.identifier("skill"), (itemstack, level, entity, i) -> {
+            Skill skill = SkillBookItem.getContainSkill(itemstack);
+
+            if (skill != null) {
+                return skill.getCategory().universalOrdinal();
+            }
+
+            return Float.NEGATIVE_INFINITY;
+        });
 	}
 }

@@ -505,7 +505,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		if (type.contains(":")) {
 			rl = ResourceLocation.parse(type);
 		} else {
-			rl = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, type);
+			rl = EpicFightMod.identifier(type);
 		}
 		
 		Supplier<Condition<T>> predicateProvider = EpicFightConditions.getConditionOrNull(rl);

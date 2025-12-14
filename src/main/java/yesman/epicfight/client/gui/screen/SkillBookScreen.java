@@ -61,7 +61,7 @@ import yesman.epicfight.world.item.SkillBookItem;
 public class SkillBookScreen extends Screen {
 	private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = Maps.newHashMap();
 	private static final Map<Attribute, TextureInfo> ATTRIBUTE_ICONS = Maps.newHashMap();
-	private static final ResourceLocation SKILLBOOK_BACKGROUND = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/screen/skillbook.png");
+    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightMod.identifier("textures/gui/screen/skillbook.png");
 	
 	public static final TextureInfo HEALTH_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 22, 205, 10, 10);
 	public static final TextureInfo STAMINA_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 32, 205, 10, 10);

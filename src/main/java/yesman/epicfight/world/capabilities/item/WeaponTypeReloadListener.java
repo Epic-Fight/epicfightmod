@@ -51,22 +51,22 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 	public static void registerDefaultWeaponTypes() {
 		Map<ResourceLocation, Function<Item, CapabilityItem.Builder>> typeEntry = Maps.newHashMap();
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "axe"), WeaponCapabilityPresets.AXE);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "fist"), WeaponCapabilityPresets.FIST);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "hoe"), WeaponCapabilityPresets.HOE);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "pickaxe"), WeaponCapabilityPresets.PICKAXE);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shovel"), WeaponCapabilityPresets.SHOVEL);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "sword"), WeaponCapabilityPresets.SWORD);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "spear"), WeaponCapabilityPresets.SPEAR);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "greatsword"), WeaponCapabilityPresets.GREATSWORD);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "tachi"), WeaponCapabilityPresets.TACHI);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "longsword"), WeaponCapabilityPresets.LONGSWORD);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dagger"), WeaponCapabilityPresets.DAGGER);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "bow"), WeaponCapabilityPresets.BOW);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "crossbow"), WeaponCapabilityPresets.CROSSBOW);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "trident"), WeaponCapabilityPresets.TRIDENT);
-		typeEntry.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shield"), WeaponCapabilityPresets.SHIELD);
+		typeEntry.put(EpicFightMod.identifier("axe"), WeaponCapabilityPresets.AXE);
+		typeEntry.put(EpicFightMod.identifier("fist"), WeaponCapabilityPresets.FIST);
+		typeEntry.put(EpicFightMod.identifier("hoe"), WeaponCapabilityPresets.HOE);
+		typeEntry.put(EpicFightMod.identifier("pickaxe"), WeaponCapabilityPresets.PICKAXE);
+		typeEntry.put(EpicFightMod.identifier("shovel"), WeaponCapabilityPresets.SHOVEL);
+		typeEntry.put(EpicFightMod.identifier("sword"), WeaponCapabilityPresets.SWORD);
+		typeEntry.put(EpicFightMod.identifier("spear"), WeaponCapabilityPresets.SPEAR);
+		typeEntry.put(EpicFightMod.identifier("greatsword"), WeaponCapabilityPresets.GREATSWORD);
+		typeEntry.put(EpicFightMod.identifier("uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
+		typeEntry.put(EpicFightMod.identifier("tachi"), WeaponCapabilityPresets.TACHI);
+		typeEntry.put(EpicFightMod.identifier("longsword"), WeaponCapabilityPresets.LONGSWORD);
+		typeEntry.put(EpicFightMod.identifier("dagger"), WeaponCapabilityPresets.DAGGER);
+		typeEntry.put(EpicFightMod.identifier("bow"), WeaponCapabilityPresets.BOW);
+		typeEntry.put(EpicFightMod.identifier("crossbow"), WeaponCapabilityPresets.CROSSBOW);
+		typeEntry.put(EpicFightMod.identifier("trident"), WeaponCapabilityPresets.TRIDENT);
+		typeEntry.put(EpicFightMod.identifier("shield"), WeaponCapabilityPresets.SHIELD);
 		
 		WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
 		ModLoader.get().postEvent(weaponCapabilityPresetRegistryEvent);

@@ -123,8 +123,8 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private enum EpicFightRadialIcons {
-        UCHIGATANA(EpicFightMod.rl("textures/item/uchigatana_gui.png")),
-        SKILL_BOOK(EpicFightMod.rl("textures/item/skillbook.png"));
+        UCHIGATANA(EpicFightMod.identifier("textures/item/uchigatana_gui.png")),
+        SKILL_BOOK(EpicFightMod.identifier("textures/item/skillbook.png"));
 
         private final @NotNull ResourceLocation id;
 
@@ -298,7 +298,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_CONFIG_SCREEN -> "open_config_screen";
             case SWITCH_VANILLA_MODEL_DEBUGGING -> "switch_vanilla_mode_debugging";
         };
-        return EpicFightMod.rl(path);
+        return EpicFightMod.identifier(path);
     }
 
     private static void registerModIntegration() {

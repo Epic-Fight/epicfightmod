@@ -17,7 +17,7 @@ import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 
 public class TPSSettingScreen extends Screen {
-	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/widget/camera_settings.png");
+    private static final ResourceLocation BUTTON_TEXTURE = EpicFightMod.identifier("textures/gui/widget/camera_settings.png");
 	protected final Screen parentScreen;
 	protected Button up;
 	protected Button down;

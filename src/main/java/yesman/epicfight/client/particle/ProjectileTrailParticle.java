@@ -160,7 +160,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.interpolations(4)
 				.lifetime(9)
 				.updateInterval(1)
-				.texture(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/projectile_trail.png"))
+				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		public static final TrailInfo SPECTRAL_ARROW_TRAIL_DEFAULT
@@ -175,7 +175,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.r(252.0F / 255.0F)
 				.g(252.0F / 255.0F)
 				.b(118.0F / 255.0F)
-				.texture(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/projectile_trail.png"))
+				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		public static final TrailInfo TRIDENT_TRAIL_DEFAULT
@@ -190,7 +190,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.r(0.0F / 255.0F)
 				.g(232.0F / 255.0F)
 				.b(245.0F / 255.0F)
-				.texture(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/projectile_trail.png"))
+				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		@SuppressWarnings("unchecked")

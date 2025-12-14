@@ -56,7 +56,7 @@ public class EpicFightSounds {
 	public static final RegistryObject<SoundEvent> VENGEANCE = registerSound("skill.vengeance");
 	
 	private static RegistryObject<SoundEvent> registerSound(String name) {
-		ResourceLocation res = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, name);
+        ResourceLocation res = EpicFightMod.identifier(name);
 		return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(res));
 	}
 }

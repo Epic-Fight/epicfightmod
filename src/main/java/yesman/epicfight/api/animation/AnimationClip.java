@@ -1,9 +1,14 @@
 package yesman.epicfight.api.animation;
 
-import net.minecraft.util.Mth;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import java.util.*;
+import net.minecraft.util.Mth;
 
 public class AnimationClip {
 	public static final AnimationClip EMPTY_CLIP = new AnimationClip();
@@ -11,8 +16,8 @@ public class AnimationClip {
 	protected Map<String, TransformSheet> jointTransforms = new HashMap<> ();
 	protected float clipTime;
 	protected float[] bakedTimes;
-
-    /// To modify existing keyframes in runtime and keep the baked state, call [#setBaked] again
+	
+	/// To modify existing keyframes in runtime and keep the baked state, call [#setBaked] again
     /// after finishing clip modification. (Frequent calls of this method will cause a performance issue)
 	public void addJointTransform(String jointName, TransformSheet sheet) {
 		this.jointTransforms.put(jointName, sheet);
@@ -22,8 +27,8 @@ public class AnimationClip {
 	public boolean hasJointTransform(String jointName) {
 		return this.jointTransforms.containsKey(jointName);
 	}
-
-    /// Bakes all keyframes to optimize calculating current pose,
+	
+	/// Bakes all keyframes to optimize calculating current pose,
 	public void bakeKeyframes() {
 		Set<Float> timestamps = new HashSet<> ();
 		
@@ -69,11 +74,11 @@ public class AnimationClip {
 	
 	public final Pose getPoseInTime(float time) {
 		Pose pose = new Pose();
-
-        if (time < 0.0F) {
-            time = this.clipTime + time;
-        }
-
+		
+		if (time < 0.0F) {
+			time = this.clipTime + time;
+		}
+		
 		if (this.bakedTimes != null && this.bakedTimes.length > 0) {
 			// Binary search
 			int begin = 0, end = this.bakedTimes.length - 1;
@@ -109,7 +114,7 @@ public class AnimationClip {
 		return pose;
 	}
 	
-    /// @return returns protected keyframes of each joint to keep the baked state of keyframes.
+	/// @return returns protected keyframes of each joint to keep the baked state of keyframes.
 	public Map<String, TransformSheet> getJointTransforms() {
 		return Collections.unmodifiableMap(this.jointTransforms);
 	}

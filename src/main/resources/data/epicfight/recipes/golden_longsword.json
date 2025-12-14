@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "  B",
+        " B ",
+        "S  "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:gold_ingot" },
+        "S": { "item" : "minecraft:golden_sword" }
+    },
+    "result":
+    {
+        "item" : "epicfight:golden_longsword",
+        "count" : 1
+    }
+}

@@ -9,7 +9,6 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -156,9 +155,7 @@ public class MessageScreen<T> extends Screen {
 			this.inputWidget._setY(y + 8);
 		}
 		
-		for (Renderable renderable : this.renderables) {
-            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
-        }
+		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		
 		guiGraphics.pose().popPose();
 	}

@@ -139,6 +139,10 @@ public class Static extends AbstractWidget implements ResizableComponent {
 	}
 	
 	@Override
+	public void _tick() {
+	}
+	
+	@Override
 	public int _getX() {
 		return this.getX();
 	}

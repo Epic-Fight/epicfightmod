@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " B",
+        "S "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:gold_ingot" },
+        "S": { "item" : "minecraft:stick" }
+    },
+    "result":
+    {
+        "item" : "epicfight:golden_dagger",
+        "count" : 1
+    }
+}

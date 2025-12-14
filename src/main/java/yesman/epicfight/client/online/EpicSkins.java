@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -31,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g, float b) {
+public record EpicSkins(Supplier<ResourceLocation> cloakTexture, float r, float g, float b) {
 	public static void initEpicSkins(AbstractClientPlayerPatch<?> playerpatch) {
 		if (EpicFightServerConnectionHelper.supported() && ClientConfig.enableCosmetics) {
 			EpicFightServerConnectionHelper.getPlayerSkinInfo(EpicFightSharedConstants.webServerDomain(), playerpatch.getOriginal().getUUID().toString().replace("-", ""), (response, exception) -> {
@@ -40,7 +39,7 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 				}
 				
 				if (response.statusCode() != 200) {
-					EpicFightMod.LOGGER.error("Failed at connecting Epic Fight web server: " + response.body());
+					EpicFightMod.LOGGER.error("Error code from Epic Fight web server: " + response.body());
 				}
 				
 				Map<Slot, Cosmetic> cosmetics = Maps.newHashMap();
@@ -67,7 +66,7 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 					Supplier<ResourceLocation> cloakTextureProvider = null;
 					
 					if (cosmetic.useBoolParam1() && cosmetic.boolParam1()) {
-						cloakTextureProvider = () -> playerpatch.getOriginal().getSkin().capeTexture();
+						cloakTextureProvider = () -> playerpatch.getOriginal().getCloakTextureLocation();
 					} else {
 						cloakTextureProvider = () -> cosmetic.textureLocation();
 					}
@@ -82,12 +81,11 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 							, (SoftBodyTranslatable)mesh
 							, ClothSimulator.ClothObjectBuilder.create()
 								.parentJoint(Armatures.BIPED.get().torso)
-								.putAll(ClothColliderPresets.BIPED)
+								.putAll("default".equals(playerpatch.getOriginal().getModelName())
+											? ClothColliderPresets.BIPED : ClothColliderPresets.BIPED)
 							, () -> {
-								  return playerpatch.getOriginal().getSkin().capeTexture() != null
-										  && !playerpatch.getOriginal().isInvisible()
-										  && playerpatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE)
-										  && playerpatch.getOriginal().getItemBySlot(EquipmentSlot.CHEST).getItem() != Items.ELYTRA;
+								  return playerpatch.getOriginal().isCapeLoaded() && !playerpatch.getOriginal().isInvisible() && playerpatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE)
+										 && playerpatch.getOriginal().getItemBySlot(EquipmentSlot.CHEST).getItem() != Items.ELYTRA;
 							  }
 						);
 						
@@ -124,21 +122,17 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 			, Meshes.CAPE_DEFAULT
 			, ClothSimulator.ClothObjectBuilder.create()
 				.parentJoint(Armatures.BIPED.get().torso)
-				.putAll(PlayerSkin.Model.WIDE.equals(playerpatch.getOriginal().getSkin().model())
-							? ClothColliderPresets.BIPED : ClothColliderPresets.BIPED_SLIM)
-			, () -> playerpatch.getOriginal().getSkin().capeTexture() != null
-					&& !playerpatch.getOriginal().isInvisible()
-					&& playerpatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE)
-					&& playerpatch.getOriginal().getItemBySlot(EquipmentSlot.CHEST).getItem() != Items.ELYTRA
+				.putAll("default".equals(playerpatch.getOriginal().getModelName()) ? ClothColliderPresets.BIPED : ClothColliderPresets.BIPED_SLIM)
+			, () -> playerpatch.getOriginal().isCapeLoaded() && !playerpatch.getOriginal().isInvisible() && playerpatch.getOriginal().isModelPartShown(PlayerModelPart.CAPE) && playerpatch.getOriginal().getItemBySlot(EquipmentSlot.CHEST).getItem() != Items.ELYTRA
 		);
 		
-		playerpatch.setEpicSkinsInformation(new EpicSkins(() -> playerpatch.getOriginal().getSkin().capeTexture(), 1.0F, 1.0F, 1.0F));
+		playerpatch.setEpicSkinsInformation(new EpicSkins(() -> playerpatch.getOriginal().getCloakTextureLocation(), 1.0F, 1.0F, 1.0F));
 	}
-
+	
 	public record Cosmetic(int seq, Slot slot, int intParam1, boolean boolParam1, boolean useIntParam1, boolean useBoolParam1, String fileLocation, ResourceLocation textureLocation) {
 		/**
-		 * intParam1 is normally used to color
-		 * boolParam1 is normally used to decide cape's vanilla texture
+		 * intParam1 is usually used to color
+		 * boolParam1 is usually used to decide cape's vanilla texture
 		 */
 		public Cosmetic(JsonObject json) throws JsonSyntaxException {
 			this(
@@ -153,7 +147,7 @@ public record EpicSkins(Supplier<ResourceLocation> capeTexture, float r, float g
 			);
 		}
 	}
-
+	
 	public enum Slot {
 		CAPE
 	}

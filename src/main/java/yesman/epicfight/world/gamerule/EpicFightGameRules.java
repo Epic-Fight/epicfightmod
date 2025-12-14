@@ -7,19 +7,17 @@ import java.util.function.BiFunction;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
+import yesman.epicfight.api.utils.PacketBufferCodec;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeGamerule;
 
 public class EpicFightGameRules {
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> GLOBAL_STUN = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> GLOBAL_STUN = create(
 			  "globalStun"
 			, GameRules.Category.MOBS
 			, configBuilder -> configBuilder.define("default_gamerule.globalStun", true)
@@ -27,7 +25,7 @@ public class EpicFightGameRules {
 			, false
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> KEEP_SKILLS = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> KEEP_SKILLS = create(
 			  "keepSkills"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.define("default_gamerule.keepSkills", true)
@@ -35,7 +33,7 @@ public class EpicFightGameRules {
 			, false
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> HAS_FALL_ANIMATION = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> HAS_FALL_ANIMATION = create(
 			  "hasFallAnimation"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.define("default_gamerule.hasFallAnimation", true)
@@ -43,7 +41,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> DISABLE_ENTITY_UI = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> DISABLE_ENTITY_UI = create(
 			  "disableEntityUI"
 			, GameRules.Category.MISC
 			, configBuilder -> configBuilder.define("default_gamerule.disapleEntityUI", false)
@@ -51,7 +49,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> CAN_SWITCH_PLAYER_MODE = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> CAN_SWITCH_PLAYER_MODE = create(
 			  "canSwitchPlayerMode"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.define("default_gamerule.canSwitchPlayerMode", true)
@@ -59,7 +57,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> STIFF_COMBO_ATTACKS = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> STIFF_COMBO_ATTACKS = create(
 			  "stiffComboAttacks"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.define("default_gamerule.stiffComboAttacks", true)
@@ -67,7 +65,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> NO_MOBS_IN_BOSSFIGHT = create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> NO_MOBS_IN_BOSSFIGHT = create(
 			  "noMobsInBossfight"
 			, GameRules.Category.SPAWNING
 			, configBuilder -> configBuilder.define("default_gamerule.noMobsInBossfight", true)
@@ -75,7 +73,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Integer, ModConfigSpec.IntValue, GameRules.IntegerValue> INITIAL_PLAYER_MODE = create(
+	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> INITIAL_PLAYER_MODE = create(
 			  "initialMode"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.comment("0 = vanilla, 1 = epicfight").defineInRange("default_gamerule.initialMode", 1, 0, 1)
@@ -83,7 +81,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Integer, ModConfigSpec.IntValue, GameRules.IntegerValue> WEIGHT_PENALTY = EpicFightGameRules.create(
+	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> WEIGHT_PENALTY = EpicFightGameRules.create(
 			  "weightPenalty"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.defineInRange("default_gamerule.weightPenalty", 100, 0, 100)
@@ -91,7 +89,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> EPIC_DROP = EpicFightGameRules.create(
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> EPIC_DROP = EpicFightGameRules.create(
 			  "epicDrop"
 			, GameRules.Category.DROPS
 			, configBuilder -> configBuilder.define("default_gamerule.epicDrop", false)
@@ -99,7 +97,7 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Integer, ModConfigSpec.IntValue, GameRules.IntegerValue> SKILL_REPLACE_COOLDOWN = EpicFightGameRules.create(
+	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> SKILL_REPLACE_COOLDOWN = EpicFightGameRules.create(
 			  "skillReplaceCooldown"
 			, GameRules.Category.PLAYER
 			, configBuilder -> configBuilder.defineInRange("default_gamerule.skillReplaceCooldown", 6000, 0, Integer.MAX_VALUE)
@@ -122,23 +120,23 @@ public class EpicFightGameRules {
 			.build();
 	
 	public static void registerGameRules() {
-		GAME_RULES.values().forEach(gamerule -> gamerule.registerGameRule());
+		GAME_RULES.values().forEach((gamerule) -> gamerule.registerGameRule());
 	}
 	
-	public static <Type, Config extends ModConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> ConfigurableGameRule<Type, Config, RuleValue> create(
+	public static <Type, Config extends ForgeConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> ConfigurableGameRule<Type, Config, RuleValue> create(
 		  String ruleName
 		, GameRules.Category ruleCategory
-		, Function<ModConfigSpec.Builder, Config> configDefinition
+		, Function<ForgeConfigSpec.Builder, Config> configDefinition
 		, RuleType<Type, RuleValue> ruleType
 		, boolean synchronize
 	) {
 		return new ConfigurableGameRule<> (ruleName, ruleCategory, configDefinition, ruleType, synchronize);
 	}
 	
-	public static class ConfigurableGameRule<Type, Config extends ModConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> {
+	public static class ConfigurableGameRule<Type, Config extends ForgeConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> {
 		final String ruleName;
 		final GameRules.Category ruleCategory;
-		final Function<ModConfigSpec.Builder, Config> configDefinition;
+		final Function<ForgeConfigSpec.Builder, Config> configDefinition;
 		final RuleType<Type, RuleValue> ruleType; 
 		final boolean synchronize;
 		
@@ -148,7 +146,7 @@ public class EpicFightGameRules {
 		private ConfigurableGameRule(
 			  String ruleName
 			, GameRules.Category ruleCategory
-			, Function<ModConfigSpec.Builder, Config> configDefinition
+			, Function<ForgeConfigSpec.Builder, Config> configDefinition
 			, RuleType<Type, RuleValue> ruleType
 			, boolean synchronize
 		) {
@@ -159,7 +157,6 @@ public class EpicFightGameRules {
 			this.synchronize = synchronize;
 		}
 		
-		@SuppressWarnings("unchecked")
 		public void registerGameRule() {
 			if (this.synchronize) {
 				this.gameRuleKey = GameRules.register(
@@ -167,7 +164,7 @@ public class EpicFightGameRules {
 						, this.ruleCategory
 						, this.ruleType.valueCreator.apply(
 							    this.configValueHolder.get()
-							  , (server, value) -> EpicFightNetworkManager.sendToAll(new SPChangeGamerule(new EpicFightGameRules.KeyValuePair((ConfigurableGameRule<Object, ?, ?>)this, this.ruleType.getRule.apply(value))))
+							  , (server, value) -> EpicFightNetworkManager.sendToAll(new SPChangeGamerule<> (this, this.ruleType.getRule.apply(value)))
 						  )
 				);
 			} else {
@@ -183,12 +180,11 @@ public class EpicFightGameRules {
 			return this.synchronize;
 		}
 		
-		@SuppressWarnings("unchecked")
-		public SPChangeGamerule getSyncPacket(ServerPlayer player) {
-			return new SPChangeGamerule(new EpicFightGameRules.KeyValuePair((ConfigurableGameRule<Object, ?, ?>)this, this.getRuleValue(player.level())));
+		public SPChangeGamerule<?, ?, ?> getSyncPacket(ServerPlayer player) {
+			return new SPChangeGamerule<> (this, this.getRuleValue(player.level()));
 		}
 		
-		public void defineConfig(ModConfigSpec.Builder configBuilder) {
+		public void defineConfig(ForgeConfigSpec.Builder configBuilder) {
 			this.configValueHolder = this.configDefinition.apply(configBuilder);
 		}
 		
@@ -222,14 +218,14 @@ public class EpicFightGameRules {
 		, Function<Type, GameRules.Type<RuleValue>> valueCreatorUnsynchronized
 		, Function<RuleValue, Type> getRule
 		, BiConsumer<RuleValue, Type> setRule
-		, StreamCodec<ByteBuf, Type> codec
+		, PacketBufferCodec<Type> bufferCodec
 	) {
 		private static final RuleType<Boolean, GameRules.BooleanValue> BOOLEAN = new RuleType<> (
 			 GameRules.BooleanValue::create
 		   , GameRules.BooleanValue::create
 		   , GameRules.BooleanValue::get
 		   , (ruleValue, value) -> ruleValue.set(value, null)
-		   , ByteBufCodecs.BOOL
+		   , PacketBufferCodec.BOOLEAN
 		);
 		
 		private static final RuleType<Integer, GameRules.IntegerValue> INTEGER = new RuleType<> (
@@ -237,10 +233,7 @@ public class EpicFightGameRules {
 		   , GameRules.IntegerValue::create
 		   , GameRules.IntegerValue::get
 		   , (ruleValue, value) -> ruleValue.tryDeserialize(value.toString())
-		   , ByteBufCodecs.INT
+		   , PacketBufferCodec.INTEGER
 		);
-	}
-	
-	public static record KeyValuePair(ConfigurableGameRule<Object, ?, ?> gamerule, Object value) {
 	}
 }

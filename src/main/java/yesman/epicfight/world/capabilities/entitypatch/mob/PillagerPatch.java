@@ -8,8 +8,8 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
 public class PillagerPatch extends AbstractIllagerPatch<Pillager> {
-	public PillagerPatch(Pillager original) {
-		super(original, Factions.ILLAGER);
+	public PillagerPatch() {
+		super(Factions.ILLAGER);
 	}
 	
 	@Override

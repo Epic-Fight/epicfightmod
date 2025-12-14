@@ -1,21 +1,23 @@
 package yesman.epicfight.api.animation;
 
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import net.neoforged.neoforge.common.NeoForge;
+
+import net.minecraftforge.common.MinecraftForge;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.neoevent.InitAnimatorEvent;
+import yesman.epicfight.api.forgeevent.InitAnimatorEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Optional;
 
 public abstract class Animator {
 	protected final Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingAnimations = Maps.newHashMap();
@@ -78,7 +80,6 @@ public abstract class Animator {
 	public abstract void setSoftPause(boolean paused);
 	public abstract void setHardPause(boolean paused);
 	public abstract void tick();
-	public abstract boolean isPlaying(AssetAccessor<? extends DynamicAnimation> animation);
 	
 	public abstract EntityState getEntityState();
 	
@@ -100,7 +101,7 @@ public abstract class Animator {
 	
 	public void postInit() {
 		InitAnimatorEvent initAnimatorEvent = new InitAnimatorEvent(this.entitypatch, this);
-		NeoForge.EVENT_BUS.post(initAnimatorEvent);
+		MinecraftForge.EVENT_BUS.post(initAnimatorEvent);
 	}
 	
 	public void playDeathAnimation() {

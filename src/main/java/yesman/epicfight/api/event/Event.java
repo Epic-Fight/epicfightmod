@@ -11,16 +11,16 @@ import yesman.epicfight.api.event.subscriptions.ContextAwareEventSubscription;
  */
 public abstract class Event {
 	/**
-	 * Holds information about whose called the event by hook so far,
+	 * Holds information about whose called the event by event so far,
 	 * and who canceled the event
 	 * <p>
-	 * the name of subscribers are specified as parameter in {@link EventHook#registerEvent} and
-	 * {@link CancelableEventHook#registerEvent} and {@link CancelableEventHook#registerContextAwareEvent}
+	 * the name of subscribers are specified as parameter in {@link EventHook#registerPassiveevent} and
+	 * {@link CancelableEventHook#registerCancelableevent} and {@link CancelableEventHook#registerContextAwareevent}
 	 */
 	private final EventContext eventContext = new EventContext();
 	
 	/**
-	 * Returns whether the event hook canceled
+	 * Returns whether the event event canceled
 	 * This method requires the class to inherit {@link CancelableEvent} to be used property,
 	 * or it always returns false
 	 */
@@ -33,19 +33,19 @@ public abstract class Event {
 	}
 	
 	/**
-	 * Cancels the event hook
+	 * Cancels the event event
 	 * This method requires the class to inherit {@link CancelableEvent} to be used
 	 */
 	public void cancel() {
 		if (!(this instanceof CancelableEvent)) {
-			throw new IllegalStateException("Unable to cancel a non cancelable hook");
+			throw new IllegalStateException("Unable to cancel a non cancelable event");
 		}
 		
 		this.eventContext.onCanceled();
 	}
 	
 	/**
-	 * Initialize {@link EventContext}, which is used by {@link ContextAwareEventSubscription}
+	 * Returns the holding event context used by {@link ContextAwareEventSubscription}
 	 * only called by {@link EventHook#post}
 	 */
 	@ApiStatus.Internal

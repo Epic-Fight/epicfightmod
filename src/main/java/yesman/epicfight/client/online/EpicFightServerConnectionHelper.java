@@ -58,26 +58,26 @@ public class EpicFightServerConnectionHelper {
 			
 			if (inputstream != null) {
 				File configNativeFile = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
-                byte[] resourceBytes = null;
+				byte[] resourceBytes = null;
 				boolean shouldCreate;
 				
 				if (configNativeFile.exists()) {
-                    try {
-                        String configFileSHA256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(configNativeFile).readAllBytes());
-                        resourceBytes = inputstream.readAllBytes();
-                        String resourceFileSHA256 = ParseUtil.getBytesSHA256Hash(resourceBytes);
-                        shouldCreate = !configFileSHA256.equals(resourceFileSHA256);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        shouldCreate = true;
-                    }
+					try {
+						String configFileSHA256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(configNativeFile).readAllBytes());
+						resourceBytes = inputstream.readAllBytes();
+						String resourceFileSHA256 = ParseUtil.getBytesSHA256Hash(resourceBytes);
+						shouldCreate = !configFileSHA256.equals(resourceFileSHA256);
+					} catch (IOException e) {
+						e.printStackTrace();
+						shouldCreate = true;
+					}
 				} else {
 					shouldCreate = true;
 				}
 				
 				if (shouldCreate) {
 					try {
-						EpicFightMod.LOGGER.info("Created temporary lib configNativeFile at: " + configNativeFile.getPath());
+						EpicFightMod.LOGGER.info("Created temporary lib file at: " + configNativeFile.getPath());
 						configNativeFile.delete();
 						
 						if (!configNativeFile.getParentFile().isDirectory()) {
@@ -86,13 +86,13 @@ public class EpicFightServerConnectionHelper {
 						
 						configNativeFile.createNewFile();
 						FileOutputStream fos = new FileOutputStream(configNativeFile);
-                        if (resourceBytes == null) resourceBytes = inputstream.readAllBytes();
-                        fos.write(resourceBytes, 0, resourceBytes.length);
+						if (resourceBytes == null) resourceBytes = inputstream.readAllBytes();
+						fos.write(resourceBytes, 0, resourceBytes.length);
 						fos.flush();
 						fos.close();
 					} catch (IOException e) {
-                        e.printStackTrace();
-						EpicFightMod.LOGGER.info("Can't read library configNativeFile: " + e.getMessage());
+						e.printStackTrace();
+						EpicFightMod.LOGGER.info("Can't read library file: " + e);
 					}
 				}
 				
@@ -102,7 +102,7 @@ public class EpicFightServerConnectionHelper {
 					System.load(configNativeFile.toString());
 				} catch (UnsatisfiedLinkError e) {
 					exceptionOccurred = true;
-					EpicFightMod.LOGGER.warn("Failed at loading library configNativeFile");
+					EpicFightMod.LOGGER.warn("Failed at loading library file");
 				}
 				
 				supported = !exceptionOccurred;
@@ -134,10 +134,10 @@ public class EpicFightServerConnectionHelper {
 	public static native void loadRemoteMesh(String domain, String path, BiConsumer<Mesh, Exception> onResponse);
 	
 	private enum SupportedOS {
-		//LINUX("linux", ".so", ""),
-		//SOLARIS("solaris", ".so", ""),
+		//LINUX("linux", ".so"),
+		//SOLARIS("solaris", ".so"),
 		WINDOWS("windows", ".dll"),
-		//OSX("mac", ".dylib", "")
+		//OSX("mac", ".dylib")
 		;
 		
 		public static SupportedOS getOS() {
@@ -150,7 +150,7 @@ public class EpicFightServerConnectionHelper {
 		
 		private final String telemetryName;
 		private final String libExtension;
-
+		
 		SupportedOS(String telemetryName, String libExtension) {
 			this.telemetryName = telemetryName;
 			this.libExtension = libExtension;

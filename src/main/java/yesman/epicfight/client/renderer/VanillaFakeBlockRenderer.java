@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 	private static final Direction[] DIRECTIONS = Direction.values();
@@ -67,8 +67,8 @@ public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 		
 		poseStack2.popPose();
 		
-		RenderSystem.getModelViewStack().pushMatrix();
-		RenderSystem.getModelViewStack().mul(poseStack.last().pose());
+		RenderSystem.getModelViewStack().pushPose();
+		RenderSystem.getModelViewStack().mulPoseMatrix(poseStack.last().pose());
 		RenderSystem.applyModelViewMatrix();
 		
 		Uniform uniform = GameRenderer.getRendertypeTranslucentShader().CHUNK_OFFSET;
@@ -88,7 +88,7 @@ public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 		
 		poseStack2.popPose();
 		
-		RenderSystem.getModelViewStack().popMatrix();
+		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 	}
 	

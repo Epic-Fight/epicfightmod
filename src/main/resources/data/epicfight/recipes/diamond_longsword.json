@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "  B",
+        " B ",
+        "S  "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:diamond" },
+        "S": { "item" : "minecraft:diamond_sword" }
+    },
+    "result":
+    {
+        "item" : "epicfight:diamond_longsword",
+        "count" : 1
+    }
+}

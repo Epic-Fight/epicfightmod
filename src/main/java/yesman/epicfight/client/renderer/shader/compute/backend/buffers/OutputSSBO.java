@@ -6,8 +6,6 @@ import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-
 
 public class OutputSSBO implements Closeable {
     public final int glSSBO;
@@ -17,9 +15,9 @@ public class OutputSSBO implements Closeable {
     public OutputSSBO(short srcSize, int len, DynamicSSBO.DataMode mode) {
         this.glSSBO = GL15C.glGenBuffers();
         
-        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
-        GlStateManager._glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, (long)srcSize * len * 4, mode.glMode);
-        GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
+        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, this.glSSBO);
+        GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, (long)srcSize * len * 4, mode.glMode);
+        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
     }
     
 	public void bindBufferBase(int binding) {
@@ -37,7 +35,7 @@ public class OutputSSBO implements Closeable {
     @Override
     public void close() {
         if (this.glSSBO != 0) {
-        	GlStateManager._glDeleteBuffers(this.glSSBO);
+        	GL15C.glDeleteBuffers(this.glSSBO);
         }
     }
 }

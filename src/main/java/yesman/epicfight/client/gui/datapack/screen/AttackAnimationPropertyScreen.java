@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.datapack.EditorAnimation;
@@ -51,12 +50,12 @@ public class AttackAnimationPropertyScreen extends Screen {
 		
 		this.parentScreen = parentScreen;
 		this.minecraft = parentScreen.getMinecraft();
-		this.font = this.minecraft.font;
+		this.font = parentScreen.getMinecraft().font;
 		
 		this.animation = animation;
 		this.modelPlayer = modelPlayer;
 		
-		this.inputComponentsList = new InputComponentList<> (this, 0, 0, 0, 30) {
+		this.inputComponentsList = new InputComponentList<> (this, 0, 0, 0, 0, 30) {
 			@Override
 			public void importTag(JsonObject tag) {
 				this.setComponentsActive(true);
@@ -80,6 +79,7 @@ public class AttackAnimationPropertyScreen extends Screen {
 								.verticalSizing(VerticalSizing.TOP_BOTTOM)
 								.rowHeight(26)
 								.rowEditable(RowEditButton.ADD_REMOVE)
+								.transparentBackground(false)
 								.rowpositionChanged((rowposition, values) -> {
 									this.inputComponentsList.importTag(this.trailList.get(rowposition).getAsJsonObject());
 								})
@@ -207,8 +207,8 @@ public class AttackAnimationPropertyScreen extends Screen {
 	protected void init() {
 		ScreenRectangle screenRect = this.getRectangle();
 		
-		this.inputComponentsList.updateSizeAndPosition(screenRect.width() - 125, screenRect.bottom() - screenRect.top() - 80, screenRect.top() + 32);
-		this.inputComponentsList.setX(125);
+		this.inputComponentsList.updateSize(screenRect.width() - 125, screenRect.height() - 68, screenRect.top() + 32, screenRect.bottom() - 48);
+		this.inputComponentsList.setLeftPos(125);
 		
 		this.trailGrid.resize(screenRect);
 		
@@ -304,22 +304,20 @@ public class AttackAnimationPropertyScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		this.renderDirtBackground(guiGraphics);
 		
 		int yBegin = 32;
 		int yEnd = this.height - 45;
 		
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
-		ResourceLocation backgroundTexture = this.minecraft.level == null ? MENU_BACKGROUND : INWORLD_MENU_BACKGROUND;
-		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(backgroundTexture, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(backgroundTexture, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(backgroundTexture, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

@@ -1,6 +1,5 @@
 package yesman.epicfight.api.client.model;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +9,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -36,8 +37,8 @@ import yesman.epicfight.client.mesh.WitherMesh;
 import yesman.epicfight.main.EpicFightMod;
 
 public class Meshes implements PreparableReloadListener {
-	private static final Map<ResourceLocation, MeshAccessor<? extends Mesh>> ACCESSORS = new HashMap<> ();
-	private static final Map<MeshAccessor<? extends Mesh>, Mesh> MESHES = new HashMap<> ();
+	private static final Map<ResourceLocation, MeshAccessor<? extends Mesh>> ACCESSORS = Maps.newHashMap();
+	private static final Map<MeshAccessor<? extends Mesh>, Mesh> MESHES = Maps.newHashMap();
 	private static ResourceManager resourceManager = null;
 	
 	//For resource reloader

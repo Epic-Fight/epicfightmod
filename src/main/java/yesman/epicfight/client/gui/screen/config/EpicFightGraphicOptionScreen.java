@@ -9,9 +9,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
-import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
 import yesman.epicfight.client.gui.widgets.ColorSlider;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
@@ -34,7 +34,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 	protected void init() {
 		super.init();
 		
-		this.optionsList = new EpicFightOptionList(this.minecraft, this.width, this.height - 64, 32, 25);
+		this.optionsList = new EpicFightOptionList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
 		int buttonHeight = -32;
 		
 		Button showTargetIndicatorButton =
@@ -65,23 +65,24 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 		
 		this.optionsList.addSmall(showTargetIndicatorButton, healthBarVisibilityOptionButton);
 		buttonHeight += 24;
-
-        Button cameraSetupButton = Button.builder(Component.translatable(EpicFightMod.format("gui.%s.tps_setup")), (button) -> {
-            if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
-                Minecraft.getInstance().setScreen(new MessageScreen<>("Warning", "You can open camera setup screen only after entering the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
-            } else {
-                Minecraft.getInstance().setScreen(new TPSSettingScreen(this));
-            }
-        }).pos(this.width / 2 + 5, this.height / 4 - 8).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_setup.tooltip")))).build();
-
-        Button cameraTypeButton = Button.builder(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))), (button) -> {
-            ClientConfig.cameraMode = ClientConfig.cameraMode.nextEnum();
-            button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))));
-            cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
-        }).pos(this.width / 2 - 165, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.tooltip")))).build();
-
-        cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
-        this.optionsList.addSmall(cameraTypeButton, cameraSetupButton);
+		
+		Button cameraSetupButton = Button.builder(Component.translatable(EpicFightMod.format("gui.%s.tps_setup")), (button) -> {
+			if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
+				Minecraft.getInstance().setScreen(new MessageScreen<> ("Warning", "You can open camera setup screen only after entering the world", this, (button2) -> Minecraft.getInstance().setScreen(this), 300, 70).autoCalculateHeight());
+			} else {
+				Minecraft.getInstance().setScreen(new TPSSettingScreen(this));
+			}
+		}).pos(this.width / 2 + 5, this.height / 4 - 8).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_setup.tooltip")))).build();
+		
+		Button cameraTypeButton = Button.builder(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))), (button) -> {
+			ClientConfig.cameraMode = ClientConfig.cameraMode.nextEnum();
+			button.setMessage(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective." + ParseUtil.toLowerCase(ClientConfig.cameraMode.name()))));
+			cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
+		}).pos(this.width / 2 - 165, this.height / 4 + buttonHeight).size(160, 20).tooltip(Tooltip.create(Component.translatable(EpicFightMod.format("gui.%s.tps_perspective.tooltip")))).build();
+		
+		cameraSetupButton.active = ClientConfig.cameraMode.hasTPSTransition();
+		this.optionsList.addSmall(cameraTypeButton, cameraSetupButton);
+		
 		buttonHeight += 24;
 		
 		Button bloodEffectsButton =
@@ -255,20 +256,20 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 		
 		this.optionsList.addSmall(enableCosmetics, useComputeShaderButton);
 		buttonHeight += 30;
-
-        this.optionsList.addBig(
-            new ColorSlider(
-                this.font,
-                this.width / 2 - 150,
-                this.height / 4 + buttonHeight,
-                300,
-                20,
-                Component.translatable(EpicFightMod.format("gui.%s.target_outline_color")),
-                ColorSlider.Style.CLASSIC,
-                ClientConfig.targetOutlineColor,
-                (position, color) -> ClientConfig.targetOutlineColor = position
-            )
-        );
+		
+		this.optionsList.addBig(
+			new ColorSlider(
+				this.font,
+				this.width / 2 - 150,
+				this.height / 4 + buttonHeight,
+				300,
+				20,
+				Component.translatable(EpicFightMod.format("gui.%s.target_outline_color")),
+				ColorSlider.Style.CLASSIC,
+				ClientConfig.targetOutlineColor,
+				(position, color) -> ClientConfig.targetOutlineColor = position
+			)
+		);
 		
 		this.addWidget(this.optionsList);
 
@@ -289,7 +290,7 @@ public class EpicFightGraphicOptionScreen extends EpicFightOptionSubScreen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		RenderEngine.getInstance().versionNotifier.render(guiGraphics, false);
+		ClientEngine.getInstance().renderEngine.versionNotifier.render(guiGraphics, false);
 		this.basicListRender(guiGraphics, this.optionsList, mouseX, mouseY, partialTicks);
 	}
 }

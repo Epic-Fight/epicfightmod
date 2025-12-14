@@ -25,7 +25,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.api.utils.datastructure.ModifiablePair;
+import yesman.epicfight.api.utils.datastruct.ModifiablePair;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
 import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
 import yesman.epicfight.client.gui.datapack.widgets.ModelPreviewer;
@@ -64,6 +64,7 @@ public class LivingAnimationsScreen extends Screen {
 								.verticalSizing(VerticalSizing.TOP_BOTTOM)
 								.rowHeight(21)
 								.rowEditable(RowEditButton.ADD_REMOVE)
+								.transparentBackground(false)
 								.rowpositionChanged((rowposition, values) -> {
 									Grid.PackImporter importer = new Grid.PackImporter();
 									
@@ -98,6 +99,7 @@ public class LivingAnimationsScreen extends Screen {
 									.verticalSizing(VerticalSizing.TOP_BOTTOM)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.ADD_REMOVE)
+									.transparentBackground(false)
 									.addColumn(Grid.combo("living_motion", List.of(LivingMotions.IDLE, LivingMotions.WALK, LivingMotions.RUN, LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.KNEEL, LivingMotions.FALL,
 											LivingMotions.SIT, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE, LivingMotions.BLOCK, LivingMotions.RELOAD, LivingMotions.AIM, LivingMotions.SHOT))
 													.valueChanged((event) -> {
@@ -279,12 +281,12 @@ public class LivingAnimationsScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

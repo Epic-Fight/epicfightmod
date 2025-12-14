@@ -185,6 +185,10 @@ public class CheckBox extends AbstractWidget implements DataBindingComponent<Boo
 	}
 	
 	@Override
+	public void _tick() {
+	}
+
+	@Override
 	public int _getX() {
 		return this.getX();
 	}

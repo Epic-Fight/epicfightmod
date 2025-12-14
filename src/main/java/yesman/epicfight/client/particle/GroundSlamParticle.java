@@ -32,7 +32,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 			}
 		}
 		
-		if (!bs.shouldSpawnTerrainParticles()) {
+		if (!bs.shouldSpawnParticlesOnBreak()) {
 			return;
 		}
 		
@@ -50,7 +50,7 @@ public class GroundSlamParticle extends NoRenderParticle {
 			Particle smokeParticle = mc.particleEngine.createParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x + positionVec.x * 0.5D, y + 1.5D, z + positionVec.z * 0.5D, 0, 0, 0); 
 			smokeParticle.setParticleSpeed(moveVec.x * 0.1D, Math.random() * 0.05D, moveVec.z * 0.1D);
 			smokeParticle.scale(3.0F);
-			smokeParticle.alpha = 0.33F;
+			smokeParticle.setAlpha(0.33F);
 			mc.particleEngine.add(blockParticle);
 			mc.particleEngine.add(smokeParticle);
 		}

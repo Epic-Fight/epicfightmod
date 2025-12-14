@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.model.HumanoidModel;
-import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.client.model.MeshPartDefinition;
 import yesman.epicfight.api.client.model.SingleGroupVertexBuilder;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -18,9 +17,8 @@ public abstract class HumanoidModelTransformer {
 	
 	public static abstract class PartTransformer<T> {
 		public abstract void bakeCube(PoseStack poseStack, MeshPartDefinition partDefinition, T cube, List<SingleGroupVertexBuilder> vertices, Map<MeshPartDefinition, IntList> indices, IndexCounter indexCounter);
-
-        @ApiStatus.Internal
-		public static void triangluatePolygon(Map<MeshPartDefinition, IntList> indices, MeshPartDefinition partDefinition, IndexCounter indexCounter) {
+		
+		static void triangluatePolygon(Map<MeshPartDefinition, IntList> indices, MeshPartDefinition partDefinition, IndexCounter indexCounter) {
 			IntList list = indices.computeIfAbsent(partDefinition, (key) -> new IntArrayList());
 			
 			//Optimization: do not split vertices in a cube.

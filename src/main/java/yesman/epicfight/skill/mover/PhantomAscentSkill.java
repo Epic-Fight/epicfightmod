@@ -1,12 +1,16 @@
 package yesman.epicfight.skill.mover;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -14,31 +18,25 @@ import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.api.client.input.action.MinecraftInputAction;
-import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
-import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
-import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
-import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.client.events.engine.ControlEngine;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillEvent;
-import yesman.epicfight.skill.SkillEvent.Side;
-
-import java.util.ArrayList;
-import java.util.List;
+import yesman.epicfight.skill.SkillDataKeys;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
 public class PhantomAscentSkill extends Skill {
+	private static final UUID EVENT_UUID = UUID.fromString("051a9bb2-7541-11ee-b962-0242ac120002");
 	private final List<AnimationAccessor<? extends StaticAnimation>> animations = new ArrayList<> (2);
 	private int extraJumps;
 	private double jumpPower;
 	
-	public PhantomAscentSkill(SkillBuilder<?> builder) {
+	public PhantomAscentSkill(SkillBuilder<? extends Skill> builder) {
 		super(builder);
 		
 		this.animations.add(Animations.BIPED_PHANTOM_ASCENT_FORWARD);
@@ -46,101 +44,112 @@ public class PhantomAscentSkill extends Skill {
 	}
 	
 	@Override
-	public void loadDatapackParameters(CompoundTag parameters) {
-		super.loadDatapackParameters(parameters);
+	public void setParams(CompoundTag parameters) {
+		super.setParams(parameters);
 		this.extraJumps = parameters.getInt("extra_jumps");
 		this.consumption = 0.2F;
 		this.jumpPower = parameters.getDouble("jump_power");
 	}
 	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.CLIENT)
-	public void mappedMovementInputEvent(MappedMovementInputUpdateEvent event, SkillContainer skillContainer) {
-		if (
-			skillContainer.getExecutor().getOriginal().getVehicle() != null ||
-			!skillContainer.getExecutor().isEpicFightMode() ||
-			skillContainer.getExecutor().getOriginal().getAbilities().flying ||
-			skillContainer.getExecutor().isHoldingAny() ||
-			skillContainer.getExecutor().getEntityState().inaction()
-		) {
-			return;
-		}
+	@Override
+	public void onInitiate(SkillContainer container) {
+		super.onInitiate(container);
 		
-		// Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
-		boolean jumpPressed = isJumpActionPressed();
-		boolean jumpPressedPrev = skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK);
+		PlayerEventListener listener = container.getExecutor().getEventListener();
 		
-		if (jumpPressed && !jumpPressedPrev) {
-			if (skillContainer.getStack() < 1) {
+		listener.addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
+			if (event.getPlayerPatch().getOriginal().getVehicle() != null || !event.getPlayerPatch().isEpicFightMode() || event.getPlayerPatch().getOriginal().getAbilities().flying 
+					|| event.getPlayerPatch().isHoldingAny() || event.getPlayerPatch().getEntityState().inaction()) {
 				return;
 			}
 			
-			int jumpCounter = skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.JUMP_COUNT);
+			// Check directly from the input bind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
+            boolean jumpPressed = isJumpActionPressed();
+			boolean jumpPressedPrev = container.getDataManager().getDataValue(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get());
 			
-			if (jumpCounter > 0 || skillContainer.getExecutor().currentLivingMotion == LivingMotions.FALL) {
-				if (jumpCounter < (this.extraJumps + 1)) {
-					SkillCastEvent skillexecuteevent = new SkillCastEvent(skillContainer.getExecutor(), skillContainer, null);
-					
-					if (PlayerPatchEvent.postAndFireSkillListeners(skillexecuteevent).isCanceled()) {
-						return;
-					}
-					
-					skillContainer.setResource(0.0F);
-					
-					if (jumpCounter == 0 && skillContainer.getExecutor().currentLivingMotion == LivingMotions.FALL) {
-						skillContainer.getDataManager().setData(EpicFightSkillDataKeys.JUMP_COUNT, 2);
-					} else {
-						skillContainer.getDataManager().setDataF(EpicFightSkillDataKeys.JUMP_COUNT, (v) -> v + 1);
-					}
-					
-					skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.PROTECT_NEXT_FALL, true);
-					
-					float sneakingSpeed = (float)skillContainer.getExecutor().getOriginal().getAttributeValue(Attributes.SNEAKING_SPEED);
-                    event.sneakingTick(false, sneakingSpeed);
-					
-                    final MovementDirection movementDirection = MovementDirection.fromInputState(event.getInputState());
-                    final int forward = movementDirection.forward();
-                    final int backward = movementDirection.backward();
-                    final int left = movementDirection.left();
-                    final int right = movementDirection.right();
-                    final int vertic = movementDirection.vertical();
-                    final int horizon = movementDirection.horizontal();
-					int degree = -(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon);
-					int scale = forward == 0 && backward == 0 && left == 0 && right == 0 ? 0 : (vertic < 0 ? -1 : 1);
+			if (jumpPressed && !jumpPressedPrev) {
+				if (container.getStack() < 1) {
+					return;
+				}
+				
+				int jumpCounter = container.getDataManager().getDataValue(SkillDataKeys.JUMP_COUNT.get());
+				
+				if (jumpCounter > 0 || event.getPlayerPatch().currentLivingMotion == LivingMotions.FALL) {
+					if (jumpCounter < (this.extraJumps + 1)) {
+						SkillCastEvent skillexecuteevent = new SkillCastEvent(container.getExecutor(), container, null);
+						container.getExecutor().getEventListener().triggerEvents(EventType.SKILL_CAST_EVENT, skillexecuteevent);
+						
+						if (skillexecuteevent.isCanceled()) {
+							return;
+						}
+						
+						container.setResource(0.0F);
+						
+						if (jumpCounter == 0 && event.getPlayerPatch().currentLivingMotion == LivingMotions.FALL) {
+							container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 2);
+						} else {
+							container.getDataManager().setDataF(SkillDataKeys.JUMP_COUNT.get(), (v) -> v + 1);
+						}
+						
+						container.getDataManager().setDataSync(SkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+						
+						float f = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(container.getExecutor().getOriginal()), 0.0F, 1.0F);
+                        event.sneakingTick(false, f);
 
-                    float launchingYRot = EpicFightCameraAPI.getInstance().getForwardYRot() + degree;
-                    Vec3 horizontalLaunchingDirection = MathUtils.getVectorForRotation(0.0F, launchingYRot).scale(0.15D * scale);
-                    Vec3 currentDelta = skillContainer.getExecutor().getOriginal().getDeltaMovement();
-                    Vec3 newDelta = currentDelta.add(horizontalLaunchingDirection);
-                    skillContainer.getExecutor().getOriginal().setDeltaMovement(newDelta.x, this.jumpPower + skillContainer.getExecutor().getOriginal().getJumpBoostPower(), currentDelta.z);
-                    event.getPlayerPatch().setModelYRot(EpicFightCameraAPI.getInstance().getForwardYRot() + degree, true);
-                    event.getPlayerPatch().playAnimationInClientSide(this.animations.get(vertic < 0 ? 1 : 0), 0.0F);
-                    ControlEngine.getInstance().releaseAllServedKeys();
-				};
-			} else {
-				skillContainer.getDataManager().setData(EpicFightSkillDataKeys.JUMP_COUNT, 1);
+                        final MovementDirection movementDirection = MovementDirection.fromInputState(event.getInputState());
+                        final int forward = movementDirection.forward();
+                        final int backward = movementDirection.backward();
+                        final int left = movementDirection.left();
+                        final int right = movementDirection.right();
+                        final int vertic = movementDirection.vertical();
+                        final int horizon = movementDirection.horizontal();
+						int degree = -(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon);
+						int scale = forward == 0 && backward == 0 && left == 0 && right == 0 ? 0 : (vertic < 0 ? -1 : 1);
+						float launchingYRot = EpicFightCameraAPI.getInstance().getForwardYRot() + degree;
+						Vec3 horizontalLaunchingDirection = MathUtils.getVectorForRotation(0.0F, launchingYRot).scale(0.15D * scale);
+						Vec3 currentDelta = container.getExecutor().getOriginal().getDeltaMovement();
+						Vec3 newDelta = currentDelta.add(horizontalLaunchingDirection);
+						container.getExecutor().getOriginal().setDeltaMovement(newDelta.x, this.jumpPower + container.getExecutor().getOriginal().getJumpBoostPower(), currentDelta.z);
+						event.getPlayerPatch().setModelYRot(EpicFightCameraAPI.getInstance().getForwardYRot() + degree, true);
+						event.getPlayerPatch().playAnimationInClientSide(this.animations.get(vertic < 0 ? 1 : 0), 0.0F);
+						ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
+					};
+				} else {
+					container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 1);
+				}
 			}
-		}
+			
+			container.getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), jumpPressed);
+		});
 		
-		skillContainer.getDataManager().setData(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK, jumpPressed);
-	}
-	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.CLIENT)
-	public void hurtEventPost(TakeDamageEvent.Pre event, SkillContainer skillContainer) {
-		if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.PROTECT_NEXT_FALL)) { // This is not synced
-			float damage = event.getDamage();
-			
-			if (damage < 2.5F) {
-				event.attachValueModifier(ValueModifier.setter(0.0F));
+		listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
+			if (event.getDamageSource().is(DamageTypeTags.IS_FALL) && container.getDataManager().getDataValue(SkillDataKeys.PROTECT_NEXT_FALL.get())) { // This is not synced
+				float damage = event.getDamage();
+				
+				if (damage < 2.5F) {
+					event.attachValueModifier(ValueModifier.setter(0.0F));
+				}
+				
+				container.getDataManager().setData(SkillDataKeys.PROTECT_NEXT_FALL.get(), false);
 			}
+		});
+		
+		listener.addEventListener(EventType.FALL_EVENT, EVENT_UUID, (event) -> {
+			container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 0);
 			
-			skillContainer.getDataManager().setData(EpicFightSkillDataKeys.PROTECT_NEXT_FALL, false);
-		}
+			if (event.getPlayerPatch().isLogicalClient()) {
+				container.getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), false);
+			}
+		});
 	}
 	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.CLIENT)
-	public void livingFallEvent(LivingFallEvent event, SkillContainer skillContainer) {
-		skillContainer.getDataManager().setData(EpicFightSkillDataKeys.JUMP_COUNT, 0);
-		skillContainer.getDataManager().setData(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK, false);
+	@Override
+	public void onRemoved(SkillContainer container) {
+		PlayerEventListener listener = container.getExecutor().getEventListener();
+		
+		listener.removeListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
+		listener.removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID);
+		listener.removeListener(EventType.FALL_EVENT, EVENT_UUID);
 	}
 	
 	@Override

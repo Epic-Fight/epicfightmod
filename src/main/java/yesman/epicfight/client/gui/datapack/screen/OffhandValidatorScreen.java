@@ -26,8 +26,7 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.data.conditions.Condition.ParameterEditor;
-import yesman.epicfight.registry.EpicFightRegistries;
-import yesman.epicfight.registry.entries.EpicFightConditions;
+import yesman.epicfight.data.conditions.EpicFightConditions;
 
 public class OffhandValidatorScreen extends Screen {
 	private final Screen parentScreen;
@@ -51,6 +50,7 @@ public class OffhandValidatorScreen extends Screen {
 									.verticalSizing(VerticalSizing.TOP_BOTTOM)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.ADD_REMOVE)
+									.transparentBackground(false)
 									.rowpositionChanged((rowposition, values) -> {
 										this.parameterGrid.reset();
 										
@@ -71,13 +71,13 @@ public class OffhandValidatorScreen extends Screen {
 											this.parameterGrid._setValue(parameters);
 										}
 									})
-									.addColumn(Grid.registryPopup("condition", EpicFightRegistries.CONDITION)
+									.addColumn(Grid.registryPopup("condition", EpicFightConditions.REGISTRY.get())
 													.filter((condition) -> condition.get() instanceof EntityPatchCondition)
 													.editable(true)
-													.toDisplayText((condition) -> ParseUtil.getRegistryName(condition, EpicFightRegistries.CONDITION))
+													.toDisplayText((condition) -> ParseUtil.getRegistryName(condition, EpicFightConditions.REGISTRY.get()))
 													.valueChanged((event) -> {
 														CompoundTag comp = this.conditionList.get(event.rowposition);
-														comp.putString("predicate", ParseUtil.getRegistryName(event.postValue, EpicFightRegistries.CONDITION));
+														comp.putString("predicate", ParseUtil.getRegistryName(event.postValue, EpicFightConditions.REGISTRY.get()));
 														this.parameterGrid.reset();
 														
 														if (event.postValue != null) {
@@ -120,6 +120,7 @@ public class OffhandValidatorScreen extends Screen {
 									.verticalSizing(VerticalSizing.TOP_BOTTOM)
 									.rowHeight(21)
 									.rowEditable(RowEditButton.NONE)
+									.transparentBackground(false)
 									.addColumn(Grid.<ParameterEditor, ResizableEditBox>wildcard("parameter_key")
 													.editable(false)
 													.toDisplayText((widget) -> widget.editWidget.getMessage().getString())
@@ -214,12 +215,12 @@ public class OffhandValidatorScreen extends Screen {
 		guiGraphics.drawString(this.font, this.title, 20, 16, 16777215);
 		
 		guiGraphics.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yBegin, (float)this.width, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		guiGraphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		guiGraphics.blit(Screen.MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
-        guiGraphics.blit(Screen.MENU_BACKGROUND, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
+		guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0.0F, 0.0F, this.width, yBegin, 32, 32);
+        guiGraphics.blit(Screen.BACKGROUND_LOCATION, 0, yEnd, 0.0F, (float)yEnd - yBegin, this.width, yEnd, 32, 32);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         guiGraphics.fillGradient(RenderType.guiOverlay(), 0, yBegin, this.width, yBegin + 4, -16777216, 0, 0);

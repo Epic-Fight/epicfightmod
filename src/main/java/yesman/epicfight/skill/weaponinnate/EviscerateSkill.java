@@ -1,50 +1,59 @@
 package yesman.epicfight.skill.weaponinnate;
 
 import java.util.List;
+import java.util.UUID;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.neoevent.playerpatch.AttackEndEvent;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillEvent;
-import yesman.epicfight.skill.SkillEvent.Side;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class EviscerateSkill extends WeaponInnateSkill {
+	private static final UUID EVENT_UUID = UUID.fromString("f082557a-b2f9-11eb-8529-0242ac130003");
 	private AssetAccessor<? extends AttackAnimation> first;
 	private AssetAccessor<? extends AttackAnimation> second;
 	
-	public EviscerateSkill(WeaponInnateSkill.Builder<?> builder) {
+	public EviscerateSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
 		super(builder);
 		
 		this.first = Animations.EVISCERATE_FIRST;
 		this.second = Animations.EVISCERATE_SECOND;
 	}
 	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
-	public void attackAnimationEndEvent(AttackEndEvent event, SkillContainer skillContainer) {
-		if (Animations.EVISCERATE_FIRST.equals(event.getAnimation())) {
-			List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-			
-			if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-				event.getPlayerPatch().reserveAnimation(this.second);
-				event.getPlayerPatch().getServerAnimator().getPlayerFor(null).reset();
-				event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
+	@Override
+	public void onInitiate(SkillContainer container) {
+		super.onInitiate(container);
+		container.getExecutor().getEventListener().addEventListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
+			if (Animations.EVISCERATE_FIRST.equals(event.getAnimation())) {
+				List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
+				
+				if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
+					event.getPlayerPatch().reserveAnimation(this.second);
+					event.getPlayerPatch().getServerAnimator().getPlayerFor(null).reset();
+					event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
+				}
 			}
-		}
+		});
 	}
 	
 	@Override
-	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+	public void onRemoved(SkillContainer container) {
+		container.getExecutor().getEventListener().removeListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
+	}
+	
+	@Override
+	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		container.getExecutor().playAnimationSynchronized(this.first, 0.0F);
-		super.executeOnServer(container, arguments);
+		
+		super.executeOnServer(container, args);
 	}
 	
 	@Override

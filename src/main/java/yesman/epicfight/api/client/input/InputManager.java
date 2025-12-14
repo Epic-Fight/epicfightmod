@@ -1,16 +1,14 @@
 package yesman.epicfight.api.client.input;
 
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.platform.InputConstants;
-
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
@@ -66,7 +64,7 @@ public final class InputManager {
     ///
     /// The behavior differs depending on the input source:
     ///
-    /// - **Keyboard/Mouse:** Follows Minecraft's internal behavior.
+    /// - **Keyboard/Mouse:** Follows Minecraft’s internal behavior.
     ///   May return `false` while a screen is open, even if the physical key is held down.
     /// - **Controller:** The behavior is handled externally and is irrelevant to this method.
     ///   It is usually determined by an input context during the
@@ -169,7 +167,6 @@ public final class InputManager {
     /// **Note:** [InputMode#MIXED] is currently unsupported and its behavior is undefined.
     ///
     /// @param vanillaInput the Minecraft vanilla [Input] which will be mapped to a [PlayerInputState];
-    ///                                                                                                                                                                                                                                                                                                                                                                         ignored if using a controller.
     /// @return an immutable [PlayerInputState] representing the current input state.
     /// @see InputManager#setInputState
     @NotNull
@@ -241,7 +238,7 @@ public final class InputManager {
     /// Consumers or addons should **never** rely on this internal method unless absolutely necessary.
     /// For instance, Epic Fight still uses it internally as a workaround for a specific issue.
     ///
-    /// This method serves as a workaround for an issue where the weapon's innate skill fails to trigger
+    /// This method serves as a workaround for an issue where the weapon’s innate skill fails to trigger
     /// when bound to the left mouse button.
     ///
     /// Since other keybindings may share the same physical input,

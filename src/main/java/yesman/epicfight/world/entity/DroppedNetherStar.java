@@ -6,9 +6,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.registry.entries.EpicFightEntityTypes;
-import yesman.epicfight.registry.entries.EpicFightParticles;
-import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
 
 public class DroppedNetherStar extends ItemEntity {
 	
@@ -17,7 +16,7 @@ public class DroppedNetherStar extends ItemEntity {
 	}
 	
 	public DroppedNetherStar(Level level, double x, double y, double z, ItemStack itemstack, double dx, double dy, double dz) {
-		this(EpicFightEntityTypes.DROPPED_NETHER_STAR.get(), level);
+		this(EpicFightEntities.DROPPED_NETHER_STAR.get(), level);
 		this.setPos(x, y, z);
 		this.setDeltaMovement(dx, dy, dz);
 		this.setItem(itemstack);

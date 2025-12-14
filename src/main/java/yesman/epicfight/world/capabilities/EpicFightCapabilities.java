@@ -1,70 +1,61 @@
 package yesman.epicfight.world.capabilities;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.ItemCapability;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.registry.entries.EpicFightAttachmentTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.provider.AttachmentEntityPatchProvider;
-import yesman.epicfight.world.capabilities.provider.CommonEntityPatchProvider;
-import yesman.epicfight.world.capabilities.provider.CommonItemCapabilityProvider;
+import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
+import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
-import java.util.Optional;
-
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@SuppressWarnings("rawtypes")
 public class EpicFightCapabilities {
-	public static final ItemCapability<CapabilityItem, Void> CAPABILITY_ITEM =
-		ItemCapability.createVoid(
-			ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "item_capability"),
-			CapabilityItem.class
-		);
-	
-	public static final CommonEntityPatchProvider ENTITY_PATCH_PROVIDER = CommonEntityPatchProvider.INSTANCE;
-	public static final CommonItemCapabilityProvider ITEM_CAPABILITY_PROVIDER = CommonItemCapabilityProvider.INSTANCE;
-	
-	@SubscribeEvent
+	public static final Capability<EntityPatch> CAPABILITY_ENTITY = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<CapabilityItem> CAPABILITY_ITEM = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<ProjectilePatch> CAPABILITY_PROJECTILE = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<CapabilitySkill> CAPABILITY_SKILL = CapabilityManager.get(new CapabilityToken<>(){});
+    
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		BuiltInRegistries.ITEM.forEach(item -> {
-			event.registerItem(CAPABILITY_ITEM, ITEM_CAPABILITY_PROVIDER, item);
-		});
+		event.register(CapabilityItem.class);
+		event.register(EntityPatch.class);
+		event.register(ProjectilePatch.class);
+		event.register(CapabilitySkill.class);
 	}
 	
-	/**
-	 * This method should remain as the secondary option, especially when you can't fix local variables inside lambda expression.
-	 */
-	public static @Nullable CapabilityItem getItemStackCapability(ItemStack stack) {
-		return getItemCapability(stack).orElse(CapabilityItem.EMPTY);
+	public static CapabilityItem getItemStackCapability(ItemStack stack) {
+		return stack.isEmpty() ? CapabilityItem.EMPTY : stack.getCapability(CAPABILITY_ITEM).orElse(CapabilityItem.EMPTY);
 	}
 	
-	/**
-	 * Return an optional for a given item stack
-	 */
+	public static CapabilityItem getItemStackCapabilityOr(ItemStack stack, @Nullable CapabilityItem defaultCap) {
+		return stack.isEmpty() ? defaultCap : stack.getCapability(CAPABILITY_ITEM).orElse(defaultCap);
+	}
+	
 	public static Optional<CapabilityItem> getItemCapability(ItemStack stack) {
-		return Optional.ofNullable(stack.getCapability(CAPABILITY_ITEM));
+		return stack.isEmpty() ? Optional.empty() : stack.getCapability(CAPABILITY_ITEM).resolve();
 	}
 	
 	/**
-	 * This method should remain as the secondary option, especially when you can't fix local variables inside lambda expression.
-	 * <p>
-	 * @param entity An entity object to extract an entity patch
-	 * @param type A class type to cast
+	 * Extracts {@link EntityPatch} from an entity object, conducting both null-checking and type-checking
+	 * @return stored {@link EntityPatch} capability or {@link null} if the given @param type is incompatible with actual {@link EntityPatch} object
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityPatch<?>> T getEntityPatch(Entity entity, Class<T> type) {
+	@Nullable
+	public static <T extends EntityPatch> T getEntityPatch(@Nullable Entity entity, Class<T> type) {
 		if (entity != null) {
-			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
+			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
 			if (entitypatch != null && type.isAssignableFrom(entitypatch.getClass())) {
 				return (T)entitypatch;
@@ -75,17 +66,68 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns entity patch with unparameterized original entity
-	 * This is useful to reduce the amount of code when type-casting for {@link EntityPatch#getOriginal} is unnecessary.
-	 * <p>
-	 * @param entity An entity object to extract an entity patch
-	 * @param type A class type to cast
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link PlayerPatch} from {@link Player}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static PlayerPatch getPlayerPatch(@Nullable Player player) {
+		if (player != null) {
+			EntityPatch<?> entitypatch = player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && PlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (PlayerPatch<?>)entitypatch;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link ServerPlayerPatch} from {@link ServerPlayer}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static ServerPlayerPatch getServerPlayerPatch(@Nullable ServerPlayer serverPlayer) {
+		if (serverPlayer != null) {
+			EntityPatch<?> entitypatch = serverPlayer.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && ServerPlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (ServerPlayerPatch)entitypatch;
+			}
+		}
+			
+		return null;
+	}
+	
+	/**
+	 * A compact version of {@link #getEntityPatch(Entity, Class)} to extract {@link LocalPlayerPatch} from {@link LocalPlayer}
+	 * Conducts null checking
+	 */
+	@Nullable
+	public static LocalPlayerPatch getLocalPlayerPatch(@Nullable LocalPlayer localPlayer) {
+		if (localPlayer != null) {
+			EntityPatch<?> entitypatch = localPlayer.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			
+			if (entitypatch != null && LocalPlayerPatch.class.isAssignableFrom(entitypatch.getClass())) {
+				return (LocalPlayerPatch)entitypatch;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns {@link EntityPatch} with unparameterized original {@link Entity} type
+	 * This method always return {@link Entity} by {@link EntityPatch#getOriginal()}, so it is considerable to use
+	 * when you don't need parameterized original entity type to save parameters
+	 * 
+	 * @param entity 	An entity object to extract {@link EntityPatch}
+	 * @param type 		A subclasses type of {@link EntityPatch} to cast
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityPatch<?>> Optional<T> getUnparameterizedEntityPatch(Entity entity, Class<T> type) {
+	public static <T extends EntityPatch<?>> Optional<T> getUnparameterizedEntityPatch(@Nullable Entity entity, Class<T> type) {
 		if (entity != null) {
-			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
+			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
 			if (entitypatch != null && type.isAssignableFrom(entitypatch.getClass())) {
 				return Optional.of((T)entitypatch);
@@ -97,18 +139,18 @@ public class EpicFightCapabilities {
 	}
 	
 	/**
-	 * Returns entity patch with parameterized original entity
-	 * This method is used when you need parameterized return value of {@link EntityPatch#getOriginal}.
-	 * <p>
-	 * @param entity An entity object to extract an entity patch
-	 * @param entitytype An entity type to cast
-	 * @param patchtype A class type to cast
+	 * Returns {@link EntityPatch} with parameterized original {@link Entity} type
+	 * This method will return type-cased original entity object specified by @param entitytype by {@link EntityPatch#getOriginal()},
+	 * so it is considerable to use when you need to access original methods from @param entitytype
+	 * 
+	 * @param entity 		An entity object to extract {@link EntityPatch}
+	 * @param entitytype 	A subclasses type of {@link Entity} to cast the original entity
+	 * @param patchtype 	A subclasses type of {@link EntityPatch} to cast
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity, T extends EntityPatch<E>> Optional<T> getParameterizedEntityPatch(Entity entity, Class<E> entitytype, Class<?> patchtype) {
+	public static <E extends Entity, T extends EntityPatch<E>> Optional<T> getParameterizedEntityPatch(@Nullable Entity entity, Class<E> entitytype, Class<?> patchtype) {
 		if (entity != null && entitytype.isAssignableFrom(entity.getClass())) {
-			AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-			EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
+			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 			
 			if (entitypatch != null && patchtype.isAssignableFrom(entitypatch.getClass())) {
 				return Optional.of((T)entitypatch);
@@ -117,53 +159,58 @@ public class EpicFightCapabilities {
 		
 		return Optional.empty();
 	}
-
-    /**
-     * Returns {@link PlayerPatch} from a player
-     * @param entity A player to extract the entity patch
-     */
-    public static Optional<PlayerPatch<?>> getPlayerPatch(Entity entity) {
-        AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-        EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
-
-        if (entitypatch instanceof PlayerPatch<?> playerpatch) {
-            return Optional.of(playerpatch);
-        }
-
-        return Optional.empty();
-    }
-
-    /**
-     * Returns {@link LocalPlayerPatch} from a local player
-     * Warning: developers must check physical & logical side before calling this method
-     * <p>
-     * @param entity A player to extract the entity patch
-     */
-    public static Optional<LocalPlayerPatch> getLocalPlayerPatch(Entity entity) {
-        AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-        EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
-
-        if (entitypatch instanceof LocalPlayerPatch localplayerpatch) {
-            return Optional.of(localplayerpatch);
-        }
-
-        return Optional.empty();
-    }
-
-    /**
-     * Returns {@link ServerPlayerPatch} from a server player
-     * Warning: developers must check logical side before calling this method
-     * <p>
-     * @param entity A player to extract the entity patch
-     */
-    public static Optional<ServerPlayerPatch> getServerPlayerPatch(Entity entity) {
-        AttachmentEntityPatchProvider attachmentEntitypatchProvider = entity.getData(EpicFightAttachmentTypes.ENTITY_PATCH);
-        EntityPatch<?> entitypatch = attachmentEntitypatchProvider.getCapability();
-
-        if (entitypatch instanceof ServerPlayerPatch serverplayerpatch) {
-            return Optional.of(serverplayerpatch);
-        }
-
-        return Optional.empty();
-    }
+	
+	/**
+	 * A compact version of entity patch getter to get {@link PlayerPatch} for @param entity
+	 * It conducts both null-checking and type-checking
+	 */
+	public static Optional<PlayerPatch<?>> getPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
+		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+		
+		if (entitypatch instanceof PlayerPatch<?> playerpatch) {
+			return Optional.of(playerpatch);
+		}
+		
+		return Optional.empty();
+	}
+	
+	/**
+	 * A compact version of entity patch getter to get {@link ServerPlayerPatch} from @param entity
+	 * It conducts both null-checking and type-checking
+	 */
+	public static Optional<ServerPlayerPatch> getServerPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
+		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+		
+		if (entitypatch instanceof ServerPlayerPatch serverplayerpatch) {
+			return Optional.of(serverplayerpatch);
+		}
+		
+		return Optional.empty();
+	}
+	
+	/**
+	 * A compact version of entity patch getter to get {@link LocalPlayerPatch} for @param entity
+	 * It conducts both null-checking and type-checking
+	 */
+	public static Optional<LocalPlayerPatch> getLocalPlayerPatchAsOptional(@Nullable Entity entity) {
+		if (entity == null) {
+			return Optional.empty();
+		}
+		
+		EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+		
+		if (entitypatch instanceof LocalPlayerPatch localplayerpatch) {
+			return Optional.of(localplayerpatch);
+		}
+		
+		return Optional.empty();
+	}
 }

@@ -5,7 +5,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -21,7 +20,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import yesman.epicfight.registry.entries.EpicFightBlockEntities;
+import yesman.epicfight.world.level.block.entity.EpicFightBlockEntities;
 import yesman.epicfight.world.level.block.entity.FractureBlockEntity;
 
 public class FractureBlock extends BaseEntityBlock {
@@ -68,10 +67,5 @@ public class FractureBlock extends BaseEntityBlock {
 	@Override
 	public RenderShape getRenderShape(BlockState p_50950_) {
 		return RenderShape.MODEL;
-	}
-
-	@Override
-	protected MapCodec<? extends BaseEntityBlock> codec() {
-		return null;
 	}
 }

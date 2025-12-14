@@ -2,9 +2,10 @@ package yesman.epicfight.api.animation.types;
 
 import java.util.Optional;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Pose;
@@ -39,7 +40,7 @@ public class LayerOffAnimation extends DynamicAnimation implements AnimationAcce
 	
 	@Override
 	public Pose getPoseByTime(LivingEntityPatch<?> entitypatch, float time, float partialTicks) {
-		Pose lowerLayerPose = entitypatch.getClientAnimator().getComposedLayerPoseBelow(this.layerPriority, partialTicks);
+		Pose lowerLayerPose = entitypatch.getClientAnimator().getComposedLayerPoseBelow(this.layerPriority, Minecraft.getInstance().getFrameTime());
 		Pose interpolatedPose = Pose.interpolatePose(this.lastPose, lowerLayerPose, time / this.getTotalTime());
 		interpolatedPose.disableJoint((joint) -> !this.lastPose.hasTransform(joint.getKey()));
 		

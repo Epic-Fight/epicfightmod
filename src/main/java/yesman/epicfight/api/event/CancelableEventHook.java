@@ -4,7 +4,7 @@ import yesman.epicfight.api.event.subscriptions.ContextAwareEventSubscription;
 import yesman.epicfight.api.event.subscriptions.DefaultEventSubscription;
 
 /**
- * EventHook definition for {@link CancelableEvent}
+ * Event definition for {@link CancelableEvent}
  */
 public class CancelableEventHook<T extends Event & CancelableEvent> extends EventHook<T> {
 	/**
@@ -15,28 +15,28 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 	 * @return whether the event is canceled
 	 */
 	@Override
-	public boolean post(T eventInstance) {
-		EventContext eventContext = eventInstance.getEventContext();
+	public boolean post(T event) {
+		EventContext eventContext = event.getEventContext();
 		
 		for (EventListener<T> subscriber : this.subscriptions.values()) {
 			eventContext.subscriptionStart(subscriber.name());
 			
 			if (subscriber.subscription() instanceof DefaultEventSubscription<T> passiveSubscription) {
-				if (!eventInstance.hasCanceled()) {
-					passiveSubscription.fire(eventInstance);
+				if (!event.hasCanceled()) {
+					passiveSubscription.fire(event);
 					eventContext.onCalled();
 				}
 			} else if (subscriber.subscription() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
-				contextAwareSubscription.fire(eventInstance, eventContext);
+				contextAwareSubscription.fire(event, eventContext);
 				eventContext.onCalled();
 			}
 		}
 		
 		eventContext.subscriptionEnd();
 		
-		return eventInstance.hasCanceled();
+		return event.hasCanceled();
 	}
-
+	
 	/**
 	 * Registers an event with default name and priority
 	 */
@@ -72,6 +72,6 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 	 * Defines a cancelable event type
 	 */
 	public static <T extends Event & CancelableEvent> CancelableEventHook<T> createCancelableEventHook() {
-		return new CancelableEventHook<>();
+		return new CancelableEventHook<> ();
 	}
 }

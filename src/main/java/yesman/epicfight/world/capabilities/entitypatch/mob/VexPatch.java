@@ -9,7 +9,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.Vex;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -21,8 +21,8 @@ import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class VexPatch extends MobPatch<Vex> {
-	public VexPatch(Vex original) {
-		super(original, Factions.ILLAGER);
+	public VexPatch() {
+		super(Factions.ILLAGER);
 	}
 	
 	@Override
@@ -53,21 +53,23 @@ public class VexPatch extends MobPatch<Vex> {
 	}
 	
 	@Override
-	public void preTickServer(EntityTickEvent.Pre event) {
-		super.preTickServer(event);
+	public void tick(LivingEvent.LivingTickEvent event) {
+		super.tick(event);
 		
-		if (this.getEntityState().movementLocked()) {
-			this.original.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-			this.original.goalSelector.disableControlFlag(Goal.Flag.JUMP);
-		} else {
-			this.original.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-			this.original.goalSelector.enableControlFlag(Goal.Flag.JUMP);
-		}
-		
-		if (this.getEntityState().turningLocked()) {
-			this.original.goalSelector.disableControlFlag(Goal.Flag.LOOK);
-		} else {
-			this.original.goalSelector.enableControlFlag(Goal.Flag.LOOK);
+		if (!this.isLogicalClient()) {
+			if (this.getEntityState().movementLocked()) {
+				this.original.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+				this.original.goalSelector.disableControlFlag(Goal.Flag.JUMP);
+			} else {
+				this.original.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+				this.original.goalSelector.enableControlFlag(Goal.Flag.JUMP);
+			}
+			
+			if (this.getEntityState().turningLocked()) {
+				this.original.goalSelector.disableControlFlag(Goal.Flag.LOOK);
+			} else {
+				this.original.goalSelector.enableControlFlag(Goal.Flag.LOOK);
+			}
 		}
 	}
 	

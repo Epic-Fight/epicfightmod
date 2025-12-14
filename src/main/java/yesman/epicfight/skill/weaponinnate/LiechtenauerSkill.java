@@ -1,130 +1,135 @@
 package yesman.epicfight.skill.weaponinnate;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.neoevent.MappedMovementInputUpdateEvent;
-import yesman.epicfight.api.neoevent.playerpatch.DealDamageEvent;
-import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.registry.entries.EpicFightParticles;
-import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillEvent;
-import yesman.epicfight.skill.SkillEvent.Side;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class LiechtenauerSkill extends WeaponInnateSkill {
+	private static final UUID EVENT_UUID = UUID.fromString("244c57c0-a837-11eb-bcbc-0242ac130002");
 	private int returnDuration;
 	
-	public LiechtenauerSkill(WeaponInnateSkill.Builder<?> builder) {
+	public LiechtenauerSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
 		super(builder);
 	}
 	
 	@Override
-	public void loadDatapackParameters(CompoundTag parameters) {
-		super.loadDatapackParameters(parameters);
+	public void setParams(CompoundTag parameters) {
+		super.setParams(parameters);
 		this.returnDuration = parameters.getInt("return_duration");
 	}
 	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
-	public void dealDamagePost(DealDamageEvent.Post event, SkillContainer skillContainer) {
-		if (this.isActivated(skillContainer) && !this.isDisabled(skillContainer)) {
-			if (event.getAttackDamage() > event.getTarget().getHealth()) {
-				this.setDurationSynchronize(skillContainer, Math.min(this.maxDuration, skillContainer.getRemainDuration() + this.returnDuration));
+	@Override
+	public void onInitiate(SkillContainer container) {
+		container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
+			if (this.isActivated(container) && !this.isDisabled(container)) {
+				if (event.getAttackDamage() > event.getTarget().getHealth()) {
+					this.setDurationSynchronize(container, Math.min(this.maxDuration, container.getRemainDuration() + this.returnDuration));
+				}
 			}
-		}
-	}
-	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER, priority = 0)
-	public void takeDamagePre(TakeDamageEvent.Income event, SkillContainer container) {
-		int phaseLevel = event.getPlayerPatch().getEntityState().getLevel();
+		});
 		
-		if (event.getDamage() > 0.0F && this.isActivated(container) && !this.isDisabled(container) && phaseLevel > 0 && phaseLevel < 3 && 
-			this.canExecute(container) && isBlockableSource(event.getDamageSource())) {
-			DamageSource damageSource = event.getDamageSource();
-			boolean isFront = false;
-			Vec3 sourceLocation = damageSource.getSourcePosition();
+		container.getExecutor().getEventListener().addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event) -> {
+			int phaseLevel = event.getPlayerPatch().getEntityState().getLevel();
 			
-			if (sourceLocation != null) {
-				Vec3 viewVector = event.getPlayerPatch().getOriginal().getViewVector(1.0F);
-				Vec3 toSourceLocation = sourceLocation.subtract(event.getPlayerPatch().getOriginal().position()).normalize();
+			if (event.getDamage() > 0.0F && this.isActivated(container) && !this.isDisabled(container) && phaseLevel > 0 && phaseLevel < 3 && 
+				this.canExecute(container) && isBlockableSource(event.getDamageSource())) {
+				DamageSource damageSource = event.getDamageSource();
+				boolean isFront = false;
+				Vec3 sourceLocation = damageSource.getSourcePosition();
 				
-				if (toSourceLocation.dot(viewVector) > 0.0D) {
-					isFront = true;
+				if (sourceLocation != null) {
+					Vec3 viewVector = event.getPlayerPatch().getOriginal().getViewVector(1.0F);
+					Vec3 toSourceLocation = sourceLocation.subtract(event.getPlayerPatch().getOriginal().position()).normalize();
+					
+					if (toSourceLocation.dot(viewVector) > 0.0D) {
+						isFront = true;
+					}
 				}
-			}
-			
-			if (isFront) {
-				event.getPlayerPatch().playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
-				ServerPlayer playerentity = event.getPlayerPatch().getOriginal();
-				EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(playerentity.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, playerentity, damageSource.getDirectEntity());
+				
+				if (isFront) {
+					event.getPlayerPatch().playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
+					ServerPlayer playerentity = event.getPlayerPatch().getOriginal();
+					EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(playerentity.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, playerentity, damageSource.getDirectEntity());
 
-				float knockback = 0.25F;
-				
-				if (damageSource instanceof EpicFightDamageSource epicfightSource) {
-					knockback += Math.min(epicfightSource.calculateImpact() * 0.1F, 1.0F);
+					float knockback = 0.25F;
+					
+					if (damageSource instanceof EpicFightDamageSource epicfightSource) {
+						knockback += Math.min(epicfightSource.calculateImpact() * 0.1F, 1.0F);
+					}
+					
+					if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
+						knockback += EnchantmentHelper.getKnockbackBonus(livingentity) * 0.1F;
+					}
+					
+					EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class).ifPresent(attackerpatch -> {
+						attackerpatch.setLastAttackEntity(event.getPlayerPatch().getOriginal());
+					});
+					
+					event.getPlayerPatch().knockBackEntity(damageSource.getDirectEntity().position(), knockback);
+					event.setCanceled(true);
+					event.setResult(AttackResult.ResultType.BLOCKED);
 				}
-				
-				if (damageSource.getDirectEntity() instanceof LivingEntity livingentity) {
-					float modifiedKnockback = EnchantmentHelper.modifyKnockback((ServerLevel)livingentity.level(), livingentity.getItemInHand(livingentity.getUsedItemHand()), livingentity, damageSource, knockback);
-					knockback = (modifiedKnockback - knockback) * 0.1F;
-				}
-				
-				EpicFightCapabilities.getUnparameterizedEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class).ifPresent(attackerpatch -> {
-					attackerpatch.setLastAttackEntity(event.getPlayerPatch().getOriginal());
-				});
-				
-				event.getPlayerPatch().knockBackEntity(damageSource.getDirectEntity().position(), knockback);
-				event.setCanceled(true);
-				event.setResult(AttackResult.ResultType.BLOCKED);
 			}
-		}
-	}
-	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.CLIENT)
-	public void movementInputUpdateEvent(MappedMovementInputUpdateEvent event, SkillContainer skillContainer) {
-		if (this.isActivated(skillContainer) && skillContainer.getExecutor().getAdvancedHoldingItemCapability(InteractionHand.MAIN_HAND).getInnateSkill(skillContainer.getExecutor(), skillContainer.getExecutor().getOriginal().getMainHandItem()) == this) {
-			LocalPlayer clientPlayer = skillContainer.getClientExecutor().getOriginal();
-			clientPlayer.setSprinting(false);
-			clientPlayer.sprintTriggerTime = -1;
-			ControlEngine.setSprintingKeyStateNotDown();
-		}
+		}, 0);
+		
+		container.getExecutor().getEventListener().addEventListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
+			if (this.isActivated(container)) {
+				LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
+				clientPlayer.setSprinting(false);
+				clientPlayer.sprintTriggerTime = -1;
+                ControlEngine.setSprintingKeyStateNotDown();
+			}
+		});
 	}
 	
 	@Override
-	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+	public void onRemoved(SkillContainer container) {
+		super.onRemoved(container);
+		
+		container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, 0);
+		container.getExecutor().getEventListener().removeListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
+	}
+	
+	@Override
+	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		container.getExecutor().playSound(SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F);
 		
 		if (this.isActivated(container)) {
-			this.cancelOnServer(container, arguments);
+			this.cancelOnServer(container, args);
 		} else {
-			super.executeOnServer(container, arguments);
+			super.executeOnServer(container, args);
 			container.activate();
 			container.getServerExecutor().modifyLivingMotionByCurrentItem(false);
 			container.getExecutor().playAnimationSynchronized(Animations.BIPED_LIECHTENAUER_READY, 0.0F);
@@ -132,21 +137,21 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
 	}
 	
 	@Override
-	public void cancelOnServer(SkillContainer container, CompoundTag arguments) {
+	public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
 		container.deactivate();
-		super.cancelOnServer(container, arguments);
+		super.cancelOnServer(container, args);
 		container.getServerExecutor().modifyLivingMotionByCurrentItem(false);
 	}
 	
 	@Override
-	public void executeOnClient(SkillContainer container, CompoundTag arguments) {
-		super.executeOnClient(container, arguments);
+	public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
+		super.executeOnClient(container, args);
 		container.activate();
 	}
 	
 	@Override
-	public void cancelOnClient(SkillContainer container, CompoundTag arguments) {
-		super.cancelOnClient(container, arguments);
+	public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
+		super.cancelOnClient(container, args);
 		container.deactivate();
 	}
 	

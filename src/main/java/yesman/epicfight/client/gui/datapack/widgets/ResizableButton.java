@@ -213,4 +213,8 @@ public class ResizableButton extends Button implements ResizableComponent {
 			return new ResizableButton(this);
 		}
 	}
+	
+	@Override
+	public void _tick() {
+	}
 }

@@ -1,8 +1,8 @@
 package yesman.epicfight.api.event.subscriptions;
 
+import yesman.epicfight.api.event.CancelableEvent;
 import yesman.epicfight.api.event.EventContext;
 import yesman.epicfight.api.event.Event;
-import yesman.epicfight.api.event.CancelableEvent;
 
 /**
  * A subscription type that developers can inspect event, cancel history by {@link EventContext}

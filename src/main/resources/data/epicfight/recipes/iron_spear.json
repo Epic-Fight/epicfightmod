@@ -1,0 +1,21 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "  B",
+        " S ",
+        "S  "
+    ],
+    
+    "key":
+    {
+        "B": { "item" : "minecraft:iron_sword" },
+        "S": { "item" : "minecraft:stick" }
+    },
+    
+    "result":
+    {
+        "item" : "epicfight:iron_spear",
+        "count" : 1
+    }
+}

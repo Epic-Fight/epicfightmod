@@ -35,8 +35,9 @@ public class EpicFightOptionSubScreen extends Screen {
 	}
 	
 	protected void basicListRender(GuiGraphics guiGraphics, EpicFightOptionList optionList, int mouseX, int mouseY, float partialTicks) {
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		this.renderBackground(guiGraphics);
 		optionList.render(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 }

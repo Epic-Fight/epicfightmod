@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " BB",
+        "BBB",
+        "SB "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:gold_ingot" },
+        "S": { "tag" : "minecraft:planks" }
+    },
+    "result":
+    {
+        "item" : "epicfight:golden_greatsword",
+        "count" : 1
+    }
+}

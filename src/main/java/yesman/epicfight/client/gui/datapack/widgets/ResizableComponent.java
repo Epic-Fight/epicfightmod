@@ -111,8 +111,12 @@ public interface ResizableComponent extends GuiEventListener, NarratableEntry {
 	/*****************************************
 	 *        Vanilla Widget Functions       *
 	 *****************************************/
+	void _tick();
+	
 	void _setActive(boolean active);
+	
 	void _renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks);
+	
 	int _getX();
 	int _getY();
 	int _getWidth();

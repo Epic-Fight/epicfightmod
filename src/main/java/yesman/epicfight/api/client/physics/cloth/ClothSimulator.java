@@ -234,7 +234,7 @@ public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObj
 					}
 				}
 				
-				float deltaFrameTime = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+				float deltaFrameTime = Minecraft.getInstance().getDeltaFrameTime();
 				float subStebInvert = 1.0F / SUB_STEPS;
 				float subSteppingDeltaTime = deltaFrameTime * subStebInvert;
 				float gravity = simulatableObj.getGravity() * subSteppingDeltaTime * EpicFightSharedConstants.A_TICK;

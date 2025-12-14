@@ -1,17 +1,16 @@
 package yesman.epicfight.world.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.level.Level;
-import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 
 public class WitherSkeletonMinion extends WitherSkeleton {
 	private WitherBoss summoner;
@@ -21,7 +20,7 @@ public class WitherSkeletonMinion extends WitherSkeleton {
 	}
 	
 	public WitherSkeletonMinion(Level level, WitherBoss summoner, double x, double y, double z) {
-		super(EpicFightEntityTypes.WITHER_SKELETON_MINION.get(), level);
+		super(EpicFightEntities.WITHER_SKELETON_MINION.get(), level);
 		this.setPosRaw(x, y, z);
 		this.summoner = summoner;
 		
@@ -38,7 +37,7 @@ public class WitherSkeletonMinion extends WitherSkeleton {
 	@Override
 	protected void registerGoals() {
 		super.registerGoals();
-		this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, livingentity -> (!livingentity.getType().is(EntityTypeTags.UNDEAD) && livingentity.attackable())));
+		this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (livingentity) -> (livingentity.getMobType() != MobType.UNDEAD && livingentity.attackable())));
 	}
 	
 	@Override

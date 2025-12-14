@@ -1,82 +1,88 @@
 package yesman.epicfight.skill.passive;
 
 import java.util.List;
+import java.util.UUID;
+
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import yesman.epicfight.api.neoevent.playerpatch.AttackPhaseEndEvent;
-import yesman.epicfight.api.neoevent.playerpatch.DealDamageEvent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
-import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
-import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillEvent;
-import yesman.epicfight.skill.SkillEvent.Side;
+import yesman.epicfight.skill.SkillDataKeys;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
 public class BonebreakerSkill extends PassiveSkill {
+	private static final UUID EVENT_UUID = UUID.fromString("06212e76-6dbe-4d4b-a875-562829bb6db4");
+	
 	private float damageBonus;
 	private int maxDamageBonusStacks;
 	
-	public BonebreakerSkill(SkillBuilder<?> builder) {
+	public BonebreakerSkill(SkillBuilder<? extends PassiveSkill> builder) {
 		super(builder);
 	}
 	
 	@Override
-	public void loadDatapackParameters(CompoundTag parameters) {
-		super.loadDatapackParameters(parameters);
+	public void setParams(CompoundTag parameters) {
+		super.setParams(parameters);
+		
 		this.damageBonus = parameters.getFloat("damage_bonus");
 		this.maxDamageBonusStacks = parameters.getInt("max_damage_bonus_stacks");
 	}
 	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
-	public void dealDamagePre(DealDamageEvent.Pre event, SkillContainer container) {
-		int currentTargetId = container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID);
+	@Override
+	public void onInitiate(SkillContainer container) {
+		super.onInitiate(container);
 		
-		if (currentTargetId == -1) {
-			container.getDataManager().setDataSync(EpicFightSkillDataKeys.ENTITY_ID, event.getTarget().getId());
-			container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 1);
-			EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), event.getPlayerPatch().getOriginal());
-		} else if (currentTargetId == event.getTarget().getId()) {
-			int stacks = container.getDataManager().getDataValue(EpicFightSkillDataKeys.STACKS);
-			event.getDamageSource().attachDamageModifier(ValueModifier.multiplier(1.0F + this.damageBonus * stacks));
+		PlayerEventListener listener = container.getExecutor().getEventListener();
+		
+		listener.addEventListener(EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
+			int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
 			
-			if (stacks + 1 == this.maxDamageBonusStacks) {
-				event.getTarget().playSound(EpicFightSounds.OLD_FALL.get(), 50.0F, 1.0F);
-				EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_MAX_STACK), event.getPlayerPatch().getOriginal());
+			if (currentTargetId == -1) {
+				container.getDataManager().setDataSync(SkillDataKeys.ENTITY_ID.get(), event.getTarget().getId());
+				container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 1);
+				EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), event.getPlayerPatch().getOriginal());
+			} else if (currentTargetId == event.getTarget().getId()) {
+				int stacks = container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
+				event.getDamageSource().attachDamageModifier(ValueModifier.multiplier(1.0F + this.damageBonus * stacks));
+				
+				if (stacks + 1 == this.maxDamageBonusStacks) {
+					event.getTarget().playSound(EpicFightSounds.OLD_FALL.get(), 50.0F, 1.0F);
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_MAX_STACK), event.getPlayerPatch().getOriginal());
+				}
+				
+				container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), Math.min(stacks + 1, this.maxDamageBonusStacks));
 			}
-			
-			container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, Math.min(stacks + 1, this.maxDamageBonusStacks));
-		}
-	}
-	
-	@SkillEvent(caller = EpicFightMod.MODID, side = Side.SERVER)
-	public void modifyBaseDamageEvent(AttackPhaseEndEvent event, SkillContainer container) {
-		container.runOnServer(serverExecutor -> {
-			int currentTargetId = container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID);
+		});
+		
+		listener.addEventListener(EventType.ATTACK_PHASE_END_EVENT, EVENT_UUID, (event) -> {
+			int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
 			
 			if (currentTargetId != -1) {
-				Entity entity = serverExecutor.getLevel().getEntity(currentTargetId);
+				Entity entity = container.getExecutor().getOriginal().level().getEntity(currentTargetId);
 				
-				if (!serverExecutor.getCurrentlyActuallyHitEntities().contains(entity) && serverExecutor.getCurrentlyActuallyHitEntities().size() > 0) {
-					Entity newTarget = serverExecutor.getCurrentlyActuallyHitEntities().get(0);
+				if (!event.getPlayerPatch().getCurrentlyActuallyHitEntities().contains(entity) && event.getPlayerPatch().getCurrentlyActuallyHitEntities().size() > 0) {
+					Entity newTarget = event.getPlayerPatch().getCurrentlyActuallyHitEntities().get(0);
 					
 					if (entity != null) {
-						EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), serverExecutor.getOriginal());
+						EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), event.getPlayerPatch().getOriginal());
 					}
 					
-					container.getDataManager().setDataSync(EpicFightSkillDataKeys.ENTITY_ID, newTarget.getId());
-					container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 1);
-					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(newTarget.getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), serverExecutor.getOriginal());
+					container.getDataManager().setDataSync(SkillDataKeys.ENTITY_ID.get(), newTarget.getId());
+					container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 1);
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(newTarget.getId(), EntityPairingPacketTypes.BONEBREAKER_BEGIN), event.getPlayerPatch().getOriginal());
 				}
 			}
 		});
@@ -86,55 +92,63 @@ public class BonebreakerSkill extends PassiveSkill {
 	public void onRemoved(SkillContainer container) {
 		super.onRemoved(container);
 		
-		container.runOnServer(serverExecutor -> {
-			int currentTargetId = container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID);
+		PlayerEventListener listener = container.getExecutor().getEventListener();
+		listener.removeListener(EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
+		listener.removeListener(EventType.ATTACK_PHASE_END_EVENT, EVENT_UUID);
+		
+		if (!container.getExecutor().isLogicalClient()) {
+			int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
 			
 			if (currentTargetId != -1) {
-				Entity entity = container.getExecutor().getLevel().getEntity(currentTargetId);
+				Entity entity = container.getExecutor().getOriginal().level().getEntity(currentTargetId);
 				
 				if (entity != null) {
-					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), serverExecutor.getOriginal());
+					EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(entity.getId(), EntityPairingPacketTypes.BONEBREAKER_CLEAR), container.getServerExecutor().getOriginal());
 				}
 			}
-		});
+		}
 	}
 	
 	@Override
 	public void updateContainer(SkillContainer container) {
 		super.updateContainer(container);
 		
-		container.runOnServer(serverExecutor -> {
-			int currentTargetId = container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID);
+		if (!container.getExecutor().isLogicalClient()) {
+			int currentTargetId = container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get());
 			
 			if (currentTargetId > -1) {
-				Entity entity = container.getExecutor().getLevel().getEntity(currentTargetId);
+				Entity entity = container.getExecutor().getOriginal().level().getEntity(currentTargetId);
 				
 				if (entity == null || !entity.isAlive()) {
-					container.getDataManager().setDataSync(EpicFightSkillDataKeys.ENTITY_ID, -1);
-					container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 0);
+					container.getDataManager().setDataSync(SkillDataKeys.ENTITY_ID.get(), -1);
+					container.getDataManager().setDataSync(SkillDataKeys.STACKS.get(), 0);
 				}
 			}
-		});
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public boolean shouldDraw(SkillContainer container) {
-		Entity target = container.getExecutor().getLevel().getEntity(container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID));
+		Entity target = container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(SkillDataKeys.ENTITY_ID.get()));
 		return target != null && target.isAlive();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
+		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
 		guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-		guiGraphics.drawString(gui.getFont(), String.valueOf(container.getDataManager().getDataValue(EpicFightSkillDataKeys.STACKS)), x + 10, y + 10, 16777215, true);
+		guiGraphics.drawString(gui.getFont(), String.valueOf(container.getDataManager().getDataValue(SkillDataKeys.STACKS.get())), x + 10, y + 10, 16777215, true);
+		poseStack.popPose();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public List<Object> getTooltipArgsOfScreen(List<Object> list) {
-		list.add(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.damageBonus * 100.0F));
+		list.add(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.damageBonus * 100.0F));
 		list.add(this.maxDamageBonusStacks);
 		
 		return list;

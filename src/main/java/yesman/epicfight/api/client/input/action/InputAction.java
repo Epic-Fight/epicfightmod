@@ -1,13 +1,12 @@
 package yesman.epicfight.api.client.input.action;
 
+import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.client.KeyMapping;
+import yesman.epicfight.api.utils.ExtendableEnum;
+import yesman.epicfight.api.utils.ExtendableEnumManager;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
-import yesman.epicfight.api.utils.ExtensibleEnum;
-import yesman.epicfight.api.utils.ExtensibleEnumManager;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -23,8 +22,8 @@ import java.util.Set;
 ///
 /// **Important:** This class must be called **only on the client**.
 @ApiStatus.Experimental
-public interface InputAction extends ExtensibleEnum {
-    ExtensibleEnumManager<InputAction> ENUM_MANAGER = new ExtensibleEnumManager<>("input_action");
+public interface InputAction extends ExtendableEnum {
+    ExtendableEnumManager<InputAction> ENUM_MANAGER = new ExtendableEnumManager<>("input_action");
 
     /// Returns the Minecraft vanilla [KeyMapping] associated with this action.
     ///

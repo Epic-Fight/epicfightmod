@@ -14,8 +14,8 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class WitchPatch extends HumanoidMobPatch<Witch> {
-	public WitchPatch(Witch witch) {
-		super(witch, Factions.NEUTRAL);
+	public WitchPatch() {
+		super(Factions.NEUTRAL);
 	}
 	
 	@Override

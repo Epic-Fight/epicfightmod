@@ -12,7 +12,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.client.events.engine.RenderEngine;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.LightningRenderHelper;
 
 public class ForceFieldEndParticle extends Particle {
@@ -44,7 +44,7 @@ public class ForceFieldEndParticle extends Particle {
 		}
 		
 		if (!this.init) {
-			RenderEngine.getInstance().getOverlayManager().flickering("flickering", 0.05F, 1.2F);
+			ClientEngine.getInstance().renderEngine.getOverlayManager().flickering("flickering", 0.05F, 1.2F);
 			this.init = true;
 		}
 	}

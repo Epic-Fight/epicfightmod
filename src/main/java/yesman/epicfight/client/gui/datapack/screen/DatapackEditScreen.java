@@ -51,9 +51,8 @@ import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Registry;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntTag;
@@ -63,7 +62,6 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
@@ -74,7 +72,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.validation.DirectoryValidator;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -96,7 +95,7 @@ import yesman.epicfight.api.collider.MultiOBBCollider;
 import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
-import yesman.epicfight.api.data.reloader.SkillReloadListener;
+import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.InstantiateInvoker;
 import yesman.epicfight.api.utils.ParseUtil;
@@ -112,21 +111,19 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.Horizonta
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.client.gui.datapack.widgets.SubScreenOpenButton;
-import yesman.epicfight.client.gui.datapack.widgets.TickableComponent;
 import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.registry.EpicFightRegistries;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
+import yesman.epicfight.world.capabilities.provider.EntityPatchProvider;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class DatapackEditScreen extends Screen {
@@ -171,7 +168,7 @@ public class DatapackEditScreen extends Screen {
 		return Armatures.get(rl);
 	}
 	
-	public static Function<Item, ? extends CapabilityItem.Builder<?>> getWeaponType(String typeName) {
+	public static Function<Item, CapabilityItem.Builder> getWeaponType(String typeName) {
 		ResourceLocation typeId = ResourceLocation.parse(typeName);
 		
 		if (workingPackScreen.userWeaponTypes.containsKey(typeId)) {
@@ -181,11 +178,11 @@ public class DatapackEditScreen extends Screen {
 		return WeaponTypeReloadListener.get(typeName);
 	}
 	
-	public static Set<Map.Entry<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>>> getSerializableWeaponTypes() {
-		return workingPackScreen.weaponTypeTab.packList.stream().reduce(Sets.<Map.Entry<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>>>newHashSet(), (set, entry) -> {
+	public static Set<Map.Entry<ResourceLocation, Function<Item, CapabilityItem.Builder>>> getSerializableWeaponTypes() {
+		return workingPackScreen.weaponTypeTab.packList.stream().reduce(Sets.<Map.Entry<ResourceLocation, Function<Item, CapabilityItem.Builder>>>newHashSet(), (set, entry) -> {
 			try {
 				WeaponCapability.Builder builder = WeaponTypeReloadListener.deserializeWeaponCapabilityBuilder(entry.getKey(), entry.getValue());
-				Function<Item, ? extends CapabilityItem.Builder<?>> provider = (itemstack) -> builder;
+				Function<Item, CapabilityItem.Builder> provider = (itemstack) -> builder;
 				
 				if (!workingPackScreen.userWeaponTypes.containsKey(entry.getKey())) {
 					workingPackScreen.userWeaponTypes.put(entry.getKey(), provider);
@@ -214,7 +211,7 @@ public class DatapackEditScreen extends Screen {
 	private final Map<ResourceLocation, PackEntry<EditorAnimation, DatapackAnimation<? extends StaticAnimation>>> userAnimations = Maps.newLinkedHashMap();
 	private final Map<ResourceLocation, AssetAccessor<? extends SkinnedMesh>> userMeshes = Maps.newLinkedHashMap();
 	private final Map<ResourceLocation, AssetAccessor<? extends Armature>> userArmatures = Maps.newLinkedHashMap();
-	private final Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> userWeaponTypes = Maps.newLinkedHashMap();
+	private final Map<ResourceLocation, Function<Item, CapabilityItem.Builder>> userWeaponTypes = Maps.newLinkedHashMap();
 	
 	private final TabManager tabManager = new TabManager(this::addRenderableWidget, (p_267853_) -> {
 		this.removeWidget(p_267853_);
@@ -252,19 +249,11 @@ public class DatapackEditScreen extends Screen {
 	}
 	
 	public boolean importDataPack(Path path) {
-		FolderRepositorySource.FolderPackDetector packDetector = new FolderRepositorySource.FolderPackDetector(new DirectoryValidator(path$2 -> true));
-		Pack.ResourcesSupplier pack$resourcessupplier = null;
-		try {
-			pack$resourcessupplier = packDetector.detectPackResources(path, new ArrayList<> ());
-		} catch (IOException e) {
-			this.minecraft.setScreen(new MessageScreen<>("Invalid datapack", e.getMessage(), this, (button2) -> this.minecraft.setScreen(this), 160, 60));
-		}
+		Pack.ResourcesSupplier pack$resourcessupplier = FolderRepositorySource.detectPackResources(path, false);
 		
 		if (pack$resourcessupplier != null) {
 			String s = path.getFileName().toString();
-			PackLocationInfo packlocationinfo = new PackLocationInfo("file/" + s, Component.literal(s), PackSource.WORLD, Optional.empty());
-            Pack pack = Pack.readMetaAndCreate(packlocationinfo, pack$resourcessupplier, PackType.SERVER_DATA, FolderRepositorySource.DISCOVERED_PACK_SELECTION_CONFIG);
-            
+			Pack pack = Pack.readMetaAndCreate("file/" + s, Component.literal(s), false, pack$resourcessupplier, PackType.SERVER_DATA, Pack.Position.TOP, PackSource.WORLD);
 			PackResources packResources = pack.open();
 			
 			this.importUserData(packResources);
@@ -477,9 +466,7 @@ public class DatapackEditScreen extends Screen {
 	
 	@Override
 	public void tick() {
-		if (this.tabManager.getCurrentTab() instanceof TickableComponent tickableComponent) {
-			tickableComponent._tick();
-		}
+		this.tabManager.getCurrentTab().tick();
 	}
 	
 	@Override
@@ -535,8 +522,8 @@ public class DatapackEditScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-		guiGraphics.blit(Screen.FOOTER_SEPARATOR, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
+		this.renderBackground(guiGraphics);
+		guiGraphics.blit(CreateWorldScreen.FOOTER_SEPERATOR, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 	}
 	
@@ -725,19 +712,19 @@ public class DatapackEditScreen extends Screen {
 		return this.userAnimations;
 	}
 	
-	abstract class DatapackTab<T> extends GridLayoutTab implements TickableComponent {
+	abstract class DatapackTab<T> extends GridLayoutTab {
 		protected Grid packListGrid;
 		protected InputComponentList<CompoundTag> inputComponentsList;
-		protected final Registry<T> registry;
+		protected final IForgeRegistry<T> registry;
 		protected final Set<ResourceLocation> namesSet = Sets.newHashSet();
 		protected final List<PackEntry<ResourceLocation, CompoundTag>> packList = Lists.newLinkedList();
 		protected final String directory;
 		
-		public DatapackTab(Component title, String directory, @Nullable Registry<T> registry) {
+		public DatapackTab(Component title, String directory, @Nullable IForgeRegistry<T> registry) {
 			this(title, directory, registry, (item) -> true);
 		}
 		
-		public DatapackTab(Component title, String directory, @Nullable Registry<T> registry, Predicate<T> filter) {
+		public DatapackTab(Component title, String directory, @Nullable IForgeRegistry<T> registry, Predicate<T> filter) {
 			super(title);
 			
 			this.directory = directory;
@@ -749,9 +736,10 @@ public class DatapackEditScreen extends Screen {
 									.xy2(150, screenRect.height() - screenRect.top() - 7)
 									.rowHeight(26)
 									.rowEditable(RowEditButton.ADD_REMOVE)
+									.transparentBackground(true)
 									.rowpositionChanged(this::packGridRowpositionChanged)
 									.addColumn(Grid.editbox("pack_item")
-													.editWidgetCreated((editbox) -> editbox.setFilter((str) -> ResourceLocation.isValidNamespace(str) && ResourceLocation.isValidPath(str)))
+													.editWidgetCreated((editbox) -> editbox.setFilter((str) -> ResourceLocation.isValidResourceLocation(str)))
 													.valueChanged((event) -> this.packList.get(event.rowposition).setPackKey(ResourceLocation.parse(event.postValue)))
 									.defaultVal(EpicFightMod.prefix("")).editable(registry == null ? true : false).width(180))
 									.pressAdd((grid, button) -> {
@@ -790,15 +778,16 @@ public class DatapackEditScreen extends Screen {
 			this.layout.arrangeElements();
 			this.layout.setY(screenRectangle.top());
 			
-			this.packListGrid.updateSizeAndPosition(150, screenRectangle.height() - screenRectangle.top() - 7, screenRectangle.top() + 14);
-			this.inputComponentsList.updateSizeAndPosition(screenRectangle.width() - 172, screenRectangle.height() - screenRectangle.top() - 7, screenRectangle.top() + 14);
+			this.packListGrid.updateSize(150, screenRectangle.height(), screenRectangle.top() + 14, screenRectangle.height() + 7);
+			this.inputComponentsList.updateSize(screenRectangle.width() - 172, screenRectangle.height(), screenRectangle.top() + 14, screenRectangle.height() + 7);
 			
-			this.packListGrid.setX(8);
-			this.inputComponentsList.setX(164);
+			this.packListGrid.setLeftPos(8);
+			this.inputComponentsList.setLeftPos(164);
 		}
 		
 		@Override
-		public void _tick() {
+		public void tick() {
+			this.packListGrid._tick();
 			this.inputComponentsList.tick();
 		}
 		
@@ -831,7 +820,7 @@ public class DatapackEditScreen extends Screen {
 			this.modelPreviewer = new ModelPreviewer(9, 15, 0, 140, HorizontalSizing.LEFT_RIGHT, null, Armatures.BIPED, Meshes.BIPED);
 			this.modelPreviewer.setColliderJoint(Armatures.BIPED.get().searchJointByName("Tool_R"));
 			
-			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 30) {
+			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 0, 30) {
 				@Override
 				public void importTag(CompoundTag tag) {
 					CompoundTag colliderTag = ParseUtil.getOrSupply(tag, "collider", CompoundTag::new);
@@ -861,14 +850,14 @@ public class DatapackEditScreen extends Screen {
 					for (String key : tag.getCompound("innate_skills").getAllKeys()) {
 						packImporter.newRow();
 						packImporter.newValue("style", Style.ENUM_MANAGER.get(key));
-						packImporter.newValue("skill", SkillReloadListener.getSkill(tag.getCompound("innate_skills").getString(key)));
+						packImporter.newValue("skill", SkillManager.getSkill(tag.getCompound("innate_skills").getString(key)));
 					}
 					
 					this.setDataBindingComponenets(new Object[] {
 						WeaponCategory.ENUM_MANAGER.get(tag.getString("category")),
-						BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle"))),
-						BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound"))),
-						BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound"))),
+						ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle"))),
+						ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound"))),
+						ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound"))),
 						tag.contains("usable_in_offhand") ? tag.getBoolean("usable_in_offhand") : true,
 						null,
 						ParseUtil.nullOrToString(colliderTag.get("number"), Tag::getAsString),
@@ -883,7 +872,7 @@ public class DatapackEditScreen extends Screen {
 				}
 			};
 			
-			this.inputComponentsList.setX(164);
+			this.inputComponentsList.setLeftPos(164);
 			
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.category"));
@@ -894,20 +883,20 @@ public class DatapackEditScreen extends Screen {
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.hit_particle"));
 			this.inputComponentsList.addComponentCurrentRow(new PopupBox.RegistryPopupBox<>(parentScreen, font, this.inputComponentsList.nextStart(5), 15, 130, 15, HorizontalSizing.LEFT_RIGHT, null,
-																			Component.translatable("datapack_edit.weapon_type.hit_particle"), BuiltInRegistries.PARTICLE_TYPE,
-																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_particle", ParseUtil.getRegistryName(pair.getSecond(), BuiltInRegistries.PARTICLE_TYPE))));
+																			Component.translatable("datapack_edit.weapon_type.hit_particle"), ForgeRegistries.PARTICLE_TYPES,
+																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_particle", ParseUtil.getRegistryName(pair.getSecond(), ForgeRegistries.PARTICLE_TYPES))));
 			
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.hit_sound"));
 			this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, font, this.inputComponentsList.nextStart(5), 15, 130, 15, HorizontalSizing.LEFT_RIGHT, null,
 																			Component.translatable("datapack_edit.weapon_type.hit_sound"),
-																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_sound", ParseUtil.getRegistryName(pair.getSecond(), BuiltInRegistries.SOUND_EVENT))));
+																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_sound", ParseUtil.getRegistryName(pair.getSecond(), ForgeRegistries.SOUND_EVENTS))));
 			
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.swing_sound"));
 			this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, font, this.inputComponentsList.nextStart(5), 15, 130, 15, HorizontalSizing.LEFT_RIGHT, null,
 																			Component.translatable("datapack_edit.weapon_type.swing_sound"),
-																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("swing_sound", ParseUtil.getRegistryName(pair.getSecond(), BuiltInRegistries.SOUND_EVENT))));
+																			(pair) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("swing_sound", ParseUtil.getRegistryName(pair.getSecond(), ForgeRegistries.SOUND_EVENTS))));
 			
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.styles"));
@@ -1116,12 +1105,13 @@ public class DatapackEditScreen extends Screen {
 																.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 																.rowHeight(26)
 																.rowEditable(RowEditButton.ADD_REMOVE)
+																.transparentBackground(false)
 																.addColumn(Grid.combo("style", Style.ENUM_MANAGER.universalValues()).valueChanged((event) -> {
 																				CompoundTag innateSkillsTag = ParseUtil.getOrDefaultTag(this.packList.get(this.packListGrid.getRowposition()).getValue(), "innate_skills", new CompoundTag());
 																				innateSkillsTag.remove(ParseUtil.nullParam(event.prevValue).toLowerCase(Locale.ROOT));
 																				innateSkillsTag.putString(ParseUtil.nullParam(event.postValue).toLowerCase(Locale.ROOT), ParseUtil.nullParam(event.grid.getValue(event.rowposition, "skill")));
 																			}).editable(true).width(100))
-																.addColumn(Grid.registryPopup("skill", EpicFightRegistries.SKILL).filter((skill) -> skill.getCategory() == SkillCategories.WEAPON_INNATE).valueChanged((event) -> {
+																.addColumn(Grid.registryPopup("skill", SkillManager.getSkillRegistry()).filter((skill) -> skill.getCategory() == SkillCategories.WEAPON_INNATE).valueChanged((event) -> {
 																				CompoundTag innateSkillsTag = ParseUtil.getOrDefaultTag(this.packList.get(this.packListGrid.getRowposition()).getValue(), "innate_skills", new CompoundTag());
 																				innateSkillsTag.putString(ParseUtil.nullParam(event.grid.getValue(event.rowposition, "style")).toLowerCase(Locale.ROOT), ParseUtil.nullParam(event.postValue));
 																			}).toDisplayText((item) -> item == null ? "" : item.getRegistryName().toString()).width(150))
@@ -1256,7 +1246,7 @@ public class DatapackEditScreen extends Screen {
 		}
 		
 		public ItemCapabilityTab() {
-			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.item_capability")), ItemCapabilityReloadListener.DIRECTORY, BuiltInRegistries.ITEM);
+			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.item_capability")), ItemCapabilityReloadListener.DIRECTORY, ForgeRegistries.ITEMS);
 			
 			Screen parentScreen = DatapackEditScreen.this;
 			
@@ -1304,7 +1294,7 @@ public class DatapackEditScreen extends Screen {
 						ParseUtil.nullParam(trailTag.get("lifetime")),
 						ParseUtil.nullParam(trailTag.get("interpolations")),
 						ParseUtil.nullParam(trailTag.getString("texture_path")),
-						BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(trailTag.getString("particle_type")))
+						ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(trailTag.getString("particle_type")))
 					});
 					this.itemTypeCombo._setResponder(this.responder);
 				} else {
@@ -1317,7 +1307,7 @@ public class DatapackEditScreen extends Screen {
 			this.itemTypeCombo = new ComboBox<> (parentScreen, parentScreen.getMinecraft().font, 0, 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8, Component.translatable("datapack_edit.item_capability.item_type"),
 													List.of(ItemType.values()), ParseUtil::snakeToSpacedCamel, this.responder);
 			
-			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 30) {
+			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 0, 30) {
 				@Override
 				public void importTag(CompoundTag tag) {
 					ItemType itemType = null;
@@ -1365,7 +1355,7 @@ public class DatapackEditScreen extends Screen {
 							ParseUtil.nullParam(trailTag.get("lifetime")),
 							ParseUtil.nullParam(trailTag.get("interpolations")),
 							ParseUtil.nullParam(trailTag.getString("texture_path")),
-							BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(trailTag.getString("particle_type")))
+							ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(trailTag.getString("particle_type")))
 						});
 						ItemCapabilityTab.this.itemTypeCombo._setResponder(ItemCapabilityTab.this.responder);
 					} else {
@@ -1407,7 +1397,7 @@ public class DatapackEditScreen extends Screen {
 																					currentTag.putString("type", pair.getFirst());
 																					
 																					if (pair.getSecond() != null) {
-																						CapabilityItem.Builder<?> builder = pair.getSecond().apply(this.registry.get(this.packList.get(this.packListGrid.getRowposition()).getKey()));
+																						CapabilityItem.Builder builder = pair.getSecond().apply(this.registry.getValue(this.packList.get(this.packListGrid.getRowposition()).getKey()));
 																						
 																						if (builder instanceof WeaponCapability.Builder weaponBuilder) {
 																							this.modelPreviewer.clearAnimations();
@@ -1895,16 +1885,16 @@ public class DatapackEditScreen extends Screen {
 					TrailInfo trailInfo = TrailInfo.deserialize(trailTag);
 					this.modelPreviewer.setTrailInfo(trailInfo);
 				});
-				texturePath.setFilter((context) -> StringUtil.isNullOrEmpty(context) || (ResourceLocation.isValidNamespace(context) && ResourceLocation.isValidPath(context)));
+				texturePath.setFilter((context) -> StringUtil.isNullOrEmpty(context) || ResourceLocation.isValidResourceLocation(context));
 				texturePath.setMaxLength(100);
 				texturePath.setValue("epicfight:textures/particle/swing_trail.png");
-				texturePath.moveCursorToStart(true);
+				texturePath.moveCursorToStart();
 				
 				final PopupBox<ParticleType<?>> particlePopup = new PopupBox.RegistryPopupBox<>(DatapackEditScreen.this, font, 0, 15, 130, 15, HorizontalSizing.LEFT_RIGHT, null,
-																								Component.translatable("datapack_edit.weapon_type.hit_particle"), BuiltInRegistries.PARTICLE_TYPE,
+																								Component.translatable("datapack_edit.weapon_type.hit_particle"), ForgeRegistries.PARTICLE_TYPES,
 																								(pair) -> {
 																									CompoundTag trailTag = ParseUtil.getOrDefaultTag(this.packList.get(this.packListGrid.getRowposition()).getValue(), "trail", new CompoundTag());
-																									trailTag.putString("particle_type", ParseUtil.getRegistryName(pair.getSecond(), BuiltInRegistries.PARTICLE_TYPE));
+																									trailTag.putString("particle_type", ParseUtil.getRegistryName(pair.getSecond(), ForgeRegistries.PARTICLE_TYPES));
 																									
 																									TrailInfo trailInfo = TrailInfo.deserialize(trailTag);
 																									this.modelPreviewer.setTrailInfo(trailInfo);
@@ -1934,7 +1924,7 @@ public class DatapackEditScreen extends Screen {
 				}).bounds(this.inputComponentsList.nextStart(4), 0, 15, 15).build());
 			}
 			
-			this.inputComponentsList.setX(164);
+			this.inputComponentsList.setLeftPos(164);
 		}
 		
 		@Override
@@ -1944,13 +1934,13 @@ public class DatapackEditScreen extends Screen {
 			ResourceLocation rl = ResourceLocation.parse(ParseUtil.nullParam(values.get("pack_item")));
 			
 			if (this.registry.containsKey(rl)) {
-				this.modelPreviewer.setItemToRender(this.registry.get(rl));
+				this.modelPreviewer.setItemToRender(this.registry.getValue(rl));
 			}
 			
-			Function<Item, ? extends CapabilityItem.Builder<?>> builderProvider = DatapackEditScreen.getWeaponType(tag.getString("type"));
+			Function<Item, CapabilityItem.Builder> builderProvider = DatapackEditScreen.getWeaponType(tag.getString("type"));
 			
 			if (builderProvider != null) {
-				CapabilityItem.Builder<?> builder = builderProvider.apply(this.registry.get(this.packList.get(rowposition).getKey()));
+				CapabilityItem.Builder builder = builderProvider.apply(this.registry.getValue(this.packList.get(rowposition).getKey()));
 				
 				if (builder instanceof WeaponCapability.Builder weaponBuilder) {
 					this.modelPreviewer.clearAnimations();
@@ -2173,7 +2163,7 @@ public class DatapackEditScreen extends Screen {
 	class MobCapabilityTab extends DatapackTab<EntityType<?>> {
 		private final ModelPreviewer modelPreviewer;
 		private final ComboBox<EntityType<?>> presetCombo = new ComboBox<>(DatapackEditScreen.this, DatapackEditScreen.this.font, 0, 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,
-				Component.translatable("datapack_edit.mob_patch.preset"), EpicFightCapabilities.ENTITY_PATCH_PROVIDER.getPatchedEntities(), (entityType) -> entityType == null ? "none" : EntityType.getKey(entityType).toString(), null);
+				Component.translatable("datapack_edit.mob_patch.preset"), EntityPatchProvider.getPatchedEntities(), (entityType) -> entityType == null ? "none" : EntityType.getKey(entityType).toString(), null);
 		
 		private final Consumer<EntityType<?>> presetResponder = (entityType) -> {
 			CompoundTag tag = this.packList.get(this.packListGrid.getRowposition()).getValue();
@@ -2221,11 +2211,11 @@ public class DatapackEditScreen extends Screen {
 		private PopupBox.ArmaturePopupBox armaturePopupBox;
 		
 		public MobCapabilityTab() {
-			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.mob_patch")), MobPatchReloadListener.DIRECTORY, BuiltInRegistries.ENTITY_TYPE, (entityType) -> {
+			super(Component.translatable(EpicFightMod.format("gui.%s.tab.datapack.mob_patch")), MobPatchReloadListener.DIRECTORY, ForgeRegistries.ENTITY_TYPES, (entityType) -> {
 				return entityType.getCategory() != MobCategory.MISC && entityType != EntityType.ENDER_DRAGON;
 			});
 			
-			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 30) {
+			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 0, 30) {
 				@Override
 				public void importTag(CompoundTag tag) {
 					boolean disabled = tag.getBoolean("disabled");
@@ -2382,21 +2372,21 @@ public class DatapackEditScreen extends Screen {
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.swing_sound"));
 				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
 					Component.translatable("datapack_edit.mob_patch.swing_sound"), (soundevent) -> {
-						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("swing_sound", ParseUtil.getRegistryName(soundevent.getSecond(), BuiltInRegistries.SOUND_EVENT));
+						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("swing_sound", ParseUtil.getRegistryName(soundevent.getSecond(), ForgeRegistries.SOUND_EVENTS));
 					}));
 				
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.hit_sound"));
 				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
 					Component.translatable("datapack_edit.mob_patch.hit_sound"), (soundevent) -> {
-						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_sound", ParseUtil.getRegistryName(soundevent.getSecond(), BuiltInRegistries.SOUND_EVENT));
+						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_sound", ParseUtil.getRegistryName(soundevent.getSecond(), ForgeRegistries.SOUND_EVENTS));
 					}));
 				
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.hit_particle"));
 				this.inputComponentsList.addComponentCurrentRow(new PopupBox.RegistryPopupBox<>(parentScreen, font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
-					Component.translatable("datapack_edit.weapon_type.hit_particle"), BuiltInRegistries.PARTICLE_TYPE, (pair) -> {
-						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_particle", ParseUtil.getRegistryName(pair.getSecond(), BuiltInRegistries.PARTICLE_TYPE));
+					Component.translatable("datapack_edit.weapon_type.hit_particle"), ForgeRegistries.PARTICLE_TYPES, (pair) -> {
+						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_particle", ParseUtil.getRegistryName(pair.getSecond(), ForgeRegistries.PARTICLE_TYPES));
 					}));
 				
 				this.inputComponentsList.newRow();
@@ -2409,6 +2399,7 @@ public class DatapackEditScreen extends Screen {
 																	.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 																	.rowHeight(21)
 																	.rowEditable(RowEditButton.ADD_REMOVE)
+																	.transparentBackground(false)
 																	.addColumn(Grid.combo("attribute", List.copyOf(this.attributeEditors.values()))
 																					.toDisplayText((editor) -> ParseUtil.nullOrToString(editor, (editor$1) -> ParseUtil.snakeToSpacedCamel(editor.editWidget.getMessage().getString())))
 																					.valueChanged((event) -> {
@@ -2467,6 +2458,7 @@ public class DatapackEditScreen extends Screen {
 																	.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 																	.rowHeight(21)
 																	.rowEditable(RowEditButton.ADD_REMOVE)
+																	.transparentBackground(false)
 																	.addColumn(Grid.combo("living_motion", List.of(LivingMotions.IDLE, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.MOUNT, LivingMotions.FALL, LivingMotions.FLOAT, LivingMotions.DEATH, LivingMotions.RELOAD, LivingMotions.AIM))
 																					.valueChanged((event) -> {
 																						CompoundTag livingMotionTag = ParseUtil.getOrSupply(this.packList.get(this.packListGrid.getRowposition()).getValue(), "default_livingmotions", CompoundTag::new);
@@ -2509,6 +2501,7 @@ public class DatapackEditScreen extends Screen {
 																	.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
 																	.rowHeight(21)
 																	.rowEditable(RowEditButton.ADD_REMOVE)
+																	.transparentBackground(false)
 																	.addColumn(Grid.combo("stun_type", List.of(StunType.values()))
 																					.toDisplayText((stunType) -> ParseUtil.nullOrToString(stunType, (type) -> ParseUtil.snakeToSpacedCamel(type.name())))
 																					.valueChanged((event) -> {
@@ -2568,7 +2561,7 @@ public class DatapackEditScreen extends Screen {
 				}).bounds(this.inputComponentsList.nextStart(4), 0, 15, 15).build());
 			}
 			
-			this.inputComponentsList.setX(164);
+			this.inputComponentsList.setLeftPos(164);
 		}
 		
 		private void bindTag(CompoundTag tag) {
@@ -2614,9 +2607,9 @@ public class DatapackEditScreen extends Screen {
 				StringUtil.isNullOrEmpty(tag.getString("renderer")) ? null : ResourceLocation.parse(tag.getString("renderer")),
 				tag.getBoolean("isHumanoid"),
 				ParseUtil.nullOrApply(tag.get("faction"), (jsonElement) -> Faction.ENUM_MANAGER.getOrThrow(jsonElement.getAsString())),
-				BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound"))),
-				BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound"))),
-				BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle"))),
+				ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound"))),
+				ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound"))),
+				ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle"))),
 				attributePackImporter,
 				livingmotionPackImporter,
 				stunPackImporter

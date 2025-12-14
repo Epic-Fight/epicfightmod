@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " SS",
+        "SSS",
+        "SS "
+    ],
+    "key":
+    {
+        "S": { "tag" : "minecraft:planks" }
+    },
+    "result":
+    {
+        "item" : "epicfight:wooden_greatsword",
+        "count" : 1
+    }
+}

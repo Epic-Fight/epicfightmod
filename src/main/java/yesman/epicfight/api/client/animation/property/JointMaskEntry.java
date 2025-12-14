@@ -23,7 +23,7 @@ public class JointMaskEntry {
 		JointMask.of("Elbow_L"), JointMask.of("Tool_L")
 	);
 	
-	public static final JointMaskEntry COMBO_ATTACK_MASK = JointMaskEntry.builder().defaultMask(JointMaskEntry.BIPED_UPPER_JOINTS_WITH_ROOT).create();
+	public static final JointMaskEntry BASIC_ATTACK_MASK = JointMaskEntry.builder().defaultMask(JointMaskEntry.BIPED_UPPER_JOINTS_WITH_ROOT).create();
 	
 	private final Map<LivingMotion, JointMaskSet> masks = Maps.newHashMap();
 	private final JointMaskSet defaultMask;

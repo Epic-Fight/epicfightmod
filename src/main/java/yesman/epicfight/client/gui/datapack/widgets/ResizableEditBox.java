@@ -139,6 +139,11 @@ public class ResizableEditBox extends EditBox implements DataBindingComponent<St
 	}
 	
 	@Override
+	public void _tick() {
+		this.tick();
+	}
+	
+	@Override
 	public void _renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		this.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 	}

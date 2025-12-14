@@ -4,7 +4,7 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 
 public class AssassinationSkill extends Skill {
-	public AssassinationSkill(SkillBuilder<?> builder) {
+	public AssassinationSkill(SkillBuilder<? extends Skill> builder) {
 		super(builder);
 	}
 }

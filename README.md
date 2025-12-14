@@ -4,7 +4,7 @@
 With a pinch of *soulslike combat* and unique animation handling that bends **Minecraft**,  
 Epic Fight will spice up your gameplay to a whole new level and bring great new challenges along the way.
 
-You'll face a new take on **Minecraft's combat**,  
+You'll face a new take on **Minecraft’s combat**,  
 where all entities have new and challenging fighting mechanics.
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
@@ -146,7 +146,7 @@ classified into three types:
 - **Modded armor appears invisible or looks unusual**  
   Epic Fight changes the player model to support more complex animations.  
   To make armor display correctly, a compatibility resource pack is required.  
-  If you're familiar with Blender or 3D modeling,
+  If you’re familiar with Blender or 3D modeling,
   check out this [Epic Fight guide](https://epicfight-docs.readthedocs.io/Guides/Armor/3Darmor_page1/) for detailed
   instructions.
 
@@ -254,7 +254,7 @@ with enhanced support for all input actions and GUI operations.
 
 > **Tip:** If you're on Forge 1.20.1,
 > use [Controlify: Forgified (Unofficial backport)](https://modrinth.com/mod/controlify-forgified) instead.
-> Epic Fight's on-screen controller button guides are **not supported** on Minecraft 1.20.1.
+> Epic Fight’s on-screen controller button guides are **not supported** on Minecraft 1.20.1.
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 

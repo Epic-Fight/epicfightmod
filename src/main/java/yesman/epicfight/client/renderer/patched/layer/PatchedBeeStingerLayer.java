@@ -1,5 +1,8 @@
 package yesman.epicfight.client.renderer.patched.layer;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -33,15 +36,17 @@ public class PatchedBeeStingerLayer<E extends LivingEntity, T extends LivingEnti
 		for (int i = 0; i < 4; ++i) {
 			poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
 			PoseStack.Pose posestack$pose = poseStack.last();
-			vertex(vertexconsumer, posestack$pose, -4.5F, -1, 0.0F, 0.0F, packedLight);
-			vertex(vertexconsumer, posestack$pose, 4.5F, -1, 0.125F, 0.0F, packedLight);
-			vertex(vertexconsumer, posestack$pose, 4.5F, 1, 0.125F, 0.0625F, packedLight);
-			vertex(vertexconsumer, posestack$pose, -4.5F, 1, 0.0F, 0.0625F, packedLight);
+			Matrix4f matrix4f = posestack$pose.pose();
+			Matrix3f matrix3f = posestack$pose.normal();
+			vertex(vertexconsumer, matrix4f, matrix3f, -4.5F, -1, 0.0F, 0.0F, packedLight);
+			vertex(vertexconsumer, matrix4f, matrix3f, 4.5F, -1, 0.125F, 0.0F, packedLight);
+			vertex(vertexconsumer, matrix4f, matrix3f, 4.5F, 1, 0.125F, 0.0625F, packedLight);
+			vertex(vertexconsumer, matrix4f, matrix3f, -4.5F, 1, 0.0F, 0.0625F, packedLight);
 		}
 	}
 	
-	private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, int y, float z, float u, int v) {
-		vertexConsumer.addVertex(pose, x, (float) y, 0.0F).setColor(255, 255, 255, 255).setUv(z, u).setOverlay(OverlayTexture.NO_OVERLAY).setLight(v).setNormal(pose, 0.0F, 1.0F, 0.0F);
+	private static void vertex(VertexConsumer vertexConsumer, Matrix4f pose, Matrix3f normal, float x, int y, float z, float u, int v) {
+		vertexConsumer.vertex(pose, x, (float) y, 0.0F).color(255, 255, 255, 255).uv(z, u).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(v).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
 	}
 	
 	@Override

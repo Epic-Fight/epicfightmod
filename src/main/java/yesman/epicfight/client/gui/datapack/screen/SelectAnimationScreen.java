@@ -38,7 +38,8 @@ public class SelectAnimationScreen extends Screen {
 		this.font = parentScreen.getMinecraft().font;
 		
 		this.modelPreviewer = new ModelPreviewer(10, 20, 36, 60, null, null, armature, mesh);
-		this.animationList = new AnimationList(parentScreen.getMinecraft(), this.width, this.height - 52, 36, 21);
+		this.animationList = new AnimationList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21);
+		this.animationList.setRenderTopAndBottom(false);
 		this.selectCallback = selectCallback;
 		this.cancelCallback = cancelCallback;
 		this.filter = filter;
@@ -49,7 +50,7 @@ public class SelectAnimationScreen extends Screen {
 		
 		if (armature != null) {
 			this.searchBox.setValue(armature.get().toString().substring(armature.get().toString().indexOf("/") + 1));
-			this.searchBox.moveCursorTo(0, true);
+			this.searchBox.moveCursorTo(0);
 		}
 	}
 	
@@ -65,8 +66,8 @@ public class SelectAnimationScreen extends Screen {
 		this.modelPreviewer._setHeight(this.height - 68);
 		this.modelPreviewer.resize(null);
 		
-		this.animationList.updateSizeAndPosition(this.width - split, this.height - 68, 36);
-		this.animationList.setX(split);
+		this.animationList.updateSize(this.width - split, this.height, 36, this.height - 32);
+		this.animationList.setLeftPos(split);
 		
 		this.searchBox.setX(this.width / 2);
 		this.searchBox.setY(12);
@@ -116,14 +117,13 @@ public class SelectAnimationScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		
+		this.renderDirtBackground(guiGraphics);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
 	class AnimationList extends ObjectSelectionList<AnimationList.AnimationEntry> {
-		public AnimationList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
-			super(minecraft, width, height, y, itemHeight);
+		public AnimationList(Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight) {
+			super(minecraft, width, height, y0, y1, itemHeight);
 		}
 		
 		@Override
@@ -141,16 +141,8 @@ public class SelectAnimationScreen extends Screen {
 		
 		@Override
 		protected int getScrollbarPosition() {
-			return this.getRight() - 6;
+			return this.x1 - 6;
 		}
-		
-		@Override
-	    protected void renderListBackground(GuiGraphics guiGraphics) {
-	    }
-		
-	    @Override
-	    protected void renderListSeparators(GuiGraphics guiGraphics) {
-	    }
 		
 		public void refreshAniamtionList(String keyword) {
 			this.setScrollAmount(0.0D);

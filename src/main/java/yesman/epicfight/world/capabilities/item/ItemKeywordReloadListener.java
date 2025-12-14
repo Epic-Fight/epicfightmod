@@ -27,8 +27,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
@@ -112,10 +112,10 @@ public class ItemKeywordReloadListener extends SimplePreparableReloadListener<Ma
 	
 	@OnlyIn(Dist.CLIENT)
 	public static void handleClientBoundSyncPacket(SPDatapackSync packet) {
-		if (packet.packetType() == SPDatapackSync.PacketType.WEAPON_TYPE) {
+		if (packet.getType() == SPDatapackSync.Type.WEAPON_TYPE) {
 			REGEXES.clear();
 			
-			for (CompoundTag tag : packet.tags()) {
+			for (CompoundTag tag : packet.getTags()) {
 				ResourceLocation id = ResourceLocation.parse(tag.getString("registry_name"));
 				REGEXES.put(id, ItemRegex.deserialize(tag));
 			}

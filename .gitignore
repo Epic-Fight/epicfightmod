@@ -24,4 +24,5 @@ run-data
 epicskins
 ServerCommunicationHelper
 
-repo
+# Files from Forge MDK
+forge*changelog.txt

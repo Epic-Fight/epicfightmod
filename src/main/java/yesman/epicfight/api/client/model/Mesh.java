@@ -20,7 +20,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.IQuadTransformer;
+import net.minecraftforge.client.extensions.IForgeVertexConsumer;
+import net.minecraftforge.client.model.IQuadTransformer;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -77,50 +78,51 @@ public interface Mesh {
 	@FunctionalInterface
 	public interface DrawingFunction {
 		public static final DrawingFunction NEW_ENTITY = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-			        .setColor(r, g, b, a)
-			        .setUv(u, v)
-			        .setOverlay(overlay)
-			        .setLight(packedLight)
-			        .setNormal(normX, normY, normZ);
+			builder.vertex(posX, posY, posZ, r, g, b, a, u, v, overlay, packedLight, normX, normY, normZ);
 		};
 		
 		public static final DrawingFunction POSITION_TEX = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setUv(u, v);
+			builder.vertex(posX, posY, posZ);
+			builder.uv(u, v);
+			builder.endVertex();
 		};
 		
 		public static final DrawingFunction POSITION_TEX_COLOR_NORMAL = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setUv(u, v)
-					.setColor(r, g, b, a)
-					.setNormal(normX, normY, normZ);
+			builder.vertex(posX, posY, posZ);
+			builder.uv(u, v);
+			builder.color(r, g, b, a);
+			builder.normal(normX, normY, normZ);
+			builder.endVertex();
 		};
 		
 		public static final DrawingFunction POSITION_TEX_COLOR_LIGHTMAP = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setUv(u, v)
-					.setColor(r, g, b, a)
-					.setLight(packedLight);
+			builder.vertex(posX, posY, posZ);
+			builder.uv(u, v);
+			builder.color(r, g, b, a);
+			builder.uv2(packedLight);
+			builder.endVertex();
 		};
 		
 		public static final DrawingFunction POSITION_COLOR_LIGHTMAP = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setColor(r, g, b, a)
-					.setLight(packedLight);
+			builder.vertex(posX, posY, posZ);
+			builder.color(r, g, b, a);
+			builder.uv2(packedLight);
+			builder.endVertex();
 		};
 		
 		public static final DrawingFunction POSITION_COLOR_NORMAL = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setColor(r, g, b, a)
-					.setNormal(normX, normY, normZ);
+			builder.vertex(posX, posY, posZ);
+			builder.color(r, g, b, a);
+			builder.normal(normX, normY, normZ);
+			builder.endVertex();
 		};
 		
 		public static final DrawingFunction POSITION_COLOR_TEX_LIGHTMAP = (builder, posX, posY, posZ, normX, normY, normZ, packedLight, r, g, b, a, u, v, overlay) -> {
-			builder.addVertex(posX, posY, posZ)
-					.setColor(r, g, b, a)
-					.setUv(u, v)
-					.setLight(packedLight);
+			builder.vertex(posX, posY, posZ);
+			builder.color(r, g, b, a);
+			builder.uv(u, v);
+			builder.uv2(packedLight);
+			builder.endVertex();
 		};
 		
 		public void draw(VertexConsumer vertexConsumer, float posX, float posY, float posZ, float normX, float normY, float normZ, int packedLight, float r, float g, float b, float a, float u, float v, int overlay);

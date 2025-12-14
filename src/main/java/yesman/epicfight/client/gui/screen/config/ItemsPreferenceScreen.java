@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,6 +26,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
+import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen.ItemList.ItemEntry;
 import yesman.epicfight.config.ClientConfig;
@@ -99,7 +99,7 @@ public class ItemsPreferenceScreen extends Screen {
 		ClientConfig.combatPreferredItems.clear();
 		ClientConfig.miningPreferredItems.clear();
 		
-		BuiltInRegistries.ITEM.forEach(item -> {
+		ForgeRegistries.ITEMS.getValues().forEach(item -> {
 			if (judgeItemPreference(item)) {
 				ClientConfig.combatPreferredItems.add(item);
 			} else {
@@ -129,7 +129,7 @@ public class ItemsPreferenceScreen extends Screen {
 		
 		this.parentScreen = parentScreen;
 		
-		BuiltInRegistries.ITEM.forEach(item -> {
+		ForgeRegistries.ITEMS.forEach(item -> {
 			if (ClientConfig.combatPreferredItems.contains(item)) {
 				this.combatItems.add(item);
 			} else if (ClientConfig.miningPreferredItems.contains(item)) {
@@ -162,8 +162,8 @@ public class ItemsPreferenceScreen extends Screen {
 			this.combatPreferredItems.setScrollAmount(this.combatPreferredItems.getScrollAmount());
 		}
 		
-		this.combatPreferredItems.setX(this.width / 2 - 204);
-		this.miningPreferredItems.setX(this.width / 2 + 4);
+		this.combatPreferredItems.setLeftPos(this.width / 2 - 204);
+		this.miningPreferredItems.setLeftPos(this.width / 2 + 4);
 		this.addRenderableWidget(this.combatPreferredItems);
 		this.addRenderableWidget(this.miningPreferredItems);
 		
@@ -281,8 +281,7 @@ public class ItemsPreferenceScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-		
+		this.renderDirtBackground(guiGraphics);
 		this.combatPreferredItems.render(guiGraphics, mouseX, mouseY, partialTick);
 		this.miningPreferredItems.render(guiGraphics, mouseX, mouseY, partialTick);
 		
@@ -304,7 +303,7 @@ public class ItemsPreferenceScreen extends Screen {
 		private final boolean left;
 		
 		public ItemList(int width, int height, boolean left, MutableComponent title, Component tooltip, Supplier<ItemList> opponent) {
-			super(ItemsPreferenceScreen.this.minecraft, width, height - 87, 32, 22);
+			super(ItemsPreferenceScreen.this.minecraft, width, height, 32, height - 55, 22);
 			
 			this.title = title.withStyle(ChatFormatting.UNDERLINE);
 			this.tooltip = tooltip;
@@ -318,15 +317,17 @@ public class ItemsPreferenceScreen extends Screen {
 		}
 		
 		public void resize(int width, int height) {
-			this.setY(32);
-			this.setHeight(height - 87);
-			this.setX(0);
-			this.setWidth(width);
+			this.width = width;
+			this.height = height;
+			this.y0 = 32;
+			this.y1 = height - 55;
+			this.x0 = 0;
+			this.x1 = width;
 		}
 		
 		@Override
 		protected void renderHeader(GuiGraphics guiGraphics, int x, int y) {
-			guiGraphics.drawString(this.minecraft.font, this.title, x + this.width / 2 - this.minecraft.font.width(this.title) / 2, Math.min(this.getY() + 3, y), 16777215, false);
+			guiGraphics.drawString(this.minecraft.font, this.title, x + this.width / 2 - this.minecraft.font.width(this.title) / 2, Math.min(this.y0 + 3, y), 16777215, false);
 		}
 		
 		@Override
@@ -336,18 +337,18 @@ public class ItemsPreferenceScreen extends Screen {
 		
 		@Override
 		protected int getScrollbarPosition() {
-			return this.getRight() - 6;
+			return this.x1 - 6;
 		}
 		
 		@Override
-		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+			super.render(guiGraphics, mouseX, mouseY, partialTick);
 			
 			int width = this.minecraft.font.width(this.title);
 			int x = this.getRowLeft();
-			int y = this.getY() + 4 - (int)this.getScrollAmount();
+			int y = this.y0 + 4 - (int)this.getScrollAmount();
 			x = x + this.width / 2 - width / 2;
-			y = Math.min(this.getY() + 3, y);
+			y = Math.min(this.y0 + 3, y);
 			
 			if (x < mouseX && y < mouseY && mouseX < (x + width) && mouseY < (y + 15)) {
 				ItemsPreferenceScreen.this.setTooltipForNextRenderPass(this.tooltip);

@@ -62,7 +62,7 @@ public abstract class EpicFightRegistries {
 		public static final ResourceKey<Registry<SkillDataKey<?>>> SKILL_DATA_KEY = key("skill_data_key");
 		
 		private static <T> ResourceKey<Registry<T>> key(String name) {
-			return ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, name));
+			return ResourceKey.createRegistryKey(EpicFightMod.identifier(name));
 		}
 	}
 	

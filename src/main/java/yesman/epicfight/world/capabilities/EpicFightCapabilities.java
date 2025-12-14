@@ -26,9 +26,9 @@ import java.util.Optional;
 public class EpicFightCapabilities {
 	public static final ItemCapability<CapabilityItem, Void> CAPABILITY_ITEM =
 		ItemCapability.createVoid(
-			ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "item_capability"),
-			CapabilityItem.class
-		);
+                EpicFightMod.identifier("item_capability"),
+                CapabilityItem.class
+        );
 	
 	public static final CommonEntityPatchProvider ENTITY_PATCH_PROVIDER = CommonEntityPatchProvider.INSTANCE;
 	public static final CommonItemCapabilityProvider ITEM_CAPABILITY_PROVIDER = CommonItemCapabilityProvider.INSTANCE;

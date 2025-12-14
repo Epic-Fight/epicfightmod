@@ -9,6 +9,6 @@ import yesman.epicfight.main.EpicFightMod;
 public final class EpicFightDamageTypes {
 	private EpicFightDamageTypes() {}
 	
-	public static final ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shockwave"));
-	public static final ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "wither_beam"));
+	public static final ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFightMod.identifier("shockwave"));
+	public static final ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFightMod.identifier("wither_beam"));
 }

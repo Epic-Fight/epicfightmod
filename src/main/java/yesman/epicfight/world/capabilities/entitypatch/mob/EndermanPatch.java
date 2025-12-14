@@ -58,7 +58,7 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 public class EndermanPatch extends MobPatch<EnderMan> {
-	private static final AttributeModifier SPEED_MODIFIER_ON_RAGE = new AttributeModifier(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "rage_speed_bonus"), 0.1D, AttributeModifier.Operation.ADD_VALUE);
+	private static final AttributeModifier SPEED_MODIFIER_ON_RAGE = new AttributeModifier(EpicFightMod.identifier("rage_speed_bonus"), 0.1D, AttributeModifier.Operation.ADD_VALUE);
 	
 	private boolean onRage;
 	private Goal normalAttacks;

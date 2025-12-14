@@ -379,7 +379,16 @@ public class EpicFightMod {
 			});
 	}
 
-    public static @NotNull ResourceLocation rl(@NotNull String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
+	/// Creates an identifier that points to an Epic Fight resource.
+	///
+	/// This was called `identifier` and not `resourceLocation` since [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+	public static @NotNull ResourceLocation identifier(@NotNull String path) {
+		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+	}
+
+	/// @deprecated Use [#identifier(String)] instead. [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+	@Deprecated(forRemoval = true)
+	public static @NotNull ResourceLocation rl(@NotNull String path) {
+		return identifier(path);
+	}
 }

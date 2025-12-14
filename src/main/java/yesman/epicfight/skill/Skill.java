@@ -146,7 +146,7 @@ public abstract class Skill {
 	@ApiStatus.Internal
 	@Deprecated
 	private Skill() {
-		this.registryName = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "empty");
+        this.registryName = EpicFightMod.identifier("empty");
 		this.category = SkillCategories.EMPTY;
 		this.creativeTab = null;
 		this.activateType = ActivateType.ONE_SHOT;

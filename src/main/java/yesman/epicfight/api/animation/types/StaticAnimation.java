@@ -86,8 +86,8 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	
 	public StaticAnimation() {
 		super(0.0F, true);
-		
-		this.resourceLocation = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "emtpy");
+
+		this.resourceLocation = EpicFightMod.identifier("emtpy");
 		this.armature = null;
 		this.filehash = StringUtil.EMPTY_STRING;
 	}

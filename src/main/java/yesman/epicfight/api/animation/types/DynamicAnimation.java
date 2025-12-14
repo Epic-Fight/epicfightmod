@@ -142,7 +142,7 @@ public abstract class DynamicAnimation {
 	}
 	
 	public ResourceLocation getRegistryName() {
-		return ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "");
+		return EpicFightMod.identifier("");
 	}
 	
 	public int getId() {

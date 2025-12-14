@@ -18,10 +18,10 @@ public final class EpicFightMobEffects {
 	
 	public static final DeferredHolder<MobEffect, VisibleMobEffect> STUN_IMMUNITY = REGISTRY.register("stun_immunity", () -> 
 		new VisibleMobEffect(
-			  MobEffectCategory.BENEFICIAL
-			, 16758016
-			, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/stun_immunity.png")
-		)
+                MobEffectCategory.BENEFICIAL
+                , 16758016
+                , EpicFightMod.identifier("textures/mob_effect/stun_immunity.png")
+        )
 	);
 	
 	//public static final RegistryObject<MobEffect> BLOOMING = EFFECTS.register("blooming", () -> 
@@ -29,18 +29,18 @@ public final class EpicFightMobEffects {
 	
 	public static final DeferredHolder<MobEffect, VisibleMobEffect> INSTABILITY = REGISTRY.register("instability", () -> 
 		new VisibleMobEffect(
-			  MobEffectCategory.HARMFUL
-			, 0
-			, (effectInstance) ->
-			  	  Math.min(effectInstance.getAmplifier(), 2)
-				, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability1.png")
-				, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability2.png")
-				, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability3.png")
-		)
+                MobEffectCategory.HARMFUL
+                , 0
+                , (effectInstance) ->
+                Math.min(effectInstance.getAmplifier(), 2)
+                , EpicFightMod.identifier("textures/mob_effect/instability1.png")
+                , EpicFightMod.identifier("textures/mob_effect/instability2.png")
+                , EpicFightMod.identifier("textures/mob_effect/instability3.png")
+        )
 	);
 	
 	public static void addOffhandModifier() {
-		MobEffects.DIG_SPEED.value().addAttributeModifier(EpicFightAttributes.OFFHAND_ATTACK_SPEED, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "offhand_dig_modifier"), 0.1D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-		MobEffects.DIG_SLOWDOWN.value().addAttributeModifier(EpicFightAttributes.OFFHAND_ATTACK_SPEED, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "offhand_dig_modifier"), -0.1D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+		MobEffects.DIG_SPEED.value().addAttributeModifier(EpicFightAttributes.OFFHAND_ATTACK_SPEED, EpicFightMod.identifier("offhand_dig_modifier"), 0.1D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+		MobEffects.DIG_SLOWDOWN.value().addAttributeModifier(EpicFightAttributes.OFFHAND_ATTACK_SPEED, EpicFightMod.identifier("offhand_dig_modifier"), -0.1D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 	}
 }

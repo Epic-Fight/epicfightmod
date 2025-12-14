@@ -134,8 +134,8 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private enum EpicFightRadialIcons {
-        UCHIGATANA(EpicFightMod.rl("textures/item/uchigatana_gui.png")),
-        SKILL_BOOK(EpicFightMod.rl("textures/item/skillbook.png"));
+        UCHIGATANA(EpicFightMod.identifier("textures/item/uchigatana_gui.png")),
+        SKILL_BOOK(EpicFightMod.identifier("textures/item/skillbook.png"));
 
         private final @NotNull ResourceLocation id;
 
@@ -309,7 +309,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_CONFIG_SCREEN -> "open_config_screen";
             case SWITCH_VANILLA_MODEL_DEBUGGING -> "switch_vanilla_mode_debugging";
         };
-        return EpicFightMod.rl(path);
+        return EpicFightMod.identifier(path);
     }
 
     private static void registerModIntegration() {
@@ -336,14 +336,14 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
 
     private static void registerGuides(GuideDomainRegistry<InGameCtx> inGameRegistry, GuideDomainRegistry<ContainerCtx> containerRegistry) {
         // Facts are registered here; rules in "assets/controlify/guides/in_game.json" reference these facts.
-        inGameRegistry.registerFact(new Fact<>(EpicFightMod.rl("can_perform_dodge"), ctx -> {
+        inGameRegistry.registerFact(new Fact<>(EpicFightMod.identifier("can_perform_dodge"), ctx -> {
             final LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
             if (localPlayerPatch == null || !localPlayerPatch.isEpicFightMode()) {
                 return false;
             }
             return localPlayerPatch.getPlayerSkills().hasCategory(SkillCategories.DODGE);
         }));
-        containerRegistry.registerFact(new Fact<>(EpicFightMod.rl("can_show_weapon_innate_skill_tooltip"), ctx -> {
+        containerRegistry.registerFact(new Fact<>(EpicFightMod.identifier("can_show_weapon_innate_skill_tooltip"), ctx -> {
             final Slot hoveredSlot = ctx.hoveredSlot();
             if (hoveredSlot == null || !ctx.hoveredSlot().hasItem()) {
                 return false;

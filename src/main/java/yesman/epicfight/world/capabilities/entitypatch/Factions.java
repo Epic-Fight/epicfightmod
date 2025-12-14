@@ -5,15 +5,15 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.main.EpicFightMod;
 
 public enum Factions implements Faction {
-	NEUTRAL(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(255, 255, 0, 100), 0),
-	UNDEAD(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 1),
-	BLAZE(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(183, 227, 255, 255), 2),
-	ENDERMAN(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 3),
-	ILLAGER(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 4),
-	PIGLINS(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 5),
-	WITHER(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 1),
-	VILLAGER(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 0),
-	ZOMBIFIED_PIGLIN(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 2)
+	NEUTRAL(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 255, 0, 100), 0),
+	UNDEAD(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 1),
+	BLAZE(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(183, 227, 255, 255), 2),
+	ENDERMAN(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 3),
+	ILLAGER(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 4),
+	PIGLINS(EpicFightMod.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 0, 0, 100), 5),
+	WITHER(EpicFightMod.identifier("textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 1),
+	VILLAGER(EpicFightMod.identifier("textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 0),
+	ZOMBIFIED_PIGLIN(EpicFightMod.identifier("textures/gui/healthbars2.png"), MathUtils.packColor(255, 0, 0, 100), 2)
 	;
 	
 	final ResourceLocation healthBar;

@@ -207,7 +207,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 			switch (packet.pairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
 			case BONEBREAKER_BEGIN -> {
 				this.entityDecorations.addDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY, new DecorationOverlay() {
-					static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/crack_level1.png");
+                    static final ResourceLocation TEXTURE = EpicFightMod.identifier("textures/entity/overlay/crack_level1.png");
 					
 					@Override
 					public RenderType getRenderType() {
@@ -217,7 +217,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 			}
 			case BONEBREAKER_MAX_STACK -> {
 				this.entityDecorations.addDecorationOverlay(EntityDecorations.BONEBREAKER_OVERLAY, new DecorationOverlay() {
-					static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/crack_level2.png");
+                    static final ResourceLocation TEXTURE = EpicFightMod.identifier("textures/entity/overlay/crack_level2.png");
 					
 					@Override
 					public RenderType getRenderType() {

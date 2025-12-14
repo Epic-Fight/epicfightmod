@@ -135,7 +135,7 @@ public class RenderEngine implements IEventBasedEngine {
 		builder.put(ResourceLocation.withDefaultNamespace("map"), RenderFilledMap::new);
 		builder.put(ResourceLocation.withDefaultNamespace("shield"), RenderShield::new);
 		builder.put(ResourceLocation.withDefaultNamespace("trident"), RenderTrident::new);
-		builder.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "uchigatana"), RenderKatana::new);
+		builder.put(EpicFightMod.identifier("uchigatana"), RenderKatana::new);
 		
 		ModLoader.postEvent(new PatchedRenderersEvent.RegisterItemRenderer(builder));
 		
@@ -298,7 +298,7 @@ public class RenderEngine implements IEventBasedEngine {
 	
 	public Set<ResourceLocation> getRendererEntries() {
 		Set<ResourceLocation> availableRendererEntities = this.entityRendererProvider.keySet().stream().map((entityType) -> EntityType.getKey(entityType)).collect(Collectors.toSet());
-		availableRendererEntities.add(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "custom"));
+		availableRendererEntities.add(EpicFightMod.identifier("custom"));
 		
 		return availableRendererEntities;
 	}

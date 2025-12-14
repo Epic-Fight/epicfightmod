@@ -17,14 +17,14 @@ public final class EpicFightControlifyBindContexts {
         }
 
         public static final BindContext COMBAT_MODE = new BindContext(
-                EpicFightMod.rl("epicfight_combat"),
+                EpicFightMod.identifier("epicfight_combat"),
                 mc -> {
                     final boolean isInGame = isInGame(mc);
                     return isInGame && ClientEngine.getInstance().isEpicFightMode();
                 }
         );
         public static final BindContext LOCK_ON = new BindContext(
-                EpicFightMod.rl("epicfight_lock_on"),
+                EpicFightMod.identifier("epicfight_lock_on"),
                 mc -> {
                     final boolean isInGame = isInGame(mc);
                     return isInGame && EpicFightCameraAPI.getInstance().isLockingOnTarget();

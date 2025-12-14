@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed broken Epic Fight entity patches due to `Vindicator` being cast to `Spider`.
 
+### For Devs
+
+- Deprecated `EpicFightMod.rl` and added `EpicFightMod.identifier` since
+  [Mojang renamed `ResourceLocation` to
+  `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+
 ## [21.14.3] - 2025-12-11
 
 ### Fixed

@@ -45,51 +45,51 @@ public class ColliderPreset implements PreparableReloadListener {
 		return PRESETS.get(rl);
 	}
 	
-	public static final Collider DAGGER = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dagger"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.6D, 0.0D, 0.0D, -0.1D));
-	public static final Collider DUAL_DAGGER_DASH = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dual_dagger_dash"), new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D));
-	public static final Collider BIPED_BODY_COLLIDER = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "biped_body_collider"), new MultiOBBCollider(
-			new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D),
-			new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D)
-		));
-	public static final Collider DRAGON_BODY = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dragon_body"), new OBBCollider(2.0D, 1.5D, 4.0D, 0.0D, 1.5D, -0.5D));
-	public static final Collider DRAGON_LEG = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dragon_leg"), new MultiOBBCollider(3, 0.8D, 1.6D, 0.8D, 0.0D, -0.6D, 0.7D));
-	public static final Collider DUAL_SWORD = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dual_sword"), new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 0.5D, -1.0D));
-	public static final Collider DUAL_SWORD_DASH = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dual_sword_dash"), new OBBCollider(0.8D, 0.5D, 1.0D, 0D, 1.0D, -1.0D));
-	public static final Collider BATTOJUTSU = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "battojutsu"), new OBBCollider(3.0D, 0.4D, 1.5D, 0.0D, 1.2D, -1.0D));
-	public static final Collider BATTOJUTSU_DASH = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "battojutsu_dash"), new MultiOBBCollider(
-			new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
-			new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
-			new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
-			new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
-			new OBBCollider(1.5D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D)
-		));
-	public static final Collider FIST = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "fist"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.4D, 0D, 0D, 0D));
-	public static final Collider GREATSWORD = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "greatsword"), new MultiOBBCollider(3, 0.5D, 0.8D, 1.0D, 0D, 0D, -1.0D));
-	public static final Collider HEAD = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "head"), new OBBCollider(0.4D, 0.4D, 0.4D, 0D, 0D, -0.3D));
-	public static final Collider HEADBUTT_RAVAGER = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "headbutt_ravager"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.3D));
-	public static final Collider UCHIGATANA = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "uchigatana"), new MultiOBBCollider(5, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.7D));
-	public static final Collider TACHI = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "tachi"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.95D, 0D, 0D, -0.95D));
-	public static final Collider SWORD = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "sword"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.35D));
-	public static final Collider LONGSWORD = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "longsword"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.8D, 0D, 0D, -0.75D));
-	public static final Collider SPEAR = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "spear"), new MultiOBBCollider(3, 0.6D, 0.6D, 1.0D, 0D, 0D, -1.0D));
-	public static final Collider SPIDER = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "spider"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.4D));
+	public static final Collider DAGGER = registerCollider(EpicFightMod.identifier("dagger"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.6D, 0.0D, 0.0D, -0.1D));
+	public static final Collider DUAL_DAGGER_DASH = registerCollider(EpicFightMod.identifier("dual_dagger_dash"), new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D));
+	public static final Collider BIPED_BODY_COLLIDER = registerCollider(EpicFightMod.identifier("biped_body_collider"), new MultiOBBCollider(
+            new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D),
+            new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 1.0D, -0.6D)
+    ));
+	public static final Collider DRAGON_BODY = registerCollider(EpicFightMod.identifier("dragon_body"), new OBBCollider(2.0D, 1.5D, 4.0D, 0.0D, 1.5D, -0.5D));
+	public static final Collider DRAGON_LEG = registerCollider(EpicFightMod.identifier("dragon_leg"), new MultiOBBCollider(3, 0.8D, 1.6D, 0.8D, 0.0D, -0.6D, 0.7D));
+	public static final Collider DUAL_SWORD = registerCollider(EpicFightMod.identifier("dual_sword"), new OBBCollider(0.8D, 0.5D, 1.0D, 0.0D, 0.5D, -1.0D));
+	public static final Collider DUAL_SWORD_DASH = registerCollider(EpicFightMod.identifier("dual_sword_dash"), new OBBCollider(0.8D, 0.5D, 1.0D, 0D, 1.0D, -1.0D));
+	public static final Collider BATTOJUTSU = registerCollider(EpicFightMod.identifier("battojutsu"), new OBBCollider(3.0D, 0.4D, 1.5D, 0.0D, 1.2D, -1.0D));
+	public static final Collider BATTOJUTSU_DASH = registerCollider(EpicFightMod.identifier("battojutsu_dash"), new MultiOBBCollider(
+            new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
+            new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
+            new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
+            new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
+            new OBBCollider(1.5D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D)
+    ));
+	public static final Collider FIST = registerCollider(EpicFightMod.identifier("fist"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.4D, 0D, 0D, 0D));
+	public static final Collider GREATSWORD = registerCollider(EpicFightMod.identifier("greatsword"), new MultiOBBCollider(3, 0.5D, 0.8D, 1.0D, 0D, 0D, -1.0D));
+	public static final Collider HEAD = registerCollider(EpicFightMod.identifier("head"), new OBBCollider(0.4D, 0.4D, 0.4D, 0D, 0D, -0.3D));
+	public static final Collider HEADBUTT_RAVAGER = registerCollider(EpicFightMod.identifier("headbutt_ravager"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.3D));
+	public static final Collider UCHIGATANA = registerCollider(EpicFightMod.identifier("uchigatana"), new MultiOBBCollider(5, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.7D));
+	public static final Collider TACHI = registerCollider(EpicFightMod.identifier("tachi"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.95D, 0D, 0D, -0.95D));
+	public static final Collider SWORD = registerCollider(EpicFightMod.identifier("sword"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.35D));
+	public static final Collider LONGSWORD = registerCollider(EpicFightMod.identifier("longsword"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.8D, 0D, 0D, -0.75D));
+	public static final Collider SPEAR = registerCollider(EpicFightMod.identifier("spear"), new MultiOBBCollider(3, 0.6D, 0.6D, 1.0D, 0D, 0D, -1.0D));
+	public static final Collider SPIDER = registerCollider(EpicFightMod.identifier("spider"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.4D));
 	
-	public static final Collider STEEL_WHIRLWIND = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "steel_whirlwind"), new MultiOBBCollider(
-			new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
-			new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
-			new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
-			new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D)
-		));
+	public static final Collider STEEL_WHIRLWIND = registerCollider(EpicFightMod.identifier("steel_whirlwind"), new MultiOBBCollider(
+            new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
+            new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
+            new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D),
+            new OBBCollider(1.8D, 0.6D, 1.5D, 0.0D, 1.0D, -0.5D)
+    ));
 	
-	public static final Collider TOOLS = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "tools"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.55D, 0D, 0.0D, -0.25D));
-	public static final Collider ENDERMAN_LIMB = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "enderman_limb"), new OBBCollider(0.4D, 0.8D, 0.4D, 0D, 0D, 0D));
-	public static final Collider GOLEM_SMASHDOWN = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "golem_smashdown"), new MultiOBBCollider(3, 0.75D, 0.5D, 0.5D, 0.6D, 0.5D, 0D));
-	public static final Collider GOLEM_SWING_ARM = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "golem_swing_arm"), new MultiOBBCollider(2, 0.6D, 0.9D, 0.6D, 0D, 0D, 0D));
-	public static final Collider FIST_FIXED = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "fist_fixed"), new OBBCollider(0.4D, 0.4D, 0.5D, 0D, 1.25D, -0.85D));
-	public static final Collider DUAL_SWORD_AIR_SLASH = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dual_sword_air_slash"), new OBBCollider(0.8D, 0.4D, 1.0D, 0D, 0.5D, -0.5D));
-	public static final Collider DUAL_DAGGER_AIR_SLASH = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "dual_dagger_air_slash"), new OBBCollider(0.8D, 0.4D, 0.75D, 0D, 0.5D, -0.5D));
-	public static final Collider WITHER_CHARGE = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "wither_charge"), new MultiOBBCollider(5, 0.7D, 0.9D, 0.7D, 0D, 1.0D, -0.35D));
-	public static final Collider VEX_CHARGE = registerCollider(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "vex_charge"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.95D, 0D, 0.2D, -0.85D));
+	public static final Collider TOOLS = registerCollider(EpicFightMod.identifier("tools"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.55D, 0D, 0.0D, -0.25D));
+	public static final Collider ENDERMAN_LIMB = registerCollider(EpicFightMod.identifier("enderman_limb"), new OBBCollider(0.4D, 0.8D, 0.4D, 0D, 0D, 0D));
+	public static final Collider GOLEM_SMASHDOWN = registerCollider(EpicFightMod.identifier("golem_smashdown"), new MultiOBBCollider(3, 0.75D, 0.5D, 0.5D, 0.6D, 0.5D, 0D));
+	public static final Collider GOLEM_SWING_ARM = registerCollider(EpicFightMod.identifier("golem_swing_arm"), new MultiOBBCollider(2, 0.6D, 0.9D, 0.6D, 0D, 0D, 0D));
+	public static final Collider FIST_FIXED = registerCollider(EpicFightMod.identifier("fist_fixed"), new OBBCollider(0.4D, 0.4D, 0.5D, 0D, 1.25D, -0.85D));
+	public static final Collider DUAL_SWORD_AIR_SLASH = registerCollider(EpicFightMod.identifier("dual_sword_air_slash"), new OBBCollider(0.8D, 0.4D, 1.0D, 0D, 0.5D, -0.5D));
+	public static final Collider DUAL_DAGGER_AIR_SLASH = registerCollider(EpicFightMod.identifier("dual_dagger_air_slash"), new OBBCollider(0.8D, 0.4D, 0.75D, 0D, 0.5D, -0.5D));
+	public static final Collider WITHER_CHARGE = registerCollider(EpicFightMod.identifier("wither_charge"), new MultiOBBCollider(5, 0.7D, 0.9D, 0.7D, 0D, 1.0D, -0.35D));
+	public static final Collider VEX_CHARGE = registerCollider(EpicFightMod.identifier("vex_charge"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.95D, 0D, 0.2D, -0.85D));
 	
 	public static Collider deserializeSimpleCollider(CompoundTag tag) throws IllegalArgumentException {
 		int number = tag.getInt("number");

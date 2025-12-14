@@ -459,9 +459,9 @@ public class Animations {
 					return dot < 0.0D ? 1 : 0;
 				},
 				accessor,
-				new DirectStaticAnimation(EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "biped/living/creative_fly_forward"), Armatures.BIPED)
+				new DirectStaticAnimation(EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME, true, EpicFightMod.identifier("biped/living/creative_fly_forward"), Armatures.BIPED)
 					.addProperty(StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.FLYING_CORRECTION),
-				new DirectStaticAnimation(EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "biped/living/creative_fly_backward"), Armatures.BIPED)
+				new DirectStaticAnimation(EpicFightSharedConstants.GENERAL_ANIMATION_TRANSITION_TIME, true, EpicFightMod.identifier("biped/living/creative_fly_backward"), Armatures.BIPED)
 					.addProperty(StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.FLYING_CORRECTION2)
 			)
 		);
@@ -515,8 +515,8 @@ public class Animations {
 			new SelectiveAnimation(
 				(entitypatch) -> entitypatch.getOriginal().swingingArm == InteractionHand.OFF_HAND ? 1 : 0,
 				accessor,
-				new DirectStaticAnimation(0.1F, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "biped/living/dig_mainhand"), Armatures.BIPED),
-				new DirectStaticAnimation(0.1F, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "biped/living/dig_offhand"), Armatures.BIPED)
+				new DirectStaticAnimation(0.1F, true, EpicFightMod.identifier("biped/living/dig_mainhand"), Armatures.BIPED),
+				new DirectStaticAnimation(0.1F, true, EpicFightMod.identifier("biped/living/dig_offhand"), Armatures.BIPED)
 			)
 		);
 		

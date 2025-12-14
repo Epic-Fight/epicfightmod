@@ -60,7 +60,7 @@ import yesman.epicfight.world.item.SkillBookItem;
 public class SkillBookScreen extends Screen {
 	private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = new HashMap<> ();
 	private static final Map<Holder<Attribute>, TextureInfo> ATTRIBUTE_ICONS = new HashMap<> ();
-	private static final ResourceLocation SKILLBOOK_BACKGROUND = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/screen/skillbook.png");
+    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightMod.identifier("textures/gui/screen/skillbook.png");
 	
 	public static final TextureInfo HEALTH_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 22, 205, 10, 10);
 	public static final TextureInfo STAMINA_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 32, 205, 10, 10);
@@ -668,10 +668,10 @@ public class SkillBookScreen extends Screen {
 	
 	private class LearnButton extends Button {
 		protected static final WidgetSprites SPRITES = new WidgetSprites(
-	        ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "widget/skillbook_button"),
-	        ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "widget/skillbook_button_disabled"),
-	        ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "widget/skillbook_button_highlighted")
-	    );
+                EpicFightMod.identifier("widget/skillbook_button"),
+                EpicFightMod.identifier("widget/skillbook_button_disabled"),
+                EpicFightMod.identifier("widget/skillbook_button_highlighted")
+        );
 		
 		protected LearnButton(Builder builder) {
 			super(builder);

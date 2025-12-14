@@ -47,7 +47,7 @@ public class SkillReloadListener extends SimpleJsonResourceReloadListener {
 		if (name.indexOf(':') >= 0) {
 			rl = ResourceLocation.parse(name);
 		} else {
-			rl = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, name);
+            rl = EpicFightMod.identifier(name);
 		}
 		
 		if (EpicFightRegistries.SKILL.containsKey(rl)) {

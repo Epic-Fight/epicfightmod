@@ -6,7 +6,7 @@ import yesman.epicfight.api.utils.ExtensibleEnumManager;
 import yesman.epicfight.main.EpicFightMod;
 
 public interface SkillCategory extends ExtensibleEnum {
-	ResourceLocation DEFAULT_BOOK_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook");
+    ResourceLocation DEFAULT_BOOK_ICON = EpicFightMod.identifier("skillbook");
 	
 	ExtensibleEnumManager<SkillCategory> ENUM_MANAGER = new ExtensibleEnumManager<> ("skill_category");
 	

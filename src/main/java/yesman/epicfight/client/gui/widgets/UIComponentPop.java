@@ -182,7 +182,7 @@ public class UIComponentPop<T extends UIComponent> extends Screen implements Con
 		}
 		
 		public static class AlignButton extends Button {
-			private static final ResourceLocation BATTLE_ICONS = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png");
+            private static final ResourceLocation BATTLE_ICONS = EpicFightMod.identifier("textures/gui/battle_icons.png");
 			private final OptionHandler<HorizontalBasis> horBasis;
 			private final OptionHandler<VerticalBasis> verBasis;
 			private final OptionHandler<AlignDirection> alignDirection;

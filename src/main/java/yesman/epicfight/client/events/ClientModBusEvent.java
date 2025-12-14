@@ -101,10 +101,10 @@ public final class ClientModBusEvent {
 	
 	@SubscribeEvent
 	public static void epicfight$registerGuiOverlaysEvent(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
-		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
-		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
-		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
+		event.registerAboveAll(EpicFightMod.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
+		event.registerAboveAll(EpicFightMod.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
+		event.registerAboveAll(EpicFightMod.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
+		event.registerAboveAll(EpicFightMod.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
 	}
 	
 	private static ResourceLocation wrapItemModelPath(ResourceLocation rl) {
@@ -137,7 +137,7 @@ public final class ClientModBusEvent {
 			
 			ItemOverrides overrides = event.getModels().get(skillbookLocation).getOverrides();
 			overrides.overrides = skillCategoryOverrides.toArray(i -> new ItemOverrides.BakedOverride[i]);
-			overrides.properties = new ResourceLocation[] {ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill")};
+			overrides.properties = new ResourceLocation[]{EpicFightMod.identifier("skill")};
 		}
 	}
 }

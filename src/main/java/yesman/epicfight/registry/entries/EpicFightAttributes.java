@@ -55,13 +55,13 @@ public final class EpicFightAttributes {
 	public static final DeferredHolder<Attribute, Attribute> OFFHAND_MAX_STRIKES = REGISTRY.register("offhand_max_strikes", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".offhand_max_strikes", 1.0D, 1.0D, 1024.0).setSyncable(true));
 	public static final DeferredHolder<Attribute, Attribute> OFFHAND_ARMOR_NEGATION = REGISTRY.register("offhand_armor_negation", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".offhand_armor_negation", 0.0D, 0.0D, 100.0D).setSyncable(true));
 	public static final DeferredHolder<Attribute, Attribute> OFFHAND_IMPACT = REGISTRY.register("offhand_impact", () -> new RangedAttribute("attribute.name." + EpicFightMod.MODID + ".offhand_impact", 0.5D, 0.0D, 1024.0).setSyncable(true));
-	
-	// Modifier ids for epicfight attribute
-	public static final ResourceLocation ARMOR_NEGATION_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "armor_negation");
-	public static final ResourceLocation MAX_STRIKE_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "max_strikes");
-	public static final ResourceLocation IMPACT_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "impact");
-	public static final ResourceLocation ATTACK_DAMAGE_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "attack_damage");
-	public static final ResourceLocation ATTACK_SPEED_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "attack_speed");
+
+    // Modifier ids for epicfight attribute
+    public static final ResourceLocation ARMOR_NEGATION_MODIFIER = EpicFightMod.identifier("armor_negation");
+    public static final ResourceLocation MAX_STRIKE_MODIFIER = EpicFightMod.identifier("max_strikes");
+    public static final ResourceLocation IMPACT_MODIFIER = EpicFightMod.identifier("impact");
+    public static final ResourceLocation ATTACK_DAMAGE_MODIFIER = EpicFightMod.identifier("attack_damage");
+    public static final ResourceLocation ATTACK_SPEED_MODIFIER = EpicFightMod.identifier("attack_speed");
     
 	public static AttributeModifier getArmorNegationModifier(double value) {
 		return new AttributeModifier(ARMOR_NEGATION_MODIFIER, value, AttributeModifier.Operation.ADD_VALUE);

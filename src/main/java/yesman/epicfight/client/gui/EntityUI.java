@@ -20,7 +20,7 @@ public abstract class EntityUI {
 	public static final List<EntityUI> ENTITY_UI_LIST = Lists.newArrayList();
 	public static final TargetIndicator TARGET_INDICATOR = new TargetIndicator();
 	public static final HealthBar HEALTH_BAR  = new HealthBar();
-	public static final ResourceLocation BATTLE_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png");
+    public static final ResourceLocation BATTLE_ICON = EpicFightMod.identifier("textures/gui/battle_icons.png");
 	
 	public EntityUI() {
 		ENTITY_UI_LIST.add(this);

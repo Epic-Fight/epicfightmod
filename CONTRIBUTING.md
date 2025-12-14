@@ -30,18 +30,13 @@ participating in this project.
 
 ## 🍴 Forking & cloning the repository
 
-> [!TIP]
-> If you want a **beginner-friendly** guide on how to contribute by sending **pull requests** (aka PRs),
-> refer to [this video](https://youtu.be/8lGpZkjnkt4?si=X_OV0U6Jk3ox-DHY).
-> This skill will benefit you **greatly** as a **professional developer**, not just for one PR.
-
 - Fork the [GitHub repo](https://github.com/Epic-Fight/epicfight/) to your account. If you already have a fork,
-  make sure it's up to date.
+  make sure it’s up to date.
 
 * Clone your fork:
 
     ```bash
-    git clone git@github.com:YOUR_GITHUB_USERNAME_HERE/epicfight.git
+    git clone git@github.com:<your_name_here>/epicfight.git
     cd epicfight
     ```
 
@@ -52,28 +47,6 @@ participating in this project.
     ```
 
   This allows you to fetch updates from the main repository.
-
-* Create a local branch and checkout to it:
-
-  ```bash
-  git branch -b YOUR_BRANCH_NAME_HERE
-  ```
-
-* Make your changes and commit them (structured commits are a bonus):
-
-  ```bash
-  git add .
-  git commit -m "YOUR_COMMIT_MESSAGE_HERE"
-  ```
-
-* Push local branch:
-
-  ```bash
-  git push origin YOUR_BRANCH_NAME_HERE
-  ```
-
-* GitHub will prompt you to open a GitHub pull request, if not, you can
-  open [this link](http://github.com/Epic-Fight/epicfight/pull/new).
 
 ## 🧪 Testing
 
@@ -226,7 +199,7 @@ Confirm that it does not spam the log, with or without the third-party mod loade
 
 ### 5. Keep code modular
 
-Even if it's not a public API—or just a private method or field—keep the code modular.  
+Even if it’s not a public API—or just a private method or field—keep the code modular.  
 Avoid putting everything into a single large method that does it all, as this reduces reusability and leads to future
 refactoring, cleanup, breaking changes, and extensive testing to fix later.
 
@@ -257,7 +230,7 @@ private doAction() {
 ```
 
 The first example mixes the trigger condition with the action logic, making it harder for other mods to inject or extend
-behavior (even if they shouldn't, they should still have the option).
+behavior (even if they shouldn’t, they should still have the option).
 It also complicates adding new features, fixing bugs, porting to new versions, maintaining the code, and keeping it
 readable.
 
@@ -270,9 +243,9 @@ Maybe the
 
 ### 6. Always test the game in a production environment
 
-Even if it works on your development machine, that doesn't mean it will work in a production environment.  
+Even if it works on your development machine, that doesn’t mean it will work in a production environment.  
 When modifying mixins, always build the JAR file and test it in a fresh instance to ensure it truly works from the
-user's perspective.
+user’s perspective.
 
 ### 7. Don't rely on temporary understanding
 
@@ -287,56 +260,8 @@ Always take time to ensure your code is simple and easy to understand.
 
 ### 8. Document public APIs
 
-Although our existing public APIs lack documentation, we're working to improve this going forward.
+Although our existing public APIs lack documentation, we’re working to improve this going forward.
 
 ### 9. Keep code formatting consistent
 
 Currently, we don't have a GitHub workflow or CI setup to enforce this, but that may change in future releases.
-
-### 10. Avoid magical numbers
-
-Avoid mysterious and magical numbers that lack a clear purpose or explanation.
-
-```diff
-- rect.left = 4.24264068712;
-+ rect.left = 3.0 * Math.sqrt(2);
-```
-
-### 11. Use Markdown for Javadoc comments
-
-Markdown support has been [added in Java 23+](https://openjdk.org/jeps/467); however,  
-[IntelliJ IDEA supports it](https://blog.jetbrains.com/idea/2025/04/markdown-in-java-docs-shut-up-and-take-my-comments/)
-in any Java version.
-
-To adopt this change, new comments should be written using Markdown syntax,  
-and existing comments should be migrated gradually.
-
-#### 🚫 Avoid
-
-```java
-/**
- * This key mapping only applies {@link KeyConflictContext#IN_GAME} since it represents player moves
- */
-```
-
-#### ✅ Preferred
-
-```java
-/// This key mapping only applies [KeyConflictContext#IN_GAME] since it represents player moves.
-```
-
-### 12. Avoid hardcoding translation keys in the source code
-
-Avoid referencing translation keys (from `en_us.json` resource file) directly in source code,
-instead, use the generated `LangKeys` object:
-
-```diff
-- String key = "key." + EpicFightMod.MODID + ".switch_mode.description";
-+ String key = LangKeys.KEY_SWITCH_MODE_DESCRIPTION;
-
-Component.translatable(key);
-```
-
-Hardcoding is error-prone, more runtime crashes and bugs, and misleading behavior.
-Where `LangKeys` is a generated object that updates when launching the game,
-and automatically adapts the latest `en_us.json` changes, forcing all references to be fixed at compile time.

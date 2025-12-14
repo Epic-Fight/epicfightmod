@@ -34,7 +34,7 @@ public class EpicFightDamageSource extends DamageSource {
 	
 	private float baseArmorNegation;
 	private float baseImpact;
-	private boolean chargeWeapon;
+	private boolean basicAttack;
 	
 	public EpicFightDamageSource(DamageSource damageSource) {
 		this(damageSource.typeHolder(), damageSource.getDirectEntity(), damageSource.getEntity(), damageSource.getSourcePosition());
@@ -110,12 +110,13 @@ public class EpicFightDamageSource extends DamageSource {
 		return initialPosition;
 	}
 	
-	public void setChargeWeapon(boolean chargeWeapon) {
-		this.chargeWeapon = chargeWeapon;
+	public EpicFightDamageSource setBasicAttack(boolean basicAttack) {
+		this.basicAttack = basicAttack;
+		return this;
 	}
 	
-	public boolean shouldChargeWeapon() {
-		return chargeWeapon;
+	public boolean isBasicAttack() {
+		return basicAttack;
 	}
 	
 	public EpicFightDamageSource setAnimation(AnimationAccessor<? extends StaticAnimation> animation) {

@@ -3,7 +3,7 @@ package yesman.epicfight.client.gui.datapack.widgets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.Component;
 
 public class RowSpliter implements ResizableComponent {
@@ -29,7 +29,7 @@ public class RowSpliter implements ResizableComponent {
 	
 	@Override
 	public void _renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		guiGraphics.blit(Screen.HEADER_SEPARATOR, this.x, this.y + this.height / 2, 0.0F, 0.0F, this.width, 2, 32, 2);
+		guiGraphics.blit(CreateWorldScreen.HEADER_SEPERATOR, this.x, this.y + this.height / 2, 0.0F, 0.0F, this.width, 2, 32, 2);
 	}
 	
 	@Override
@@ -123,6 +123,10 @@ public class RowSpliter implements ResizableComponent {
 	@Override
 	public VerticalSizing getVerticalSizingOption() {
 		return this.verticalSizing;
+	}
+
+	@Override
+	public void _tick() {
 	}
 
 	@Override

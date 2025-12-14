@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "## ",
+        "LL ",
+        "   "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:iron_nugget"
+        },
+        "L": {
+            "item": "minecraft:leather"
+        }
+    },
+    
+    "result":
+    {
+        "item" : "epicfight:glove",
+        "count" : 1
+    }
+}

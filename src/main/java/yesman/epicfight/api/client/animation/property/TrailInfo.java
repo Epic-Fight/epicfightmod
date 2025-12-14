@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 
 import io.netty.util.internal.StringUtil;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -16,10 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 
 public record TrailInfo(
 	  Vec3 start
@@ -192,7 +192,7 @@ public record TrailInfo(
 		
 		if (trailObj.has("particle_type")) {
 			String particleTypeName = GsonHelper.getAsString(trailObj, "particle_type");
-			SimpleParticleType particleType = (SimpleParticleType)BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(particleTypeName));
+			SimpleParticleType particleType = (SimpleParticleType)ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(particleTypeName));
 			trailBuilder.type(particleType);
 		}
 		
@@ -271,8 +271,7 @@ public record TrailInfo(
 		
 		if (compoundTag.contains("particle_type")) {
 			String particleTypeName = compoundTag.getString("particle_type");
-			
-			SimpleParticleType particleType = (SimpleParticleType)BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(particleTypeName));
+			SimpleParticleType particleType = (SimpleParticleType)ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(particleTypeName));
 			trailBuilder.type(particleType);
 		}
 		

@@ -3,7 +3,6 @@ package yesman.epicfight.api.model;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -36,7 +35,7 @@ public class Armature {
 		this.rootJoint = rootJoint;
 		this.jointByName = jointMap;
 		this.jointById = new Int2ObjectOpenHashMap<>();
-		this.pathIndexMap = new HashMap<> ();
+		this.pathIndexMap = Maps.newHashMap();
 		
 		this.jointByName.values().forEach((joint) -> {
 			this.jointById.put(joint.getId(), joint);

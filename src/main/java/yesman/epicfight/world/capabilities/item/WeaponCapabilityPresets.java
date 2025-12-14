@@ -2,69 +2,53 @@ package yesman.epicfight.world.capabilities.item;
 
 import java.util.function.Function;
 
+import com.mojang.datafixers.util.Pair;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
-import yesman.epicfight.registry.entries.EpicFightParticles;
-import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
-import yesman.epicfight.registry.entries.EpicFightSkills;
-import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.ZoomInType;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
-public abstract class WeaponCapabilityPresets {
-	public static int vanillaTierToLevel(Tier tier) {
-		if (tier instanceof Tiers vanillaTier) {
-			switch (vanillaTier) {
-			case WOOD -> {return 0;}
-			case STONE -> {return 1;}
-			case IRON -> {return 2;}
-			case DIAMOND -> {return 3;}
-			case GOLD -> {return 0;}
-			case NETHERITE -> {return 4;}
-			}
-		}
-		
-		double sqrt = Math.sqrt(tier.getUses());
-		
-		// Custom tier mapping
-		return sqrt < 10.0D ? 0 : (int)Math.round(sqrt / 10.0D);
-	}
-	
-	public static final Function<Item, WeaponCapability.Builder> AXE = (item) -> {
-		WeaponCapability.Builder builder = WeaponCapability.builder()
+@SuppressWarnings("deprecation") // getLevel
+public class WeaponCapabilityPresets {
+	public static final Function<Item, CapabilityItem.Builder> AXE = (item) -> {
+		CapabilityItem.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.AXE)
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
 			.collider(ColliderPreset.TOOLS)
 			.newStyleCombo(Styles.ONE_HAND, Animations.AXE_AUTO1, Animations.AXE_AUTO2, Animations.AXE_DASH, Animations.AXE_AIRSLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.THE_GUILLOTINE.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.GUILLOTINE_AXE)
 			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD);
 		
 		if (item instanceof TieredItem tieredItem) {
-			int tierLevel = vanillaTierToLevel(tieredItem.getTier());
+			int harvestLevel = tieredItem.getTier().getLevel();
 			
-			if (tierLevel != 0) {
-				builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.ARMOR_NEGATION, EpicFightAttributes.getArmorNegationModifier(10.0D * tierLevel));
+			if (harvestLevel != 0) {
+				builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.ARMOR_NEGATION.get(), EpicFightAttributes.getArmorNegationModifier(10.0D * harvestLevel)));
 			}
 			
-			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(0.7D + 0.3D * tierLevel));
+			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.IMPACT.get(), EpicFightAttributes.getImpactModifier(0.7D + 0.3D * harvestLevel)));
 		}
 		
 		return builder;
 	};
 	
-	public static final Function<Item, WeaponCapability.Builder> HOE = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> HOE = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.HOE)
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
@@ -72,14 +56,14 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
 		
 		if (item instanceof TieredItem tieredItem) {
-			int tierLevel = vanillaTierToLevel(tieredItem.getTier());;
-			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(-0.4D + 0.1D * tierLevel));
+			int harvestLevel = tieredItem.getTier().getLevel();
+			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.IMPACT.get(), EpicFightAttributes.getImpactModifier(-0.4D + 0.1D * harvestLevel)));
 		}
 		
 		return builder;
 	};
 	
-	public static final Function<Item, WeaponCapability.Builder> PICKAXE = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> PICKAXE = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.PICKAXE)
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
@@ -88,19 +72,19 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
 		
 		if (item instanceof TieredItem tieredItem) {
-			int tierLevel = vanillaTierToLevel(tieredItem.getTier());;
+			int harvestLevel = tieredItem.getTier().getLevel();
 			
-			if (tierLevel != 0) {
-				builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.ARMOR_NEGATION, EpicFightAttributes.getArmorNegationModifier(6.0D * tierLevel));
+			if (harvestLevel != 0) {
+				builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.ARMOR_NEGATION.get(), EpicFightAttributes.getArmorNegationModifier(6.0D * harvestLevel)));
 			}
 			
-			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(0.4D + 0.1D * tierLevel));
+			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.IMPACT.get(), EpicFightAttributes.getImpactModifier(0.4D + 0.1D * harvestLevel)));
 		}
 		
 		return builder;
 	};
 	
-	public static final Function<Item, WeaponCapability.Builder> SHOVEL = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> SHOVEL = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.SHOVEL)
 			.collider(ColliderPreset.TOOLS)
@@ -108,14 +92,14 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
 		
 		if (item instanceof TieredItem tieredItem) {
-			int tierLevel = vanillaTierToLevel(tieredItem.getTier());;
-			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(0.8D + 0.4D * tierLevel));
+			int harvestLevel = tieredItem.getTier().getLevel();
+			builder.addStyleAttibutes(CapabilityItem.Styles.COMMON, Pair.of(EpicFightAttributes.IMPACT.get(), EpicFightAttributes.getImpactModifier(0.8D + 0.4D * harvestLevel)));
 		}
 		
 		return builder;
 	};
 	
-	public static final Function<Item, WeaponCapability.Builder> SWORD = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> SWORD = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.SWORD)
 			.styleProvider((playerpatch) -> playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SWORD ? Styles.TWO_HAND : Styles.ONE_HAND)
@@ -123,8 +107,8 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.SWORD_AUTO1, Animations.SWORD_AUTO2, Animations.SWORD_AUTO3, Animations.SWORD_DASH, Animations.SWORD_AIR_SLASH)
 			.newStyleCombo(Styles.TWO_HAND, Animations.SWORD_DUAL_AUTO1, Animations.SWORD_DUAL_AUTO2, Animations.SWORD_DUAL_AUTO3, Animations.SWORD_DUAL_DASH, Animations.SWORD_DUAL_AIR_SLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE.get())
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.DANCING_EDGE.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE)
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.DANCING_EDGE)
 			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON)
@@ -145,7 +129,7 @@ public abstract class WeaponCapabilityPresets {
 		
 		return builder;
 	};
-	public static final Function<Item, WeaponCapability.Builder> SPEAR = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> SPEAR = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.SPEAR)
 			.swingSound(EpicFightSounds.WHOOSH_ROD.get())
@@ -156,8 +140,8 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.SPEAR_ONEHAND_AUTO, Animations.SPEAR_DASH, Animations.SPEAR_ONEHAND_AIR_SLASH)
 			.newStyleCombo(Styles.TWO_HAND, Animations.SPEAR_TWOHAND_AUTO1, Animations.SPEAR_TWOHAND_AUTO2, Animations.SPEAR_DASH, Animations.SPEAR_TWOHAND_AIR_SLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SPEAR_MOUNT_ATTACK)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.HEARTPIERCER.get())
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.GRASPING_SPIRE.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.HEARTPIERCER)
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.GRASPING_SPIRE)
 			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, Animations.BIPED_RUN_SPEAR)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_SPEAR)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_SPEAR)
@@ -174,7 +158,7 @@ public abstract class WeaponCapabilityPresets {
 		return builder;
 	};
 
-	public static final Function<Item, WeaponCapability.Builder> GREATSWORD = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> GREATSWORD = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.GREATSWORD)
 			.styleProvider((playerpatch) -> Styles.TWO_HAND)
@@ -183,7 +167,7 @@ public abstract class WeaponCapabilityPresets {
 			.canBePlacedOffhand(false)
 			.reach(1.0F)
 			.newStyleCombo(Styles.TWO_HAND, Animations.GREATSWORD_AUTO1, Animations.GREATSWORD_AUTO2, Animations.GREATSWORD_DASH, Animations.GREATSWORD_AIR_SLASH)
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.STEEL_WHIRLWIND.get())
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.STEEL_WHIRLWIND)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_GREATSWORD)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_GREATSWORD)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_WALK_GREATSWORD)
@@ -205,25 +189,25 @@ public abstract class WeaponCapabilityPresets {
 		return builder;
 	};
 
-	public static final Function<Item, WeaponCapability.Builder> UCHIGATANA = (item) ->
+	public static final Function<Item, CapabilityItem.Builder> UCHIGATANA = (item) ->
 		WeaponCapability.builder()
 			.category(WeaponCategories.UCHIGATANA)
 			.styleProvider((entitypatch) -> {
-				if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(EpicFightSkillDataKeys.SHEATH) &&
-							playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(EpicFightSkillDataKeys.SHEATH))) {
+				if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(SkillDataKeys.SHEATH.get()) &&
+							playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(SkillDataKeys.SHEATH.get()))) {
 						return Styles.SHEATH;
 				}
 				return Styles.TWO_HAND;
 			})
-			.passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE.get())
+			.passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE)
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
 			.collider(ColliderPreset.UCHIGATANA)
 			.canBePlacedOffhand(false)
 			.newStyleCombo(Styles.SHEATH, Animations.UCHIGATANA_SHEATHING_AUTO, Animations.UCHIGATANA_SHEATHING_DASH, Animations.UCHIGATANA_SHEATH_AIR_SLASH)
 			.newStyleCombo(Styles.TWO_HAND, Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.UCHIGATANA_DASH, Animations.UCHIGATANA_AIR_SLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.SHEATH, (itemstack) -> EpicFightSkills.BATTOJUTSU.get())
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BATTOJUTSU.get())
+			.innateSkill(Styles.SHEATH, (itemstack) -> EpicFightSkills.BATTOJUTSU)
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BATTOJUTSU)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_UCHIGATANA)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_HOLD_UCHIGATANA)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
@@ -244,7 +228,7 @@ public abstract class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.SHEATH, LivingMotions.FALL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
 
-	public static final Function<Item, WeaponCapability.Builder> TACHI = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> TACHI = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.TACHI)
 			.styleProvider((playerpatch) -> Styles.TWO_HAND)
@@ -252,7 +236,7 @@ public abstract class WeaponCapabilityPresets {
 			.canBePlacedOffhand(false)
 			.newStyleCombo(Styles.TWO_HAND, Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3, Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.RUSHING_TEMPO.get())
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.RUSHING_TEMPO)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_TACHI)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_HOLD_TACHI)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_TACHI)
@@ -272,7 +256,7 @@ public abstract class WeaponCapabilityPresets {
 		return builder;
 	};
 
-	public static final Function<Item, WeaponCapability.Builder> LONGSWORD = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> LONGSWORD = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.LONGSWORD)
 			.styleProvider((playerpatch) -> {
@@ -289,9 +273,9 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.LONGSWORD_AUTO1, Animations.LONGSWORD_AUTO2, Animations.LONGSWORD_AUTO3, Animations.LONGSWORD_DASH, Animations.LONGSWORD_AIR_SLASH)
 			.newStyleCombo(Styles.TWO_HAND, Animations.LONGSWORD_AUTO1, Animations.LONGSWORD_AUTO2, Animations.LONGSWORD_AUTO3, Animations.LONGSWORD_DASH, Animations.LONGSWORD_AIR_SLASH)
 			.newStyleCombo(Styles.OCHS, Animations.LONGSWORD_LIECHTENAUER_AUTO1, Animations.LONGSWORD_LIECHTENAUER_AUTO2, Animations.LONGSWORD_LIECHTENAUER_AUTO3, Animations.LONGSWORD_DASH, Animations.LONGSWORD_AIR_SLASH)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.SHARP_STAB.get())
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.LIECHTENAUER.get())
-			.innateSkill(Styles.OCHS, (itemstack) -> EpicFightSkills.LIECHTENAUER.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.SHARP_STAB)
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.LIECHTENAUER)
+			.innateSkill(Styles.OCHS, (itemstack) -> EpicFightSkills.LIECHTENAUER)
 			.livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, Animations.BIPED_HOLD_LONGSWORD)
 			.livingMotionModifier(Styles.COMMON, LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
 			.livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, Animations.BIPED_WALK_LONGSWORD)
@@ -321,7 +305,7 @@ public abstract class WeaponCapabilityPresets {
 		return builder;
 	};
 	
-	public static final Function<Item, WeaponCapability.Builder> DAGGER = (item) -> {
+	public static final Function<Item, CapabilityItem.Builder> DAGGER = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
 			.category(WeaponCategories.DAGGER)
 			.styleProvider((playerpatch) -> playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.DAGGER ? Styles.TWO_HAND : Styles.ONE_HAND)
@@ -331,8 +315,8 @@ public abstract class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.DAGGER_AUTO1, Animations.DAGGER_AUTO2, Animations.DAGGER_AUTO3, Animations.DAGGER_DASH, Animations.DAGGER_AIR_SLASH)
 			.newStyleCombo(Styles.TWO_HAND, Animations.DAGGER_DUAL_AUTO1, Animations.DAGGER_DUAL_AUTO2, Animations.DAGGER_DUAL_AUTO3, Animations.DAGGER_DUAL_AUTO4, Animations.DAGGER_DUAL_DASH, Animations.DAGGER_DUAL_AIR_SLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.EVISCERATE.get())
-			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BLADE_RUSH.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.EVISCERATE)
+			.innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BLADE_RUSH)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON)
@@ -351,13 +335,13 @@ public abstract class WeaponCapabilityPresets {
 		return builder;
 	};
 
-	public static final Function<Item, WeaponCapability.Builder> FIST = (item) -> WeaponCapability.builder()
+	public static final Function<Item, CapabilityItem.Builder> FIST = (item) -> WeaponCapability.builder()
 			.newStyleCombo(Styles.ONE_HAND, Animations.FIST_AUTO1, Animations.FIST_AUTO2, Animations.FIST_AUTO3, Animations.FIST_DASH, Animations.FIST_AIR_SLASH)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.RELENTLESS_COMBO.get())
+			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.RELENTLESS_COMBO)
 			.category(WeaponCategories.FIST)
 			.constructor(GloveCapability::new);
 	
-	public static final Function<Item, RangedWeaponCapability.Builder> BOW =  (item) -> RangedWeaponCapability.builder()
+	public static final Function<Item, CapabilityItem.Builder> BOW =  (item) -> RangedWeaponCapability.builder()
 			.zoomInType(ZoomInType.USE_TICK)
 			.addAnimationsModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
 			.addAnimationsModifier(LivingMotions.WALK, Animations.BIPED_WALK)
@@ -365,7 +349,7 @@ public abstract class WeaponCapabilityPresets {
 			.addAnimationsModifier(LivingMotions.SHOT, Animations.BIPED_BOW_SHOT)
 			.constructor(BowCapability::new);
 			
-	public static final Function<Item, RangedWeaponCapability.Builder> CROSSBOW =  (item) -> RangedWeaponCapability.builder()
+	public static final Function<Item, CapabilityItem.Builder> CROSSBOW =  (item) -> RangedWeaponCapability.builder()
 			.zoomInType(ZoomInType.AIMING)
 			.addAnimationsModifier(LivingMotions.IDLE, Animations.BIPED_HOLD_CROSSBOW)
 			.addAnimationsModifier(LivingMotions.KNEEL, Animations.BIPED_HOLD_CROSSBOW)
@@ -380,7 +364,7 @@ public abstract class WeaponCapabilityPresets {
 			.addAnimationsModifier(LivingMotions.SHOT, Animations.BIPED_CROSSBOW_SHOT)
 			.constructor(CrossbowCapability::new);
 	
-	public static final Function<Item, RangedWeaponCapability.Builder> TRIDENT = (item) -> RangedWeaponCapability.builder()
+	public static final Function<Item, CapabilityItem.Builder> TRIDENT = (item) -> RangedWeaponCapability.builder()
 			.zoomInType(ZoomInType.USE_TICK)
 			.addAnimationsModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
 			.addAnimationsModifier(LivingMotions.WALK, Animations.BIPED_WALK)
@@ -390,7 +374,7 @@ public abstract class WeaponCapabilityPresets {
 			.collider(ColliderPreset.SPEAR)
 			.category(WeaponCategories.TRIDENT);
 	
-	public static final Function<Item, CapabilityItem.Builder<?>> SHIELD = (item) -> CapabilityItem.builder()
+	public static final Function<Item, CapabilityItem.Builder> SHIELD = (item) -> CapabilityItem.builder()
 			.constructor(ShieldCapability::new)
 			.category(WeaponCategories.SHIELD);
 }

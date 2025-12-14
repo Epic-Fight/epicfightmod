@@ -1,5 +1,19 @@
 package yesman.epicfight.api.asset;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -9,27 +23,38 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+
 import io.netty.util.internal.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.javafmlmod.FMLModContainer;
-import net.neoforged.fml.loading.FMLEnvironment;
-import yesman.epicfight.api.animation.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import yesman.epicfight.api.animation.AnimationClip;
+import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.JointTransform;
+import yesman.epicfight.api.animation.Keyframe;
+import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.client.model.*;
+import yesman.epicfight.api.client.model.ClassicMesh;
+import yesman.epicfight.api.client.model.CompositeMesh;
+import yesman.epicfight.api.client.model.Mesh;
+import yesman.epicfight.api.client.model.MeshPartDefinition;
+import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.Meshes.MeshContructor;
+import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.model.SoftBodyTranslatable;
+import yesman.epicfight.api.client.model.StaticMesh;
+import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.client.model.transformer.VanillaModelTransformer.VanillaMeshPartDefinition;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObject.ClothPart.ConstraintType;
 import yesman.epicfight.api.exception.AssetLoadingException;
@@ -42,15 +67,6 @@ import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.gameasset.Armatures.ArmatureContructor;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
-
-import javax.annotation.Nullable;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 public class JsonAssetLoader {
 	public static final OpenMatrix4f BLENDER_TO_MINECRAFT_COORD = OpenMatrix4f.createRotatorDeg(-90.0F, Vec3f.X_AXIS);
@@ -85,36 +101,27 @@ public class JsonAssetLoader {
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			} catch (NoSuchElementException e) {
 				// In this case, reads the animation data from mod.jar (Especially in a server)
-				ModContainer modContainer = ModList.get().getModContainerById(resourceLocation.getNamespace()).orElseThrow(() -> new AssetLoadingException("No mod Id: " + resourceLocation));
-				InputStream inputstream = null;
+				Class<?> modClass = ModList.get().getModObjectById(resourceLocation.getNamespace()).orElseThrow(() -> new AssetLoadingException("No modid " + resourceLocation)).getClass();
+				InputStream inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
 				
-				if (modContainer instanceof FMLModContainer fmlModContainer) {
-					Field modClassesField = FMLModContainer.class.getDeclaredField("modClasses");
-					modClassesField.setAccessible(true);
-					@SuppressWarnings("unchecked")
-					List<Class<?>> modClasses = (List<Class<?>>) modClassesField.get(fmlModContainer);
-					
-					for (Class<?> modClass : modClasses) {
-						inputstream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
-						
-						if (inputstream != null) {
-							break;
-						}
-					}
+				if (inputStream == null) {
+					modClass = ModList.get().getModObjectById(EpicFightMod.MODID).get().getClass();
+					inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
 				}
 				
-				if (inputstream == null) {
-					throw new NoSuchElementException("No file named " + resourceLocation.toString());
+				//Still null, throws exception.
+				if (inputStream == null) {
+					throw new AssetLoadingException("Can't find resource file: " + resourceLocation);
 				}
 				
-				BufferedInputStream bufferedInputStream = new BufferedInputStream(inputstream);
+				BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
 				InputStreamReader reader = new InputStreamReader(bufferedInputStream, StandardCharsets.UTF_8);
 				
 				jsonReader = new JsonReader(reader);
 				jsonReader.setLenient(true);
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new AssetLoadingException("Can't read " + resourceLocation.toString() + " because of " + e);
 		} finally {
 			if (jsonReader != null) {

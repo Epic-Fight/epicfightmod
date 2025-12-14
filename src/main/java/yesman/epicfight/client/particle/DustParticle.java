@@ -9,7 +9,7 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 
 public class DustParticle extends TextureSheetParticle {
 	private final DustParticle.PhysicsType physicsType;

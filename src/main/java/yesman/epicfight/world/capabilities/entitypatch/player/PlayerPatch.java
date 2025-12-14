@@ -1,7 +1,19 @@
 package yesman.epicfight.world.capabilities.entitypatch.player;
 
-import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -13,36 +25,28 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import org.jetbrains.annotations.ApiStatus;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.neoevent.BattleModeSustainableEvent;
-import yesman.epicfight.api.neoevent.ChangePlayerModeEvent;
-import yesman.epicfight.api.neoevent.playerpatch.ModifyAttackSpeedEvent;
-import yesman.epicfight.api.neoevent.playerpatch.ModifyBaseDamageEvent;
-import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
-import yesman.epicfight.api.neoevent.playerpatch.SkillConsumeEvent;
+import yesman.epicfight.api.forgeevent.BattleModeSustainableEvent;
+import yesman.epicfight.api.forgeevent.ChangePlayerModeEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
-import yesman.epicfight.registry.entries.EpicFightExpandedEntityDataAccessors;
-import yesman.epicfight.registry.entries.EpicFightSkills;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.skill.BasicAttack;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.skill.common.ComboAttacks;
 import yesman.epicfight.skill.modules.ChargeableSkill;
 import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -50,24 +54,34 @@ import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.skill.PlayerSkills;
+import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
-import yesman.epicfight.world.entity.data.ExpandedSyncedData;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.world.entity.eventlistener.FallEvent;
+import yesman.epicfight.world.entity.eventlistener.ModifyAttackSpeedEvent;
+import yesman.epicfight.world.entity.eventlistener.ModifyBaseDamageEvent;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.world.entity.eventlistener.SkillConsumeEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T> {
-	protected static final float PLAYER_SCALE = 0.9375F;
+	public static EntityDataAccessor<Float> STAMINA;
 	
-	protected final PlayerSkills playerSkills = new PlayerSkills(this);
-	protected PlayerMode playerMode = PlayerMode.EPICFIGHT;
+	public static void initPlayerDataAccessor() {
+		STAMINA = SynchedEntityData.defineId(Player.class, EntityDataSerializers.FLOAT);
+	}
+	
+	public static void createSyncedEntityData(LivingEntity livingentity) {
+		livingentity.getEntityData().define(STAMINA, 0.0F);
+	}
+	
+	protected static final UUID PLAYER_EVENT_UUID = UUID.fromString("e6beeac4-77d2-11eb-9439-0242ac130002");
+	protected static final float PLAYER_SCALE = 0.9375F;
+	protected PlayerEventListener eventListeners;
+	protected PlayerMode playerMode = PlayerMode.VANILLA;
 	protected boolean battleModeRestricted;
 	
 	protected float modelYRotO;
@@ -76,7 +90,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	protected int tickSinceLastAction;
 	protected int staminaRegenAwaitTicks;
 	protected int lastChargingTick;
-	protected int chargingTicks;
+	protected int chargingAmount;
 	protected HoldableSkill holdingSkill;
 	
 	// Manage the previous position here because playerpatch#tick called before entity#travel method.
@@ -88,25 +102,20 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	public double dx;
 	public double dz;
 	
-	public PlayerPatch(T entity) {
-		super(entity);
+	public PlayerPatch() {
+		this.eventListeners = new PlayerEventListener(this);
 	}
 	
 	@Override
 	public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
 		super.onJoinWorld(entity, event);
 		
-		PlayerSkills skillCapability = this.getPlayerSkills();
-		skillCapability.skillContainers[SkillSlots.COMBO_ATTACKS.universalOrdinal()].setSkill(EpicFightSkills.COMBO_ATTACKS.get());
-		skillCapability.skillContainers[SkillSlots.KNOCKDOWN_WAKEUP.universalOrdinal()].setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP.get());
+		CapabilitySkill skillCapability = this.getSkillCapability();
+		skillCapability.getSkillContainerFor(SkillSlots.BASIC_ATTACK).setSkill(EpicFightSkills.BASIC_ATTACK);
+		skillCapability.getSkillContainerFor(SkillSlots.KNOCKDOWN_WAKEUP).setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
+		
 		this.tickSinceLastAction = 0;
 		this.staminaRegenAwaitTicks = 30;
-	}
-	
-	@Override
-	protected void registerExpandedEntityDataAccessors(final ExpandedSyncedData expandedSynchedData) {
-		super.registerExpandedEntityDataAccessors(expandedSynchedData);
-		expandedSynchedData.register(EpicFightExpandedEntityDataAccessors.STAMINA);
 	}
 	
 	@Override
@@ -141,17 +150,13 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		animator.addLivingAnimation(LivingMotions.SPECTATE, Animations.BIPED_SPYGLASS_USE);
 	}
 	
-	public void copyOldData(PlayerPatch<?> old, boolean isDeath) {
-		this.getPlayerSkills().copyFrom(old.getPlayerSkills());
+	public void copySkillsFrom(PlayerPatch<?> old, boolean isDeath) {
+		this.getSkillCapability().copyFrom(old.getSkillCapability());
 		
 		if (!isDeath) {
-			old.getPlayerSkills().listSkillContainers().forEach(skillContainer -> {
-				skillContainer.transferDataTo(this.getPlayerSkills().getSkillContainerFor(skillContainer.getSlot()));
+			old.getSkillCapability().listSkillContainers().forEach(skillContainer -> {
+				skillContainer.transferDataTo(this.getSkillCapability().getSkillContainerFor(skillContainer.getSlot()));
 			});
-			
-			CompoundTag oldData = new CompoundTag();
-			old.expandedSynchedData.saveData(oldData);
-			this.expandedSynchedData.load(oldData);
 		}
 	}
 	
@@ -165,7 +170,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	@Override
-	public OpenMatrix4f getModelMatrix(float partialTick) {
+	public OpenMatrix4f getModelMatrix(float partialTicks) {
 		float oYRot;
 		float yRot;
 		float scale = (this.original.isBaby() ? 0.5F : 1.0F) * PLAYER_SCALE;
@@ -178,12 +183,12 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 			yRot = this.modelYRot;
 		}
 		
-		return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, oYRot, yRot, partialTick, scale, scale, scale);
+		return MathUtils.getModelMatrixIntegral(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, oYRot, yRot, partialTicks, scale, scale, scale);
 	}
 	
 	@Override
-	public void preTickServer(EntityTickEvent.Pre event) {
-		super.preTickServer(event);
+	public void serverTick(LivingEvent.LivingTickEvent event) {
+		super.serverTick(event);
 		
 		if (this.state.canBasicAttack()) {
 			this.tickSinceLastAction++;
@@ -195,7 +200,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		float stamina = this.getStamina();
 		float maxStamina = this.getMaxStamina();
-		float staminaRegen = (float)this.original.getAttributeValue(EpicFightAttributes.STAMINA_REGEN);
+		float staminaRegen = (float)this.original.getAttributeValue(EpicFightAttributes.STAMINA_REGEN.get());
 		
 		if (staminaRegen > 0.0F) {
 			int regenWhenLessThan = 30 - (900 / (int)(30 * staminaRegen));
@@ -212,10 +217,10 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	@Override
-	public void preTick(EntityTickEvent.Pre event) {
+	public void tick(LivingEvent.LivingTickEvent event) {
 		if (this.playerMode == PlayerMode.EPICFIGHT || this.battleModeRestricted) {
 			BattleModeSustainableEvent battleModeSustainableEvent = new BattleModeSustainableEvent(this);
-			NeoForge.EVENT_BUS.post(battleModeSustainableEvent);
+			MinecraftForge.EVENT_BUS.post(battleModeSustainableEvent);
 			
 			if (battleModeSustainableEvent.isCanceled()) {
 				if (this.playerMode == PlayerMode.EPICFIGHT) {
@@ -231,12 +236,12 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		}
 		
 		if (!this.isLogicalClient() || this.original.isLocalPlayer()) {
-			this.getPlayerSkills().listSkillContainers().forEach(SkillContainer::update);
+			this.getSkillCapability().listSkillContainers().forEach(SkillContainer::update);
 		}
 		
 		this.modelYRotO = this.modelYRot;
 		
-		super.preTick(event);
+		super.tick(event);
 		
 		// Cancel using item depending on player state
 		if (!this.state.canUseItem()) {
@@ -277,7 +282,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 			return null;
 		}
 		
-		return this.getPlayerSkills().getSkillContainer(skill);
+		return this.getSkillCapability().getSkillContainer(skill);
 	}
 	
 	public Optional<SkillContainer> getSkillContainerFor(Skill skill) {
@@ -285,7 +290,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 			return Optional.empty();
 		}
 		
-		return Optional.ofNullable(this.getPlayerSkills().getSkillContainer(skill));
+		return Optional.ofNullable(this.getSkillCapability().getSkillContainer(skill));
 	}
 	
 	public SkillContainer getSkill(SkillSlot slot) {
@@ -293,29 +298,21 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public SkillContainer getSkill(int slotIndex) {
-		return this.getPlayerSkills().getSkillContainerFor(slotIndex);
+		return this.getSkillCapability().getSkillContainerFor(slotIndex);
 	}
 	
-	public PlayerSkills getPlayerSkills() {
-		return this.playerSkills;
+	public CapabilitySkill getSkillCapability() {
+		return this.original.getCapability(EpicFightCapabilities.CAPABILITY_SKILL).orElse(CapabilitySkill.EMPTY);
 	}
 	
-	@Override
-	public void writeData(CompoundTag compound) {
-		super.writeData(compound);
-		this.playerSkills.write(compound);
-	}
-	
-	@Override
-	public void readData(CompoundTag compound) {
-		super.readData(compound);
-		this.playerSkills.read(compound);
+	public PlayerEventListener getEventListener() {
+		return this.eventListeners;
 	}
 	
 	@Override
 	public float getModifiedBaseDamage(float baseDamage) {
-		ModifyBaseDamageEvent event = new ModifyBaseDamageEvent(this, baseDamage, ValueModifier.calculator());
-		PlayerPatchEvent.postAndFireSkillListeners(event);
+		ModifyBaseDamageEvent<PlayerPatch<?>> event = new ModifyBaseDamageEvent<> (this, baseDamage, ValueModifier.calculator());
+		this.getEventListener().triggerEvents(EventType.MODIFY_DAMAGE_EVENT, event);
 		
 		return event.calculateModifiedDamage();
 	}
@@ -326,7 +323,8 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		if (hand == InteractionHand.MAIN_HAND) {
 			baseSpeed = (float)this.original.getAttributeValue(Attributes.ATTACK_SPEED);
 		} else {
-			baseSpeed = (float)(this.isOffhandItemValid() ? this.original.getAttributeValue(EpicFightAttributes.OFFHAND_ATTACK_SPEED) : this.original.getAttributeBaseValue(Attributes.ATTACK_SPEED));
+			baseSpeed = (float)(this.isOffhandItemValid() ? 
+					this.original.getAttributeValue(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get()) : this.original.getAttributeBaseValue(Attributes.ATTACK_SPEED));
 		}
 		
 		return this.getModifiedAttackSpeed(this.getAdvancedHoldingItemCapability(hand), baseSpeed);
@@ -334,8 +332,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	public float getModifiedAttackSpeed(CapabilityItem itemCapability, float baseSpeed) {
 		ModifyAttackSpeedEvent event = new ModifyAttackSpeedEvent(this, itemCapability, baseSpeed);
-		PlayerPatchEvent.postAndFireSkillListeners(event);
-		
+		this.eventListeners.triggerEvents(EventType.MODIFY_ATTACK_SPEED_EVENT, event);
 		float weight = this.getWeight();
 		
 		if (weight > 40.0F) {
@@ -346,13 +343,13 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		}
 	}
 	
-	public double getWeaponAttribute(Holder<Attribute> attribute, ItemStack itemstack) {
-		AttributeInstance attrInstance = new AttributeInstance(attribute, attrInstance$2 -> {});
+	public double getWeaponAttribute(Attribute attribute, ItemStack itemstack) {
+		AttributeInstance attrInstance = new AttributeInstance(attribute, (ai)->{});
 		
-		Set<AttributeModifier> itemModifiers = Set.copyOf(CapabilityItem.getAttributeModifiersAsWeapon(attribute, EquipmentSlot.MAINHAND, itemstack, this));
-		Set<AttributeModifier> mainhandModifiers = Set.copyOf(CapabilityItem.getAttributeModifiersAsWeapon(attribute, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this));
+		Set<AttributeModifier> itemModifiers = Set.copyOf(CapabilityItem.getAttributeModifiers(attribute, EquipmentSlot.MAINHAND, itemstack, this));
+		Set<AttributeModifier> mainhandModifiers = Set.copyOf(CapabilityItem.getAttributeModifiers(attribute, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this));
 		
-		double baseValue = this.original.getAttribute(attribute) == null ? attribute.value().getDefaultValue() : Objects.requireNonNull(this.original.getAttribute(attribute)).getBaseValue();
+		double baseValue = this.original.getAttribute(attribute) == null ? attribute.getDefaultValue() : Objects.requireNonNull(this.original.getAttribute(attribute)).getBaseValue();
 		attrInstance.setBaseValue(baseValue);
 		
 		for (AttributeModifier modifier : Objects.requireNonNull(this.original.getAttribute(attribute)).getModifiers()) {
@@ -362,18 +359,20 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		}
 		
 		for (AttributeModifier modifier : itemModifiers) {
-			if (!attrInstance.hasModifier(modifier.id())) {
+			if (!attrInstance.hasModifier(modifier)) {
 				attrInstance.addTransientModifier(modifier);
 			}
 		}
 		
-		EpicFightCapabilities.getItemCapability(itemstack).ifPresent(itemCapability -> {
-			for (AttributeModifier modifier : itemCapability.getAttributeModifiers(this).get(attribute)) {
-				if (!attrInstance.hasModifier(modifier.id())) {
+		CapabilityItem itemCapability = EpicFightCapabilities.getItemStackCapabilityOr(itemstack, null);
+		
+		if (itemCapability != null) {
+			for (AttributeModifier modifier : itemCapability.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(attribute)) {
+				if (!attrInstance.hasModifier(modifier)) {
 					attrInstance.addTransientModifier(modifier);
 				}
 			}
-		});
+		}
 		
 		return attrInstance.getValue();
 	}
@@ -381,25 +380,25 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	@Override
 	public AttackResult attack(EpicFightDamageSource damageSource, Entity target, InteractionHand hand) {
 		float fallDist = this.original.fallDistance;
-		boolean onGround = this.original.onGround();
+		boolean onGround = this.original.onGround;
 		boolean offhandValid = this.isOffhandItemValid();
 		
 		ItemStack mainHandItem = this.getOriginal().getMainHandItem();
 		ItemStack offHandItem = this.getOriginal().getOffhandItem();
-		Collection<AttributeModifier> mainHandAttributes = CapabilityItem.getAttributeModifiersAsWeapon(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this);
-		Collection<AttributeModifier> offHandAttributes = this.isOffhandItemValid() ? CapabilityItem.getAttributeModifiersAsWeapon(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getOffhandItem(), this) : Set.of();
+		Collection<AttributeModifier> mainHandAttributes = CapabilityItem.getAttributeModifiers(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getMainHandItem(), this);
+		Collection<AttributeModifier> offHandAttributes = this.isOffhandItemValid() ? CapabilityItem.getAttributeModifiers(Attributes.ATTACK_DAMAGE, EquipmentSlot.MAINHAND, this.original.getOffhandItem(), this) : Set.of();
 		
 		this.epicFightDamageSource = damageSource;
 		// Prevents crit and sweeping edge effect
 		this.original.attackStrengthTicker = Integer.MAX_VALUE;
 		this.original.fallDistance = 0.0F;
-		this.original.setOnGround(false);
+		this.original.onGround = false;
 		this.setOffhandDamage(hand, mainHandItem, offHandItem, offhandValid, mainHandAttributes, offHandAttributes);
 		this.original.attack(target);
 		this.recoverMainhandDamage(hand, mainHandItem, offHandItem, mainHandAttributes, offHandAttributes);
 		this.epicFightDamageSource = null;
 		this.original.fallDistance = fallDist;
-		this.original.setOnGround(onGround);
+		this.original.onGround = onGround;
 		
 		return super.attack(damageSource, target, hand);
 	}
@@ -414,8 +413,8 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 				.setBaseImpact(this.getImpact(hand))
 				.setUsedItem(this.getOriginal().getItemInHand(hand));
 		
-		boolean chargeWeapon = animation.get().isComboAttackAnimation() || this.getAnimator().getVariables().get(ComboAttacks.COMBO, animation).orElse(false);
-		damagesource.setChargeWeapon(chargeWeapon);
+		boolean isBasicAttack = animation.get().isBasicAttackAnimation() || this.getAnimator().getVariables().get(BasicAttack.COMBO, animation).orElse(false);
+		damagesource.setBasicAttack(isBasicAttack);
 		
 		return damagesource;
 	}
@@ -427,12 +426,12 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public float getMaxStamina() {
-		AttributeInstance maxStamina = this.original.getAttribute(EpicFightAttributes.MAX_STAMINA);
+		AttributeInstance maxStamina = this.original.getAttribute(EpicFightAttributes.MAX_STAMINA.get());
 		return (float)(maxStamina == null ? 0 : maxStamina.getValue());
 	}
 	
 	public float getStamina() {
-		return this.getMaxStamina() <= 0.0F ? 0.0F : this.getExpandedSynchedData().get(EpicFightExpandedEntityDataAccessors.STAMINA);
+		return this.getMaxStamina() <= 0.0F ? 0.0F : this.original.getEntityData().hasItem(STAMINA) ? this.original.getEntityData().get(STAMINA) : 0.0F;
 	}
 	
 	public float getModifiedStaminaConsume(float amount) {
@@ -447,8 +446,10 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public void setStamina(float value) {
-		float f1 = Mth.clamp(value, 0.0F, this.getMaxStamina());
-		this.getExpandedSynchedData().set(EpicFightExpandedEntityDataAccessors.STAMINA, f1);
+		if (this.original.getEntityData().hasItem(STAMINA)) {
+			float f1 = Mth.clamp(value, 0.0F, this.getMaxStamina());
+			this.original.getEntityData().set(STAMINA, f1);
+		}
 	}
 	
 	public void clampMaxAttributes() {
@@ -485,7 +486,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	 * Consume resource with arguments when requested by a client
 	 */
 	@ApiStatus.Internal
-	public boolean consumeForSkill(Skill skill, Skill.Resource consumeResource, @Nullable CompoundTag args) {
+	public boolean consumeForSkill(Skill skill, Skill.Resource consumeResource, @Nullable FriendlyByteBuf args) {
 		return this.consumeForSkill(skill, consumeResource, skill.getDefaultConsumptionAmount(this), false, args);
 	}
 	
@@ -495,7 +496,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	 * @param amount how much resource should it consume
 	 * @return check result
 	 */
-	public boolean consumeForSkill(Skill skill, Skill.Resource consumeResource, float amount, boolean activateConsumeForce, @Nullable CompoundTag args) {
+	public boolean consumeForSkill(Skill skill, Skill.Resource consumeResource, float amount, boolean activateConsumeForce, @Nullable FriendlyByteBuf args) {
 		Optional<SkillContainer> oContainer = this.getSkillContainerFor(skill);
 		
 		if (oContainer.isEmpty()) {
@@ -504,13 +505,17 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		SkillContainer skillContainer = oContainer.get();
 		SkillConsumeEvent skillConsumeEvent = new SkillConsumeEvent(this, skill, consumeResource, amount, args);
-		PlayerPatchEvent.postAndFireSkillListeners(skillConsumeEvent);
+		this.getEventListener().triggerEvents(EventType.SKILL_CONSUME_EVENT, skillConsumeEvent);
 		
 		if (skillConsumeEvent.isCanceled()) {
 			return false;
 		}
 		
 		float modifiedAmount = skillConsumeEvent.getAmount();
+		
+		if (args != null) {
+			args.resetReaderIndex();
+		}
 		
 		if (skillConsumeEvent.getResourceType().predicate.canExecute(skillContainer, this, modifiedAmount)) {
 			if (!this.isLogicalClient()) {
@@ -560,7 +565,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	public void resetHolding() {
 		if (this.holdingSkill != null) {
 			if (this.holdingSkill instanceof ChargeableSkill) {
-				this.chargingTicks = 0;
+				this.chargingAmount = 0;
 			}
 			
 			this.holdingSkill.resetHolding(this.getSkill(this.holdingSkill.asSkill()));
@@ -580,16 +585,16 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		return this.lastChargingTick;
 	}
 	
-	public void setChargingTicks(int amount) {
+	public void setChargingAmount(int amount) {
 		if (this.isHoldingAny() && this.getHoldingSkill() instanceof ChargeableSkill chargeableSkill) {
-			this.chargingTicks = Math.clamp(amount, 0, chargeableSkill.getMaxChargingTicks());
+			this.chargingAmount = Math.min(amount, chargeableSkill.getMaxChargingTicks());
 		} else {
-			this.chargingTicks = 0;
+			this.chargingAmount = 0;
 		}
 	}
 	
-	public int getChargingTicks() {
-		return this.chargingTicks;
+	public int getChargingAmount() {
+		return this.chargingAmount;
 	}
 	
 	public float getSkillChargingTicks(float partialTicks) {
@@ -600,14 +605,14 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		return this.isHoldingAny() && this.holdingSkill instanceof ChargeableSkill chargingSkill ? Math.min(this.original.tickCount - this.getLastChargingTick(), chargingSkill.getMaxChargingTicks()) : 0;
 	}
 	
-	public int getAccumulatedChargeTicks() {
-		return this.getHoldingSkill() instanceof ChargeableSkill ? this.chargingTicks : 0;
+	public int getAccumulatedChargeAmount() {
+		return this.getHoldingSkill() instanceof ChargeableSkill ? getChargingAmount() : 0;
 	}
-	
+
 	public HoldableSkill getHoldingSkill() {
 		return this.holdingSkill;
 	}
-	
+
 	public boolean isInAir() {
 		return this.original.isFallFlying() || this.currentLivingMotion == LivingMotions.FALL;
 	}
@@ -622,8 +627,10 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	@Override
 	public void onFall(LivingFallEvent event) {
-		this.getPlayerSkills().fireSkillEvents(EpicFightMod.MODID, event);
+		FallEvent fallEvent = new FallEvent(this, event);
+		this.getEventListener().triggerEvents(EventType.FALL_EVENT, fallEvent);
 		super.onFall(event);
+		
 		this.setAirborneState(false);
 	}
 	
@@ -656,7 +663,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		ChangePlayerModeEvent prepareModelEvent = new ChangePlayerModeEvent(this, PlayerMode.VANILLA);
 		
-		if (!NeoForge.EVENT_BUS.post(prepareModelEvent).isCanceled()) {
+		if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
 			this.playerMode = prepareModelEvent.getPlayerMode();
 		}
 	}
@@ -668,7 +675,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		ChangePlayerModeEvent prepareModelEvent = new ChangePlayerModeEvent(this, PlayerMode.EPICFIGHT);
 		
-		if (!NeoForge.EVENT_BUS.post(prepareModelEvent).isCanceled()) {
+		if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
 			this.playerMode = prepareModelEvent.getPlayerMode();
 		}
 	}

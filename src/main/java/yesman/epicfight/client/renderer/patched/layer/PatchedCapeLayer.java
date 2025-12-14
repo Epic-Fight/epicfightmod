@@ -30,7 +30,7 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.events.engine.RenderEngine;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
@@ -47,7 +47,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 			}
 			
 			entitypatch.getClothSimulator().getRunningObject(ClothSimulator.PLAYER_CLOAK).ifPresent(clothObj -> {
-				ResourceLocation capeTexture = entitypatch.isEpicSkinsLoaded() ? entitypatch.getEpicSkinsInformation().capeTexture().get() : entityliving.getSkin().capeTexture();
+				ResourceLocation capeTexture = entitypatch.isEpicSkinsLoaded() ? entitypatch.getEpicSkinsInformation().cloakTexture().get() : entityliving.getCloakTextureLocation();
 				
 				if (capeTexture != null) {
 					Function<Float, OpenMatrix4f> partialColliderTransformProvider = (partialFrame) -> {
@@ -64,10 +64,9 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 					double entityZ = Mth.lerp((double)partialTick, entityliving.zOld, entityliving.getZ());
 					
 					PoseStack posestack$2 = new PoseStack();
-					var renderer = RenderEngine.getInstance().getEntityRenderer(EntityType.PLAYER);
+					var renderer = ClientEngine.getInstance().renderEngine.getEntityRenderer(EntityType.PLAYER);
 					renderer.mulPoseStack(posestack$2, entitypatch.getArmature(), entitypatch.getOriginal(), entitypatch, partialTick);
 					Matrix4f renderLocalPose = posestack$2.last().pose();
-
 					float bodyYRot = Mth.rotLerp(partialTick, entitypatch.getYRotO(), entitypatch.getYRot());
 					
 					if (entitypatch.isEpicSkinsLoaded()) {
@@ -79,7 +78,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 				}
 			});
 		} else {
-			if (entityliving.getSkin().capeTexture() != null && !entityliving.isInvisible() && entityliving.isModelPartShown(PlayerModelPart.CAPE)) {
+			if (entityliving.isCapeLoaded() && !entityliving.isInvisible() && entityliving.isModelPartShown(PlayerModelPart.CAPE) && entityliving.getCloakTextureLocation() != null) {
 				ItemStack itemstack = entityliving.getItemBySlot(EquipmentSlot.CHEST);
 				
 				if (itemstack.getItem() != Items.ELYTRA) {
@@ -129,7 +128,7 @@ public class PatchedCapeLayer extends PatchedLayer<AbstractClientPlayer, Abstrac
 		poseStack.pushPose();
 		renderLocalMatrix = renderLocalMatrix.invert(new Matrix4f());
 		
-		poseStack.mulPose(renderLocalMatrix);
+		poseStack.mulPoseMatrix(renderLocalMatrix);
 		poseStack.translate(-renderLocalMatrix.m30() - x, -renderLocalMatrix.m31() - y, -renderLocalMatrix.m32() - z);
 		poseStack.last().normal().rotate(QuaternionUtils.YP.rotationDegrees(yBodyRot));
 		

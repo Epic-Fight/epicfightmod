@@ -1,13 +1,31 @@
 package yesman.epicfight.api.client.animation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.jetbrains.annotations.ApiStatus;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.api.animation.*;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.animation.Animator;
+import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.LivingMotion;
+import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.ServerAnimator;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
@@ -19,16 +37,11 @@ import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.client.animation.property.JointMask.BindModifier;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
 import yesman.epicfight.api.client.animation.property.JointMaskEntry;
-import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
+import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.network.common.AbstractAnimatorControl;
+import yesman.epicfight.network.common.AnimatorControlPacket;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ClientAnimator extends Animator {
 	public static Animator getAnimator(LivingEntityPatch<?> entitypatch) {
@@ -68,8 +81,8 @@ public class ClientAnimator extends Animator {
 	
 	/** Play an animation with specifying layer and priority **/
 	@ApiStatus.Internal
-	public void playAnimationAt(AssetAccessor<? extends StaticAnimation> nextAnimation, float transitionTimeModifier, AbstractAnimatorControl.Layer layerType, AbstractAnimatorControl.Priority priority) {
-		Layer layer = layerType == AbstractAnimatorControl.Layer.BASE_LAYER ? this.baseLayer : this.baseLayer.compositeLayers.get(AbstractAnimatorControl.getPriority(priority));
+	public void playAnimationAt(AssetAccessor<? extends StaticAnimation> nextAnimation, float transitionTimeModifier, AnimatorControlPacket.Layer layerType, AnimatorControlPacket.Priority priority) {
+		Layer layer = layerType == AnimatorControlPacket.Layer.BASE_LAYER ? this.baseLayer : this.baseLayer.compositeLayers.get(AnimatorControlPacket.getPriority(priority));
 		layer.paused = false;
 		layer.playAnimation(nextAnimation, this.entitypatch, transitionTimeModifier);
 	}
@@ -488,17 +501,6 @@ public class ClientAnimator extends Animator {
 	}
 	
 	@Override
-	public boolean isPlaying(AssetAccessor<? extends DynamicAnimation> animation) {
-		for (Layer layer : this.getAllLayers()) {
-			if (layer.animationPlayer.getRealAnimation().equals(animation)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	@Override
 	public AnimationPlayer getPlayerFor(AssetAccessor<? extends DynamicAnimation> playingAnimation) {
 		if (playingAnimation == null) {
 			return this.baseLayer.animationPlayer;
@@ -578,7 +580,7 @@ public class ClientAnimator extends Animator {
 	
 	@Override
 	public EntityState getEntityState() {
-		ParameterizedHashMap<StateFactor<?>> stateMap = new ParameterizedHashMap<> ();
+		TypeFlexibleHashMap<StateFactor<?>> stateMap = new TypeFlexibleHashMap<> (false);
 		
 		for (Layer layer : this.baseLayer.compositeLayers.values()) {
 			if (this.baseLayer.baseLayerPriority.isHigherThan(layer.priority)) {

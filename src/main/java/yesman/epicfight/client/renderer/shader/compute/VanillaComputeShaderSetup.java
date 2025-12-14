@@ -14,6 +14,8 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -43,22 +45,22 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		for (int i = 0; i < elems.size(); ++i) {
 			VertexFormatElement elem = elems.get(i);
 			
-			if (elem == VertexFormatElement.POSITION) {
+			if (elem == DefaultVertexFormat.ELEMENT_POSITION) {
 				glVertexAttribPointer(i, 3, GL_FLOAT, false, 48, 0);
 				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV0) {
+			} else if (elem == DefaultVertexFormat.ELEMENT_UV) {
 				glVertexAttribPointer(i, 2, GL_FLOAT, false, 48, 28);
 				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.COLOR) {
+			} else if (elem == DefaultVertexFormat.ELEMENT_COLOR) {
 				glVertexAttribPointer(i, 4, GL_FLOAT, true, 48, 12);
 				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.NORMAL) {
+			} else if (elem == DefaultVertexFormat.ELEMENT_NORMAL) {
 				glVertexAttribPointer(i, 3, GL_BYTE, true, 48, 36);
 				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV1) {
+			} else if (elem == DefaultVertexFormat.ELEMENT_UV1) {
 				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 40);
 				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV2) {
+			} else if (elem == DefaultVertexFormat.ELEMENT_UV2) {
 				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 44);
 				glEnableVertexAttribArray(i);
 			}
@@ -134,11 +136,11 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		// setup state
 		GlStateManager._glBindVertexArray(this.arrayObjectId);
 		
-		this.draw(poseStack, renderType, r, g, b, a, overlay, packedLight, poses.length);
+		this.draw(poseStack, renderType, RenderSystem.getModelViewMatrix(), r, g, b, a, overlay, packedLight, poses.length);
 		
 		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
 			renderType.outline().ifPresent(outlineRendertype -> {
-				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+				this.draw(poseStack, outlineRendertype, RenderSystem.getModelViewMatrix(), outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 			});
 		}
 		

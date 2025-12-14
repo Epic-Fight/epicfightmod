@@ -69,7 +69,7 @@ public class PEnderDragonRenderer extends PatchedEntityRenderer<EnderDragon, End
 			float f7 = Math.min(deathTimeProgression > 0.8F ? (deathTimeProgression - 0.8F) / 0.2F : 0.0F, 1.0F);
 			
 			poseStack.pushPose();
-			LightningRenderHelper.renderCirclingLight(lightningBuffer, poseStack, 255, 0, 255, density, 1.0F, deathTimeProgression, f7);
+			LightningRenderHelper.renderCyclingLight(lightningBuffer, poseStack, 255, 0, 255, density, 1.0F, deathTimeProgression, f7);
 			poseStack.popPose();
 		}
 	}

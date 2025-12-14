@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon.DragonCrystalLinkPhase;

@@ -5,7 +5,7 @@ import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 
 public class HitCutParticle extends NoRenderParticle {
 	public HitCutParticle(ClientLevel world, double x, double y, double z, double width, double height, double _null) {

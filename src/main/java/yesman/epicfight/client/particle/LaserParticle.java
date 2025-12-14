@@ -14,7 +14,6 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
@@ -31,7 +30,7 @@ public class LaserParticle extends CustomModelParticle<ClassicMesh> {
 		Vec3 direction = new Vec3(toX - x, toY - y, toZ - z);
 		Vec3 start = new Vec3(x, y, z);
 		Vec3 destination = start.add(direction.normalize().scale(200.0D));
-		BlockHitResult hitResult = level.clip(new ClipContext(start, destination, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty()));
+		BlockHitResult hitResult = level.clip(new ClipContext(start, destination, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
 		double xLength = hitResult.getLocation().x - x;
 		double yLength = hitResult.getLocation().y - y;
 		double zLength = hitResult.getLocation().z - z;

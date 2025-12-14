@@ -100,6 +100,10 @@ public class ColorPreviewWidget extends AbstractWidget implements ResizableCompo
 	}
 	
 	@Override
+	public void _tick() {
+	}
+
+	@Override
 	public int _getX() {
 		return this.getX();
 	}

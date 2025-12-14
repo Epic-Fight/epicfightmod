@@ -14,7 +14,7 @@ public class RangedWeaponCapability extends CapabilityItem {
 	protected Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> rangeAnimationModifiers;
 	protected ZoomInType zoomInType;
 	
-	protected RangedWeaponCapability(RangedWeaponCapability.Builder builder) {
+	protected RangedWeaponCapability(CapabilityItem.Builder builder) {
 		super(builder);
 		
 		RangedWeaponCapability.Builder rangedBuilder = (RangedWeaponCapability.Builder)builder;
@@ -50,7 +50,7 @@ public class RangedWeaponCapability extends CapabilityItem {
 		return new RangedWeaponCapability.Builder();
 	}
 	
-	public static class Builder extends CapabilityItem.Builder<Builder> {
+	public static class Builder extends CapabilityItem.Builder {
 		private Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> rangeAnimationModifiers;
 		private ZoomInType zoomInType = ZoomInType.USE_TICK;
 		

@@ -1,7 +1,7 @@
 package yesman.epicfight.skill;
 
 public enum SkillSlots implements SkillSlot {
-	COMBO_ATTACKS(SkillCategories.BASIC_ATTACK),
+	BASIC_ATTACK(SkillCategories.BASIC_ATTACK),
 	DODGE(SkillCategories.DODGE),
 	PASSIVE1(SkillCategories.PASSIVE),
 	PASSIVE2(SkillCategories.PASSIVE),

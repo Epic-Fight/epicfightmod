@@ -58,7 +58,7 @@ public class RemoteAssets {
 				}
 			});
 		});
-
+		
 		return this.cachedMeshes.get(seq);
 	}
 	
@@ -73,8 +73,8 @@ public class RemoteAssets {
 		
 		return textureLocation;
 	}
-
-    private static class RemoteMeshAccessor implements AssetAccessor<Mesh> {
+	
+	private static class RemoteMeshAccessor implements AssetAccessor<Mesh> {
 		private Queue<Consumer<Mesh>> callback = Queues.newArrayDeque();
 		private Mesh mesh;
 		

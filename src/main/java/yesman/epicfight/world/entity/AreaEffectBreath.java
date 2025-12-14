@@ -15,7 +15,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
@@ -31,7 +30,7 @@ public class AreaEffectBreath extends AreaEffectCloud {
 	}
 	
 	public AreaEffectBreath(Level level, double x, double y, double z) {
-		this(EpicFightEntityTypes.AREA_EFFECT_BREATH.get(), level);
+		this(EpicFightEntities.AREA_EFFECT_BREATH.get(), level);
 		this.setPos(x, y, z);
 		this.initialFirePosition = new Vec3(x, y, z);
 	}
@@ -98,10 +97,10 @@ public class AreaEffectBreath extends AreaEffectCloud {
 	}
 	
 	@Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		super.defineSynchedData(builder);
-        builder.define(DATA_HORIZONTAL, true);
-    }
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		this.getEntityData().define(DATA_HORIZONTAL, true);
+	}
 	
 	protected void setHorizontal(boolean setter) {
 		this.getEntityData().set(DATA_HORIZONTAL, setter);

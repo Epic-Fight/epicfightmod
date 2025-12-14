@@ -153,42 +153,43 @@ public class UIComponent extends Button {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 		
-		bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
-		bufferbuilder.addVertex(poseStack.last().pose(), screenXEnd, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
+		bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+		bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
+		bufferbuilder.vertex(poseStack.last().pose(), screenXEnd, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
 		
-		bufferbuilder.addVertex(poseStack.last().pose(), screenXEnd, screenY, 0).setColor(69, 166, 244, 255).setNormal(0.0F, -1.0F, 0.0F);
-		bufferbuilder.addVertex(poseStack.last().pose(), screenXEnd, screenYEnd, 0).setColor(69, 166, 244, 255).setNormal(0.0F, -1.0F, 0.0F);
+		bufferbuilder.vertex(poseStack.last().pose(), screenXEnd, screenY, 0).color(69, 166, 244, 255).normal(0.0F, -1.0F, 0.0F).endVertex();
+		bufferbuilder.vertex(poseStack.last().pose(), screenXEnd, screenYEnd, 0).color(69, 166, 244, 255).normal(0.0F, -1.0F, 0.0F).endVertex();
 		
-		bufferbuilder.addVertex(poseStack.last().pose(), screenXEnd, screenYEnd, 0).setColor(69, 166, 244, 255).setNormal(-1.0F, 0.0F, 0.0F);
-		bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenYEnd, 0).setColor(69, 166, 244, 255).setNormal(-1.0F, 0.0F, 0.0F);
+		bufferbuilder.vertex(poseStack.last().pose(), screenXEnd, screenYEnd, 0).color(69, 166, 244, 255).normal(-1.0F, 0.0F, 0.0F).endVertex();
+		bufferbuilder.vertex(poseStack.last().pose(), screenX, screenYEnd, 0).color(69, 166, 244, 255).normal(-1.0F, 0.0F, 0.0F).endVertex();
 		
-		bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenYEnd, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
-		bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
+		bufferbuilder.vertex(poseStack.last().pose(), screenX, screenYEnd, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
+		bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
 		
 		if (this.horizontalBasis.getValue() == HorizontalBasis.CENTER) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, screenY + (screenYEnd - screenY) / 2.0F, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), this.parentScreen.width / 2, screenY + (screenYEnd - screenY) / 2.0F, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, screenY + (screenYEnd - screenY) / 2.0F, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), this.parentScreen.width / 2, screenY + (screenYEnd - screenY) / 2.0F, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
 		} else if (this.horizontalBasis.getValue() == HorizontalBasis.LEFT) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), 0, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), 0, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
 		} else if (this.horizontalBasis.getValue() == HorizontalBasis.RIGHT) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), this.parentScreen.width, screenY, 0).setColor(69, 166, 244, 255).setNormal(1.0F, 0.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), this.parentScreen.width, screenY, 0).color(69, 166, 244, 255).normal(1.0F, 0.0F, 0.0F).endVertex();
 		}
 		
 		if (this.verticalBasis.getValue() == VerticalBasis.CENTER) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, screenY + (screenYEnd - screenY) / 2.0F, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, this.parentScreen.height / 2, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, screenY + (screenYEnd - screenY) / 2.0F, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), screenX + (screenXEnd - screenX) / 2.0F, this.parentScreen.height / 2, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
 		} else if (this.verticalBasis.getValue() == VerticalBasis.TOP) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, 0, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, 0, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
 		} else if (this.verticalBasis.getValue() == VerticalBasis.BOTTOM) {
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, screenY, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
-			bufferbuilder.addVertex(poseStack.last().pose(), screenX, this.parentScreen.height, 0).setColor(69, 166, 244, 255).setNormal(0.0F, 1.0F, 0.0F);
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, screenY, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
+			bufferbuilder.vertex(poseStack.last().pose(), screenX, this.parentScreen.height, 0).color(69, 166, 244, 255).normal(0.0F, 1.0F, 0.0F).endVertex();
 		}
-		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+		BufferUploader.drawWithShader(bufferbuilder.end());
 	}
 
 	@Override

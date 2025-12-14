@@ -37,8 +37,9 @@ public class SelectModelScreen extends Screen {
 		this.font = parentScreen.getMinecraft().font;
 		
 		this.modelPreviewer = new ModelPreviewer(10, 20, 36, 60, null, null, null, null);
-		this.modelList = new ModelList(this.minecraft, this.width, this.height - 52, 36, 21);
-		this.searchBox = new EditBox(this.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal("datapack_edit.keyword"));
+		this.modelList = new ModelList(parentScreen.getMinecraft(), this.width, this.height, 36, this.height - 16, 21);
+		this.modelList.setRenderTopAndBottom(false);
+		this.searchBox = new EditBox(parentScreen.getMinecraft().font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal("datapack_edit.keyword"));
 		this.searchBox.setResponder(this.modelList::refreshModelList);
 		this.selectCallback = selectCallback;
 		this.cancelCallback = cancelCallback;
@@ -58,8 +59,8 @@ public class SelectModelScreen extends Screen {
 		this.modelPreviewer._setHeight(this.height - 68);
 		this.modelPreviewer.resize(null);
 		
-		this.modelList.updateSizeAndPosition(this.width - split, this.height - 68, 36);
-		this.modelList.setX(split);
+		this.modelList.updateSize(this.width - split, this.height, 36, this.height - 32);
+		this.modelList.setLeftPos(split);
 		
 		this.searchBox.setX(this.width / 2);
 		this.searchBox.setY(12);
@@ -115,13 +116,13 @@ public class SelectModelScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		this.renderDirtBackground(guiGraphics);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
 	class ModelList extends ObjectSelectionList<ModelList.ModelEntry> {
-		public ModelList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
-			super(minecraft, width, height, y, itemHeight);
+		public ModelList(Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight) {
+			super(minecraft, width, height, y0, y1, itemHeight);
 		}
 		
 		@Override
@@ -138,16 +139,8 @@ public class SelectModelScreen extends Screen {
 		
 		@Override
 		protected int getScrollbarPosition() {
-			return this.getRight() - 6;
+			return this.x1 - 6;
 		}
-		
-		@Override
-	    protected void renderListBackground(GuiGraphics guiGraphics) {
-	    }
-
-	    @Override
-	    protected void renderListSeparators(GuiGraphics guiGraphics) {
-	    }
 		
 		@SuppressWarnings("unchecked")
 		public void refreshModelList(String keyward) {

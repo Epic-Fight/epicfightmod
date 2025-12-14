@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " B",
+        "S "
+    ],
+    "key":
+    {
+        "B": { "tag" : "minecraft:planks" },
+        "S": { "item" : "minecraft:stick" }
+    },
+    "result":
+    {
+        "item" : "epicfight:wooden_dagger",
+        "count" : 1
+    }
+}

@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import yesman.epicfight.client.events.engine.RenderEngine;
+import yesman.epicfight.client.ClientEngine;
 
 public class ItemSkinsReloadListener extends SimpleJsonResourceReloadListener {
 	public static final ItemSkinsReloadListener INSTANCE = new ItemSkinsReloadListener();
@@ -20,6 +20,6 @@ public class ItemSkinsReloadListener extends SimpleJsonResourceReloadListener {
 	
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profileFiller) {
-		RenderEngine.getInstance().reloadItemRenderers(objectIn);
+		ClientEngine.getInstance().renderEngine.reloadItemRenderers(objectIn);
 	}
 }

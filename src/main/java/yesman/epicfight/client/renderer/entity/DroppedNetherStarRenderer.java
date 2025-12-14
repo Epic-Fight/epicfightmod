@@ -25,7 +25,7 @@ public class DroppedNetherStarRenderer extends ItemEntityRenderer {
 		VertexConsumer vertexBuilder = multiBufferSource.getBuffer(RenderType.lightning());
 		float progression = (entityIn.tickCount + partialTicks) * 0.01F;
 		float repeater = ((float)Math.sin(progression * 5.0F) + 1.0F) * 0.5F;
-		LightningRenderHelper.renderCirclingLight(vertexBuilder, poseStack, 32, 0, 255, 9, 0.05F, progression, repeater);
+		LightningRenderHelper.renderCyclingLight(vertexBuilder, poseStack, 32, 0, 255, 9, 0.05F, progression, repeater);
 		poseStack.popPose();
 	}
 }

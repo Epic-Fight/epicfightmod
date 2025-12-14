@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " BB",
+        "BBB",
+        "SB "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:cobblestone" },
+        "S": { "tag" : "minecraft:planks" }
+    },
+    "result":
+    {
+        "item" : "epicfight:stone_greatsword",
+        "count" : 1
+    }
+}

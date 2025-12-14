@@ -36,6 +36,6 @@ public class TargetChasingGoal extends MeleeAttackGoal {
 	}
 	
 	@Override
-	protected void checkAndPerformAttack(LivingEntity target) {
+	protected void checkAndPerformAttack(LivingEntity target, double p_25558_) {
 	}
 }

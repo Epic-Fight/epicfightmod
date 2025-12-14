@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        " B ",
+        " B ",
+        "S  "
+    ],
+    "key":
+    {
+        "B": { "tag" : "minecraft:stone_tool_materials" },
+        "S": { "item" : "minecraft:stone_sword" }
+    },
+    "result":
+    {
+        "item" : "epicfight:stone_tachi",
+        "count" : 1
+    }
+}

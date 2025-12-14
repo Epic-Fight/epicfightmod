@@ -7,32 +7,32 @@ import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class ItemUsedInDecoupledCamera extends CameraAPIEvent {
-    private Player player;
-    private PlayerPatch<?> playerpatch;
-    private ItemStack itemstack;
-    private InteractionHand hand;
-
-    public ItemUsedInDecoupledCamera(EpicFightCameraAPI cameraApi, Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
-        super(cameraApi);
-        this.player = player;
-        this.playerpatch = playerpatch;
-        this.itemstack = itemstack;
-        this.hand = hand;
-    }
-
-    public Player getPlayer() {
-        return this.player;
-    }
-
-    public PlayerPatch<?> getPlayerPatch() {
-        return this.playerpatch;
-    }
-
-    public ItemStack getItemStack() {
-        return this.itemstack;
-    }
-
-    public InteractionHand getInteractionHand() {
-        return this.hand;
-    }
+	private Player player;
+	private PlayerPatch<?> playerpatch;
+	private ItemStack itemstack;
+	private InteractionHand hand;
+	
+	public ItemUsedInDecoupledCamera(EpicFightCameraAPI cameraApi, Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
+		super(cameraApi);
+		this.player = player;
+		this.playerpatch = playerpatch;
+		this.itemstack = itemstack;
+		this.hand = hand;
+	}
+	
+	public Player getPlayer() {
+		return this.player;
+	}
+	
+	public PlayerPatch<?> getPlayerPatch() {
+		return this.playerpatch;
+	}
+	
+	public ItemStack getItemStack() {
+		return this.itemstack;
+	}
+	
+	public InteractionHand getInteractionHand() {
+		return this.hand; 
+	}
 }

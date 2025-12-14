@@ -1,9 +1,15 @@
 package yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.google.common.collect.Maps;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -30,14 +36,18 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
-import yesman.epicfight.api.animation.*;
+import yesman.epicfight.api.animation.Animator;
+import yesman.epicfight.api.animation.JointTransform;
+import yesman.epicfight.api.animation.LivingMotion;
+import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -55,23 +65,18 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
-import yesman.epicfight.registry.entries.EpicFightItems;
-import yesman.epicfight.registry.entries.EpicFightSkills;
-import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.BossPatch;
 import yesman.epicfight.world.damagesource.StunType;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.world.item.EpicFightItems;
 
 public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKinematicsSimulatable, BossPatch<EnderDragon> {
 	public static final TargetingConditions DRAGON_TARGETING = TargetingConditions.forCombat().ignoreLineOfSight();
-	
 	private final Map<LivingMotions, AnimationAccessor<? extends StaticAnimation>> livingMotions = Maps.newHashMap();
 	private final Object2IntMap<Player> contributors = new Object2IntOpenHashMap<>();
 	private boolean groundPhase;
@@ -82,14 +87,16 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	private float zRoot;
 	private float zRootO;
 	
-	public EnderDragonPatch(EnderDragon entity) {
-		super(entity);
-		
+	@Override
+	public void onConstructed(EnderDragon enderdragon) {
 		this.livingMotions.put(LivingMotions.IDLE, Animations.DRAGON_IDLE);
 		this.livingMotions.put(LivingMotions.WALK, Animations.DRAGON_WALK);
 		this.livingMotions.put(LivingMotions.FLY, Animations.DRAGON_FLY);
 		this.livingMotions.put(LivingMotions.CHASE, Animations.DRAGON_AIRSTRIKE);
 		this.livingMotions.put(LivingMotions.DEATH, Animations.DRAGON_DEATH);
+		
+		super.onConstructed(enderdragon);
+		
 		this.currentLivingMotion = LivingMotions.FLY;
 	}
 	
@@ -112,8 +119,8 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	public void entityPairing(SPEntityPairingPacket packet) {
 		super.entityPairing(packet);
 		
-		if (packet.pairingPacketType() == EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER) {
-			this.processOwnerRecordPacket(packet.buffer());
+		if (packet.getPairingPacketType() == EntityPairingPacketTypes.SET_BOSS_EVENT_OWNER) {
+			this.processOwnerRecordPacket(packet.getBuffer());
 		}
 	}
 	
@@ -125,13 +132,18 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 		EnderDragonPhase<?> startPhase = (currentPhase == null || !(currentPhase instanceof PatchedDragonPhase)) ? PatchedPhases.FLYING : this.original.phaseManager.getCurrentPhase().getPhase();
 		this.original.phaseManager = new PhaseManagerPatch(this.original, this);
 		this.original.phaseManager.setPhase(startPhase);
+		enderdragon.setMaxUpStep(1.0f);
 	}
 	
 	public static void initAttributes(EntityAttributeModificationEvent event) {
-		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.IMPACT, 8.0D);
-		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.MAX_STRIKES, Double.MAX_VALUE);
+		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.IMPACT.get(), 8.0D);
+		event.add(EntityType.ENDER_DRAGON, EpicFightAttributes.MAX_STRIKES.get(), Double.MAX_VALUE);
 		event.add(EntityType.ENDER_DRAGON, Attributes.ATTACK_DAMAGE, 10.0D);
-		event.add(EntityType.ENDER_DRAGON, Attributes.STEP_HEIGHT, 1.0F);
+	}
+	
+	@Override
+	public void saveData(CompoundTag compoundTag) {
+		// We do not save stun shield here
 	}
 	
 	@Override
@@ -173,8 +185,8 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public void preTick(EntityTickEvent.Pre event) {
-		super.preTick(event);
+	public void tick(LivingEvent.LivingTickEvent event) {
+		super.tick(event);
 		
 		if (this.original.getPhaseManager().getCurrentPhase().isSitting()) {
 			this.original.nearestCrystal = null;
@@ -218,8 +230,8 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public void preTickServer(EntityTickEvent.Pre event) {
-		super.preTickServer(event);
+	public void serverTick(LivingEvent.LivingTickEvent event) {
+		super.serverTick(event);
 		this.original.hurtTime = 2;
 		this.original.getSensing().tick();
 		this.updateMotion(true);
@@ -271,11 +283,11 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public void preTickClient(EntityTickEvent.Pre event) {
+	public void clientTick(LivingEvent.LivingTickEvent event) {
 		this.xRootO = this.xRoot;
 		this.zRootO = this.zRoot;
 		
-		super.preTickClient(event);
+		super.clientTick(event);
 		
 		this.ikSimulator.tick(null);
 		this.setIKHeightAndRootRotation();
@@ -328,7 +340,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 
 		for (Player player : this.contributors.keySet()) {
 			ItemStack skillbook = new ItemStack(EpicFightItems.SKILLBOOK.get());
-			ItemStack modified = SetSkillFunction.builder(EpicFightSkills.DEMOLITION_LEAP.getRegisteredName())
+			ItemStack modified = SetSkillFunction.builder(EpicFightSkills.DEMOLITION_LEAP.getRegistryName().toString())
 				.build()
 				.apply(skillbook,
 					new LootContext.Builder(

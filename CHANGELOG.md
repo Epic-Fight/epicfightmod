@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [21.14.3] - 2025-12-11
+## [20.14.3] - 2025-12-11
 
 ### Fixed
 
@@ -19,21 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - You're still allowed to use assets via datapack editor or addons. Nevertheless, we can claim copyright
       of our assets if we find some abuse, or your behaviors that don't respect our efforts on it.
 
-## [21.14.2] - 2025-12-10
+## [20.14.2] - 2025-12-10
 
 ### Fixed
 
 - Fixed the target indicator invisible for non Epic Fight patched entities
 - Fixed the lock-on target not being synced to the server when using mouse snap to change the target
-- Fixed the player being dark in inventory screen
-- Fixed the camera jittering in TPS mode
 
 ### Changed
 
 - Now Lock-on automatically searches a new target if there is no currently focusing entity
 - Now TPS mode applies 8 directional movement to the player
 
-## [21.14.1] - 2025-12-07
+## [20.14.1] - 2025-12-07
 
 ### Added
 
@@ -45,60 +43,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An option that you can always activate the TPS perspective, which was only activated when aiming with ranged weapons.
 - An option screen where you can set up the camera position in TPS perspective
 - An auto-tracking functionality that aligns the player's look to the crosshair when aiming and striking entities.
-- A new keybind that moves the camera freely while locking on any entity to search another target
+- A new keybind that moves camera freely while locking on any entity to search another target
 - A lock-on snapping feature that cycles lock-on entities in the screen by snapping mouse left or right
 - An auto-targeting functionality that searches a next target when the current lock-on entity is dead
 - An option to toggle lock-on snapping and auto target
-- An option to set the maximum distance that the player can focus on entities
+- An option to set the maximum distance that the player can focus entities
 - See the devlog [here](https://www.patreon.com/posts/tps-camera-and-141028682)
 - Epic Fight's TPS perspective will be automatically disabled when a conflicting mod, such
   as [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
   or [Better Third Person](https://modrinth.com/mod/better-third-person), is detected to prevent issues.
-- Explicit Shoulder Surfing compatibility with the new
-  enhanced lock-on (credit [Exopandora](https://github.com/Exopandora)).
-  [#2258](https://github.com/Epic-Fight/epicfight/issues/2258)
+- Explicit Shoulder Surfing compatibility with the new enhanced lock-on (credit [Exopandora](https://github.com/Exopandora)).
 
 ### Fixed
 
 - Fixed a bug that allowed the player to replace the current skill slot even during cooldown.
-- **Fixed:** The **Shoulder Surfing compatibility module** was not being registered,
-  causing issues with its intended functionality.
 - Fixed the mining crosshair not to show in vanilla mode
 - Fixed the massive memory consume on loading the game caused by animation loads
-- Disabled the `AzureLib` and `AzureLibArmor` compatibility modules for version `3.X.X` and newer as a workaround to
-  address breaking changes and prevent crashes.
-- Fixed the player kicked from a dedicated server when other players are equipping Adaptive Skin skill
 
 ### For Devs
 
+- New API feature: Events
+    - Replaces the mod-loader event system into Epic Fight API, as we planning to support multi-loader developer environment
+    - The feautre is still WIP, supporting only events for EpicFightCameraAPI
+    - We will eventually replace all Forge/Neoforge events owned by Epic Fight into Events
 - Rename the experimental enum `EpicFightInputActions` to `EpicFightInputAction` to follow Java naming
   conventions. [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
-- Removed AirSlash and its related fields (SkillCategory, SkillSlot) to merge air slash and combo attacks as one skill
+- Removed AirAttack and its related fields (SkillCategory, SkillSlot) to merge air slash and combo attacks as one skill
 - Updated the experimental Epic Fight's input API to support using custom input actions that are not a
   `EpicFightInputAction`.
-- Extracted vanilla input actions from `EpicFightInputAction` into `MinecraftInputAction`.
   [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
-  [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
-- New API feature: Hooks
-    - Replace the mod-loader event system into Epic Fight API, as we're planning to support multi-loader developer environment
-    - The feature is still WIP, supporting only events for EpicFightCameraAPI
-    - We will eventually replace all Forge/NeoForge events owned by Epic Fight into Hooks
+- Deprecated `ClientEngine#isBattleMode` and added `ClientEngine#isEpicFightMode` for a smoother migration when porting
+  from MC 1.20.1 to 1.21.1
 - Added API JAR file, which includes classes under `yesman/epicfight/api/**` only, to allow consumers to compile against
   Epic Fight public API only.
-    - **Note:** Keep in mind that Epic Fight public APIs are still being stabilized, and breaking changes may occur. 
+    - **Note:** Keep in mind that Epic Fight public APIs are still being stabilized, and breaking changes may occur.
 
-## [21.13.5] - 2025-11-12
+## [20.13.6] - 2025-11-12
+
+### Fixed
+
+- Fixed a regression where the weapon’s innate skill tooltip did not trigger.
+  [#2198](https://github.com/Epic-Fight/epicfight/pull/2198)
+
+## [20.13.5] - 2025-11-11
 
 ### Fixed
 
 - Fixed a regression where the Phantom Ascent skill was triggered when
   pressing the jump key while any screen was open (e.g., inventory, chat).
   [#2170](https://github.com/Epic-Fight/epicfight/issues/2170)
-- Fixed a regression where the weapon's innate skill tooltip did not trigger.
-  [#2198](https://github.com/Epic-Fight/epicfight/pull/2197)
 - Fixed a crash when right click some blocks from Supplementaries
   [#2187](https://github.com/Epic-Fight/epicfight/issues/2187)
-- Fixed a cosmetic configuration button always inactivated
+- Fixed patron capes always being default
 - Fixed an unintended mechanism where you weren't able to attack in Epic Fight
   mode while Preference Work is set to Switch Mode, so it works in the same way
   as Item Auto Switching option, an old config where automatically sets player
@@ -109,14 +105,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored the code to eliminate unnecessary native GLFW calls,
   optimizing whether key down checks are performed per tick, by adapting
   Minecraft vanilla `KeyMapping`, which may also potentially fix other compatibility issues with other mods.
-- Avoid registering mixins for non-existing third-party mods to avoid spamming the console log and prevent unnecessary operations.
+
+### Added
+
+- Built-in Controlify integration for controller support.
+  No need to install
+  [Epic Fight: Controlify](https://www.curseforge.com/minecraft/mc-mods/epic-fight-controlify) anymore.
+  Install only
+  [Controlify: Forgified](https://www.curseforge.com/minecraft/mc-mods/controlify-forgified-unofficial) on 1.20.1
 
 ### For Devs
-- Adopted KeyConflictContext for each keybind as documented by [Neoforge](https://docs.neoforged.net/docs/misc/keymappings/#ikeyconflictcontext) to avoid potential problem from inconsistency
-- Made GUARD and DODGE CombatKeyMapping, to activate only in Epic Fight mode
-- Adjusted `MixinWitherBoss` to follow best practices and prevent potential conflicts with other mods in production environments.
 
-## [21.13.4] - 2025-11-04
+- Adjusted `MixinWitherBoss` to follow best practices and prevent potential conflicts with other mods in production
+  environments.
+
+## [20.13.4] - 2025-11-04
 
 ### Changed
 - Updated the default config to disable the mine block highlight guide.
@@ -125,25 +128,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a crash when joining a world with BadOptimizations installed. [BadOptimizations#108](https://github.com/imthosea/BadOptimizations/issues/108), [#2160](https://github.com/Epic-Fight/epicfight/issues/2160).
 - Fixed a crash when joining a world with [Ecliptic Seasons](https://www.curseforge.com/minecraft/mc-mods/ecliptic-seasons) installed.
 
-## [21.13.3] - 2025-11-01
+## [20.13.3] - 2025-11-01
 
-### Added
-- Added data-driven button guides for improved flexibility and customization.
+### Bugfix
+- Fixed Dedicated Server Crash
+- Fixed Epic Fight potentially breaking other controller mods
+- Fixed the player can't take blocking when holding weapons from Simplyswords
+- Fixed the player's blocking and digging animations not removing under certain conditions (usually when it's combined with dodge skills)
+- Blocked the player editing signs when 'resolve_key_conflicts' is set to 'interaction'
+- Optimized texture files so that save 23% of size from the original
 
-### Changed
-- All changes from Epic Fight 20.13.3
-- Refined the dodge guide and introduced a new guide for weapon innate skill tooltips.
+### For Devs
+- Refactored the input system to be less dependent on vanilla Minecraft, allowing other controller mods to provide Epic Fight integration.
 
-### Fixed
-- Fixed the camera not switching when aiming ranged weapons
-- Fixed an issue where sneaking movement speed was incorrect when using a controller.
-- Resolved a crash that occurred when loading on dedicated servers.
+## [20.13.2] - 2025-10-24
 
-## [21.13.1] - 2025-10-21
+### Bugfix
+- Fixed the 'resolve_key_conflicts' option not to be applied when the player is vanilla mode
+- Fixed the 'resolve_key_conflicts' messing up the door state
+- Fixed the Ender dragon can't hurt the player
 
-### Fixed
-- Ported from Epic Fight 20.13.1
-- Fixed the crash when equipping Geckolib armors
-- Fixed the armor's texture to follow the render property first
-- Restored Skin layer 3d compatibility
-- Fixed the first-person player model transform broken when using a shaderpack
+### Configuration
+- Added a new config option that you can disable Minecraft model while in vanilla mode (Same as old 'filter animation' option)
+- Added a new config option that determines how 'item_preference' works
+> - Adaptive: same as current work
+> - Switch mode: like the old Epic Fight's 'auto_switching' items, it switches the player mode when the player changes a main hand item, forcing the next behavior depending on the player mode
+
+### Changes
+- Made the stun shield persistent
+
+## [20.13.1] - 2025-10-20
+
+### Bugfix
+- Fixed the players unable to turn camera in first-person on ladders when y rotation is 180 (or -180)
+- Fixed the Technician not rewarding stamina
+
+### Configuration
+- Expanded the mining block guide option to configure both crosshair and block highlight overlay
+- The config option 'resolve_key_conflicts' has been changed to `key_conflict_resolve_scope` which can cancel the vanilla actions when guard key conflicts with item use key
+
+### Skill and Skill UI
+- Added a replace cooldown for each skill slot (#2021)
+- Added scrolling to the skill editor and slot selector to further enhance addon extensibility
+
+### Shoulder surfing compatibility
+- Players now follow camera when they're taking specific Epic Fight actions (attacks, blocking)
+
+### Etc
+- Now players can suppress movements of combo attacks by pressing the sneak key
+- Enhanced the block highlight so that it only stains an opaque part

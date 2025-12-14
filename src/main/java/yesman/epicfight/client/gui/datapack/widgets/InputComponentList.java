@@ -17,18 +17,12 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	private InputComponentList<T>.InputComponentEntry lastEntry;
 	private InputComponentList<T>.InputComponentEntry focusingEntry;
 	
-	public InputComponentList(Screen owner, int width, int height, int y, int itemHeight) {
-		super(owner.getMinecraft(), width, height, y, itemHeight);
+	public InputComponentList(Screen owner, int width, int height, int y0, int y1, int itemHeight) {
+		super(owner.getMinecraft(), width, height, y0, y1, itemHeight);
+		
 		this.owner = owner;
+		this.setRenderTopAndBottom(false);
 	}
-	
-	@Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
-    }
-
-    @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
-    }
 	
 	@Override
 	public int getRowWidth() {
@@ -37,7 +31,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	
 	@Override
 	protected int getScrollbarPosition() {
-		return this.getRight() - 6;
+		return this.x1 - 6;
 	}
 	
 	public int nextStart(int spacing) {
@@ -111,8 +105,8 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	public abstract void importTag(T tag);
 	
 	@Override
-	public void updateSizeAndPosition(int width, int height, int y) {
-		super.updateSizeAndPosition(width, height, y);
+	public void updateSize(int width, int height, int y0, int y1) {
+		super.updateSize(width, height, y0, y1);
 		
 		for (InputComponentList<T>.InputComponentEntry entry : this.children()) {
 			for (ResizableComponent widget : entry.children()) {
@@ -122,8 +116,8 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	}
 	
 	@Override
-	public void setX(int xPos) {
-		super.setX(xPos);
+	public void setLeftPos(int xPos) {
+		super.setLeftPos(xPos);
 		
 		for (InputComponentList<T>.InputComponentEntry entry : this.children()) {
 			for (ResizableComponent widget : entry.children()) {
@@ -135,9 +129,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	public void tick() {
 		for (InputComponentList<T>.InputComponentEntry entry : this.children()) {
 			for (ResizableComponent widget : entry.children()) {
-				if (widget instanceof TickableComponent tickableComponent) {
-					tickableComponent._tick();
-				}
+				widget._tick();
 			}
 		}
 	}
@@ -155,7 +147,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 			int j1 = this.getRowTop(i);
 			int k1 = this.getRowBottom(i);
 			
-			if (k1 >= this.getY() && j1 <= this.getBottom()) {
+			if (k1 >= this.y0 && j1 <= this.y1) {
 				boolean pressed = false;
 				
 				for (GuiEventListener guiEventListener : this.focusingEntry.children()) {
@@ -183,7 +175,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 			int j1 = this.getRowTop(i);
 			int k1 = this.getRowBottom(i);
 			
-			if (k1 >= this.getY() && j1 <= this.getBottom()) {
+			if (k1 >= this.y0 && j1 <= this.y1) {
 				boolean pressed = false;
 				
 				for (GuiEventListener guiEventListener : entry.children()) {
@@ -206,20 +198,20 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	}
 	
 	@Override
-	public boolean mouseScrolled(double x, double y, double xScroll, double yScroll) {
+	public boolean mouseScrolled(double x, double y, double amount) {
 		for (int i = 0; i < this.children().size(); i++) {
 			InputComponentEntry entry = this.children().get(i);
 			int j1 = this.getRowTop(i);
 			int k1 = this.getRowBottom(i);
 			
-			if (k1 >= this.getY() && j1 <= this.getBottom()) {
-				if (entry.getChildAt(x, y).filter((component) -> component.mouseScrolled(x, y, xScroll, yScroll)).isPresent()) {
+			if (k1 >= this.y0 && j1 <= this.y1) {
+				if (entry.getChildAt(x, y).filter((component) -> component.mouseScrolled(x, y, amount)).isPresent()) {
 					return true;
 				}
 			}
 		}
 		
-		return super.mouseScrolled(x, y, xScroll, yScroll);
+		return super.mouseScrolled(x, y, amount);
 	}
 	
 	@Override
@@ -229,7 +221,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 			int j1 = this.getRowTop(i);
 			int k1 = this.getRowBottom(i);
 			
-			if (k1 >= this.getY() && j1 <= this.getBottom()) {
+			if (k1 >= this.y0 && j1 <= this.y1) {
 				if (entry.getChildAt(mouseX, mouseY).filter((component) -> component.mouseDragged(mouseX, mouseY, button, dx, dy)).isPresent()) {
 					return true;
 				}

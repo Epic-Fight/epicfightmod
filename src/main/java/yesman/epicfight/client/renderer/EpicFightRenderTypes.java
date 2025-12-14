@@ -43,7 +43,7 @@ public final class EpicFightRenderTypes extends RenderType {
 		Util.memoize((texLocation, cullStateShard) -> {
 			return RenderType.create(
 				EpicFightMod.prefix("outline"),
-				DefaultVertexFormat.POSITION_TEX_COLOR,
+				DefaultVertexFormat.POSITION_COLOR_TEX,
 				VertexFormat.Mode.TRIANGLES,
 				256,
 				false,
@@ -528,7 +528,7 @@ public final class EpicFightRenderTypes extends RenderType {
 				, compositeRenderType.state.outlineProperty
 			);
 			
-			return new CompositeRenderType(renderType.name, renderType.format, compositeRenderType.mode, renderType.bufferSize(), renderType.affectsCrumbling(), renderType.sortOnUpload, textureReplacedState);
+			return new CompositeRenderType(renderType.name, renderType.format, compositeRenderType.mode(), renderType.bufferSize(), renderType.affectsCrumbling(), renderType.sortOnUpload, textureReplacedState);
 		} else {
 			return null;
 		}
@@ -549,7 +549,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			return renderType;
 		}
 		
-		Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.computeIfAbsent(textureReplacedRenderType.name, k -> new HashMap<> ());
+		Map<ResourceLocation, RenderType> renderTypesByTexture = TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE.computeIfAbsent(textureReplacedRenderType.name, k -> Maps.newHashMap());
 		renderTypesByTexture.put(texLocation, textureReplacedRenderType);
 		
 		return textureReplacedRenderType;

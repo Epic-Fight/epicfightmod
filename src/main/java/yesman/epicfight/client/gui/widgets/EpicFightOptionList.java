@@ -14,10 +14,10 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 
 public class EpicFightOptionList extends ContainerObjectSelectionList<EpicFightOptionList.OptionEntry> {
-	public EpicFightOptionList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
-        super(minecraft, width, height, y, itemHeight);
-        this.centerListVertically = false;
-    }
+	public EpicFightOptionList(Minecraft minecraft, int p_94466_, int p_94467_, int p_94468_, int p_94469_, int p_94470_) {
+		super(minecraft, p_94466_, p_94467_, p_94468_, p_94469_, p_94470_);
+		this.centerListVertically = false;
+	}
 	
 	public int addBig(AbstractWidget button1) {
 		return this.addEntry(EpicFightOptionList.OptionEntry.big(this.width, button1));

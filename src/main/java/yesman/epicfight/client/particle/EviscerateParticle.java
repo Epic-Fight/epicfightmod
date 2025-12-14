@@ -7,7 +7,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.particle.EpicFightParticles;
 
 public class EviscerateParticle extends NoRenderParticle {
 	protected EviscerateParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {

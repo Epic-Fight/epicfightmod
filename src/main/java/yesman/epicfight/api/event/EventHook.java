@@ -1,18 +1,18 @@
 package yesman.epicfight.api.event;
 
+import java.util.TreeMap;
+
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.event.subscriptions.DefaultEventSubscription;
 
-import java.util.TreeMap;
-
 /**
  * This class handles event subscription in Epic Fight API, inspired by
- * Forge/NeoForge's EventHook, and Fabric's Callback/EventHook
+ * Forge/NeoForge's Event, and Fabric's Callback/Event
  * <p>
  * Note this object isn't created each time a event is occur. it only
  * defines event type and its subscriptions
  * <p>
- * To create custom events, follow these codebase: {@link EpicFightHooks}
+ * To create custom evens, follow these codebase: {@link EpicFightHooks}
  * and {@link EpicFightClientHooks} for client-side only events
  */
 public class EventHook<T extends Event> {
@@ -74,7 +74,7 @@ public class EventHook<T extends Event> {
 	}
 	
 	/**
-	 * Returns a class name who called register_event methods
+	 * Returns a class name who called register_Event methods
 	 */
 	protected static String getDefaultSubscriberName() {
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -86,6 +86,6 @@ public class EventHook<T extends Event> {
 	 * Defines a default event type
 	 */
 	public static <T extends Event> EventHook<T> createEventHook() {
-		return new EventHook<>();
+		return new EventHook<> ();
 	}
 }

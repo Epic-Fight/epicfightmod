@@ -8,16 +8,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.registry.entries.EpicFightParticles;
-import yesman.epicfight.registry.entries.EpicFightSkills;
-import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -26,7 +26,7 @@ public class TridentCapability extends RangedWeaponCapability {
 	private List<AnimationAccessor<? extends AttackAnimation>> attackMotion;
 	private List<AnimationAccessor<? extends AttackAnimation>> mountAttackMotion;
 	
-	public TridentCapability(RangedWeaponCapability.Builder builder) {
+	public TridentCapability(CapabilityItem.Builder builder) {
 		super(builder);
 		
 		this.attackMotion = List.of(Animations.TRIDENT_AUTO1, Animations.TRIDENT_AUTO2, Animations.TRIDENT_AUTO3, Animations.SPEAR_DASH, Animations.SPEAR_ONEHAND_AIR_SLASH);
@@ -66,12 +66,12 @@ public class TridentCapability extends RangedWeaponCapability {
 	@Nullable
 	@Override
 	public Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
-		if (itemstack.getEnchantmentLevel(playerpatch.getLevel().holderOrThrow(Enchantments.RIPTIDE)) > 0) {
-			return EpicFightSkills.TSUNAMI.get();
-		} else if (itemstack.getEnchantmentLevel(playerpatch.getLevel().holderOrThrow(Enchantments.CHANNELING)) > 0) {
-			return EpicFightSkills.WRATHFUL_LIGHTING.get();
-		} else if (itemstack.getEnchantmentLevel(playerpatch.getLevel().holderOrThrow(Enchantments.LOYALTY)) > 0) {
-			return EpicFightSkills.EVERLASTING_ALLEGIANCE.get();
+		if (EnchantmentHelper.getRiptide(itemstack) > 0) {
+			return EpicFightSkills.TSUNAMI;
+		} else if (EnchantmentHelper.hasChanneling(itemstack)) {
+			return EpicFightSkills.WRATHFUL_LIGHTING;
+		} else if (EnchantmentHelper.getLoyalty(itemstack) > 0) {
+			return EpicFightSkills.EVERLASTING_ALLEGIANCE;
 		} else {
 			return null;
 		}

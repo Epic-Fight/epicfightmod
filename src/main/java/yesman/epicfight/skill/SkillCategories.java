@@ -12,22 +12,21 @@ public enum SkillCategories implements SkillCategory {
 	GUARD(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_guard")),
 	KNOCKDOWN_WAKEUP(false, false, false),
 	MOVER(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_mover")),
-	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity")),
-	EMPTY(false, false, false);
+	IDENTITY(true, true, true, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skillbook_identity"));
 	
 	
 	final boolean shouldSave;
-    final boolean shouldSyncronize;
-    final boolean modifiable;
-    final int id;
-    final ResourceLocation bookIcon;
+	final boolean shouldSyncronize;
+	final boolean modifiable;
+	final int id;
+	final ResourceLocation bookIcon;
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable) {
 		this.shouldSave = shouldSave;
 		this.shouldSyncronize = shouldSyncronizedAllPlayers;
 		this.modifiable = modifiable;
 		this.id = SkillCategory.ENUM_MANAGER.assign(this);
-        this.bookIcon = SkillCategory.DEFAULT_BOOK_ICON;
+		this.bookIcon = SkillCategory.DEFAULT_BOOK_ICON;
 	}
 	
 	SkillCategories(boolean shouldSave, boolean shouldSyncronizedAllPlayers, boolean modifiable, ResourceLocation bookIcon) {

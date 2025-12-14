@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
 public class RemoteTexture extends SimpleTexture {
@@ -55,7 +55,7 @@ public class RemoteTexture extends SimpleTexture {
 				LOGGER.debug("Downloading http texture from {}", this.urlString);
 				
 				try {
-					HttpURLConnection httpurlconnection = (HttpURLConnection)(URI.create(this.urlString).toURL()).openConnection(Minecraft.getInstance().getProxy());
+					HttpURLConnection httpurlconnection = (HttpURLConnection)(new URL(this.urlString)).openConnection(Minecraft.getInstance().getProxy());
 					httpurlconnection.setDoInput(true);
 					httpurlconnection.setDoOutput(false);
 					httpurlconnection.connect();

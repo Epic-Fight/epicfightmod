@@ -1,6 +1,6 @@
 package yesman.epicfight.compat.betterthirdperson;
 
-import net.neoforged.bus.api.IEventBus;
+import net.minecraftforge.eventbus.api.IEventBus;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
 import yesman.epicfight.compat.ICompatModule;
@@ -11,13 +11,14 @@ import yesman.epicfight.compat.ICompatModule;
 // Note: This does not support the "Better Third Person" mod,
 // features like dodge, attack, and lock-on may not work with Epic Fight.
 public final class BetterThirdPersonCompat implements ICompatModule {
+
     @Override
     public void onModEventBus(IEventBus eventBus) {
 
     }
 
     @Override
-    public void onGameEventBus(IEventBus eventBus) {
+    public void onForgeEventBus(IEventBus eventBus) {
 
     }
 
@@ -27,7 +28,7 @@ public final class BetterThirdPersonCompat implements ICompatModule {
     }
 
     @Override
-    public void onGameEventBusClient(IEventBus eventBus) {
+    public void onForgeEventBusClient(IEventBus eventBus) {
 
     }
 }

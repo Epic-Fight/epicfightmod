@@ -2,7 +2,6 @@ package yesman.epicfight.world.capabilities.entitypatch;
 
 import java.util.List;
 
-import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,21 +10,18 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.types.EntityState;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.StunType;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public abstract class HurtableEntityPatch<T extends LivingEntity> extends EntityPatch<T> {
 	private boolean stunReductionDecreases;
 	protected float stunTimeReductionDefault;
 	protected float stunTimeReduction;
 	protected boolean cancelKnockback;
-	
-	public HurtableEntityPatch(T original) {
-		super(original);
-	}
 	
 	protected void updateStunTime() {
 		this.cancelKnockback = false;
@@ -51,7 +47,11 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 	}
 	
 	@Override
-	public void preTick(EntityTickEvent.Pre event) {
+	public OpenMatrix4f getModelMatrix(float partialTicks) {
+		return null;
+	}
+	
+	public void tick(LivingEvent.LivingTickEvent event) {
 		if (!this.original.level().isClientSide()) {
 			this.updateStunTime();
 		}
@@ -92,20 +92,20 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 	}
 	
 	public void setDefaultStunReduction(EquipmentSlot equipmentslot, ItemStack from, ItemStack to) {
-		List<AttributeModifier> modifiersToAdd = CapabilityItem.getAttributeModifiersAsWeapon(EpicFightAttributes.STUN_ARMOR, equipmentslot, to, null);
-		List<AttributeModifier> modifiersToRemove = CapabilityItem.getAttributeModifiersAsWeapon(EpicFightAttributes.STUN_ARMOR, equipmentslot, from, null);
+		List<AttributeModifier> modifiersToAdd = CapabilityItem.getAttributeModifiers(EpicFightAttributes.STUN_ARMOR.get(), equipmentslot, to, null);
+		List<AttributeModifier> modifiersToRemove = CapabilityItem.getAttributeModifiers(EpicFightAttributes.STUN_ARMOR.get(), equipmentslot, from, null);
 		
-		AttributeInstance tempAttr = new AttributeInstance(EpicFightAttributes.STUN_ARMOR, (i)->{});
-		tempAttr.replaceFrom(this.original.getAttribute(EpicFightAttributes.STUN_ARMOR));
+		AttributeInstance tempAttr = new AttributeInstance(EpicFightAttributes.STUN_ARMOR.get(), (i)->{});
+		tempAttr.replaceFrom(this.original.getAttribute(EpicFightAttributes.STUN_ARMOR.get()));
 		
 		for (AttributeModifier modifier : modifiersToAdd) {
-			if (!tempAttr.hasModifier(modifier.id())) {
+			if (!tempAttr.hasModifier(modifier)) {
 				tempAttr.addTransientModifier(modifier);
 			}
 		}
 		
 		for (AttributeModifier modifier : modifiersToRemove) {
-			if (tempAttr.hasModifier(modifier.id())) {
+			if (tempAttr.hasModifier(modifier)) {
 				tempAttr.removeModifier(modifier);
 			}
 		}
@@ -116,7 +116,7 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 	}
 	
 	public float getStunArmor() {
-		AttributeInstance stunArmor = this.original.getAttribute(EpicFightAttributes.STUN_ARMOR);
+		AttributeInstance stunArmor = this.original.getAttribute(EpicFightAttributes.STUN_ARMOR.get());
 		return (float)(stunArmor == null ? 0.0F : stunArmor.getValue());
 	}
 	
@@ -145,27 +145,19 @@ public abstract class HurtableEntityPatch<T extends LivingEntity> extends Entity
 			this.original.hasImpulse = true;
 			Vec3 vec3 = this.original.getDeltaMovement();
 			Vec3 vec31 = (new Vec3(d1, 0.0D, d0)).normalize().scale(power);
-			this.original.setDeltaMovement(vec3.x / 2.0D - vec31.x, this.original.onGround() ? Math.min(0.4D, vec3.y / 2.0D) : vec3.y, vec3.z / 2.0D - vec31.z);
+			this.original.setDeltaMovement(vec3.x / 2.0D - vec31.x, this.original.onGround ? Math.min(0.4D, vec3.y / 2.0D) : vec3.y, vec3.z / 2.0D - vec31.z);
 		}
-	}
-	
-	public void playSound(Holder<SoundEvent> sound, float pitchModifierMin, float pitchModifierMax) {
-		this.playSound(sound.value(), 1.0F, pitchModifierMin, pitchModifierMax);
 	}
 	
 	public void playSound(SoundEvent sound, float pitchModifierMin, float pitchModifierMax) {
 		this.playSound(sound, 1.0F, pitchModifierMin, pitchModifierMax);
 	}
-	
-	public void playSound(Holder<SoundEvent> sound, float volume, float pitchModifierMin, float pitchModifierMax) {
-		this.playSound(sound.value(), volume, pitchModifierMin, pitchModifierMax);
-	}
-	
+
 	public void playSound(SoundEvent sound, float volume, float pitchModifierMin, float pitchModifierMax) {
 		if (sound == null) {
 			return;
 		}
-		
+
 		float pitch = (this.original.getRandom().nextFloat() * 2.0F - 1.0F) * (pitchModifierMax - pitchModifierMin);
 
 		if (!this.isLogicalClient()) {

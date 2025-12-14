@@ -1,10 +1,11 @@
 package yesman.epicfight.client.input;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.neoforged.neoforge.client.settings.KeyConflictContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import yesman.epicfight.client.ClientEngine;
 
 /// A specialized [KeyMapping] used by Epic Fight to represent combat-related key bindings.
@@ -15,7 +16,7 @@ import yesman.epicfight.client.ClientEngine;
 /// **Important:** Other mods or consumers should *not* rely on this behavior.
 /// They should explicitly check whether the player is in Epic Fight mode through
 /// [yesman.epicfight.client.ClientEngine#isEpicFightMode()] instead of depending on
-/// this key mapping's conditional logic.
+/// this key mapping’s conditional logic.
 ///
 /// This also force setting [KeyConflictContext#IN_GAME],
 /// since a [CombatKeyMapping] is usually used for player moves

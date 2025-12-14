@@ -1,7 +1,24 @@
 package yesman.epicfight.api.utils.math;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.joml.Math;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.joml.Vector4i;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -10,12 +27,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.joml.*;
-import org.joml.Math;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MathUtils {
 	public static final Vec3 XP = new Vec3(1.0D, 0.0D, 0.0D);
@@ -288,30 +299,31 @@ public class MathUtils {
 		poseStack.scale(vector.x(), vector.y(), vector.z());
 	}
 	
-	private static final Matrix4f BUFFER4F = new Matrix4f();
-    private static final Matrix3f BUFFER3F = new Matrix3f();
+	private static final Matrix4f MATRIX4F = new Matrix4f();
+	private static final Matrix3f MATRIX3F = new Matrix3f();
 	
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
-		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER4F);
-        poseStack.last().pose().mul(BUFFER4F);
-        poseStack.last().normal().mul(BUFFER3F);
+		OpenMatrix4f.exportToMojangMatrix(mat, MATRIX4F);
+		MATRIX3F.set(MATRIX4F);
+		poseStack.mulPoseMatrix(MATRIX4F);
+		poseStack.last().normal().mul(MATRIX3F);
 	}
-
-    public static double getAngleBetween(Vec3f a, Vec3f b) {
-        Vec3f normA = Vec3f.normalize(a, null);
-        Vec3f normB = Vec3f.normalize(b, null);
-
-        double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
-        return Math.toDegrees(Math.acos(cos));
-    }
-
-    public static double getAngleBetween(Vec3 a, Vec3 b) {
-        Vec3 normA = a.normalize();
-        Vec3 normB = b.normalize();
-
-        double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
-        return Math.toDegrees(Math.safeAcos(cos));
-    }
+	
+	public static double getAngleBetween(Vec3f a, Vec3f b) {
+		Vec3f normA = Vec3f.normalize(a, null);
+		Vec3f normB = Vec3f.normalize(b, null);
+		
+		double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
+		return Math.toDegrees(Math.acos(cos));
+	}
+	
+	public static double getAngleBetween(Vec3 a, Vec3 b) {
+		Vec3 normA = a.normalize();
+		Vec3 normB = b.normalize();
+		
+		double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
+		return Math.toDegrees(Math.safeAcos(cos));
+	}
 	
 	public static float getAngleBetween(Quaternionf a, Quaternionf b) {
 		float dot = a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
@@ -543,39 +555,39 @@ public class MathUtils {
 	public static byte normalIntValue(float pNum) {
 		return (byte)((int)(Mth.clamp(pNum, -1.0F, 1.0F) * 127.0F) & 255);
 	}
-
-    /**
-     * Wrap a value within bounds
-     */
-    public static int wrapClamp(int value, int min, int max) {
-        int stride = max - min + 1;
-        while (value < min) value += stride;
-        while (value > max) value -= stride;
-        return value;
-    }
-
-    /**
-     * Transform the world coordinate system to -1~1 screen coord system
-     * @param projectionMatrix	current projection matrix
-     * @param camera		    a camera object
-     * @param position		    a source vector to transform
-     */
-    public static Vec2 worldToScreenCoord(Matrix4f projectionMatrix, Camera camera, Vec3 position) {
-        Vector4f relativeCamera = new Vector4f((float)camera.getPosition().x() - (float)position.x(), (float)camera.getPosition().y() - (float)position.y(), (float)camera.getPosition().z() - (float)position.z(), 1.0F);
-        relativeCamera.rotate(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
-        relativeCamera.rotate(Axis.XP.rotationDegrees(camera.getXRot()));
-        relativeCamera.mul(projectionMatrix);
-
-        float depth = relativeCamera.w;
-        relativeCamera.mul(1.0F / relativeCamera.w());
-
-        if (depth < 0.0F) {
-            relativeCamera.x = -relativeCamera.x;
-            relativeCamera.y = -relativeCamera.y;
-        }
-
-        return new Vec2(relativeCamera.x(), relativeCamera.y());
-    }
-
+	
+	/**
+	 * Wrap a value within bounds
+	 */
+	public static int wrapClamp(int value, int min, int max) {
+		int stride = max - min + 1;
+		while (value < min) value += stride;
+		while (value > max) value -= stride;
+		return value;
+	}
+	
+	/**
+	 * Transform the world coordinate system to -1~1 screen coord system
+	 * @param projection	current projection matrix
+	 * @param modelView		current model-view matrix
+	 * @param position		a source vector to transform
+	 */
+	public static Vec2 worldToScreenCoord(Matrix4f projectionMatrix, Camera camera, Vec3 position) {
+		Vector4f relativeCamera = new Vector4f((float)camera.getPosition().x() - (float)position.x(), (float)camera.getPosition().y() - (float)position.y(), (float)camera.getPosition().z() - (float)position.z(), 1.0F);
+		relativeCamera.rotate(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
+		relativeCamera.rotate(Axis.XP.rotationDegrees(camera.getXRot()));
+		relativeCamera.mul(projectionMatrix);
+		
+		float depth = relativeCamera.w;
+		relativeCamera.mul(1.0F / relativeCamera.w());
+		
+		if (depth < 0.0F) {
+			relativeCamera.x = -relativeCamera.x;
+			relativeCamera.y = -relativeCamera.y;
+		}
+		
+		return new Vec2(relativeCamera.x(), relativeCamera.y());
+	}
+	
 	private MathUtils() {}
 }

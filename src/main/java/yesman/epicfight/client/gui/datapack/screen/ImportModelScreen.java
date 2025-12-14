@@ -60,11 +60,12 @@ public class ImportModelScreen extends Screen {
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
 								.rowEditable(RowEditButton.REMOVE)
+								.transparentBackground(true)
 								.rowpositionChanged((rowposition, values) -> {
 									this.modelPreviewer.setMesh(this.userMeshes.get(rowposition).getValue());
 								})
 								.addColumn(Grid.editbox("mesh_name")
-												.editWidgetCreated((editbox) -> editbox.setFilter(rl -> ResourceLocation.isValidNamespace(rl) && ResourceLocation.isValidPath(rl)))
+												.editWidgetCreated((editbox) -> editbox.setFilter(ResourceLocation::isValidResourceLocation))
 												.valueChanged((event) -> this.userMeshes.get(event.rowposition).setPackKey(event.postValue))
 												.editable(true)
 												.width(180))
@@ -78,8 +79,9 @@ public class ImportModelScreen extends Screen {
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
 								.rowEditable(RowEditButton.REMOVE)
+								.transparentBackground(true)
 								.addColumn(Grid.editbox("armature_name")
-												.editWidgetCreated((editbox) -> editbox.setFilter(rl -> ResourceLocation.isValidNamespace(rl) && ResourceLocation.isValidPath(rl)))
+												.editWidgetCreated((editbox) -> editbox.setFilter(ResourceLocation::isValidResourceLocation))
 												.valueChanged((event) -> this.userArmatures.get(event.rowposition).setPackKey(event.postValue))
 												.editable(true)
 												.width(180))
@@ -103,12 +105,12 @@ public class ImportModelScreen extends Screen {
 		int widthSplit = screenRect.width() / 2 - 20;
 		int heightSplit = screenRect.height() / 2;
 		
-		this.meshGrid.updateSizeAndPosition(widthSplit - 10, heightSplit - screenRect.top() - 40, screenRect.top() + 30);
-		this.meshGrid.setX(10);
+		this.meshGrid.updateSize(widthSplit - 10, heightSplit - 20, screenRect.top() + 30, heightSplit - 10);
+		this.meshGrid.setLeftPos(10);
 		this.meshGrid.resize(screenRect);
 		
-		this.armatureGrid.updateSizeAndPosition(widthSplit - 10, screenRect.bottom() - 38 - heightSplit, heightSplit + 8);
-		this.armatureGrid.setX(10);
+		this.armatureGrid.updateSize(widthSplit - 10, heightSplit - 18, heightSplit + 8, screenRect.bottom() - 30);
+		this.armatureGrid.setLeftPos(10);
 		this.armatureGrid.resize(screenRect);
 		
 		this.addRenderableWidget(new Static(this, 10, 100, 14, 15, null, null, Component.translatable("datapack_edit.import_model.meshes"), Component.literal("")));
@@ -142,6 +144,12 @@ public class ImportModelScreen extends Screen {
 					this.minecraft.setScreen(this);
 				}, 180, 70));
 		}).pos(this.width / 2 + 2, this.height - 26).size(160, 21).build());
+	}
+	
+	@Override
+	public void tick() {
+		this.meshGrid._tick();
+		this.armatureGrid._tick();
 	}
 	
 	@Override
@@ -203,8 +211,7 @@ public class ImportModelScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		
+		this.renderDirtBackground(guiGraphics);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 }

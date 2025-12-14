@@ -1,18 +1,22 @@
 package yesman.epicfight.api.animation.types;
 
+import java.util.Map;
+import java.util.Optional;
+
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import yesman.epicfight.api.animation.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
+import yesman.epicfight.api.animation.JointTransform;
+import yesman.epicfight.api.animation.Keyframe;
+import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.types.EntityState.StateFactor;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMaskEntry;
-import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
+import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.Map;
-import java.util.Optional;
 
 public class LinkAnimation extends DynamicAnimation implements AnimationAccessor<LinkAnimation> {
 	protected TransformSheet coord;
@@ -44,9 +48,9 @@ public class LinkAnimation extends DynamicAnimation implements AnimationAccessor
 	}
 	
 	@Override
-	public ParameterizedHashMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
+	public TypeFlexibleHashMap<StateFactor<?>> getStatesMap(LivingEntityPatch<?> entitypatch, float time) {
 		float timeInRealAnimation = Math.max(time - (this.getTotalTime() - this.nextStartTime), 0.0F);
-		ParameterizedHashMap<StateFactor<?>> map = this.toAnimation.get().getStatesMap(entitypatch, timeInRealAnimation);
+		TypeFlexibleHashMap<StateFactor<?>> map = this.toAnimation.get().getStatesMap(entitypatch, timeInRealAnimation);
 		
 		for (Map.Entry<StateFactor<?>, Object> entry : map.entrySet()) {
 			Object val = this.toAnimation.get().getModifiedLinkState(entry.getKey(), entry.getValue(), entitypatch, time);
@@ -61,7 +65,7 @@ public class LinkAnimation extends DynamicAnimation implements AnimationAccessor
 		float timeInRealAnimation = Math.max(time - (this.getTotalTime() - this.nextStartTime), 0.0F);
 		
 		EntityState state = this.toAnimation.get().getState(entitypatch, timeInRealAnimation);
-		ParameterizedHashMap<StateFactor<?>> map = state.getStateMap();
+		TypeFlexibleHashMap<StateFactor<?>> map = state.getStateMap();
 		
 		for (Map.Entry<StateFactor<?>, Object> entry : map.entrySet()) {
 			Object val = this.toAnimation.get().getModifiedLinkState(entry.getKey(), entry.getValue(), entitypatch, time);

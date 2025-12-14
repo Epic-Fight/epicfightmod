@@ -22,16 +22,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import yesman.epicfight.api.data.reloader.SkillManager;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.data.reloader.SkillReloadListener;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlot;
+import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
-import yesman.epicfight.world.capabilities.skill.PlayerSkills;
 
 public class SkillEditScreen extends Screen {
 	public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/empty.png");
@@ -46,18 +46,20 @@ public class SkillEditScreen extends Screen {
 	private static final int STRIDE = SlotButton.SIZE;
 
 	private final Player player;
-	private final PlayerSkills skills;
+	private final CapabilitySkill skills;
 	private final Map<SkillSlot, SlotButton> slotButtons = new LinkedHashMap<> ();
 	private final List<EquipSkillButton> equipSkillButtons = new ArrayList<> ();
 	
 	private ScrollArrow up;
 	private ScrollArrow down;
+	
 	private SlotButton selectedSlotButton;
 	private int start;
+	
 	private int maxScroll;
 	private int scroll = 0;
 	
-	public SkillEditScreen(Player player, PlayerSkills skills) {
+	public SkillEditScreen(Player player, CapabilitySkill skills) {
 		super(Component.translatable(EpicFightMod.format("gui.%s.skill_edit")));
 		this.player = player;
 		this.skills = skills;
@@ -104,7 +106,7 @@ public class SkillEditScreen extends Screen {
 							MutableInt widgetHeight = new MutableInt(this.height / 2 - 78);
 							Stream<Skill> learnedSkill =
 								this.player.isCreative() ?
-									SkillReloadListener.getSkills(skill -> skill.getCategory() == skillSlot.category()).stream() :
+									SkillManager.getSkills(skill -> skill.getCategory() == skillSlot.category()).stream() :
 									this.skills.listAcquiredSkills().filter(skill -> skill.getCategory() == skillSlot.category());
 							
 							learnedSkill.forEach(skill -> {
@@ -123,7 +125,7 @@ public class SkillEditScreen extends Screen {
 											}
 											
 											skillContainer.setSkill(skill);
-											EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, skill.holder(), -1));
+											EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, -1, skill));
 											this.skills.addLearnedSkill(skill);
 											
 											this.onClose();
@@ -161,7 +163,7 @@ public class SkillEditScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+		this.renderBackground(guiGraphics);
 		
 		if (this.canScroll()) {
 			int scrollPosition = (int)(140 * (this.start / (float)(this.equipSkillButtons.size() - MAX_SKILL_OPTIONS_ROWS)));
@@ -193,8 +195,8 @@ public class SkillEditScreen extends Screen {
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderTransparentBackground(guiGraphics);
+	public void renderBackground(GuiGraphics guiGraphics) {
+		super.renderBackground(guiGraphics);
 		guiGraphics.blit(SKILL_EDIT_UI, this.width / 2 - 104, this.height / 2 - 100, 0, 0, 208, 200);
 	}
 	
@@ -208,7 +210,7 @@ public class SkillEditScreen extends Screen {
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double xScroll, double yScroll) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		int left = this.width / 2 - 96;
 		int top = this.height / 2 - 82;
 		
@@ -218,14 +220,14 @@ public class SkillEditScreen extends Screen {
 			left + STRIDE >= mouseX &&
 			top + MAX_SLOT_ROWS * STRIDE >= mouseY
 		) {
-			if (yScroll > 0.0F) this.scrollUp();
+			if (delta > 0) this.scrollUp();
 			else this.scrollDown();
 			return true;
 		} else {
 			if (!this.canScroll()) {
 				return false;
 			} else {
-				if (yScroll > 0.0F) {
+				if (delta > 0.0F) {
 					if (this.start > 0) {
 						--this.start;
 						
@@ -391,7 +393,7 @@ public class SkillEditScreen extends Screen {
 		}
 		
 		@Override
-		public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 			this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 			int texY = (this.isHoveredOrFocused() || !this.active) ? 224 : 200;
 			guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 0, texY, this.width, this.height);

@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "  B",
+        " B ",
+        "S  "
+    ],
+    "key":
+    {
+        "B": { "item" : "minecraft:iron_ingot" },
+        "S": { "item" : "minecraft:iron_sword" }
+    },
+    "result":
+    {
+        "item" : "epicfight:iron_longsword",
+        "count" : 1
+    }
+}

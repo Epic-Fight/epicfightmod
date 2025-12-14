@@ -2,20 +2,14 @@ package yesman.epicfight.client.world.util;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.CommonListenerCookie;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.ServerLinks;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -24,13 +18,12 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
 
@@ -64,7 +57,7 @@ public class FakeLevel extends ClientLevel {
 	
 	public FakeLevel(ClientLevel refLevel, Minecraft minecraft) {
 		super(
-			new FakeClientPacketListener(refLevel, minecraft),
+			new FakeClientPacketListener(minecraft, refLevel.registryAccess()),
 			new ClientLevel.ClientLevelData(Difficulty.NORMAL, false, false),
 			Level.OVERWORLD,
 			refLevel.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD),
@@ -174,7 +167,13 @@ public class FakeLevel extends ClientLevel {
 	public List<AbstractClientPlayer> players() {
 		return this.refLevel.players();
 	}
-
+	
+	public static class FakeClientPlayer extends AbstractClientPlayer {
+		public FakeClientPlayer(FakeLevel fakeLevel, GameProfile gameProfile) {
+			super(fakeLevel, gameProfile);
+		}
+	}
+	
 	/**
 	 * Writer methods does nothing in general
 	 */
@@ -192,40 +191,23 @@ public class FakeLevel extends ClientLevel {
 	public boolean destroyBlock(BlockPos pPos, boolean pDropBlock, @Nullable Entity pEntity, int pRecursionLeft) {
 		return false;
 	}
-
-    public static class FakeClientPlayer extends AbstractClientPlayer {
-        public FakeClientPlayer(FakeLevel fakeLevel, GameProfile gameProfile) {
-            super(fakeLevel, gameProfile);
-        }
-    }
-
+	
 	private static class FakeClientPacketListener extends ClientPacketListener {
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
+		private RegistryAccess registryAccess;
 		
-        public FakeClientPacketListener(ClientLevel refLevel, Minecraft minecraft) {
-            super(
-            	minecraft,
-            	DUMMY_CONNECTION,
-            	new CommonListenerCookie(
-            		(GameProfile)null,//refLevel.connection.getLocalGameProfile(),
-            		(WorldSessionTelemetryManager)null,//refLevel.connection.telemetryManager,
-            		(RegistryAccess.Frozen)refLevel.registryAccess(),
-            		refLevel.enabledFeatures(),
-            		(String)null,
-            		(ServerData)null,
-            		(Screen)null,
-            		Map.of(),
-            		(ChatComponent.State)null,
-            		false,
-            		Map.of(),
-            		(ServerLinks)null,
-            		(ConnectionType)null//refLevel.connection.getConnectionType()
-            	)
-            );
-        }
+		public FakeClientPacketListener(Minecraft minecraft, RegistryAccess registryAccess) {
+			super(minecraft, null, DUMMY_CONNECTION, null, null, null);
+			this.registryAccess = registryAccess;
+		}
 		
 		@Override
 		public void close() {
+		}
+		
+		@Override
+		public RegistryAccess registryAccess() {
+			return this.registryAccess;
 		}
 	}
 }

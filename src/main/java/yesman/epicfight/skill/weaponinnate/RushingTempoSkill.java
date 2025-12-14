@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -17,6 +17,7 @@ import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -24,7 +25,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 public class RushingTempoSkill extends WeaponInnateSkill {
 	private final Map<AnimationAccessor<? extends StaticAnimation>, AnimationAccessor<? extends AttackAnimation>> comboAnimation = Maps.newHashMap();
 	
-	public RushingTempoSkill(WeaponInnateSkill.Builder<?> builder) {
+	public RushingTempoSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
 		super(builder);
 	}
 	
@@ -38,12 +39,12 @@ public class RushingTempoSkill extends WeaponInnateSkill {
 	}
 	
 	@Override
-	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+	public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
 		AssetAccessor<? extends DynamicAnimation> animation = container.getExecutor().getAnimator().getPlayerFor(null).getAnimation();
 		
 		if (this.comboAnimation.containsKey(animation)) {
 			container.getExecutor().playAnimationSynchronized(this.comboAnimation.get(animation), 0.0F);
-			super.executeOnServer(container, arguments);
+			super.executeOnServer(container, args);
 		}
 	}
 	

@@ -1,16 +1,17 @@
 package yesman.epicfight.api.animation;
 
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import org.joml.Quaternionf;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class TransformSheet {
 	public static final TransformSheet EMPTY_SHEET = new TransformSheet(List.of(new Keyframe(0.0F, JointTransform.empty()), new Keyframe(Float.MAX_VALUE, JointTransform.empty())));

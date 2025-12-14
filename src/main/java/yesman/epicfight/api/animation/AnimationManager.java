@@ -1,9 +1,34 @@
 package yesman.epicfight.api.animation;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -15,18 +40,17 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
-import org.apache.logging.log4j.Logger;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.event.IModBusEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
-import yesman.epicfight.api.data.reloader.SkillReloadListener;
+import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.exception.AssetLoadingException;
 import yesman.epicfight.api.utils.InstantiateInvoker;
 import yesman.epicfight.api.utils.MutableBoolean;
@@ -35,35 +59,25 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.client.CPPairingAnimationRegistry;
+import yesman.epicfight.network.client.CPCheckAnimationRegistryMatches;
 import yesman.epicfight.network.server.SPDatapackSync;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class AnimationManager extends SimplePreparableReloadListener<List<ResourceLocation>> {
 	private static final AnimationManager INSTANCE = new AnimationManager();
 	private static ResourceManager serverResourceManager = null;
-    private static final Gson GSON = new GsonBuilder().create();
+	private static final Gson GSON = new GsonBuilder().create();
     private static final String DIRECTORY = "animmodels/animations";
-
+    
 	public static AnimationManager getInstance() {
 		return INSTANCE;
 	}
 	
-	private final Map<Integer, AnimationAccessor<? extends StaticAnimation>> animationById = new HashMap<> ();
-	private final Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> animationByName = new HashMap<> ();
-	private final Map<AnimationAccessor<? extends StaticAnimation>, StaticAnimation> animations = new HashMap<> ();
-	private final Map<AnimationAccessor<? extends StaticAnimation>, String> resourcepackAnimationCommands = new HashMap<> ();
-
+	private final Map<Integer, AnimationAccessor<? extends StaticAnimation>> animationById = Maps.newHashMap();
+	private final Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> animationByName = Maps.newHashMap();
+	private final Map<AnimationAccessor<? extends StaticAnimation>, StaticAnimation> animations = Maps.newHashMap();
+	private final Map<AnimationAccessor<? extends StaticAnimation>, String> resourcepackAnimationCommands = Maps.newHashMap();
+	
 	public static boolean checkNull(AssetAccessor<? extends StaticAnimation> animation) {
 		if (animation == null || animation.isEmpty()) {
 			if (animation != null) {
@@ -106,10 +120,10 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			if (getAnimationResourceManager() == null) {
 				return null;
 			}
-
+			
 			JsonAssetLoader modelLoader = new JsonAssetLoader(getAnimationResourceManager(), animation.getLocation());
 			AnimationClip loadedClip = clipLoader.apply(modelLoader, animation);
-
+			
 			return loadedClip;
 		} catch (AssetLoadingException e) {
 			throw new AssetLoadingException("Failed to load animation clip from: " + animation, e);
@@ -128,33 +142,33 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			AnimationSubFileReader.readAndApply(animation, rs, AnimationSubFileReader.SUBFILE_POV_ANIMATION);
 		});
 	}
-
+	
 	@Override
 	protected List<ResourceLocation> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
 		if (!EpicFightSharedConstants.isPhysicalClient() && serverResourceManager == null) {
 			serverResourceManager = resourceManager;
 		}
-
+		
 		this.animations.clear();
 		this.animationById.entrySet().removeIf(entry -> !entry.getValue().inRegistry());
 		this.animationByName.entrySet().removeIf(entry -> !entry.getValue().inRegistry());
 		this.resourcepackAnimationCommands.clear();
-
+		
         List<ResourceLocation> directories = new ArrayList<> ();
         scanDirectoryNames(resourceManager, directories);
-
+        
 		return directories;
 	}
-
+	
     private static void scanDirectoryNames(ResourceManager resourceManager, List<ResourceLocation> output) {
         FileToIdConverter filetoidconverter = FileToIdConverter.json(DIRECTORY);
         filetoidconverter.listMatchingResources(resourceManager).keySet().stream().map(AnimationManager::pathToId).forEach(output::add);
     }
-
-	@Override
+	
+    @Override
 	protected void apply(List<ResourceLocation> objects, ResourceManager resourceManager, ProfilerFiller profilerIn) {
 		Armatures.reload(resourceManager);
-
+		
 		Set<ResourceLocation> registeredAnimation =
             this.animationById.values().stream()
                 .reduce(
@@ -173,7 +187,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                         return set1;
                     }
                 );
-
+		
 		// Load animations that are not registered by AnimationRegistryEvent
         // Reads from /assets folder in physical client, /datapack in physical server.
         objects.stream()
@@ -181,7 +195,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			.sorted(Comparator.comparing(ResourceLocation::toString))
 			.forEach(animId -> {
                 Optional<Resource> resource = resourceManager.getResource(idToPath(animId));
-
+                
                 try (Reader reader = resource.orElseThrow().openAsReader()) {
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
@@ -191,32 +205,32 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     EpicFightMod.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
-
-		SkillReloadListener.reloadAllSkillsAnimations();
-
+        
+        SkillManager.reloadAllSkillsAnimations();
+        
 		this.animations.entrySet().stream()
             .reduce(
                 new ArrayList<AssetAccessor<? extends StaticAnimation>>(),
                 (list, entry) -> {
                     MutableBoolean init = new MutableBoolean(true);
-
+                    
                     if (entry.getValue() == null || entry.getValue().getAccessor() == null) {
                         EpicFightMod.logAndStacktraceIfDevSide(Logger::error, "Invalid animation implementation: " + entry.getKey(), AssetLoadingException::new);
                         init.set(false);
                     }
-
+                    
                     entry.getValue().getSubAnimations().forEach((subAnimation) -> {
                         if (subAnimation == null || subAnimation.get() == null) {
                             EpicFightMod.logAndStacktraceIfDevSide(Logger::error, "Invalid sub animation implementation: " + entry.getKey(), AssetLoadingException::new);
                             init.set(false);
                         }
                     });
-
+                    
                     if (init.value()) {
                         list.add(entry.getValue().getAccessor());
                         list.addAll(entry.getValue().getSubAnimations());
                     }
-
+                    
                     return list;
                 },
                 (list1, list2) -> {
@@ -242,8 +256,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		
 		return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), String.format("%s/" + subFileType.getDirectory() + "%s", location.getPath().substring(0, splitIdx), location.getPath().substring(splitIdx)));
 	}
-
-    /// Converts animation id, acquired by [StaticAnimation#getRegistryName], to animation resource path acquired by [StaticAnimation#getLocation]
+	
+	/// Converts animation id, acquired by [StaticAnimation#getRegistryName], to animation resource path acquired by [StaticAnimation#getLocation]
     public static ResourceLocation idToPath(ResourceLocation rl) {
         return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + "/" + rl.getPath() + ".json");
     }
@@ -252,13 +266,17 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
     public static ResourceLocation pathToId(ResourceLocation rl) {
         return ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().replace(DIRECTORY + "/", "").replace(".json", ""));
     }
-
+	
 	public static void setServerResourceManager(ResourceManager pResourceManager) {
 		serverResourceManager = pResourceManager;
 	}
 	
 	public static ResourceManager getAnimationResourceManager() {
 		return EpicFightSharedConstants.isPhysicalClient() ? Minecraft.getInstance().getResourceManager() : serverResourceManager;
+	}
+	
+	public int getResourcepackAnimationCount() {
+		return this.resourcepackAnimationCommands.size();
 	}
 	
 	public Stream<CompoundTag> getResourcepackAnimationStream() {
@@ -280,7 +298,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	@OnlyIn(Dist.CLIENT)
 	public void processServerPacket(SPDatapackSync packet, boolean mandatoryPack) {
 		if (mandatoryPack) {
-			for (CompoundTag tag : packet.tags()) {
+			for (CompoundTag tag : packet.getTags()) {
 				String invocationCommand = tag.getString("invoke_command");
 				ResourceLocation registryName = ResourceLocation.parse(tag.getString("registry_name"));
 				int id = tag.getInt("id");
@@ -289,11 +307,12 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 					continue;
 				}
 				
-				AnimationAccessor<? extends StaticAnimation> accessor = AnimationAccessorImpl.create(registryName, this.resourcepackAnimationCommands.size(), false, (accessor$2) -> {
+				AnimationAccessor<? extends StaticAnimation> accessor = AnimationAccessorImpl.create(registryName, getResourcepackAnimationCount(), false, (accessor$2) -> {
 					try {
 						return InstantiateInvoker.invoke(invocationCommand, StaticAnimation.class).getResult();
 					} catch (Exception e) {
-						EpicFightMod.LOGGER.warn("Failed at creating animation from server resource pack", e);
+						EpicFightMod.LOGGER.warn("Failed at creating animation from server resource pack");
+						e.printStackTrace();
 						return Animations.EMPTY_ANIMATION;
 					}
 				});
@@ -304,23 +323,24 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		}
 		
 		int animationCount = this.animations.size();
-		List<String> registryNames = Lists.newArrayList();
+		String[] registryNames = new String[animationCount];
 		
 		for (int i = 0; i < animationCount; i++) {
-			registryNames.add(this.animationById.get(i + 1).registryName().toString());
+			String registryName = this.animationById.get(i + 1).registryName().toString();
+			registryNames[i] = registryName;
 		}
 		
-		CPPairingAnimationRegistry registrySyncPacket = new CPPairingAnimationRegistry(registryNames);
+		CPCheckAnimationRegistryMatches registrySyncPacket = new CPCheckAnimationRegistryMatches(animationCount, registryNames);
 		EpicFightNetworkManager.sendToServer(registrySyncPacket);
 	}
 	
-	public void validateClientAnimationRegistry(CPPairingAnimationRegistry msg, ServerGamePacketListenerImpl connection) {
+	public void validateClientAnimationRegistry(CPCheckAnimationRegistryMatches msg, ServerGamePacketListenerImpl connection) {
 		StringBuilder messageBuilder = new StringBuilder();
 		int count = 0;
 		
-		Set<String> clientAnimationRegistry = new HashSet<> (Set.copyOf(msg.registryNames()));
+		Set<String> clientAnimationRegistry = new HashSet<> (Set.of(msg.registryNames));
 		
-		for (String registryName : this.animations.keySet().stream().map(Object::toString).toList()) {
+		for (String registryName : this.animations.keySet().stream().map((rl) -> rl.toString()).toList()) {
 			if (!clientAnimationRegistry.contains(registryName)) {
 				// Animations that don't exist in client
 				if (count < 10) {
@@ -409,6 +429,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		this.animations.put(accessor, animation);
 	}
 
+
+
 	public interface AnimationAccessor<A extends DynamicAnimation> extends AssetAccessor<A> {
 		int id();
 		
@@ -417,7 +439,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		}
 	}
 	
-	public record AnimationAccessorImpl<A extends StaticAnimation> (ResourceLocation registryName, int id, boolean inRegistry, Function<AnimationAccessor<A>, A> onLoad) implements AnimationAccessor<A> {
+	public static record AnimationAccessorImpl<A extends StaticAnimation> (ResourceLocation registryName, int id, boolean inRegistry, Function<AnimationAccessor<A>, A> onLoad) implements AnimationAccessor<A> {
 		private static <A extends StaticAnimation> AnimationAccessor<A> create(ResourceLocation registryName, int id, boolean inRegistry, Function<AnimationAccessor<A>, A> onLoad) {
 			return new AnimationAccessorImpl<A> (registryName, id, inRegistry, onLoad);
 		}
@@ -430,13 +452,11 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			
 			return (A)INSTANCE.animations.get(this);
 		}
-
-        @Override
+		
 		public String toString() {
 			return this.registryName.toString();
 		}
-
-        @Override
+		
 		public int hashCode() {
 			return this.registryName.hashCode();
 		}
@@ -444,8 +464,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
-			} else if (obj instanceof AnimationAccessor<?> animationAccessor) {
-				return this.registryName.equals(animationAccessor.registryName());
+			} else if (obj instanceof AnimationAccessor armatureAccessor) {
+				return this.registryName.equals(armatureAccessor.registryName());
 			} else if (obj instanceof ResourceLocation rl) {
 				return this.registryName.equals(rl);
 			} else if (obj instanceof String name) {
@@ -457,8 +477,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	}
 	
 	public static class AnimationRegistryEvent extends Event implements IModBusEvent {
-		private final List<AnimationBuilder> builders = Lists.newArrayList();
-		private final Set<String> namespaces = Sets.newHashSet();
+		private List<AnimationBuilder> builders = Lists.newArrayList();
+		private Set<String> namespaces = Sets.newHashSet();
 		
 		public void newBuilder(String namespace, Consumer<AnimationBuilder> build) {
 			if (this.namespaces.contains(namespace)) {
@@ -474,7 +494,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		}
 	}
 	
-	public record AnimationBuilder(String namespace, Consumer<AnimationBuilder> task) {
+	public static record AnimationBuilder(String namespace, Consumer<AnimationBuilder> task) {
 		public <T extends StaticAnimation> AnimationManager.AnimationAccessor<T> nextAccessor(String id, Function<AnimationManager.AnimationAccessor<T>, T> onLoad) {
 			AnimationAccessor<T> accessor = AnimationAccessorImpl.create(ResourceLocation.fromNamespaceAndPath(this.namespace, id), INSTANCE.animations.size() + 1, true, onLoad);
 			

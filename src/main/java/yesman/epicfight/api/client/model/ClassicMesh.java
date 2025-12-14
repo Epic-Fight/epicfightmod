@@ -77,7 +77,7 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 			OpenMatrix4f transform = this.getVanillaPartTransform();
 			
 			if (transform != null) {
-				poseStack.mulPose(OpenMatrix4f.exportToMojangMatrix(transform));
+				poseStack.mulPoseMatrix(OpenMatrix4f.exportToMojangMatrix(transform));
 			}
 			
 			Matrix4f matrix4f = poseStack.last().pose();

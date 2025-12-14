@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -81,6 +82,10 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 	@Override
 	protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTick) {
 		poseStack.pushPose();
+		poseStack.mulPoseMatrix(RenderSystem.getModelViewStack().last().pose());
+		RenderSystem.getModelViewStack().pushPose();
+		RenderSystem.getModelViewStack().setIdentity();
+		RenderSystem.applyModelViewMatrix();
 		Vec3 cameraPosition = camera.getPosition();
 		float x = (float) (Mth.lerp(partialTick, this.xo, this.x) - cameraPosition.x());
 		float y = (float) (Mth.lerp(partialTick, this.yo, this.y) - cameraPosition.y());
@@ -101,7 +106,7 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 		**/
 		rotation.mul((Quaternionfc)QuaternionUtils.YP.rotationDegrees(180.0F));
 		poseStack.mulPose(rotation);
-		poseStack.mulPose(OpenMatrix4f.exportToMojangMatrix(this.entitySnapshot.getModelMatrix()));
+		poseStack.mulPoseMatrix(OpenMatrix4f.exportToMojangMatrix(this.entitySnapshot.getModelMatrix()));
 		
 		float scale = Mth.lerp(partialTick, this.scaleO, this.scale);
 		poseStack.translate(0.0F, this.entitySnapshot.getHeightHalf(), 0.0F);
@@ -112,6 +117,8 @@ public class EntityAfterimageParticle extends CustomModelParticle<SkinnedMesh> {
 	@Override
 	protected void revert(PoseStack poseStack) {
 		poseStack.popPose();
+		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.applyModelViewMatrix();
 	}
 
 	public static class WhiteAfterimageParticle extends EntityAfterimageParticle {

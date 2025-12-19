@@ -792,11 +792,26 @@ public class RenderEngine {
 			if (event.getSide() != LogicalSide.CLIENT) {
 				return;
 			}
-			
-			EpicFightCapabilities.getUnparameterizedEntityPatch(renderEngine.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
+
+			EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
+			if (!cameraApi.isTPSMode()) {
+				return;
+			}
+
+			EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
 				Vec3 toHit = event.getHitVec().getLocation().subtract(playerpatch.getOriginal().getEyePosition());
-				playerpatch.getOriginal().setXRot((float)MathUtils.getXRotOfVector(toHit));
-				playerpatch.getOriginal().setYRot((float)MathUtils.getYRotOfVector(toHit));
+
+				float xRot = (float)MathUtils.getXRotOfVector(toHit);
+				float yRot = (float)MathUtils.getYRotOfVector(toHit);
+
+				playerpatch.getOriginal().setXRot(xRot);
+				playerpatch.getOriginal().xRotO = xRot;
+
+				playerpatch.getOriginal().setYRot(yRot);
+				playerpatch.getOriginal().yRotO = yRot;
+
+				playerpatch.getOriginal().setYHeadRot(yRot);
+				playerpatch.getOriginal().yHeadRotO = yRot;
 			});
 		}
 		

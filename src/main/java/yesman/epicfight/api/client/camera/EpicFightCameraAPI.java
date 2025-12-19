@@ -131,7 +131,7 @@ public final class EpicFightCameraAPI {
 	 * When zooming ranged weapons or TPS mode is turned on by config
 	 */
 	public boolean isTPSMode() {
-		if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK && ClientConfig.cameraMode.shouldSwitch(this)) {
+		if (this.minecraft.options.getCameraType() == CameraType.THIRD_PERSON_BACK && ClientConfig.cameraMode != null && ClientConfig.cameraMode.shouldSwitch(this)) {
 			ActivateTPSCamera event = new ActivateTPSCamera(this);
 			EpicFightClientHooks.Camera.ACTIVATE_TPS_CAMERA.post(event);
 			return !event.hasCanceled();

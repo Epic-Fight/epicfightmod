@@ -40,7 +40,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
@@ -101,7 +100,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
-@OnlyIn(Dist.CLIENT)
 public class RenderEngine {
 	public final BattleModeGui battleModeUI;
 	public final VersionNotifier versionNotifier;
@@ -142,7 +140,7 @@ public class RenderEngine {
 		builder.put(ResourceLocation.withDefaultNamespace("map"), RenderFilledMap::new);
 		builder.put(ResourceLocation.withDefaultNamespace("shield"), RenderShield::new);
 		builder.put(ResourceLocation.withDefaultNamespace("trident"), RenderTrident::new);
-		builder.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "uchigatana"), RenderKatana::new);
+		builder.put(EpicFightMod.identifier("uchigatana"), RenderKatana::new);
 		
 		ModLoader.get().postEvent(new PatchedRenderersEvent.RegisterItemRenderer(builder));
 		
@@ -344,7 +342,7 @@ public class RenderEngine {
 	
 	public Set<ResourceLocation> getRendererEntries() {
 		Set<ResourceLocation> availableRendererEntities = this.entityRendererProvider.keySet().stream().map((entityType) -> EntityType.getKey(entityType)).collect(Collectors.toSet());
-		availableRendererEntities.add(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "custom"));
+		availableRendererEntities.add(EpicFightMod.identifier("custom"));
 		
 		return availableRendererEntities;
 	}
@@ -488,13 +486,13 @@ public class RenderEngine {
 			
 			if (!renderEngine.minecraft.options.hideGui && !EpicFightGameRules.DISABLE_ENTITY_UI.getRuleValue(livingentity.level())) {
 				EpicFightCapabilities.getUnparameterizedEntityPatch(renderEngine.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
-					EpicFightCapabilities.getUnparameterizedEntityPatch(livingentity, LivingEntityPatch.class).ifPresent(entitypatch -> {
-						for (EntityUI entityIndicator : EntityUI.ENTITY_UI_LIST) {
-							if (entityIndicator.shouldDraw(livingentity, entitypatch, playerpatch, event.getPartialTick())) {
-								entityIndicator.draw(livingentity, entitypatch, playerpatch, event.getPoseStack(), event.getMultiBufferSource(), event.getPartialTick());
-							}
+					LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
+					
+					for (EntityUI entityIndicator : EntityUI.ENTITY_UI_LIST) {
+						if (entityIndicator.shouldDraw(livingentity, entityPatch, playerpatch, event.getPartialTick())) {
+							entityIndicator.draw(livingentity, entityPatch, playerpatch, event.getPoseStack(), event.getMultiBufferSource(), event.getPartialTick());
 						}
-					});
+					}
 				});
 			}
 		}

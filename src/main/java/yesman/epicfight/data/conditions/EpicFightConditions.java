@@ -20,7 +20,7 @@ import yesman.epicfight.data.conditions.itemstack.TagValueCondition;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightConditions {
-	public static final DeferredRegister<Supplier<Condition<?>>> CONDITIONS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "conditions"), EpicFightMod.MODID);
+	public static final DeferredRegister<Supplier<Condition<?>>> CONDITIONS = DeferredRegister.create(EpicFightMod.identifier("conditions"), EpicFightMod.MODID);
 	public static final Supplier<IForgeRegistry<Supplier<Condition<?>>>> REGISTRY = CONDITIONS.makeRegistry(RegistryBuilder::new);
 	
 	public static <T extends Condition<?>> Supplier<T> getConditionOrThrow(ResourceLocation key) throws NoSuchElementException, ClassCastException {

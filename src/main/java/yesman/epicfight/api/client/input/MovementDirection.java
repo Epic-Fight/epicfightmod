@@ -2,7 +2,7 @@ package yesman.epicfight.api.client.input;
 
 /// Represents player movement direction based on input.
 ///
-/// forward, backward, left, right indicate the player’s intended movement:
+/// forward, backward, left, right indicate the player's intended movement:
 ///
 /// - `1` if that direction key is pressed (forward or left)
 /// - `-1` if the opposite key is pressed (backward or right)

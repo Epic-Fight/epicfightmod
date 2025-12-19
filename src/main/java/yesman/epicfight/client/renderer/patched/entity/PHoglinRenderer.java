@@ -6,8 +6,6 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.hoglin.HoglinBase;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -18,7 +16,6 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.mesh.HoglinMesh;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class PHoglinRenderer<E extends Mob & HoglinBase, T extends MobPatch<E>> extends PatchedLivingEntityRenderer<E, T, HoglinModel<E>, MobRenderer<E, HoglinModel<E>>, HoglinMesh> {
 	public PHoglinRenderer(EntityRendererProvider.Context context, EntityType<?> entityType) {
 		super(context, entityType);

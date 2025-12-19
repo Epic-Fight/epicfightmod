@@ -6,8 +6,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
 import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
 import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
@@ -17,7 +15,6 @@ import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.OptionHandler;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class UISetupScreen extends Screen {
 	protected final Screen parentScreen;
 	private UIComponent draggingButton;
@@ -42,8 +39,8 @@ public class UISetupScreen extends Screen {
 		
 		// Weapon innate icon
 		this.addRenderableWidget(new UIComponent(weaponInnateX, weaponInnateY, weaponInnateXHandler, weaponInnateYHandler, weaponInnateBaseXHandler, weaponInnateBaseYHandler,
-			32, 32, 0, 0, 1, 1, 1, 1, 0, 163, 184, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/weapon_innate/sweeping_edge.png")
-		));
+                32, 32, 0, 0, 1, 1, 1, 1, 0, 163, 184, this, EpicFightMod.identifier("textures/gui/skills/weapon_innate/sweeping_edge.png")
+        ));
 		
 		int staminaX = ClientConfig.staminaBarBaseX.positionGetter.apply(this.width, ClientConfig.staminaBarX);
 		int staminaY = ClientConfig.staminaBarBaseY.positionGetter.apply(this.height, ClientConfig.staminaBarY);
@@ -54,8 +51,8 @@ public class UISetupScreen extends Screen {
 		
 		// Stamina bar
 		this.addRenderableWidget(new UIComponent(staminaX, staminaY, staminaBarXHandler, staminaBarYHandler, staminaBarBaseXHandler, staminaBarBaseYHandler,
-			118, 4, 2, 38, 237, 9, 256, 256, 255, 128, 64, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
-		));
+                118, 4, 2, 38, 237, 9, 256, 256, 255, 128, 64, this, EpicFightMod.identifier("textures/gui/battle_icons.png")
+        ));
 		
 		int chargingBarX = ClientConfig.chargingBarBaseX.positionGetter.apply(this.width, ClientConfig.chargingBarX);
 		int chargingBarY = ClientConfig.chargingBarBaseY.positionGetter.apply(this.height, ClientConfig.chargingBarY);
@@ -66,8 +63,8 @@ public class UISetupScreen extends Screen {
 		
 		// Charging bar
 		this.addRenderableWidget(new UIComponent(chargingBarX, chargingBarY, chargingBarXHandler, chargingBarYHandler, chargingBarBaseXHandler, chargingBarBaseYHandler,
-			238, 13, 1, 71, 237, 13, 256, 256, 255, 255, 255, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/battle_icons.png")
-		));
+                238, 13, 1, 71, 237, 13, 256, 256, 255, 255, 255, this, EpicFightMod.identifier("textures/gui/battle_icons.png")
+        ));
 		
 		int passiveX = ClientConfig.passiveBaseX.positionGetter.apply(this.width, ClientConfig.passiveX);
 		int passiveY = ClientConfig.passiveBaseY.positionGetter.apply(this.height, ClientConfig.passiveY);
@@ -79,8 +76,8 @@ public class UISetupScreen extends Screen {
 		
 		// Passive skill icons
 		this.addRenderableWidget(new PassiveUIComponent(passiveX, passiveY, passiveXHandler, passiveYHandler, passiveBaseXHandler, passiveBaseYHandler, passiveAlignDirectionHandler
-			, 24, 24, 0, 0, 1, 1, 1, 1, 255, 255, 255, this, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/guard/guard.png"), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/skills/passive/berserker.png")
-		));
+                , 24, 24, 0, 0, 1, 1, 1, 1, 255, 255, 255, this, EpicFightMod.identifier("textures/gui/skills/guard/guard.png"), EpicFightMod.identifier("textures/gui/skills/passive/berserker.png")
+        ));
 		
 		this.addRenderableWidget(
 			Button.builder(Component.literal("⟳"), button -> {

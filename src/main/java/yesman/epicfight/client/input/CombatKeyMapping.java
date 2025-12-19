@@ -5,8 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import yesman.epicfight.client.ClientEngine;
 
@@ -18,7 +16,7 @@ import yesman.epicfight.client.ClientEngine;
 /// **Important:** Other mods or consumers should *not* rely on this behavior.
 /// They should explicitly check whether the player is in Epic Fight mode through
 /// [yesman.epicfight.client.ClientEngine#isEpicFightMode()] instead of depending on
-/// this key mapping’s conditional logic.
+/// this key mapping's conditional logic.
 ///
 /// This also force setting [KeyConflictContext#IN_GAME],
 /// since a [CombatKeyMapping] is usually used for player moves
@@ -36,7 +34,6 @@ import yesman.epicfight.client.ClientEngine;
 ///
 /// Future maintainers should consider refactoring or removing this class
 /// if it becomes problematic or a maintenance burden.
-@OnlyIn(Dist.CLIENT)
 public class CombatKeyMapping extends KeyMapping {
     public CombatKeyMapping(String description, int code, String category) {
         this(description, InputConstants.Type.KEYSYM, code, category);

@@ -1,10 +1,12 @@
-package yesman.epicfight.api.client.online;
+package yesman.epicfight.client.online;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import net.minecraft.Util;
+import yesman.epicfight.api.client.model.Mesh;
+import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.main.EpicFightMod;
+
+import javax.net.ssl.SSLContext;
+import java.io.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
@@ -13,16 +15,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.function.BiConsumer;
 
-import javax.net.ssl.SSLContext;
-
-import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.main.EpicFightMod;
-
-@OnlyIn(Dist.CLIENT)
 public class EpicFightServerConnectionHelper {
 	public static HttpClient HTTP_CLIENT;
 	private static final String LIB_FILE = "ServerCommunicationHelper";

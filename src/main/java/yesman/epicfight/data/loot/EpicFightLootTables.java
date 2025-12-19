@@ -30,7 +30,7 @@ public class EpicFightLootTables {
 	public static final LootItemFunctionType SET_SKILLBOOK_SKILL = new LootItemFunctionType(new SetSkillFunction.Serializer());
 	
 	public static void registerLootItemFunctionType() {
-		Registry.register(BuiltInRegistries.LOOT_FUNCTION_TYPE, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "set_skill"), SET_SKILLBOOK_SKILL);
+		Registry.register(BuiltInRegistries.LOOT_FUNCTION_TYPE, EpicFightMod.identifier("set_skill"), SET_SKILLBOOK_SKILL);
 	}
 	
 	@SubscribeEvent

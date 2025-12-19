@@ -5,14 +5,11 @@ import java.util.Random;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 
-@OnlyIn(Dist.CLIENT)
 public class LightningRenderHelper {
 	private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0D) / 2.0D);
 	

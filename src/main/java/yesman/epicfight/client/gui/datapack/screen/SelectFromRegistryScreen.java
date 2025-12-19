@@ -23,13 +23,10 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class SelectFromRegistryScreen<T> extends Screen {
 	private final RegistryList registryList;
 	private final Screen parentScreen;
@@ -121,7 +118,6 @@ public class SelectFromRegistryScreen<T> extends Screen {
 		this.minecraft.setScreen(this.parentScreen);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class RegistryList extends ObjectSelectionList<RegistryList.RegistryEntry> {
 		private final Map<ResourceLocation, T> registry;
 		
@@ -157,7 +153,6 @@ public class SelectFromRegistryScreen<T> extends Screen {
 												.map((entry) -> new RegistryEntry(entry.getValue(), entry.getKey().toString())).forEach(this::addEntry);
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class RegistryEntry extends ObjectSelectionList.Entry<RegistryList.RegistryEntry> {
 			private final T item;
 			private final String name;

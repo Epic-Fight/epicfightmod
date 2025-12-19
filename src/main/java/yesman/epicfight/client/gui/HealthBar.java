@@ -20,8 +20,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags.EntityTypes;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -32,10 +30,9 @@ import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.effect.VisibleMobEffect;
 
-@OnlyIn(Dist.CLIENT)
 public class HealthBar extends EntityUI {
-	public static final ResourceLocation HEALTHBARS1 = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars1.png");
-	public static final ResourceLocation HEALTHBARS2 = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/gui/healthbars2.png");
+    public static final ResourceLocation HEALTHBARS1 = EpicFightMod.identifier("textures/gui/healthbars1.png");
+    public static final ResourceLocation HEALTHBARS2 = EpicFightMod.identifier("textures/gui/healthbars2.png");
 	
 	private final Map<LivingEntity, EntityAttributeTracker> trackingEntities = Maps.newConcurrentMap();
 	
@@ -209,7 +206,6 @@ public class HealthBar extends EntityUI {
 		this.trackingEntities.values().forEach(EntityAttributeTracker::tick);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public class EntityAttributeTracker {
 		private final LivingEntity entity;
 		private final AttributeState healthState;

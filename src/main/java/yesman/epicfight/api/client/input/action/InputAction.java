@@ -55,7 +55,9 @@ public interface InputAction extends ExtendableEnum {
     /// while non-vanilla actions are custom Epic Fight actions introduced by the mod.
     ///
     /// @return `true` if this action is linked to a vanilla key mapping.
-    boolean isVanilla();
+    default boolean isVanilla() {
+        return false;
+    }
 
     /// Returns a set of all input actions that are not part of the vanilla Minecraft input bindings.
     ///

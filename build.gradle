@@ -6,6 +6,7 @@ plugins {
 	id 'org.spongepowered.mixin' version '0.7.+'
 	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 	id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+    id("dev.echoellet.mc-safe-resources") version("0.0.1")
 }
 
 version = mod_version
@@ -171,9 +172,9 @@ dependencies {
     compileOnly fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     compileOnly fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
     
-    // Shoulder Surfing Reloaded compatibility (optional, have to choose one)
-    compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993792") // API only (https://www.curseforge.com/minecraft/mc-mods/shoulder-surfing-reloaded/files/6993792)
-    //compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:6993788") // Actual mod file (for test)
+    // Shoulder Surfing Reloaded compatibility (optional, uncomment runtimeOnly to test in-game)
+    compileOnly fg.deobf("curse.maven:shoulder-surfing-reloaded-243190:7279955") // API only
+//    runtimeOnly fg.deobf("maven.modrinth:shoulder-surfing-reloaded:1.20.1-4.16.2+forge") // Actual mod file (for test)
     
     compileOnly fg.deobf("dev.echoellet:controlify-forgified:${project.controlify_version}")
     runtimeOnly fg.deobf("maven.modrinth:yacl:3.6.6+1.20.1-forge") // Required dependency to run Controlify
@@ -235,8 +236,36 @@ java {
     withSourcesJar()
 }
 
+// The API JAR file includes only classes from the API package.
+
+def apiPackage = "yesman/epicfight/api/**"
+def apiJarClassifier = "api"
+
+def apiJar = tasks.register('apiJar', Jar) {
+    group = 'build'
+    archiveClassifier.set(apiJarClassifier)
+
+    from(sourceSets.main.output) {
+        include apiPackage
+    }
+}
+
+def apiSourcesJar = tasks.register('apiSourcesJar', Jar) {
+    group = 'build'
+    archiveClassifier.set("${apiJarClassifier}-sources") // Important to use this suffix, to follow standards
+
+    from(sourceSets.main.allSource) {
+        include apiPackage
+    }
+}
+
+artifacts {
+    archives(apiJar)
+    archives(apiSourcesJar)
+}
+
 publishMods {
-    def readme = project.file('RELEASE_NOTES.md')
+    def readme = project.file('CHANGELOG.md')
     def readmeContent = readme.getText()
     def pattern = """(?s)## \\[""" + mod_version + """\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"""
     def matcher = (readmeContent =~ pattern)
@@ -244,8 +273,7 @@ publishMods {
     
     // No publishing without matching changelog
     if (!found) {
-    	println ("No matching changelog found for version ${mod_version} in RELEASE_NOTES.md. Publishing is skipped.")
-    	return
+    	throw new RuntimeException("No changelog found for version $mod_version in CHANGELOG.md file")
     }
     
     // Extract the latest changelog without the header and API change part
@@ -267,7 +295,7 @@ publishMods {
 	displayName = "${mod_id}-forge-${mod_version}-${minecraft_version}"
 	
 	file = jar.archiveFile
-	additionalFiles.from(tasks.named("sourcesJar").flatMap { it.archiveFile })
+	additionalFiles.from(tasks.named("sourcesJar").flatMap { it.archiveFile }, apiJar, apiSourcesJar)
 	
 	// Curseforge publishing info
     curseforge {
@@ -295,5 +323,24 @@ publishMods {
 			link = "EMBED"
 			thumbnailUrl = "https://i.imgur.com/nI8xOCy.png"
 	    }
+    }
+}
+
+mcSafeResources {
+    namespace.set(mod_id)
+    outputPackage.set("yesman.${mod_id}.generated")
+}
+
+sourceSets.main.java.srcDir tasks.generateLangKeys.outputs.files.singleFile
+tasks.compileJava.dependsOn tasks.generateLangKeys
+
+tasks.jar {
+    from(rootProject.file("LICENSE"))
+    from(rootProject.file("LICENSE-ASSETS"))
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/${mod_id}"
+    }
+    from(rootProject.file("LICENSE-ASSETS")) {
+        into "assets/minecraft"
     }
 }

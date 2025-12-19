@@ -1,14 +1,6 @@
-package yesman.epicfight.api.utils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
+package yesman.epicfight.client.world.util;
 
 import com.mojang.authlib.GameProfile;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -32,12 +24,15 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
 public class FakeLevel extends ClientLevel {
 	private static FakeLevel instance;
 	private static final Map<GameProfile, FakeClientPlayer> FAKE_PLAYERS = new HashMap<> ();
@@ -173,7 +168,6 @@ public class FakeLevel extends ClientLevel {
 		return this.refLevel.players();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class FakeClientPlayer extends AbstractClientPlayer {
 		public FakeClientPlayer(FakeLevel fakeLevel, GameProfile gameProfile) {
 			super(fakeLevel, gameProfile);
@@ -198,7 +192,6 @@ public class FakeLevel extends ClientLevel {
 		return false;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	private static class FakeClientPacketListener extends ClientPacketListener {
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
 		private RegistryAccess registryAccess;

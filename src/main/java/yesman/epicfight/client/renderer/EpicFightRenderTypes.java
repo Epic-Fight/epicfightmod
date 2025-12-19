@@ -24,11 +24,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public final class EpicFightRenderTypes extends RenderType {
 	public static RenderType makeTriangulated(RenderType renderType) {
 		if (renderType.mode() == VertexFormat.Mode.TRIANGLES) {
@@ -124,7 +121,6 @@ public final class EpicFightRenderTypes extends RenderType {
 	// Custom shards
 	protected static final RenderStateShard.ShaderStateShard PARTICLE_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getParticleShader);
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class ShaderColorStateShard extends RenderStateShard {
 		private Vector4f color;
 		
@@ -147,7 +143,6 @@ public final class EpicFightRenderTypes extends RenderType {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class MutableCompositeState extends CompositeState {
 		private ShaderColorStateShard shaderColorState = new ShaderColorStateShard(new Vector4f(1.0F));
 		
@@ -180,7 +175,6 @@ public final class EpicFightRenderTypes extends RenderType {
 	        return new EpicFightRenderTypes.MutableCompositeState.MutableCompositeStateBuilder();
 	    }
 		
-		@OnlyIn(Dist.CLIENT)
 		public static class MutableCompositeStateBuilder {
 			private RenderStateShard.EmptyTextureStateShard textureState = RenderStateShard.NO_TEXTURE;
 			private RenderStateShard.ShaderStateShard shaderState = RenderStateShard.NO_SHADER;
@@ -399,7 +393,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			true,
 			RenderType.CompositeState.builder()
 				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
 				.setCullState(NO_CULL)
 				.setWriteMaskState(COLOR_WRITE)
 				.setDepthTestState(EQUAL_DEPTH_TEST)
@@ -418,7 +412,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			true,
 			RenderType.CompositeState.builder()
 				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
 				.setCullState(NO_CULL)
 				.setWriteMaskState(COLOR_WRITE)
 				.setDepthTestState(EQUAL_DEPTH_TEST)
@@ -506,7 +500,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			false,
 			true,
 			RenderType.CompositeState.builder()
-				.setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
 				.setLightmapState(LIGHTMAP)
 				.setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
 				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
@@ -635,7 +629,7 @@ public final class EpicFightRenderTypes extends RenderType {
 				false,
 				EpicFightRenderTypes.MutableCompositeState.mutableStateBuilder()
 					.setShaderState(RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
-					.setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/entity/overlay/glint_white.png"), true, false))
+					.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/entity/overlay/glint_white.png"), true, false))
 					.setWriteMaskState(COLOR_WRITE)
 					.setCullState(NO_CULL)
 					.setDepthTestState(EQUAL_DEPTH_TEST)

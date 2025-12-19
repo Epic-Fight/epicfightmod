@@ -14,7 +14,7 @@ public class MixinOptions {
 
     // This mixin is used instead of a NeoForge/mod loader event to ensure that
     // any call to setCameraType(), from vanilla or other mods (e.g., Controlify),
-    // automatically respects the user’s camera perspective preference.
+    // automatically respects the user's camera perspective preference.
     // Doing this in core avoids relying on external events and keeps behavior consistent.
     @Inject(method = "setCameraType", at = @At("HEAD"), cancellable = true)
     private void onSetCameraType(CameraType requested, CallbackInfo ci) {

@@ -3,7 +3,7 @@ package yesman.epicfight.client.camera;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Indicates why Epic Fight’s built-in third-person camera was disabled.
+ * Indicates why Epic Fight's built-in third-person camera was disabled.
  * <p>
  * Epic Fight automatically turns off its own third-person mode when a
  * compatible third-party camera mod is detected.

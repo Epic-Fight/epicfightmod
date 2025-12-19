@@ -10,8 +10,8 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 /// This interface must be implemented by any external controller mod to provide
 /// controller input support for Epic Fight.
 ///
-/// It acts as a bridge between the controller mod’s input system
-/// (e.g., Controlify, Controllable, MidnightControls) and Epic Fight’s input handling logic.
+/// It acts as a bridge between the controller mod's input system
+/// (e.g., Controlify, Controllable, MidnightControls) and Epic Fight's input handling logic.
 ///
 /// Epic Fight relies on this interface to determine and manage the current [InputMode].
 /// Since input mode management is not part of the vanilla
@@ -21,7 +21,7 @@ import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 /// Most consumers should use a higher-level abstraction unless direct access is necessary for functionality
 /// that cannot be achieved otherwise.
 public interface IEpicFightControllerMod {
-    /// Returns the controller mod’s display name (e.g., `Controlify`).
+    /// Returns the controller mod's display name (e.g., `Controlify`).
     /// Intended for logging or debugging only; should not influence gameplay logic or be used as a workaround.
     String getModName();
 

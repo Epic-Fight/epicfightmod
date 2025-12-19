@@ -1,7 +1,49 @@
-# Epic Fight in Minecraft 1.20.1 Changelog
-# Changelog on publishing websites and Discord will be parsed between version header ([x.x.x] - yyyy-mm-dd) and (For Devs) section
+# Changelog
 
-## [20.14.1] - Unreleased
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [20.14.4] - 2025-12-17
+
+### Changed
+
+- Internal changes for better code quality
+
+### For Devs
+
+- Deprecated `EpicFightMod.rl` and added `EpicFightMod.identifier` since
+  [Mojang renamed `ResourceLocation` to
+  `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+
+## [20.14.3] - 2025-12-11
+
+### Fixed
+
+- Fixed datapack animations not loading properly
+
+### Changed
+
+- Changed the asset license to All Rights Reserved, whereas the source code license keeps GNU GPLv3.
+    - This means, we still allow forks of our project, but they're required to replace assets into custom and
+      their original-made ones to redistribute.
+    - You're still allowed to use assets via datapack editor or addons. Nevertheless, we can claim copyright
+      of our assets if we find some abuse, or your behaviors that don't respect our efforts on it.
+
+## [20.14.2] - 2025-12-10
+
+### Fixed
+
+- Fixed the target indicator invisible for non Epic Fight patched entities
+- Fixed the lock-on target not being synced to the server when using mouse snap to change the target
+
+### Changed
+
+- Now Lock-on automatically searches a new target if there is no currently focusing entity
+- Now TPS mode applies 8 directional movement to the player
+
+## [20.14.1] - 2025-12-07
 
 ### Added
 
@@ -22,11 +64,13 @@
 - Epic Fight's TPS perspective will be automatically disabled when a conflicting mod, such
   as [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
   or [Better Third Person](https://modrinth.com/mod/better-third-person), is detected to prevent issues.
+- Explicit Shoulder Surfing compatibility with the new enhanced lock-on (credit [Exopandora](https://github.com/Exopandora)).
 
 ### Fixed
 
 - Fixed a bug that allowed the player to replace the current skill slot even during cooldown.
 - Fixed the mining crosshair not to show in vanilla mode
+- Fixed the massive memory consume on loading the game caused by animation loads
 
 ### For Devs
 
@@ -42,6 +86,9 @@
   [#2194](https://github.com/Epic-Fight/epicfight/issues/2194)
 - Deprecated `ClientEngine#isBattleMode` and added `ClientEngine#isEpicFightMode` for a smoother migration when porting
   from MC 1.20.1 to 1.21.1
+- Added API JAR file, which includes classes under `yesman/epicfight/api/**` only, to allow consumers to compile against
+  Epic Fight public API only.
+    - **Note:** Keep in mind that Epic Fight public APIs are still being stabilized, and breaking changes may occur.
 
 ## [20.13.6] - 2025-11-12
 

@@ -310,12 +310,18 @@ public class MathUtils {
 	}
 	
 	public static double getAngleBetween(Vec3f a, Vec3f b) {
-		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
+		Vec3f normA = Vec3f.normalize(a, null);
+		Vec3f normB = Vec3f.normalize(b, null);
+		
+		double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
 		return Math.toDegrees(Math.acos(cos));
 	}
 	
 	public static double getAngleBetween(Vec3 a, Vec3 b) {
-		double cos = (a.x * b.x + a.y * b.y + a.z * b.z);
+		Vec3 normA = a.normalize();
+		Vec3 normB = b.normalize();
+		
+		double cos = (normA.x * normB.x + normA.y * normB.y + normA.z * normB.z);
 		return Math.toDegrees(Math.safeAcos(cos));
 	}
 	

@@ -9,8 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.ForgeConfigSpec;
 import yesman.epicfight.client.events.engine.ControlEngine;
@@ -20,7 +18,6 @@ import yesman.epicfight.main.AuthenticationHelper;
 import yesman.epicfight.network.server.SPPlayUISound;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-@OnlyIn(Dist.CLIENT)
 public class ClientEngine {
 	private static ClientEngine instance = new ClientEngine();
 	

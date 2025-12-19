@@ -47,7 +47,7 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 public class SkillManager extends SimpleJsonResourceReloadListener {
-	public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill"));
+	public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(EpicFightMod.identifier("skill"));
 	public static final Codec<Skill> CODEC = ExtraCodecs.lazyInitializedCodec(() -> RegistryManager.ACTIVE.getRegistry(SKILL_REGISTRY_KEY).getCodec());
 	private static final List<CompoundTag> SKILL_PARAMS = Lists.newArrayList();
 	private static final Gson GSON = (new GsonBuilder()).create();
@@ -58,7 +58,7 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 	}
 	
 	public static void createSkillRegistry(NewRegistryEvent event) {
-		event.create(RegistryBuilder.of(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill")).addCallback(SkillRegistryCallbacks.INSTANCE));
+		event.create(RegistryBuilder.of(EpicFightMod.identifier("skill")).addCallback(SkillRegistryCallbacks.INSTANCE));
 	}
 	
 	public static void registerSkills(RegisterEvent event) {
@@ -83,7 +83,7 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 		if (name.indexOf(':') >= 0) {
 			rl = ResourceLocation.parse(name);
 		} else {
-			rl = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, name);
+            rl = EpicFightMod.identifier(name);
 		}
 		
 		if (skillRegistry.containsKey(rl)) {
@@ -185,7 +185,7 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 	}
 	
 	private static class SkillRegistryCallbacks implements IForgeRegistry.BakeCallback<Skill>, IForgeRegistry.CreateCallback<Skill>, IForgeRegistry.ClearCallback<Skill> {
-		private static final ResourceLocation LEARNABLE_SKILLS = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "learnableskills");
+        private static final ResourceLocation LEARNABLE_SKILLS = EpicFightMod.identifier("learnableskills");
 		private static final SkillRegistryCallbacks INSTANCE = new SkillRegistryCallbacks();
 		
 		@Override

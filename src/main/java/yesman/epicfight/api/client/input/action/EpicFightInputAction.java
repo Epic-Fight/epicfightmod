@@ -73,9 +73,4 @@ public enum EpicFightInputAction implements InputAction {
         }
         return Optional.of(EpicFightControlifyControllerMod.getBinding(this));
     }
-
-    @Override
-    public boolean isVanilla() {
-        return false;
-    }
 }

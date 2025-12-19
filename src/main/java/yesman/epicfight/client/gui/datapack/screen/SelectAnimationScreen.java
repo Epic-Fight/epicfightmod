@@ -14,8 +14,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -23,7 +21,6 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.client.gui.datapack.widgets.ModelPreviewer;
 
-@OnlyIn(Dist.CLIENT)
 public class SelectAnimationScreen extends Screen {
 	private final Screen parentScreen;
 	private final AnimationList animationList;
@@ -124,7 +121,6 @@ public class SelectAnimationScreen extends Screen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	class AnimationList extends ObjectSelectionList<AnimationList.AnimationEntry> {
 		public AnimationList(Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight) {
 			super(minecraft, width, height, y0, y1, itemHeight);
@@ -166,7 +162,6 @@ public class SelectAnimationScreen extends Screen {
 				.forEach(this::addEntry);
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		class AnimationEntry extends ObjectSelectionList.Entry<AnimationList.AnimationEntry> {
 			private final AssetAccessor<? extends StaticAnimation> animation;
 			

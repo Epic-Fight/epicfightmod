@@ -7,8 +7,6 @@ import java.util.function.Function;
 import org.lwjgl.opengl.GL33C;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
@@ -20,7 +18,6 @@ import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputePr
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class ComputeShaderProvider {
     public static ComputeProgram meshComputeVanilla;
     public static ComputeProgram meshComputeIris;
@@ -59,8 +56,8 @@ public class ComputeShaderProvider {
         clear();
         
         try {
-            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
-            if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
         } catch (Exception e) {
             supportComputeShader = false;
             EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");

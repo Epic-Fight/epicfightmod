@@ -32,7 +32,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 public class SkillDataKeys {
 	private static final Supplier<RegistryBuilder<SkillDataKey<?>>> BUILDER = () -> new RegistryBuilder<SkillDataKey<?>>().addCallback(SkillDataKey.getRegistryCallback());
 	
-	public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill_data_keys"), EpicFightMod.MODID);
+	public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(EpicFightMod.identifier("skill_data_keys"), EpicFightMod.MODID);
 	public static final Supplier<IForgeRegistry<SkillDataKey<?>>> REGISTRY = DATA_KEYS.makeRegistry(BUILDER);
 	
 	/**

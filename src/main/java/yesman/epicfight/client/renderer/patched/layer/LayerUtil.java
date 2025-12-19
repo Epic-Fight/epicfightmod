@@ -19,8 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.RegisterResourceLayersEvent;
@@ -34,7 +32,6 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@OnlyIn(Dist.CLIENT)
 public class LayerUtil {
 	@FunctionalInterface
 	public interface LayerProvider<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> {
@@ -44,9 +41,9 @@ public class LayerUtil {
 	public static <E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> void addLayer(LayerRenderer<E, T, M> renderer, EntityType<?> entityType, List<Pair<ResourceLocation, JsonElement>> layers) {
 		Map<ResourceLocation, LayerProvider<E, T, M, R, AM>> layersbyid = Maps.newHashMap();
 		
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "invisible"), LayerUtil::getInvisibleLayer);
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "eyes"), LayerUtil::getEyesLayer);
-		layersbyid.put(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "model_original"), LayerUtil::getOriginalModelLayer);
+		layersbyid.put(EpicFightMod.identifier("invisible"), LayerUtil::getInvisibleLayer);
+		layersbyid.put(EpicFightMod.identifier("eyes"), LayerUtil::getEyesLayer);
+		layersbyid.put(EpicFightMod.identifier("model_original"), LayerUtil::getOriginalModelLayer);
 		
 		MinecraftForge.EVENT_BUS.post(new RegisterResourceLayersEvent<> (layersbyid));
 		

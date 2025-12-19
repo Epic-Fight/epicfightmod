@@ -10,7 +10,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -33,7 +32,6 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
-@OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 	private static final Pair<ResourceLocation, ResourceLocation> OFFHAND_TEXTURE = Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);

@@ -15,15 +15,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
 
-@OnlyIn(Dist.CLIENT)
 public record TrailInfo(
 	  Vec3 start
 	, Vec3 end
@@ -43,8 +40,8 @@ public record TrailInfo(
 	, ResourceLocation texturePath
 	, InteractionHand hand
 ) {
-	public static final ResourceLocation GENERIC_TRAIL_TEXTURE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/swing_trail.png");
-	public static final ResourceLocation SWORDMASTER_SWING_TRAIL_TEX = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/swordmaster_trail.png");
+    public static final ResourceLocation GENERIC_TRAIL_TEXTURE = EpicFightMod.identifier("textures/particle/swing_trail.png");
+    public static final ResourceLocation SWORDMASTER_SWING_TRAIL_TEX = EpicFightMod.identifier("textures/particle/swordmaster_trail.png");
 	
 	public static final TrailInfo PREVIEWER_DEFAULT_TRAIL = TrailInfo.builder()
 			.startPos(new Vec3(0.0D, 0.0D, 0.0D))
@@ -314,7 +311,6 @@ public record TrailInfo(
 		return trailBuilder.create();
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static class Builder {
 		private Vec3 start;
 		private Vec3 end;

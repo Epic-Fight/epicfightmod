@@ -50,9 +50,18 @@ public class CoupleTPSCamera extends CameraAPIEvent {
     }
 
     public boolean shouldCoupleCamera() {
-        return this.modified ? this.shouldCouple : this.isMoving || this.isUsingCouplingItem || this.isZooming || this.isHoldingSkill || this.manualCoupling;
+        return this.modified ? this.shouldCouple : this.isMoving || this.isPressingVanillaAttackKeybind || this.isUsingCouplingItem || this.isZooming || this.isHoldingSkill || this.manualCoupling;
     }
-
+    
+    public boolean isOnlyMoving() {
+    	return this.isMoving &&
+			!this.isPressingVanillaAttackKeybind &&
+			!this.isUsingCouplingItem &&
+			!this.isZooming &&
+			!this.isHoldingSkill &&
+			!this.manualCoupling;
+    }
+    
     public boolean isModified() {
         return this.modified;
     }

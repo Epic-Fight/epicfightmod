@@ -15,16 +15,16 @@ public class EpicFightMobEffects {
 	public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, EpicFightMod.MODID);
 	
 	public static final RegistryObject<MobEffect> STUN_IMMUNITY = EFFECTS.register("stun_immunity", () -> 
-		new VisibleMobEffect(MobEffectCategory.BENEFICIAL, 16758016, ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/stun_immunity.png")));
+		new VisibleMobEffect(MobEffectCategory.BENEFICIAL, 16758016, EpicFightMod.identifier("textures/mob_effect/stun_immunity.png")));
 	
 	//public static final RegistryObject<MobEffect> BLOOMING = EFFECTS.register("blooming", () -> 
 	//	new VisibleMobEffect(MobEffectCategory.BENEFICIAL, 16735744, new ResourceLocation(EpicFightMod.MODID, "textures/mob_effect/blooming.png")));
 	
 	public static final RegistryObject<MobEffect> INSTABILITY = EFFECTS.register("instability", () -> 
 		new VisibleMobEffect(MobEffectCategory.HARMFUL, 0, (effectInstance) -> Math.min(effectInstance.getAmplifier(), 2)
-														 , ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability1.png")
-														 , ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability2.png")
-														 , ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/mob_effect/instability3.png")));
+                , EpicFightMod.identifier("textures/mob_effect/instability1.png")
+                , EpicFightMod.identifier("textures/mob_effect/instability2.png")
+                , EpicFightMod.identifier("textures/mob_effect/instability3.png")));
 	
 	public static void addOffhandModifier() {
 		MobEffects.DIG_SPEED.addAttributeModifier(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get(), "AF8B6E3F-3328-4C0A-AA36-5BA2BB9DBEF3", 0.1D, AttributeModifier.Operation.MULTIPLY_TOTAL);

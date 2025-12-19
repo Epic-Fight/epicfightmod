@@ -90,14 +90,14 @@ public class SkinLayer3DCompat implements ICompatModule {
 	@OnlyIn(Dist.CLIENT)
 	public void onCapabilityRegister(AttachCapabilitiesEvent<Entity> event) {
 		if (event.getObject().level().isClientSide() && event.getObject().getType() == EntityType.PLAYER) {
-			event.addCapability(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "animated_3d_skinlayer_mesh"), new ICapabilityProvider() {
-				final SkinLayer3DMeshes epicFight3dSkinLayerCapability = new SkinLayer3DMeshes();
-				
-				@Override
-				public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-					return cap == SKIN_LAYER_3D_CAPABILITY ? LazyOptional.of(() -> this.epicFight3dSkinLayerCapability).cast() :  LazyOptional.empty();
-				}
-			});
+			event.addCapability(EpicFightMod.identifier("animated_3d_skinlayer_mesh"), new ICapabilityProvider() {
+                final SkinLayer3DMeshes epicFight3dSkinLayerCapability = new SkinLayer3DMeshes();
+
+                @Override
+                public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+                    return cap == SKIN_LAYER_3D_CAPABILITY ? LazyOptional.of(() -> this.epicFight3dSkinLayerCapability).cast() : LazyOptional.empty();
+                }
+            });
 			
 			event.addListener(() -> {
 				event.getObject().getCapability(SKIN_LAYER_3D_CAPABILITY).ifPresent((skinlayers3dMeshes) -> {

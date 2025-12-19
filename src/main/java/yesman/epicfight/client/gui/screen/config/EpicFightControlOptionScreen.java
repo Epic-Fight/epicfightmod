@@ -6,8 +6,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.widgets.EpicFightOptionList;
@@ -15,7 +13,6 @@ import yesman.epicfight.client.gui.widgets.RewindableButton;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 
-@OnlyIn(Dist.CLIENT)
 public class EpicFightControlOptionScreen extends EpicFightOptionSubScreen {
 	private EpicFightOptionList optionsList;
 	

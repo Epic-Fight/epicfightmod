@@ -31,12 +31,12 @@ participating in this project.
 ## 🍴 Forking & cloning the repository
 
 - Fork the [GitHub repo](https://github.com/Epic-Fight/epicfight/) to your account. If you already have a fork,
-  make sure it’s up to date.
+  make sure it's up to date.
 
 * Clone your fork:
 
     ```bash
-    git clone git@github.com:<your_name_here>/epicfight.git
+    git clone git@github.com:YOUR_GITHUB_USERNAME_HERE/epicfight.git
     cd epicfight
     ```
 
@@ -47,6 +47,28 @@ participating in this project.
     ```
 
   This allows you to fetch updates from the main repository.
+
+* Create a local branch and checkout to it:
+
+  ```bash
+  git branch -b YOUR_BRANCH_NAME_HERE
+  ```
+
+* Make your changes and commit them (structured commits are a bonus):
+
+  ```bash
+  git add .
+  git commit -m "YOUR_COMMIT_MESSAGE_HERE"
+  ```
+
+* Push local branch:
+
+  ```bash
+  git push origin YOUR_BRANCH_NAME_HERE
+  ```
+
+* GitHub will prompt you to open a GitHub pull request, if not, you can
+  open [this link](http://github.com/Epic-Fight/epicfight/pull/new).
 
 ## 🧪 Testing
 
@@ -72,7 +94,7 @@ $ ./gradlew runServer
 
 ## ⚙️ Development Notes
 
-- Update [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) whenever you make changes.
+- Update [`CHANGELOG.md`](CHANGELOG.md) whenever you make changes.
     - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for format and style.
     - If the change is **breaking** or affects other mods/addons, document it in the `For Devs` section.
 
@@ -199,7 +221,7 @@ Confirm that it does not spam the log, with or without the third-party mod loade
 
 ### 5. Keep code modular
 
-Even if it’s not a public API—or just a private method or field—keep the code modular.  
+Even if it's not a public API—or just a private method or field—keep the code modular.  
 Avoid putting everything into a single large method that does it all, as this reduces reusability and leads to future
 refactoring, cleanup, breaking changes, and extensive testing to fix later.
 
@@ -230,7 +252,7 @@ private doAction() {
 ```
 
 The first example mixes the trigger condition with the action logic, making it harder for other mods to inject or extend
-behavior (even if they shouldn’t, they should still have the option).
+behavior (even if they shouldn't, they should still have the option).
 It also complicates adding new features, fixing bugs, porting to new versions, maintaining the code, and keeping it
 readable.
 
@@ -243,9 +265,9 @@ Maybe the
 
 ### 6. Always test the game in a production environment
 
-Even if it works on your development machine, that doesn’t mean it will work in a production environment.  
+Even if it works on your development machine, that doesn't mean it will work in a production environment.  
 When modifying mixins, always build the JAR file and test it in a fresh instance to ensure it truly works from the
-user’s perspective.
+user's perspective.
 
 ### 7. Don't rely on temporary understanding
 
@@ -260,7 +282,7 @@ Always take time to ensure your code is simple and easy to understand.
 
 ### 8. Document public APIs
 
-Although our existing public APIs lack documentation, we’re working to improve this going forward.
+Although our existing public APIs lack documentation, we're working to improve this going forward.
 
 ### 9. Keep code formatting consistent
 

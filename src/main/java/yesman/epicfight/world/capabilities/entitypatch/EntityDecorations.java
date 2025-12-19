@@ -27,24 +27,24 @@ public final class EntityDecorations {
 	private final Map<ResourceLocation, AnimationPropertyModifier<TrailInfo, CapabilityItem>> trail = new HashMap<> ();
 	private final Map<ResourceLocation, ParticleGenerator> particleGenerator = new HashMap<> ();
 	private final Map<ResourceLocation, DecorationOverlay> decorationOverlays = new HashMap<> ();
-	
-	public static final ResourceLocation ADAPTIVE_SKIN_COLOR = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "adaptive_skin_color");
-	public static final ResourceLocation ADAPTIVE_SKIN_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "adaptive_skin_overlay");
-	public static final ResourceLocation BERSERKER_PARTICLE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "berserker_particle");
-	public static final ResourceLocation BERSERKER_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "berserker_overlay");
-	public static final ResourceLocation BONEBREAKER_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "bonebreaker_overlay");
-	public static final ResourceLocation EMERGENCY_ESCAPE_TRANSPARENCY_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "emergency_escape_transparency_modifier");
-	public static final ResourceLocation HYPERVITALITY_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "hypervitality_overlay");
-	public static final ResourceLocation STAMINA_PILLAGER_ASHES_COLOR = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_pillager_ashes_color");
-	public static final ResourceLocation STAMINA_PILLAGER_ASHES_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_pillager_ashes_overlay");
-	public static final ResourceLocation STAMINA_PILLAGER_ASHES_PARTICLE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_pillager_ashes_particle");
-	public static final ResourceLocation STAMINA_PILLAGER_FILLS_UP_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_pillager_fills_up_overlay");
-	public static final ResourceLocation STAMINA_PILLAGER_FILLS_UP_LIGHT = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "stamina_pillager_fills_up_light");
-	public static final ResourceLocation FLASH_WHITE_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "flash_white_overlay");
-	public static final ResourceLocation FLASH_WHITE_LIGHT = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "flash_white_light");
-	public static final ResourceLocation SWORDMASTER_SWING_SOUND = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "swordmaster_swing_sound_modifier");
-	public static final ResourceLocation SWORDMASTER_TRAIL_MODIFIER = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "swordmaster_trail_modifier");
-	public static final ResourceLocation VENGEANCE_OVERLAY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "vengeance_overlay");
+
+    public static final ResourceLocation ADAPTIVE_SKIN_COLOR = EpicFightMod.identifier("adaptive_skin_color");
+    public static final ResourceLocation ADAPTIVE_SKIN_OVERLAY = EpicFightMod.identifier("adaptive_skin_overlay");
+    public static final ResourceLocation BERSERKER_PARTICLE = EpicFightMod.identifier("berserker_particle");
+    public static final ResourceLocation BERSERKER_OVERLAY = EpicFightMod.identifier("berserker_overlay");
+    public static final ResourceLocation BONEBREAKER_OVERLAY = EpicFightMod.identifier("bonebreaker_overlay");
+    public static final ResourceLocation EMERGENCY_ESCAPE_TRANSPARENCY_MODIFIER = EpicFightMod.identifier("emergency_escape_transparency_modifier");
+    public static final ResourceLocation HYPERVITALITY_OVERLAY = EpicFightMod.identifier("hypervitality_overlay");
+    public static final ResourceLocation STAMINA_PILLAGER_ASHES_COLOR = EpicFightMod.identifier("stamina_pillager_ashes_color");
+    public static final ResourceLocation STAMINA_PILLAGER_ASHES_OVERLAY = EpicFightMod.identifier("stamina_pillager_ashes_overlay");
+    public static final ResourceLocation STAMINA_PILLAGER_ASHES_PARTICLE = EpicFightMod.identifier("stamina_pillager_ashes_particle");
+    public static final ResourceLocation STAMINA_PILLAGER_FILLS_UP_OVERLAY = EpicFightMod.identifier("stamina_pillager_fills_up_overlay");
+    public static final ResourceLocation STAMINA_PILLAGER_FILLS_UP_LIGHT = EpicFightMod.identifier("stamina_pillager_fills_up_light");
+    public static final ResourceLocation FLASH_WHITE_OVERLAY = EpicFightMod.identifier("flash_white_overlay");
+    public static final ResourceLocation FLASH_WHITE_LIGHT = EpicFightMod.identifier("flash_white_light");
+    public static final ResourceLocation SWORDMASTER_SWING_SOUND = EpicFightMod.identifier("swordmaster_swing_sound_modifier");
+    public static final ResourceLocation SWORDMASTER_TRAIL_MODIFIER = EpicFightMod.identifier("swordmaster_trail_modifier");
+    public static final ResourceLocation VENGEANCE_OVERLAY = EpicFightMod.identifier("vengeance_overlay");
 	
 	public void addOverlayCoordModifier(ResourceLocation id, RenderAttributeModifier<Vec2i> overlayModifier) {
 		this.overlay.put(id, overlayModifier);
@@ -232,7 +232,7 @@ public final class EntityDecorations {
 	
 	@OnlyIn(Dist.CLIENT)
 	public interface DecorationOverlay {
-		static ResourceLocation GENERIC = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/common/white.png");
+        static ResourceLocation GENERIC = EpicFightMod.identifier("textures/common/white.png");
 		static Vector4f NO_COLOR = new Vector4f(1.0F);
 		
 		default Vector4f color(float partialTick) {

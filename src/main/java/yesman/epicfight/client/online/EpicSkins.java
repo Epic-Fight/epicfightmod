@@ -1,10 +1,4 @@
-package yesman.epicfight.api.client.online;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.function.Supplier;
+package yesman.epicfight.client.online;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
@@ -13,14 +7,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
 import yesman.epicfight.api.client.physics.cloth.ClothColliderPresets;
@@ -33,7 +24,12 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
-@OnlyIn(Dist.CLIENT)
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public record EpicSkins(Supplier<ResourceLocation> cloakTexture, float r, float g, float b) {
 	public static void initEpicSkins(AbstractClientPlayerPatch<?> playerpatch) {
 		if (EpicFightServerConnectionHelper.supported() && ClientConfig.enableCosmetics) {
@@ -133,7 +129,6 @@ public record EpicSkins(Supplier<ResourceLocation> cloakTexture, float r, float 
 		playerpatch.setEpicSkinsInformation(new EpicSkins(() -> playerpatch.getOriginal().getCloakTextureLocation(), 1.0F, 1.0F, 1.0F));
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public record Cosmetic(int seq, Slot slot, int intParam1, boolean boolParam1, boolean useIntParam1, boolean useBoolParam1, String fileLocation, ResourceLocation textureLocation) {
 		/**
 		 * intParam1 is usually used to color
@@ -153,7 +148,6 @@ public record EpicSkins(Supplier<ResourceLocation> cloakTexture, float r, float 
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public enum Slot {
 		CAPE
 	}

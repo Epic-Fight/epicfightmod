@@ -1,16 +1,7 @@
 package yesman.epicfight.client.events.engine;
 
-import java.util.Set;
-
-import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
-
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -29,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
@@ -37,19 +27,24 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
-import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.action.MinecraftInputAction;
-import yesman.epicfight.api.utils.FakeLevel;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.client.world.util.FakeLevel;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -66,7 +61,8 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
-@OnlyIn(Dist.CLIENT)
+import java.util.Set;
+
 public class ControlEngine {
 	private final Set<Object> packets = Sets.newHashSet();
 	private final Minecraft minecraft;
@@ -493,11 +489,11 @@ public class ControlEngine {
     }
     
     private void searchNewTargetFromLeft() {
-    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(1);
+    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(1, true, true);
     }
     
     private void searchNewTargetFromRight() {
-    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(-1);
+    	EpicFightCameraAPI.getInstance().setNextLockOnTarget(-1, true, true);
     }
     
 	private void inputTick(Input input) {
@@ -943,7 +939,6 @@ public class ControlEngine {
 		return this.weaponInnatePressToggle;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 	public static class Events {
 		static ControlEngine controlEngine;

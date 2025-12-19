@@ -9,8 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -19,7 +17,6 @@ import yesman.epicfight.world.item.EpicFightItems;
 
 import java.util.Objects;
 
-@OnlyIn(Dist.CLIENT)
 public class RenderKatana extends RenderItemBase {
 	private final ItemStack sheathStack;
 	

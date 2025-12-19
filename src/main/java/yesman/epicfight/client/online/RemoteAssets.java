@@ -1,29 +1,24 @@
-package yesman.epicfight.api.client.online;
-
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
+package yesman.epicfight.client.online;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.online.texture.RemoteTexture;
+import yesman.epicfight.client.online.texture.RemoteTexture;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
-@OnlyIn(Dist.CLIENT)
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
 public class RemoteAssets {
 	private static final RemoteAssets INSTANCE = new RemoteAssets();
 	private static final TextureManager TEXTURE_MANAGER = Minecraft.getInstance().getTextureManager();
@@ -79,8 +74,7 @@ public class RemoteAssets {
 		return textureLocation;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	private class RemoteMeshAccessor implements AssetAccessor<Mesh> {
+	private static class RemoteMeshAccessor implements AssetAccessor<Mesh> {
 		private Queue<Consumer<Mesh>> callback = Queues.newArrayDeque();
 		private Mesh mesh;
 		

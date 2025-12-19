@@ -30,8 +30,8 @@ public interface SynchedAnimationVariableKey<T> {
 	public static <T> SynchedIndependentAnimationVariableKey<T> independent(Function<Animator, T> defaultValueSupplier, boolean mutable, PacketBufferCodec<T> codec) {
 		return new SynchedIndependentAnimationVariableKey<> (defaultValueSupplier, mutable, codec);
 	}
-	
-	public static final ResourceLocation BY_ID_REGISTRY = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "variablekeytoid");
+
+    public static final ResourceLocation BY_ID_REGISTRY = EpicFightMod.identifier("variablekeytoid");
 	
 	public static class SynchedAnimationVariableKeyCallbacks implements IForgeRegistry.BakeCallback<SynchedAnimationVariableKey<?>>, IForgeRegistry.CreateCallback<SynchedAnimationVariableKey<?>>, IForgeRegistry.ClearCallback<SynchedAnimationVariableKey<?>> {
 		private static final SynchedAnimationVariableKeyCallbacks INSTANCE = new SynchedAnimationVariableKeyCallbacks();

@@ -182,6 +182,9 @@ public class AttackAnimation extends ActionAnimation {
 			}
 			
 			AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+			if (player == null) {
+				return;
+			}
 			float elapsedTime = player.getElapsedTime();
 			EntityState state = this.getState(entitypatch, elapsedTime);
 			
@@ -201,6 +204,9 @@ public class AttackAnimation extends ActionAnimation {
 	
 	protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
 		AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+		if (player == null) {
+			return;
+		}
 		float prevElapsedTime = player.getPrevElapsedTime();
 		float elapsedTime = player.getElapsedTime();
 		EntityState prevState = animation.get().getState(entitypatch, prevElapsedTime);
@@ -310,33 +316,19 @@ public class AttackAnimation extends ActionAnimation {
 			epicfightSource = EpicFightDamageSources.fromVanillaDamageSource(originalSource).setAnimation(this.getAccessor());
 		}
 		
-		phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).ifPresent(opt -> {
-			epicfightSource.attachDamageModifier(opt);
-		});
+		phase.getProperty(AttackPhaseProperty.DAMAGE_MODIFIER).ifPresent(epicfightSource::attachDamageModifier);
 		
-		phase.getProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER).ifPresent(opt -> {
-			epicfightSource.attachArmorNegationModifier(opt);
-		});
+		phase.getProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER).ifPresent(epicfightSource::attachArmorNegationModifier);
 		
-		phase.getProperty(AttackPhaseProperty.IMPACT_MODIFIER).ifPresent(opt -> {
-			epicfightSource.attachImpactModifier(opt);
-		});
+		phase.getProperty(AttackPhaseProperty.IMPACT_MODIFIER).ifPresent(epicfightSource::attachImpactModifier);
 		
-		phase.getProperty(AttackPhaseProperty.STUN_TYPE).ifPresent(opt -> {
-			epicfightSource.setStunType(opt);
-		});
+		phase.getProperty(AttackPhaseProperty.STUN_TYPE).ifPresent(epicfightSource::setStunType);
 		
-		phase.getProperty(AttackPhaseProperty.SOURCE_TAG).ifPresent(opt -> {
-			opt.forEach(epicfightSource::addRuntimeTag);
-		});
+		phase.getProperty(AttackPhaseProperty.SOURCE_TAG).ifPresent(opt -> opt.forEach(epicfightSource::addRuntimeTag));
 		
-		phase.getProperty(AttackPhaseProperty.EXTRA_DAMAGE).ifPresent(opt -> {
-			opt.forEach(epicfightSource::addExtraDamage);
-		});
+		phase.getProperty(AttackPhaseProperty.EXTRA_DAMAGE).ifPresent(opt -> opt.forEach(epicfightSource::addExtraDamage));
 		
-		phase.getProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse(opt -> {
-			epicfightSource.setInitialPosition(opt.apply(entitypatch));
-		}, () -> {
+		phase.getProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse(opt -> epicfightSource.setInitialPosition(opt.apply(entitypatch)), () -> {
 			epicfightSource.setInitialPosition(entitypatch.getOriginal().position());
 		});
 		
@@ -345,7 +337,7 @@ public class AttackAnimation extends ActionAnimation {
 	
 	protected void spawnHitParticle(ServerLevel world, LivingEntityPatch<?> attacker, Entity hit, Phase phase) {
 		Optional<RegistryObject<HitParticleType>> particleOptional = phase.getProperty(AttackPhaseProperty.PARTICLE);
-		HitParticleType particle = particleOptional.isPresent() ? particleOptional.get().get() : attacker.getWeaponHitParticle(phase.hand);
+		HitParticleType particle = particleOptional.map(RegistryObject::get).orElseGet(() -> attacker.getWeaponHitParticle(phase.hand));
 		particle.spawnParticleWithArgument(world, null, null, hit, attacker.getOriginal());
 	}
 	
@@ -426,6 +418,9 @@ public class AttackAnimation extends ActionAnimation {
 	@OnlyIn(Dist.CLIENT)
 	public void renderDebugging(PoseStack poseStack, MultiBufferSource buffer, LivingEntityPatch<?> entitypatch, float playbackTime, float partialTicks) {
 		AnimationPlayer animPlayer = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+		if (animPlayer == null) {
+			return;
+		}
 		float prevElapsedTime = animPlayer.getPrevElapsedTime();
 		float elapsedTime = animPlayer.getElapsedTime();
 		Phase phase = this.getPhaseByTime(playbackTime);

@@ -134,9 +134,9 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	@Override
-	public UseAnim getUseAnimation(LivingEntityPatch<?> playerpatch) {
+	public UseAnim getUseAnimation(LivingEntityPatch<?> entityPatch) {
 		if (this.livingMotionModifiers != null) {
-			Style style = this.getStyle(playerpatch);
+			Style style = this.getStyle(entityPatch);
 			
 			if (this.livingMotionModifiers.containsKey(style)) {
 				if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {

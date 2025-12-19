@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -23,6 +24,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -32,6 +34,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -92,6 +95,12 @@ public class CapabilityItem {
 		
 		return attributeModifiers;
 	}
+
+	private static boolean validateAttribute(LivingEntityPatch<?> patch, Attribute instance)
+	{
+		AttributeInstance attributeInstance = patch.getOriginal().getAttribute(instance);
+		return attributeInstance != null;
+	}
 	
 	protected Map<Style, Map<Attribute, AttributeModifier>> attributeMap;
 	protected Collider collider;
@@ -142,16 +151,16 @@ public class CapabilityItem {
 			Attribute impact = EpicFightAttributes.IMPACT.get();
 			Attribute maxStrikes = EpicFightAttributes.MAX_STRIKES.get();
 			
-			if (attribute.containsKey(armorNegation)) {
-				double value = attribute.get(armorNegation).getAmount() + entitypatch.getOriginal().getAttribute(armorNegation).getBaseValue();
+			if (attribute.containsKey(armorNegation) && validateAttribute(entitypatch, armorNegation)) {
+				double value = attribute.get(armorNegation).getAmount() + Objects.requireNonNull(entitypatch.getOriginal().getAttribute(armorNegation)).getBaseValue();
 
 				if (value > 0.0D) {
 					itemTooltip.add(index, Component.literal(" ").append(Component.translatable(armorNegation.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
 				}
 			}
 			
-			if (attribute.containsKey(impact)) {
-				double value = attribute.get(impact).getAmount() + entitypatch.getOriginal().getAttribute(impact).getBaseValue();
+			if (attribute.containsKey(impact) && validateAttribute(entitypatch, impact)) {
+				double value = attribute.get(impact).getAmount() + Objects.requireNonNull(entitypatch.getOriginal().getAttribute(impact)).getBaseValue();
 
 				if (value > 0.0D) {
 					int i = itemstack.getEnchantmentLevel(Enchantments.KNOCKBACK);
@@ -160,8 +169,8 @@ public class CapabilityItem {
 				}
 			}
 			
-			if (attribute.containsKey(maxStrikes)) {
-				double value = attribute.get(maxStrikes).getAmount() + entitypatch.getOriginal().getAttribute(maxStrikes).getBaseValue();
+			if (attribute.containsKey(maxStrikes) && validateAttribute(entitypatch, maxStrikes)) {
+				double value = attribute.get(maxStrikes).getAmount() + Objects.requireNonNull(entitypatch.getOriginal().getAttribute(maxStrikes)).getBaseValue();
 
 				if (value > 0.0D) {
 					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(maxStrikes.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
@@ -352,6 +361,8 @@ public class CapabilityItem {
 	}
 	
 	public boolean checkOffhandValid(LivingEntityPatch<?> entitypatch) {
+        if (this.getStyle(entitypatch) == null)
+			return false;
 		return this.getStyle(entitypatch).canUseOffhand() && EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).canHoldInOffhandAlone();
 	}
 	
@@ -365,23 +376,23 @@ public class CapabilityItem {
 	
 	/**
 	 * Get a custom composite living motion when holding item
-	 * @param entitypatch
+	 * @param entityPatch
 	 * @return
 	 */
-	public LivingMotion getLivingMotion(LivingEntityPatch<?> entitypatch, InteractionHand hand) {
+	public LivingMotion getLivingMotion(LivingEntityPatch<?> entityPatch, InteractionHand hand) {
 		return null;
 	}
 	
 	/**
-	 * Called when player attacks with holding this item {@link AttackAnimation#attackTick}
+	 * Called when player attacks with holding this item {@link AttackAnimation#attackTick(LivingEntityPatch, AssetAccessor)}
 	 * 
-	 * @param entitypatch
+	 * @param entityPatch
 	 * @param animation
 	 */
-	public void onStrike(LivingEntityPatch<?> entitypatch, AttackAnimation animation) {
+	public void onStrike(LivingEntityPatch<?> entityPatch, AttackAnimation animation) {
 	}
 	
-	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
+	public UseAnim getUseAnimation(LivingEntityPatch<?> entityPatch) {
 		return UseAnim.NONE;
 	}
 	

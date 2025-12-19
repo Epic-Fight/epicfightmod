@@ -115,8 +115,8 @@ public class BasicAttack extends Skill {
 		SkillDataManager dataManager = skillContainer.getDataManager();
 		int comboCounter = dataManager.getDataValue(SkillDataKeys.COMBO_COUNTER.get());
         boolean dashAttack = player.isSprinting();
-        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater();
-		
+        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater() && skillContainer.getExecutor().getOriginal().getDeltaMovement().y() > -0.05D;
+
 		if (player.isPassenger()) {
 			Entity entity = player.getVehicle();
 			

@@ -28,6 +28,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4f;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.*;
@@ -544,15 +545,15 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		entity.yHeadRot = f1;
 		entity.yBodyRot = f1;
 	}
-	
-	public void rotateTo(Entity target, float limit, boolean syncPrevRot) {
+
+	public void rotateTo(@NotNull Entity target, float limit, boolean syncPrevRot) {
 		Vec3 playerPosition = this.original.position();
 		Vec3 targetPosition = target.position();
 		float yaw = (float)MathUtils.getYRotOfVector(targetPosition.subtract(playerPosition));
     	this.rotateTo(yaw, limit, syncPrevRot);
 	}
 	
-	public float getYRotDeltaTo(Entity target) {
+	public float getYRotDeltaTo(@NotNull Entity target) {
 		Vec3 playerPosition = this.getOriginal().position();
 		Vec3 targetPosition = target.position();
 		float yRotToTarget = (float)MathUtils.getYRotOfVector(targetPosition.subtract(playerPosition));

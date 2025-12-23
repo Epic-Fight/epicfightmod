@@ -36,6 +36,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
@@ -307,7 +308,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public void rotateTo(Entity target, float limit, boolean partialSync) {
+	public void rotateTo(@NotNull Entity target, float limit, boolean partialSync) {
 		double d0 = target.getX() - this.original.getX();
         double d1 = target.getZ() - this.original.getZ();
         float degree = 180.0F - (float)Math.toDegrees(Mth.atan2(d0, d1));
@@ -315,7 +316,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 	}
 	
 	@Override
-	public float getYRotDeltaTo(Entity target) {
+	public float getYRotDeltaTo(@NotNull Entity target) {
 		double d0 = target.getX() - this.original.getX();
         double d1 = target.getZ() - this.original.getZ();
         float degree = 180.0F - (float)Math.toDegrees(Mth.atan2(d0, d1));

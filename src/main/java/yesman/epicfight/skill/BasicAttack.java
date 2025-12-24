@@ -32,6 +32,7 @@ import yesman.epicfight.world.entity.eventlistener.SkillConsumeEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 public class BasicAttack extends Skill {
+	private static final double MIN_AIR_ATTACK_Y_VELOCITY = -0.05D;
 	private static final UUID EVENT_UUID = UUID.fromString("a42e0198-fdbc-11eb-9a03-0242ac130003");
 	
 	/// Decides if the animation used for combo attack
@@ -115,7 +116,7 @@ public class BasicAttack extends Skill {
 		SkillDataManager dataManager = skillContainer.getDataManager();
 		int comboCounter = dataManager.getDataValue(SkillDataKeys.COMBO_COUNTER.get());
         boolean dashAttack = player.isSprinting();
-        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater() && skillContainer.getExecutor().getOriginal().getDeltaMovement().y() > -0.05D;
+        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater() && skillContainer.getExecutor().getOriginal().getDeltaMovement().y() > MIN_AIR_ATTACK_Y_VELOCITY;
 
 		if (player.isPassenger()) {
 			Entity entity = player.getVehicle();

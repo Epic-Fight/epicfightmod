@@ -9,17 +9,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
-import net.minecraft.world.entity.monster.*;
-import net.minecraft.world.entity.monster.hoglin.Hoglin;
-import net.minecraft.world.entity.monster.piglin.Piglin;
-import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.projectile.*;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModLoader;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.neoevent.EntityPatchRegistryEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
@@ -34,8 +30,6 @@ import yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon.EnderDra
 import yesman.epicfight.world.capabilities.entitypatch.mob.*;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.projectile.*;
-import yesman.epicfight.world.entity.WitherGhostClone;
-import yesman.epicfight.world.entity.WitherSkeletonMinion;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 import java.util.ArrayList;
@@ -55,66 +49,90 @@ public final class CommonEntityPatchProvider {
 	
 	public void registerVanillaEntityPatches() {
 		Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry = new HashMap<> ();
-		registry.put(EntityType.PLAYER, entity -> new ServerPlayerPatch((ServerPlayer)entity));
-		registry.put(EntityType.ZOMBIE, entity -> new ZombiePatch<> ((Zombie)entity));
-		registry.put(EntityType.CREEPER, entity -> new CreeperPatch((Creeper)entity));
-		registry.put(EntityType.ENDERMAN, entity -> new EndermanPatch((EnderMan)entity));
-		registry.put(EntityType.SKELETON, entity -> new SkeletonPatch<Skeleton> ((Skeleton)entity));
-		registry.put(EntityType.WITHER_SKELETON, entity -> new WitherSkeletonPatch<> ((WitherSkeleton)entity));
-		registry.put(EntityType.STRAY, entity -> new StrayPatch<> ((Stray)entity));
-		registry.put(EntityType.ZOMBIFIED_PIGLIN, entity -> new ZombifiedPiglinPatch((ZombifiedPiglin)entity));
-		registry.put(EntityType.ZOMBIE_VILLAGER, entity -> new ZombiePatch<> ((ZombieVillager)entity));
-		registry.put(EntityType.HUSK, entity -> new ZombiePatch<> ((Husk)entity));
-		registry.put(EntityType.SPIDER, entity -> new SpiderPatch<> ((Spider)entity));
-		registry.put(EntityType.CAVE_SPIDER, entity -> new CaveSpiderPatch<> ((CaveSpider)entity));
-		registry.put(EntityType.IRON_GOLEM, entity -> new IronGolemPatch((IronGolem)entity));
-		registry.put(EntityType.VINDICATOR, entity -> new VindicatorPatch<> ((Vindicator)entity));
-		registry.put(EntityType.EVOKER, entity -> new EvokerPatch<> ((Evoker)entity));
-		registry.put(EntityType.WITCH, entity -> new WitchPatch((Witch)entity));
-		registry.put(EntityType.DROWNED, entity -> new DrownedPatch((Drowned)entity));
-		registry.put(EntityType.PILLAGER, entity -> new PillagerPatch((Pillager)entity));
-		registry.put(EntityType.RAVAGER, entity -> new RavagerPatch((Ravager)entity));
-		registry.put(EntityType.VEX, entity -> new VexPatch((Vex)entity));
-		registry.put(EntityType.PIGLIN, entity -> new PiglinPatch((Piglin)entity));
-		registry.put(EntityType.PIGLIN_BRUTE, entity -> new PiglinBrutePatch((PiglinBrute)entity));
-		registry.put(EntityType.HOGLIN, entity -> new HoglinPatch((Hoglin)entity));
-		registry.put(EntityType.ZOGLIN, entity -> new ZoglinPatch((Zoglin)entity));
-		registry.put(EntityType.ENDER_DRAGON, entity -> {
+		registerEntityPatchUnsafe(registry, EntityType.PLAYER, entity -> new ServerPlayerPatch((ServerPlayer) entity));
+		registerEntityPatch(registry, EntityType.ZOMBIE, ZombiePatch::new);
+		registerEntityPatch(registry, EntityType.CREEPER, CreeperPatch::new);
+		registerEntityPatch(registry, EntityType.ENDERMAN, EndermanPatch::new);
+		registerEntityPatch(registry, EntityType.SKELETON, SkeletonPatch::new);
+		registerEntityPatch(registry, EntityType.WITHER_SKELETON, WitherSkeletonPatch::new);
+		registerEntityPatch(registry, EntityType.STRAY, StrayPatch::new);
+		registerEntityPatch(registry, EntityType.ZOMBIFIED_PIGLIN, ZombifiedPiglinPatch::new);
+		registerEntityPatch(registry, EntityType.ZOMBIE_VILLAGER, ZombiePatch::new);
+		registerEntityPatch(registry, EntityType.HUSK, ZombiePatch::new);
+		registerEntityPatch(registry, EntityType.SPIDER, SpiderPatch::new);
+		registerEntityPatch(registry, EntityType.CAVE_SPIDER, CaveSpiderPatch::new);
+		registerEntityPatch(registry, EntityType.IRON_GOLEM, IronGolemPatch::new);
+		registerEntityPatch(registry, EntityType.VINDICATOR, VindicatorPatch::new);
+		registerEntityPatch(registry, EntityType.EVOKER, EvokerPatch::new);
+		registerEntityPatch(registry, EntityType.WITCH, WitchPatch::new);
+		registerEntityPatch(registry, EntityType.DROWNED, DrownedPatch::new);
+		registerEntityPatch(registry, EntityType.PILLAGER, PillagerPatch::new);
+		registerEntityPatch(registry, EntityType.RAVAGER, RavagerPatch::new);
+		registerEntityPatch(registry, EntityType.VEX, VexPatch::new);
+		registerEntityPatch(registry, EntityType.PIGLIN, PiglinPatch::new);
+		registerEntityPatch(registry, EntityType.PIGLIN_BRUTE, PiglinBrutePatch::new);
+		registerEntityPatch(registry, EntityType.HOGLIN, HoglinPatch::new);
+		registerEntityPatch(registry, EntityType.ZOGLIN, ZoglinPatch::new);
+		registerEntityPatch(registry, EntityType.ENDER_DRAGON, entity -> {
 			if (entity instanceof EnderDragon enderdragon) {
 				return new EnderDragonPatch(enderdragon);
 			}
 			return null;
 		});
-		registry.put(EntityType.WITHER, entity -> new WitherPatch((WitherBoss)entity));
-		registry.put(EpicFightEntityTypes.WITHER_SKELETON_MINION.get(), entity -> new WitherSkeletonPatch<> ((WitherSkeletonMinion)entity));
-		registry.put(EpicFightEntityTypes.WITHER_GHOST_CLONE.get(), entity -> new WitherGhostPatch((WitherGhostClone)entity));
-		registry.put(EntityType.ARROW, entity -> new ArrowPatch((Arrow)entity));
-		registry.put(EntityType.SPECTRAL_ARROW, entity -> new ArrowPatch((SpectralArrow)entity));
-		registry.put(EntityType.WITHER_SKULL, entity -> new WitherSkullPatch((WitherSkull)entity));
-		registry.put(EntityType.DRAGON_FIREBALL, entity -> new DragonFireballPatch((DragonFireball)entity));
-		registry.put(EntityType.TRIDENT, entity -> new ThrownTridentPatch((ThrownTrident)entity));
+		registerEntityPatch(registry, EntityType.WITHER, WitherPatch::new);
+		registerEntityPatch(registry, EpicFightEntityTypes.WITHER_SKELETON_MINION.get(), WitherSkeletonPatch::new);
+		registerEntityPatch(registry, EpicFightEntityTypes.WITHER_GHOST_CLONE.get(), WitherGhostPatch::new);
+		registerEntityPatch(registry, EntityType.ARROW, ArrowPatch::new);
+		registerEntityPatch(registry, EntityType.SPECTRAL_ARROW, ArrowPatch::new);
+		registerEntityPatch(registry, EntityType.WITHER_SKULL, WitherSkullPatch::new);
+		registerEntityPatch(registry, EntityType.DRAGON_FIREBALL, DragonFireballPatch::new);
+		registerEntityPatch(registry, EntityType.TRIDENT, ThrownTridentPatch::new);
 		
-		this.typedCapabilities.put(AbstractArrow.class, entity -> new ArrowPatch((AbstractArrow)entity));
+		this.typedCapabilities.put(AbstractArrow.class, entity -> new ArrowPatch<>((AbstractArrow) entity));
 		
 		EntityPatchRegistryEvent entitypatchRegistryEvent = new EntityPatchRegistryEvent(registry);
 		ModLoader.postEvent(entitypatchRegistryEvent);
 		
 		this.capabilities.putAll(registry);
 	}
-	
+
+	/// For more details, refer to [EntityPatchRegistryEvent#registerEntityPatch].
+	@ApiStatus.Internal
+	public static <T extends Entity> void registerEntityPatch(
+			Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
+			EntityType<T> entityType,
+			Function<T, EntityPatch<T>> entityPatchFactory
+	) {
+		//noinspection unchecked
+		registry.put(
+				entityType, (entity) -> entityPatchFactory.apply((T) entity)
+		);
+	}
+
+	/// Strongly prefer [#registerEntityPatch] over this unsafe version
+	/// for type-safety and strict design. Use this only as a last resort.
+	/// For more details, refer to [EntityPatchRegistryEvent#registerEntityPatchUnsafe].
+	@ApiStatus.Internal
+	public static <T extends Entity> void registerEntityPatchUnsafe(
+			Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
+			EntityType<T> entityType,
+			Function<? super T, ? extends EntityPatch<? extends T>> entityPatchFactory
+	) {
+		//noinspection unchecked
+		registry.put(
+				entityType,
+				entity -> entityPatchFactory.apply((T) entity)
+		);
+	}
+
 	@OnlyIn(Dist.CLIENT)
 	public void registerClientPlayerPatches() {
-		this.capabilities.put(EntityType.PLAYER, entity -> {
-			if (entity instanceof LocalPlayer localPlayer) {
-				return new LocalPlayerPatch(localPlayer);
-			} else if (entity instanceof RemotePlayer remotePlayer) {
-				return new AbstractClientPlayerPatch<RemotePlayer> (remotePlayer);
-			} else if (entity instanceof ServerPlayer serverPlayer) {
-				return new ServerPlayerPatch (serverPlayer);
-			} else {
-				return null;
-			}
-		});
+		this.capabilities.put(EntityType.PLAYER, entity -> switch (entity) {
+            case LocalPlayer localPlayer -> new LocalPlayerPatch(localPlayer);
+            case RemotePlayer remotePlayer -> new AbstractClientPlayerPatch<>(remotePlayer);
+            case ServerPlayer serverPlayer -> new ServerPlayerPatch(serverPlayer);
+            case null, default -> null;
+        });
 	}
 	
 	public void clearDatapackEntities() {

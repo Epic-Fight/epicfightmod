@@ -6,13 +6,13 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
 
-public class ArrowPatch extends ProjectilePatch<AbstractArrow> {
-	public ArrowPatch(AbstractArrow original) {
+public class ArrowPatch<T extends AbstractArrow> extends ProjectilePatch<T> {
+	public ArrowPatch(T original) {
 		super(original);
 	}
 	
 	@Override
-	protected void setMaxStrikes(AbstractArrow projectileEntity, int maxStrikes) {
+	protected void setMaxStrikes(T projectileEntity, int maxStrikes) {
 		projectileEntity.setPierceLevel((byte)(maxStrikes - 1));
 	}
 	

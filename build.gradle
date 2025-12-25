@@ -13,8 +13,16 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = "${mod_id}-forge"
-    version = "${mod_version}-${minecraft_version}"
+    // "epic-fight" is intentionally being used instead of the mod ID,
+    // to keep the JAR file name consistent with the project slug URL,
+    // and therefore Modrinth will automatically download the sources JAR file: https://support.modrinth.com/en/articles/8801191-modrinth-maven#h_1b24106498
+    // This workaround is not needed if the mod ID matches the project slug.
+    archivesName = "epic-fight"
+    version = getFullModVersion()
+}
+
+def getFullModVersion() {
+    return "${mod_version}-mc${minecraft_version}-forge"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -283,7 +291,13 @@ publishMods {
     dryRun = false
     
     // The changelog that will be appeared in publishing websites
-    changelog = "Minecraft version: ${minecraft_version}\nForge version: ${forge_version}\n\n" + latestChangelog
+    changelog = """
+|${latestChangelog}
+|
+|**Tested against:**
+|- **Forge:** ${forge_version}
+|- **Minecraft:** ${minecraft_version}
+""".stripMargin().trim()
     
     // The name of the mod loader
     modLoaders.add("forge")
@@ -292,7 +306,7 @@ publishMods {
 	type = STABLE
 	
 	// The name of the file appeared in publishing websites
-	displayName = "${mod_id}-forge-${mod_version}-${minecraft_version}"
+	displayName = getFullModVersion()
 	
 	file = jar.archiveFile
 	additionalFiles.from(tasks.named("sourcesJar").flatMap { it.archiveFile }, apiJar, apiSourcesJar)

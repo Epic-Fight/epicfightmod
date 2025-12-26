@@ -98,8 +98,7 @@ public class CapabilityItem {
 
 	private static boolean validateAttribute(LivingEntityPatch<?> patch, Attribute instance)
 	{
-		AttributeInstance attributeInstance = patch.getOriginal().getAttribute(instance);
-		return attributeInstance != null;
+		return patch.getOriginal().hasAttribute(instance);
 	}
 	
 	protected Map<Style, Map<Attribute, AttributeModifier>> attributeMap;

@@ -25,3 +25,5 @@ epicskins
 ServerCommunicationHelper
 
 repo
+.kotlin
+.DS_STORE

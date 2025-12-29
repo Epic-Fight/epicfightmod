@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "${modId}",
+  "version": "${modVersion}",
+  "name": "${displayName}",
+  "description": "${description}",
+  "authors": [ ${authorEntries} ],
+  "contact": {
+    "homepage": "${displayUrl}",
+    "sources": "${sourceCode}",
+    "issues": "${issueTracker}"
+  },
+  "license": "${license}",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "value": "yesman.epicfight.platform.fabric.EpicFightFabric"
+      }
+    ],
+    "client": [
+      {
+        "value": "yesman.epicfight.platform.fabric.EpicFightFabricClient"
+      }
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=${fabricLoader}",
+    "minecraft": "~${minecraft}",
+    "java": ">=${javaVersion}",
+    "fabric-api": "*",
+    "forgeconfigapiport": ">=${forgeconfigapiportVersion}"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

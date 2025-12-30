@@ -651,6 +651,11 @@ public class RenderEngine {
 			if (event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id())) {
 				CameraType cameraType = renderEngine.minecraft.options.getCameraType();
 				
+				
+				// Don't override crosshair in spectator mode (fix for 20.14)
+				if (renderEngine.minecraft.player != null && renderEngine.minecraft.player.isSpectator()) {
+					return;
+				}
 				// Cancel if a modified crosshair is rendered
 				if (event.isCanceled() && cameraType.isFirstPerson()) {
 					return;

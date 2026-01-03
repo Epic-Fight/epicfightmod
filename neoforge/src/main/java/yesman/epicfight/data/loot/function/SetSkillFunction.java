@@ -1,13 +1,9 @@
 package yesman.epicfight.data.loot.function;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
@@ -17,10 +13,13 @@ import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunct
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.neoforged.fml.ModList;
+import yesman.epicfight.platform.ModPlatformProvider;
 import yesman.epicfight.registry.entries.EpicFightDataComponentTypes;
 import yesman.epicfight.registry.entries.EpicFightLootItemFunctions;
 import yesman.epicfight.skill.Skill;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SetSkillFunction extends LootItemConditionalFunction {
 	/**
@@ -75,7 +74,7 @@ public class SetSkillFunction extends LootItemConditionalFunction {
 	
 	@Override
 	protected ItemStack run(ItemStack itemstack, LootContext context) {
-		if (ModList.get().isLoaded("epicskills")) {
+		if (ModPlatformProvider.get().isModLoaded("epicskills")) {
 			return ItemStack.EMPTY;
 		}
 		

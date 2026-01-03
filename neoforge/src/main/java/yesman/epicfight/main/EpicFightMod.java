@@ -213,7 +213,7 @@ public class EpicFightMod {
 
     private List<? extends Class<? extends ICompatModule>> getCompatibilityModules(final boolean isClientSide) {
         return Arrays.stream(MinecraftMod.values())
-                .filter(mod -> ModList.get().isLoaded(mod.getModId()))
+                .filter(mod -> ModPlatformProvider.get().isModLoaded(mod.getModId()))
                 // Includes all mods on client. Skips client-only mods on server
                 .filter(mod -> isClientSide || !mod.isClientOnly())
                 .filter(mod -> {

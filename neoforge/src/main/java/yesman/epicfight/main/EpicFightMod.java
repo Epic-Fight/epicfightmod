@@ -32,9 +32,9 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -70,6 +70,8 @@ import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.network.EntityPairingPacketType;
 import yesman.epicfight.network.EntityPairingPacketTypes;
+import yesman.epicfight.platform.ModPlatformProvider;
+import yesman.epicfight.platform.neoforge.NeoForgeModPlatform;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.server.commands.AnimatorCommand;
@@ -117,9 +119,21 @@ import java.util.function.Supplier;
  */
 @Mod(EpicFightMod.MODID)
 public class EpicFightMod {
-	public static final String MODID = "epicfight";
-	public static final String EPICSKINS_MODID = "epicskins";
-	public static final Logger LOGGER = LogManager.getLogger(MODID);
+
+	// TODO: Rename class to EpicFightNeoForge
+	// TODO: Avoid using the deprecated fields in neoforge Gradle project, and migrate to the new shared ones in EpicFight via IDE structural replacement
+
+	/// @deprecated Use [yesman.epicfight.EpicFight#MODID] instead
+	@Deprecated(forRemoval = true)
+	public static final String MODID = EpicFight.MODID;
+
+	/// @deprecated Use [yesman.epicfight.EpicFight#EPICSKINS_MODID] instead
+	@Deprecated(forRemoval = true)
+	public static final String EPICSKINS_MODID = EpicFight.EPICSKINS_MODID;
+
+	/// @deprecated Use [yesman.epicfight.EpicFight#LOGGER] instead
+	@Deprecated(forRemoval = true)
+	public static final Logger LOGGER = EpicFight.LOGGER;
 
 	public static String prefix(String s) {
 		return String.format("%s:%s", MODID, s);
@@ -152,6 +166,7 @@ public class EpicFightMod {
 	}
 
     public EpicFightMod(IEventBus modEventBus, ModContainer modContainer) {
+		ModPlatformProvider.initialize(new NeoForgeModPlatform());
     	if (EpicFightSharedConstants.isPhysicalClient()) {
     		modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
     		modContainer.registerExtensionPoint(IConfigScreenFactory.class, EpicFightSettingScreen::new);
@@ -404,11 +419,10 @@ public class EpicFightMod {
 			});
 	}
 
-	/// Creates an identifier that points to an Epic Fight resource.
-	///
-	/// This was called `identifier` and not `resourceLocation` since [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
+	/// @deprecated Use [yesman.epicfight.EpicFight#identifier(String)] instead
+	@Deprecated(forRemoval = true)
 	public static @NotNull ResourceLocation identifier(@NotNull String path) {
-        return ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, path);
+        return EpicFight.identifier(path);
 	}
 
 	/// @deprecated Use [#identifier(String)] instead. [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).

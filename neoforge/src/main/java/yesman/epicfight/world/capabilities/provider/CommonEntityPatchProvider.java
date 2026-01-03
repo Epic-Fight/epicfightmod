@@ -13,6 +13,7 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
@@ -95,9 +96,9 @@ public final class CommonEntityPatchProvider {
     /// For more details, refer to [EntityPatchRegistryEvent#registerEntityPatch].
     @ApiStatus.Internal
     public static <T extends Entity> void registerEntityPatch(
-            Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
-            EntityType<T> entityType,
-            Function<T, EntityPatch<T>> entityPatchFactory
+            @NotNull Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
+            @NotNull EntityType<T> entityType,
+            @NotNull Function<T, EntityPatch<T>> entityPatchFactory
     ) {
         //noinspection unchecked
         registry.put(
@@ -110,9 +111,9 @@ public final class CommonEntityPatchProvider {
     /// For more details, refer to [EntityPatchRegistryEvent#registerEntityPatchUnsafe].
     @ApiStatus.Internal
     public static <T extends Entity> void registerEntityPatchUnsafe(
-            Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
-            EntityType<T> entityType,
-            Function<? super T, ? extends EntityPatch<? extends T>> entityPatchFactory
+            @NotNull Map<EntityType<?>, Function<Entity, EntityPatch<?>>> registry,
+            @NotNull EntityType<T> entityType,
+            @NotNull Function<? super T, ? extends EntityPatch<? extends T>> entityPatchFactory
     ) {
         //noinspection unchecked
         registry.put(

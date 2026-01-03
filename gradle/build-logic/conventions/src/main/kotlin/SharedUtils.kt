@@ -1,3 +1,5 @@
+// Shared utilities between all Gradle projects or plugins.
+
 import me.modmuss50.mpp.ModPublishExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
@@ -94,6 +96,9 @@ private val Project.fabricApiVersion: String
 private val Project.neoForgeVersion: String
     get() = catalogVersion("neoforge")
 
+/**
+ * Configures the JAR file names to be unique, clear, and consistent.
+ */
 fun Project.configureBaseArchive(variant: String) {
     extensions.getByType(BasePluginExtension::class.java).apply {
         // "epic-fight" is intentionally being used instead of the mod ID (i.e., modId),
@@ -160,9 +165,12 @@ private fun Project.buildReleaseChangelog(
     }
 }
 
+/**
+ * Configures the mod publishing to mod sites (e.g., Modrinth, CurseForge).
+ */
 fun Project.configureModPublish(
     modLoader: ModLoader,
-    jarFile: () -> Provider<RegularFile>
+    jarFile: () -> Provider<RegularFile>,
 ) {
     val project = this
     extensions.getByType(ModPublishExtension::class.java).apply {
@@ -225,7 +233,22 @@ fun Project.configureModPublish(
     }
 }
 
-val Project.modPlatformMetadataReplaceProperties
+/**
+ * The placeholders to be replaced with in mod loader metadata (fabric.mod.json, neoforge.mods.toml).
+ *
+ * ### **Example:**
+ *
+ * ```json
+ * "id": "${modId}"
+ * ```
+ *
+ * Gradle projects are expected to use this in `tasks.processResources {}` configuration,
+ * to replace the properties.
+ *
+ * This is done to avoid hardcoding the values directly in these resource files, and allows sharing them
+ * in "gradle.properties".
+ */
+val Project.modPlatformMetadataReplaceProperties: Map<String, Any>
     get() = mapOf(
         "modId" to modId,
         "modVersion" to modVersion,

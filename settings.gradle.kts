@@ -31,6 +31,7 @@ pluginManagement {
             includeGroup("fabric-loom")
         }
     }
+    // Gradle Convention Plugins: https://docs.gradle.org/current/userguide/implementing_gradle_plugins_convention.html
     includeBuild("gradle/build-logic")
 }
 

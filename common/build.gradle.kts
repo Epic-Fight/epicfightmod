@@ -6,6 +6,17 @@ plugins {
 
 configureBaseArchive("common")
 
+// Note: Although this is called "neoforge {}", it does NOT apply NeoForge extensions
+// or APIs to this Gradle project.
+// This configures the ModDevGradle plugin by NeoForge to enable vanilla-mode (NeoForm),
+// which provides access only to vanilla Minecraft classes, which can be reused outside NeoForge.
+//
+// NeoForge patches vanilla Minecraft classes: https://github.com/neoforged/NeoForge/tree/HEAD/patches
+// however, this will compile against the original classes to load on non-Forge-like platforms.
+//
+// See also:
+// * https://github.com/neoforged/ModDevGradle#vanilla-mode
+// * https://github.com/neoforged/NeoForm
 neoForge {
     neoFormVersion = libs.versions.neoform.get()
 

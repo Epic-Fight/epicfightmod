@@ -1,3 +1,10 @@
+// Configures shared Gradle setup for all Gradle projects.
+// This plugin is meant to be applied to every project, including ":common", ":neoforge" and ":fabric".
+//
+// Consumers of this Gradle plugin are expected to manually call the following methods:
+//
+// * configureBaseArchive: with the Gradle project name to produce unique JAR file names.
+
 plugins {
     `java-library`
     idea

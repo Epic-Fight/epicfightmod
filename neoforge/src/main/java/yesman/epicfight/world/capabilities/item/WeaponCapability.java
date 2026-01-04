@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -237,7 +238,7 @@ public class WeaponCapability extends CapabilityItem {
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {
-				EpicFightNeoForge.LOGGER.warn("Unable to put an empty animation to weapon capability builder: " + livingMotion + ", " + animation);
+				EpicFight.LOGGER.warn("Unable to put an empty animation to weapon capability builder: " + livingMotion + ", " + animation);
 				return this;
 			}
 			

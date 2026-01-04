@@ -29,7 +29,7 @@ public final class EpicFightControllerModProvider {
     /// Logs a warning if another mod has already registered.
     public static void set(@NotNull String registrantModId, @NotNull IEpicFightControllerMod modInstance) {
         if (overriddenByOtherMod) {
-            EpicFightNeoForge.LOGGER.warn(
+            EpicFight.LOGGER.warn(
                     "Mod '{}' is overriding the Epic Fight controller implementation, which was already set by another mod. "
                             + "Only the last registered implementation will be used. "
                             + "This may occur if multiple controller mods are installed.",
@@ -39,7 +39,7 @@ public final class EpicFightControllerModProvider {
         EpicFightControllerModProvider.instance = modInstance;
 
         if (registrantModId.equals(EpicFight.MODID)) {
-            EpicFightNeoForge.LOGGER.info(
+            EpicFight.LOGGER.info(
                     "Epic Fight detected and registered supported controller mod: '{}'.",
                     modInstance.getModName()
             );

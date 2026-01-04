@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.ApiStatus;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -122,7 +123,7 @@ public class ClientAnimator extends Animator {
 	@Override
 	public void addLivingAnimation(LivingMotion livingMotion, AssetAccessor<? extends StaticAnimation> animation) {
 		if (AnimationManager.checkNull(animation)) {
-			EpicFightNeoForge.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
+			EpicFight.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
 			return;
 		}
 		

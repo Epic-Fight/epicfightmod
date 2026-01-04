@@ -24,10 +24,10 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
 
     public void registerEnumCls(String modid, Class<? extends ExtensibleEnum> cls) {
         if (this.enums.containsKey(modid)) {
-            EpicFightNeoForge.LOGGER.error("{} is already registered in {}", modid, this.enumName);
+            EpicFight.LOGGER.error("{} is already registered in {}", modid, this.enumName);
         }
 
-        EpicFightNeoForge.LOGGER.debug("Registered Extensible Enum {} in ", this.enumName);
+        EpicFight.LOGGER.debug("Registered Extensible Enum {} in ", this.enumName);
 
         this.enums.put(modid, cls);
     }
@@ -44,17 +44,17 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
                 Method m = cls.getMethod("values");
                 m.invoke(null);
 
-                EpicFightNeoForge.LOGGER.debug("Loaded enums in {}", cls);
+                EpicFight.LOGGER.debug("Loaded enums in {}", cls);
             }
         } catch (ClassCastException e) {
-            EpicFightNeoForge.LOGGER.error("{} is not an Extensible Enum!", cls.getCanonicalName(), e);
+            EpicFight.LOGGER.error("{} is not an Extensible Enum!", cls.getCanonicalName(), e);
         } catch (NoSuchMethodException e) {
-            EpicFightNeoForge.LOGGER.error("{} is not an Enum class!", cls.getCanonicalName(), e);
+            EpicFight.LOGGER.error("{} is not an Enum class!", cls.getCanonicalName(), e);
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            EpicFightNeoForge.LOGGER.warn("Error while loading extensible enum {}", cls.getCanonicalName(), e);
+            EpicFight.LOGGER.warn("Error while loading extensible enum {}", cls.getCanonicalName(), e);
         }
 
-        EpicFightNeoForge.LOGGER.debug("All enums are loaded: {} {}", this.enumName, this.enumMapByName.values());
+        EpicFight.LOGGER.debug("All enums are loaded: {} {}", this.enumName, this.enumMapByName.values());
     }
 
     public int assign(T value) {

@@ -32,6 +32,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 import javax.annotation.Nullable;
@@ -121,7 +122,7 @@ public class FakeLevel extends ClientLevel {
         final @Nullable ClientLevel level = this.refLevel;
         if (level == null) {
             if (!appliedGetBiomeManagerWorkaround) {
-                EpicFightNeoForge.LOGGER.warn(
+                EpicFight.LOGGER.warn(
                         """
                                 FakeLevel.refLevel is null, so Epic Fight can't override getBiomeManager().
                                 This issue may happens when some mods are installed, such as BadOptimizations.

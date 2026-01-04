@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
@@ -48,7 +49,7 @@ public class Armature {
 	protected Joint getOrLogException(Map<String, Joint> jointMap, String name) {
 		if (!jointMap.containsKey(name)) {
 			if (EpicFightSharedConstants.IS_DEV_ENV) {
-				EpicFightNeoForge.LOGGER.debug("Cannot find the joint named " + name + " in " + this.getClass().getCanonicalName());
+				EpicFight.LOGGER.debug("Cannot find the joint named " + name + " in " + this.getClass().getCanonicalName());
 			}
 			
 			return Joint.EMPTY;

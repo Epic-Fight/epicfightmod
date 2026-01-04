@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightNeoForge;
@@ -72,7 +73,7 @@ public class SkillReloadListener extends SimpleJsonResourceReloadListener {
 	public static void processServerPacket(SPDatapackSync packet) {
 		for (CompoundTag tag : packet.tags()) {
 			if (!EpicFightRegistries.SKILL.containsKey(ResourceLocation.parse(tag.getString("id")))) {
-				EpicFightNeoForge.LOGGER.warn("Failed to syncronize Datapack for skill: " + tag.getString("id"));
+				EpicFight.LOGGER.warn("Failed to syncronize Datapack for skill: " + tag.getString("id"));
 				continue;
 			}
 			
@@ -104,7 +105,7 @@ public class SkillReloadListener extends SimpleJsonResourceReloadListener {
 			
 			return Pair.of(entry.getKey(), tag);
 		} catch (CommandSyntaxException e) {
-			EpicFightNeoForge.LOGGER.warn("Can't parse skill parameter for " + entry.getKey() + " because of " + e.getMessage());
+			EpicFight.LOGGER.warn("Can't parse skill parameter for " + entry.getKey() + " because of " + e.getMessage());
 			e.printStackTrace();
 			
 			return Pair.of(entry.getKey(), new CompoundTag());
@@ -127,7 +128,7 @@ public class SkillReloadListener extends SimpleJsonResourceReloadListener {
 		
 		objectIn.entrySet().stream().filter((entry) -> {
 			if (!EpicFightRegistries.SKILL.containsKey(entry.getKey())) {
-				EpicFightNeoForge.LOGGER.warn("Skill " + entry.getKey() + " doesn't exist in the registry.");
+				EpicFight.LOGGER.warn("Skill " + entry.getKey() + " doesn't exist in the registry.");
 				return false;
 			}
 			

@@ -3,6 +3,7 @@ package yesman.epicfight.compat;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.compat.azurelib.AzureLibArmorCompat;
 import yesman.epicfight.compat.azurelib.AzureLibCompat;
 import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
@@ -90,7 +91,7 @@ public enum MinecraftMod {
             final String[] parts = version.split("\\.");
             return Integer.parseInt(parts[component.index]);
         } catch (Exception e) {
-            EpicFightNeoForge.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
+            EpicFight.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
             return null;
         }
     }

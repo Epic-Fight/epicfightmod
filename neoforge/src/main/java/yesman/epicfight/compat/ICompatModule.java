@@ -3,6 +3,7 @@ package yesman.epicfight.compat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingException;
 import net.neoforged.neoforge.common.NeoForge;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
@@ -21,11 +22,11 @@ public interface ICompatModule {
 				compatModuleInstance.onGameEventBusClient(NeoForge.EVENT_BUS);
 			}
 
-            EpicFightNeoForge.LOGGER.info("Loaded mod compatibility module: {}", compatModule.getSimpleName());
+			EpicFight.LOGGER.info("Loaded mod compatibility module: {}", compatModule.getSimpleName());
 		} catch (ModLoadingException e) {
 			throw e;
 		} catch (Exception e) {
-            EpicFightNeoForge.LOGGER.error("Failed to load mod compatibility module: {}", e.getMessage());
+			EpicFight.LOGGER.error("Failed to load mod compatibility module: {}", e.getMessage());
 			e.printStackTrace();
 		}
 	}

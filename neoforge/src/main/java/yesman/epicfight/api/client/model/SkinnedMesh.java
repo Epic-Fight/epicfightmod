@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -128,7 +129,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	protected SkinnedMeshPart getOrLogException(Map<String, SkinnedMeshPart> parts, String name) {
 		if (!parts.containsKey(name)) {
 			if (EpicFightSharedConstants.IS_DEV_ENV) {
-				EpicFightNeoForge.LOGGER.debug("Cannot find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
+				EpicFight.LOGGER.debug("Cannot find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
 			}
 			
 			return null;

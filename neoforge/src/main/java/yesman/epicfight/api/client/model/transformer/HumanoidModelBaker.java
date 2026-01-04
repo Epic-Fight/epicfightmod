@@ -27,6 +27,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.main.EpicFightNeoForge;
@@ -58,7 +59,7 @@ public class HumanoidModelBaker {
 			out.putNextEntry(zipEntry);
 			out.write(gson.toJson(entry.getValue().toJsonObject()).getBytes());
 			out.closeEntry();
-			EpicFightNeoForge.LOGGER.info("Exported custom armor model : " + entry.getKey());
+            EpicFight.LOGGER.info("Exported custom armor model : " + entry.getKey());
 		}
 		
 		ZipEntry zipEntry = new ZipEntry("pack.mcmeta");
@@ -86,7 +87,7 @@ public class HumanoidModelBaker {
 				try {
 					skinnedArmorModel = modelTransformer.transformArmorModel(humanoidModel);
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.warn("Can't transform the model of " + BuiltInRegistries.ITEM.getKey(armorItem) + " because of :");
+                    EpicFight.LOGGER.warn("Can't transform the model of " + BuiltInRegistries.ITEM.getKey(armorItem) + " because of :");
 					e.printStackTrace();
 					EXCEPTIONAL_MODELS.add(armorItem);
 				}

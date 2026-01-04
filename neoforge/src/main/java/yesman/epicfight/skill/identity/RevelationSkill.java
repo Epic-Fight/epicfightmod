@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
@@ -89,7 +90,7 @@ public class RevelationSkill extends Skill {
             if (entityType != null) {
                 this.maxRevelationStacks.put(entityType, maxStacks.getInt(registryName));
             } else {
-                EpicFightNeoForge.LOGGER.warn("Revelation registry error: no entity type named {}", registryName);
+                EpicFight.LOGGER.warn("Revelation registry error: no entity type named {}", registryName);
             }
         }
     }

@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.lwjgl.opengl.GL33C;
 
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.VanillaComputeShaderSetup;
@@ -44,9 +45,9 @@ public class ComputeShaderProvider {
         int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
         
         supportComputeShader = ((major > 4) || (major == 4 && minor >= 3));
-        
-        EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
-        EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
+
+        EpicFight.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
+        EpicFight.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
     }
     
     public static void epicfight$registerComputeShaders(RegisterShadersEvent event) {
@@ -59,8 +60,8 @@ public class ComputeShaderProvider {
             if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFight.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
         } catch (Exception e) {
             supportComputeShader = false;
-            EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
-            EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
+            EpicFight.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
+            EpicFight.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
         }
     }
     

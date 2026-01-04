@@ -123,8 +123,6 @@ import java.util.function.Supplier;
 @Mod(EpicFight.MODID)
 public class EpicFightNeoForge {
 
-	// TODO: Avoid using the deprecated fields in neoforge Gradle project, and migrate to the new shared ones in EpicFight via IDE structural replacement
-
 	/// @deprecated Use [yesman.epicfight.EpicFight#MODID] instead
 	@Deprecated(forRemoval = true)
 	public static final String MODID = EpicFight.MODID;
@@ -153,7 +151,7 @@ public class EpicFightNeoForge {
 	}
 
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider, String stackTraceMessage) {
-		logFunction.accept(LOGGER, message);
+		logFunction.accept(EpicFight.LOGGER, message);
 		stacktraceIfDevSide(message, exceptionProvider, stackTraceMessage);
 	}
 
@@ -233,11 +231,11 @@ public class EpicFightNeoForge {
                     if (mod == MinecraftMod.AZURE_LIB || mod == MinecraftMod.AZURE_LIB_ARMOR) {
                         final Integer major = mod.getVersionComponent(MinecraftMod.VersionComponent.MAJOR);
                         if (major == null) {
-                            EpicFightNeoForge.LOGGER.error("{} support provided by Epic Fight has been disabled as the AzureLib mod version could not be parsed.", mod.name());
+							EpicFight.LOGGER.error("{} support provided by Epic Fight has been disabled as the AzureLib mod version could not be parsed.", mod.name());
                             return false;
                         }
                         if (major >= 3) {
-                            EpicFightNeoForge.LOGGER.info(
+							EpicFight.LOGGER.info(
                                     "'{}' support provided by Epic Fight has been disabled to prevent game load " +
                                             "crash due to breaking changes in '3.0.0'. " +
                                             "For more details: https://github.com/Epic-Fight/epicfight/issues/2279",
@@ -290,7 +288,7 @@ public class EpicFightNeoForge {
             event.enqueueWork(InputAction.ENUM_MANAGER::loadEnum);
         }
     	event.enqueueWork(() -> {
-    		AnimationManager.addNoWarningModId(EPICSKINS_MODID);
+    		AnimationManager.addNoWarningModId(EpicFight.EPICSKINS_MODID);
 			AnimationRegistryEvent animationregistryevent = new AnimationRegistryEvent();
     		ModLoader.postEvent(animationregistryevent);
     		animationregistryevent.getBuilders().stream().sorted(Comparator.comparing(AnimationManager.AnimationBuilder::namespace)).forEach(builder -> builder.task().accept(builder));

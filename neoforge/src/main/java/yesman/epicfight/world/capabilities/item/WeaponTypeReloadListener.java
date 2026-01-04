@@ -20,6 +20,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -99,7 +100,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
                 PRESETS.put(entry.getKey(), (itemstack) -> deserializeWeaponCapabilityBuilder(entry.getKey(), comptagFinal));
                 CAPABILITY_COMPOUNDS.put(entry.getKey(), compTag);
             } catch (Exception e) {
-                EpicFightNeoForge.LOGGER.warn("Error while deserializing weapon type datapack: " + entry.getKey());
+                EpicFight.LOGGER.warn("Error while deserializing weapon type datapack: " + entry.getKey());
                 e.printStackTrace();
             }
         }
@@ -142,9 +143,9 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle")));
 
             if (particleType == null) {
-                EpicFightNeoForge.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
+                EpicFight.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
             } else if (!(particleType instanceof HitParticleType)) {
-                EpicFightNeoForge.LOGGER.warn(tag.getString("hit_particle") + " is not a hit particle type in " + rl);
+                EpicFight.LOGGER.warn(tag.getString("hit_particle") + " is not a hit particle type in " + rl);
             } else {
                 builder.hitParticle((HitParticleType)particleType);
             }
@@ -154,7 +155,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound")));
 
             if (sound == null) {
-                EpicFightNeoForge.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
+                EpicFight.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
             } else {
                 builder.swingSound(sound);
             }
@@ -164,7 +165,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound")));
 
             if (sound == null) {
-                EpicFightNeoForge.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
+                EpicFight.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
             } else {
                 builder.hitSound(sound);
             }

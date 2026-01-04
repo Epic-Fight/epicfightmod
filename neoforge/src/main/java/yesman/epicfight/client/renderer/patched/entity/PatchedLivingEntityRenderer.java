@@ -25,6 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector4f;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
 import yesman.epicfight.api.client.event.types.render.PrepareModelEvent;
@@ -64,7 +65,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 				JsonElement jsonelement = GsonHelper.fromJson(new GsonBuilder().create(), reader, JsonElement.class);
 				layers.add(Pair.of(entry.getKey(), jsonelement));
 			} catch (IllegalArgumentException | IOException | JsonParseException jsonparseexception) {
-				EpicFightNeoForge.LOGGER.error("Failed to parse layer file {} for {}", entry.getKey(), type);
+				EpicFight.LOGGER.error("Failed to parse layer file {} for {}", entry.getKey(), type);
 				jsonparseexception.printStackTrace();
 			} finally {
 				try {

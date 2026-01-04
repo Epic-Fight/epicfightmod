@@ -47,6 +47,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.validation.DirectoryValidator;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -165,7 +166,7 @@ public class DatapackEditScreen extends Screen {
 				
 				set.add(PackEntry.ofValue(entry.getKey(), provider));
 			} catch (Exception e) {
-				EpicFightNeoForge.LOGGER.error("Can not deserialize weapon type " + entry.getKey());
+				EpicFight.LOGGER.error("Can not deserialize weapon type " + entry.getKey());
 				return set;
 			}
 			
@@ -288,7 +289,7 @@ public class DatapackEditScreen extends Screen {
 			int resourcepackVersion = SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES);
 			
 			if (datapackVersion != resourcepackVersion) {
-				EpicFightNeoForge.LOGGER.warn(new StringBuilder("Pack version is not matching in ").append(SharedConstants.getCurrentVersion().getId()).toString());
+				EpicFight.LOGGER.warn(new StringBuilder("Pack version is not matching in ").append(SharedConstants.getCurrentVersion().getId()).toString());
 			}
 			
 			pack.addProperty("description", packName);
@@ -568,7 +569,7 @@ public class DatapackEditScreen extends Screen {
 						this.userArmatures.put(rl, SelfAccessor.create(rl, armature));
 					}
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.error("Failed to read model " + resourceLocation);
+					EpicFight.LOGGER.error("Failed to read model " + resourceLocation);
 					e.printStackTrace();
 				}
 			});
@@ -616,7 +617,7 @@ public class DatapackEditScreen extends Screen {
 					animation.setAnimationClip(modelLoader.loadAnimationClip(animation.get().getArmature().get()));
 					this.userAnimations.put(animation.registryName(), PackEntry.ofValue(animation.readAnimationFromJson(modelLoader.getTransformFormat(), modelLoader.getRootJson().get("animation").getAsJsonArray()), animation));
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.error("Failed to read animation " + resourceLocation);
+					EpicFight.LOGGER.error("Failed to read animation " + resourceLocation);
 					e.printStackTrace();
 				}
 			});
@@ -1168,7 +1169,7 @@ public class DatapackEditScreen extends Screen {
 						ResourceLocation rl = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(this.directory + "/", "").replaceAll(".json", ""));
 						this.importJson(rl, streamSupplier.get());
 					} catch (Exception e) {
-						EpicFightNeoForge.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
+						EpicFight.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
 						e.printStackTrace();
 					}
 				});
@@ -1187,14 +1188,14 @@ public class DatapackEditScreen extends Screen {
 					WeaponCapability.Builder builder = WeaponTypeReloadListener.deserializeWeaponCapabilityBuilder(registryName, compTag);
 					DatapackEditScreen.this.userWeaponTypes.put(registryName, (item) -> builder);
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.warn("Failed to deserialize weapon type from datapack." + registryName + ": " + e.getMessage());
+					EpicFight.LOGGER.warn("Failed to deserialize weapon type from datapack." + registryName + ": " + e.getMessage());
 					e.printStackTrace();
 				}
 				
 				this.packList.add(PackEntry.ofValue(registryName, compTag));
 				this.packListGrid.addRowWithDefaultValues("pack_item", registryName.toString());
 			} catch (Exception e) {
-				EpicFightNeoForge.LOGGER.info("Failed to import " + registryName + ": " + e.getMessage());
+				EpicFight.LOGGER.info("Failed to import " + registryName + ": " + e.getMessage());
 				throw e;
 			} finally {
 				try {
@@ -2018,7 +2019,7 @@ public class DatapackEditScreen extends Screen {
 							}
 						}
 					} catch (Exception e) {
-						EpicFightNeoForge.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
+						EpicFight.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
 						e.printStackTrace();
 					}
 				});
@@ -2091,7 +2092,7 @@ public class DatapackEditScreen extends Screen {
 				this.packList.add(PackEntry.ofValue(registryName, compTag));
 				this.packListGrid.addRowWithDefaultValues("pack_item", registryName.toString());
 			} catch (Exception e) {
-				EpicFightNeoForge.LOGGER.info("Failed to import " + registryName + ": " + e.getMessage());
+				EpicFight.LOGGER.info("Failed to import " + registryName + ": " + e.getMessage());
 				throw e;
 			} finally {
 				try {
@@ -2641,7 +2642,7 @@ public class DatapackEditScreen extends Screen {
 					try {
 						this.importJson(rl, streamSupplier.get());
 					} catch (Exception e) {
-						EpicFightNeoForge.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
+						EpicFight.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
 						e.printStackTrace();
 					}
 				});

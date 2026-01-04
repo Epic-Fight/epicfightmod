@@ -20,6 +20,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.Pose;
@@ -77,7 +78,7 @@ public abstract class AnimationProperty<T> {
 	}
 	
 	public T parseFrom(JsonElement e) {
-		return this.codecs.parse(JsonOps.INSTANCE, e).resultOrPartial((errm) -> EpicFightNeoForge.LOGGER.warn("Failed to parse property " + this.name + " because of " + errm)).orElseThrow();
+		return this.codecs.parse(JsonOps.INSTANCE, e).resultOrPartial((errm) -> EpicFight.LOGGER.warn("Failed to parse property " + this.name + " because of " + errm)).orElseThrow();
 	}
 	
 	public Codec<T> getCodecs() {

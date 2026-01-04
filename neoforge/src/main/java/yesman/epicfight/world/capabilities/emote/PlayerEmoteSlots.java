@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -62,7 +63,7 @@ public class PlayerEmoteSlots {
                     emoteHolder.ifPresentOrElse(emote -> {
                         page.emotes[slotIndex.getValue()] = emote;
                     }, () -> {
-                        EpicFightNeoForge.LOGGER.error("Unknown emote: {}. Ignored.", registyNameTag.getAsString());
+                        EpicFight.LOGGER.error("Unknown emote: {}. Ignored.", registyNameTag.getAsString());
                     });
                 }
 
@@ -103,12 +104,12 @@ public class PlayerEmoteSlots {
 
     public void setEmote(int pageIndex, int slotIndex, @Nullable Holder.Reference<Emote> emote) {
         if (this.emoteTabs.size() <= pageIndex) {
-            EpicFightNeoForge.LOGGER.error("Emote page index {} is out of bound {}", pageIndex, this.emoteTabs.size());
+            EpicFight.LOGGER.error("Emote page index {} is out of bound {}", pageIndex, this.emoteTabs.size());
             return;
         }
 
         if (slotIndex < 0 || slotIndex >= 6) {
-            EpicFightNeoForge.LOGGER.error("Emote slot {} is not a valid index (0~6)", slotIndex);
+            EpicFight.LOGGER.error("Emote slot {} is not a valid index (0~6)", slotIndex);
             return;
         }
 

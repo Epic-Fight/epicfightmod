@@ -18,6 +18,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import org.apache.logging.log4j.Logger;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -185,9 +186,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
                 } catch (IOException | JsonParseException | IllegalArgumentException resourceReadException) {
-                    EpicFightNeoForge.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
+					EpicFight.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
                 } catch (Exception e) {
-                    EpicFightNeoForge.LOGGER.error("Failed at constructing {}", animId, e);
+					EpicFight.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
 
@@ -292,7 +293,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 					try {
 						return InstantiateInvoker.invoke(invocationCommand, StaticAnimation.class).getResult();
 					} catch (Exception e) {
-						EpicFightNeoForge.LOGGER.warn("Failed at creating animation from server resource pack", e);
+						EpicFight.LOGGER.warn("Failed at creating animation from server resource pack", e);
 						return Animations.EMPTY_ANIMATION;
 					}
 				});

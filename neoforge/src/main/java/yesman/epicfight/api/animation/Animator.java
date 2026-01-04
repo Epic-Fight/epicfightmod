@@ -3,6 +3,7 @@ package yesman.epicfight.api.animation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -105,7 +106,7 @@ public abstract class Animator {
 	
 	public void addLivingAnimation(LivingMotion livingMotion, AssetAccessor<? extends StaticAnimation> animation) {
 		if (AnimationManager.checkNull(animation)) {
-			EpicFightNeoForge.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
+			EpicFight.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
 			return;
 		}
 		

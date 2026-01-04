@@ -252,7 +252,7 @@ public class ClientConfig {
         chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
 
         if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
-            EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: supported");
+            EpicFight.LOGGER.info("Epic Fight web server connection helper: supported");
 
             try {
                 // Try loading epic skins code dynamically
@@ -261,10 +261,10 @@ public class ClientConfig {
                 authImpl.setAccessible(true);
                 Object o = authImpl.newInstance();
             } catch (Exception e) {
-                EpicFightNeoForge.LOGGER.info("Epic Fight web server status: Failed at initializing Authentication provider: " + e);
+                EpicFight.LOGGER.info("Epic Fight web server status: Failed at initializing Authentication provider: " + e);
             }
         } else {
-            EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: unsupported");
+            EpicFight.LOGGER.info("Epic Fight web server connection helper: unsupported");
         }
 
         if (EpicFightServerConnectionHelper.supported() && ClientEngine.getInstance().getAuthHelper().valid()) {

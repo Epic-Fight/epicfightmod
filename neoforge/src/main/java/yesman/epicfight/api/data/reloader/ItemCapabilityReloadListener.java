@@ -22,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -68,7 +69,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 				ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), str[1]);
 				
 				if (!BuiltInRegistries.ITEM.containsKey(registryName)) {
-					EpicFightNeoForge.LOGGER.warn("Item Capability Exception: No item named " + registryName);
+					EpicFight.LOGGER.warn("Item Capability Exception: No item named " + registryName);
 					continue;
 				}
 				
@@ -78,7 +79,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 				try {
 					tag = TagParser.parseTag(entry.getValue().toString());
 				} catch (CommandSyntaxException e) {
-					EpicFightNeoForge.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
+					EpicFight.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
 					continue;
 				}
 				
@@ -93,7 +94,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 						WEAPON_COMPOUNDS.put(item, tag);
 					}
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
+					EpicFight.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
 				}
 			}
 		}
@@ -166,7 +167,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					Collider collider = ColliderPreset.deserializeSimpleCollider(colliderTag);
 					builder.collider(collider);
 				} catch (IllegalArgumentException e) {
-					EpicFightNeoForge.LOGGER.warn("Can't deserialize collider of " + item + ": " + e.getMessage());
+					EpicFight.LOGGER.warn("Can't deserialize collider of " + item + ": " + e.getMessage());
 				}
 			}
 			
@@ -254,9 +255,9 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					CapabilityItem itemCap = deserializeArmor(item, tag);
 					EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.put(item, itemCap);
 				} catch (NoSuchElementException e) {
-					EpicFightNeoForge.LOGGER.warn("Error while creating capability " + item + ": " + e.getLocalizedMessage());
+					EpicFight.LOGGER.warn("Error while creating capability " + item + ": " + e.getLocalizedMessage());
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
+					EpicFight.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
 				}
 			});
 			
@@ -266,7 +267,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.put(item, itemCap);
 				} catch (NoSuchElementException e) {
 				} catch (Exception e) {
-					EpicFightNeoForge.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
+					EpicFight.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
 				}
 			});
 			

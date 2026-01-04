@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.entity.ai.behavior.AnimatedCombatBehavior;
 import yesman.epicfight.world.entity.ai.behavior.BackUpIfTooCloseStopInaction;
@@ -31,7 +32,7 @@ public final class BrainRecomposer {
 	public static void recomposeBrainByType(EntityType<?> entityType, Brain<?> brain, AnimatedCombatBehavior<?> animatedCombatBehavior, MoveToTargetSinkStopInaction chaseBehavior) {
 		BrainRecomposeFunction brainRecomposeFunction = BRAIN_REPLACE_DEST_MAPPER.get(entityType);
 		if (brainRecomposeFunction == null) {
-			EpicFightNeoForge.LOGGER.error("Failed to find brain recompose function for entity type: {}", entityType);
+            EpicFight.LOGGER.error("Failed to find brain recompose function for entity type: {}", entityType);
 			return;
 		}
 		brainRecomposeFunction.recomposeBrain(brain, animatedCombatBehavior, chaseBehavior);

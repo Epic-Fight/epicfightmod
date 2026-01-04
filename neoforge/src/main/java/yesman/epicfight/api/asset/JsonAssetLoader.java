@@ -20,6 +20,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.animation.types.ActionAnimation;
@@ -511,7 +512,7 @@ public class JsonAssetLoader {
         }
 
         if (animation.getArmature() == null) {
-            EpicFightNeoForge.LOGGER.error("Animation " + animation + " doesn't have an armature.");
+            EpicFight.LOGGER.error("Animation " + animation + " doesn't have an armature.");
         }
 
         TransformFormat format = this.rootJson.has("format") ? ParseUtil.enumValueOfOrNull(TransformFormat.class, GsonHelper.getAsString(this.rootJson, "format")) : TransformFormat.MATRIX;
@@ -560,7 +561,7 @@ public class JsonAssetLoader {
                     root = false;
                     continue;
                 } else {
-                    EpicFightNeoForge.LOGGER.debug("[EpicFightMod] No joint named " + name + " in " + animation);
+                    EpicFight.LOGGER.debug("[EpicFightMod] No joint named " + name + " in " + animation);
                     continue;
                 }
             }
@@ -589,7 +590,7 @@ public class JsonAssetLoader {
         boolean root = true;
 
         if (animation.getArmature() == null) {
-            EpicFightNeoForge.LOGGER.error("Animation " + animation + " doesn't have an armature.");
+            EpicFight.LOGGER.error("Animation " + animation + " doesn't have an armature.");
         }
 
         Armature armature = animation.getArmature().get();
@@ -602,7 +603,7 @@ public class JsonAssetLoader {
 
             if (joint == null) {
                 if (EpicFightSharedConstants.IS_DEV_ENV) {
-                    EpicFightNeoForge.LOGGER.debug(animation.getRegistryName() + ": No joint named " + name + " in armature");
+                    EpicFight.LOGGER.debug(animation.getRegistryName() + ": No joint named " + name + " in armature");
                 }
 
                 continue;

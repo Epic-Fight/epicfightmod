@@ -717,7 +717,7 @@ public class EpicFightSettingScreen extends Screen {
                                     HumanoidModelBaker.exportModels(resourcePackDirectory);
                                     Util.getPlatform().openFile(resourcePackDirectory);
                                 } catch (IOException e) {
-                                    EpicFightNeoForge.LOGGER.info("Failed to export custom armor models.", e);
+                                    EpicFight.LOGGER.info("Failed to export custom armor models.", e);
                                 }
                             }
                         )

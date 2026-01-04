@@ -55,7 +55,7 @@ public class AnimationSubFileReader {
 		try {
 			subFileType.apply(inputstream, animation);
 		} catch (JsonParseException e) {
-			EpicFightNeoForge.LOGGER.warn("Can't read sub file " + subFileType.directory + " for " + animation);
+			EpicFight.LOGGER.warn("Can't read sub file " + subFileType.directory + " for " + animation);
 			e.printStackTrace();
 		}
 	}

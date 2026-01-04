@@ -49,6 +49,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
@@ -157,7 +158,7 @@ public class RenderEngine implements IEventBasedEngine {
 			ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), pathString);
 			
 			if (!BuiltInRegistries.ITEM.containsKey(registryName)) {
-				EpicFightNeoForge.LOGGER.warn("Failed to load item skin: no item named " + registryName);
+				EpicFight.LOGGER.warn("Failed to load item skin: no item named " + registryName);
 				continue;
 			}
 			
@@ -170,7 +171,7 @@ public class RenderEngine implements IEventBasedEngine {
 				if (itemRenderers.containsKey(rendererName)) {
 					rendererProvider = itemRenderers.get(rendererName);
 				} else {
-					EpicFightNeoForge.LOGGER.warn("No renderer named " + rendererName);
+					EpicFight.LOGGER.warn("No renderer named " + rendererName);
 					rendererProvider = RenderItemBase::new;
 				}
 			} else {

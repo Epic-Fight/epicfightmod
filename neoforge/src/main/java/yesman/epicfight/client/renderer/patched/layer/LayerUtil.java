@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -105,10 +106,10 @@ public class LayerUtil {
 				}
 			} catch (ClassNotFoundException e) {
 				if (EpicFightSharedConstants.IS_DEV_ENV) {
-					EpicFightNeoForge.LOGGER.error("Can't load layer file {} for {}: {} (This is develop-only message and neglectable if the resource is not belong to you)", entry.getFirst(), entityType, e.getMessage());
+					EpicFight.LOGGER.error("Can't load layer file {} for {}: {} (This is develop-only message and neglectable if the resource is not belong to you)", entry.getFirst(), entityType, e.getMessage());
 				}
 			} catch (NoSuchElementException | ClassCastException | CommandSyntaxException | IllegalArgumentException e) {
-				EpicFightNeoForge.LOGGER.error("Can't load layer file {} for {}: {}", entry.getFirst(), entityType, e.getMessage());
+				EpicFight.LOGGER.error("Can't load layer file {} for {}: {}", entry.getFirst(), entityType, e.getMessage());
 			}
 		}
 	}

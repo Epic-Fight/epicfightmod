@@ -416,7 +416,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
                     "The method IEpicFightControllerMod#getInputState must not be called when the input mode is not %s",
                     InputMode.CONTROLLER.name()
             );
-            EpicFightNeoForge.LOGGER.error(message);
+            EpicFight.LOGGER.error(message);
             throw new IllegalStateException(message);
         }
 

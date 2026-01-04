@@ -5,13 +5,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.level.block.FractureBlock;
 
 public final class EpicFightBlocks {
 	private EpicFightBlocks() {}
 	
-	public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(Registries.BLOCK, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(Registries.BLOCK, EpicFight.MODID);
 	
 	public static final DeferredHolder<Block, FractureBlock> FRACTURE = REGISTRY.register("fracture_block", () -> new FractureBlock(BlockBehaviour.Properties.of()));
 }

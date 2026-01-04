@@ -3,6 +3,7 @@ package yesman.epicfight.api.utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.chat.Component;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.lang.reflect.InvocationTargetException;
@@ -102,6 +103,6 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
     }
 
     public String toTranslated(ExtensibleEnum e) {
-        return Component.translatable(String.format("%s.%s.%s", EpicFightNeoForge.MODID, this.enumName, ParseUtil.toLowerCase(e.toString()))).getString();
+        return Component.translatable(String.format("%s.%s.%s", EpicFight.MODID, this.enumName, ParseUtil.toLowerCase(e.toString()))).getString();
     }
 }

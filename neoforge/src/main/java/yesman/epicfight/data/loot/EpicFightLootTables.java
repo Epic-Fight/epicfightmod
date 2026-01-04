@@ -11,6 +11,7 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.types.registry.RegisterMobSkillBookLootTableEvent;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
@@ -18,7 +19,7 @@ import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightItems;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public class EpicFightLootTables {
 	@SubscribeEvent
 	public static void onLootTableRegistry(final LootTableLoadEvent event) {

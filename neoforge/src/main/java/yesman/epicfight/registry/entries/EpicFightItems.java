@@ -8,6 +8,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.item.DaggerItem;
 import yesman.epicfight.world.item.GloveItem;
@@ -22,7 +23,7 @@ import yesman.epicfight.world.item.UchigatanaItem;
 public final class EpicFightItems {
 	private EpicFightItems() {}
 	
-	public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(Registries.ITEM, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(Registries.ITEM, EpicFight.MODID);
 	
 	// Uchigatana & sheath
 	public static final DeferredHolder<Item, UchigatanaItem> UCHIGATANA = REGISTRY.register("uchigatana",

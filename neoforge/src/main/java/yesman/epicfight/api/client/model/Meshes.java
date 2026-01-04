@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.Mesh.RenderProperties;
@@ -44,40 +45,40 @@ public class Meshes implements PreparableReloadListener {
 	public static final Meshes INSTANCE = new Meshes();
 	
 	// Entities
-	public static final MeshAccessor<HumanoidMesh> ALEX = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/biped_slim_arm", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
-	public static final MeshAccessor<HumanoidMesh> BIPED = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/biped", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
-	public static final MeshAccessor<HumanoidMesh> BIPED_OLD_TEX = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/biped_old_texture", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
-	public static final MeshAccessor<HumanoidMesh> BIPED_OUTLAYER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/biped_outlayer", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
-	public static final MeshAccessor<VillagerMesh> VILLAGER_ZOMBIE = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/zombie_villager", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
-	public static final MeshAccessor<CreeperMesh> CREEPER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/creeper", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(CreeperMesh::new));
-	public static final MeshAccessor<EndermanMesh> ENDERMAN = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/enderman", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(EndermanMesh::new));
-	public static final MeshAccessor<HumanoidMesh> SKELETON = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/skeleton", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
-	public static final MeshAccessor<SpiderMesh> SPIDER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/spider", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SpiderMesh::new));
-	public static final MeshAccessor<IronGolemMesh> IRON_GOLEM = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/iron_golem", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(IronGolemMesh::new));
-	public static final MeshAccessor<HumanoidMesh> ILLAGER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/illager", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
-	public static final MeshAccessor<VillagerMesh> WITCH = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/witch", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
-	public static final MeshAccessor<RavagerMesh> RAVAGER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/ravager",(jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(RavagerMesh::new));
-	public static final MeshAccessor<VexMesh> VEX = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/vex", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VexMesh::new));
-	public static final MeshAccessor<PiglinMesh> PIGLIN = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/piglin", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(PiglinMesh::new));
-	public static final MeshAccessor<HoglinMesh> HOGLIN = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/hoglin", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HoglinMesh::new));
-	public static final MeshAccessor<DragonMesh> DRAGON = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/dragon", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(DragonMesh::new));
-	public static final MeshAccessor<WitherMesh> WITHER = MeshAccessor.create(EpicFightNeoForge.MODID, "entity/wither", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(WitherMesh::new));
+	public static final MeshAccessor<HumanoidMesh> ALEX = MeshAccessor.create(EpicFight.MODID, "entity/biped_slim_arm", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
+	public static final MeshAccessor<HumanoidMesh> BIPED = MeshAccessor.create(EpicFight.MODID, "entity/biped", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
+	public static final MeshAccessor<HumanoidMesh> BIPED_OLD_TEX = MeshAccessor.create(EpicFight.MODID, "entity/biped_old_texture", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
+	public static final MeshAccessor<HumanoidMesh> BIPED_OUTLAYER = MeshAccessor.create(EpicFight.MODID, "entity/biped_outlayer", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
+	public static final MeshAccessor<VillagerMesh> VILLAGER_ZOMBIE = MeshAccessor.create(EpicFight.MODID, "entity/zombie_villager", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
+	public static final MeshAccessor<CreeperMesh> CREEPER = MeshAccessor.create(EpicFight.MODID, "entity/creeper", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(CreeperMesh::new));
+	public static final MeshAccessor<EndermanMesh> ENDERMAN = MeshAccessor.create(EpicFight.MODID, "entity/enderman", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(EndermanMesh::new));
+	public static final MeshAccessor<HumanoidMesh> SKELETON = MeshAccessor.create(EpicFight.MODID, "entity/skeleton", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HumanoidMesh::new));
+	public static final MeshAccessor<SpiderMesh> SPIDER = MeshAccessor.create(EpicFight.MODID, "entity/spider", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SpiderMesh::new));
+	public static final MeshAccessor<IronGolemMesh> IRON_GOLEM = MeshAccessor.create(EpicFight.MODID, "entity/iron_golem", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(IronGolemMesh::new));
+	public static final MeshAccessor<HumanoidMesh> ILLAGER = MeshAccessor.create(EpicFight.MODID, "entity/illager", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
+	public static final MeshAccessor<VillagerMesh> WITCH = MeshAccessor.create(EpicFight.MODID, "entity/witch", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VillagerMesh::new));
+	public static final MeshAccessor<RavagerMesh> RAVAGER = MeshAccessor.create(EpicFight.MODID, "entity/ravager", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(RavagerMesh::new));
+	public static final MeshAccessor<VexMesh> VEX = MeshAccessor.create(EpicFight.MODID, "entity/vex", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(VexMesh::new));
+	public static final MeshAccessor<PiglinMesh> PIGLIN = MeshAccessor.create(EpicFight.MODID, "entity/piglin", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(PiglinMesh::new));
+	public static final MeshAccessor<HoglinMesh> HOGLIN = MeshAccessor.create(EpicFight.MODID, "entity/hoglin", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(HoglinMesh::new));
+	public static final MeshAccessor<DragonMesh> DRAGON = MeshAccessor.create(EpicFight.MODID, "entity/dragon", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(DragonMesh::new));
+	public static final MeshAccessor<WitherMesh> WITHER = MeshAccessor.create(EpicFight.MODID, "entity/wither", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(WitherMesh::new));
 	
 	// Armors
-	public static final MeshAccessor<SkinnedMesh> HELMET = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-	public static final MeshAccessor<SkinnedMesh> HELMET_PIGLIN = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/piglin_helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-	public static final MeshAccessor<SkinnedMesh> HELMET_VILLAGER = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/villager_helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-	public static final MeshAccessor<SkinnedMesh> CHESTPLATE = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/chestplate", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-	public static final MeshAccessor<SkinnedMesh> LEGGINS = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/leggins", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-	public static final MeshAccessor<SkinnedMesh> BOOTS = MeshAccessor.create(EpicFightNeoForge.MODID, "armor/boots", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> HELMET = MeshAccessor.create(EpicFight.MODID, "armor/helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> HELMET_PIGLIN = MeshAccessor.create(EpicFight.MODID, "armor/piglin_helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> HELMET_VILLAGER = MeshAccessor.create(EpicFight.MODID, "armor/villager_helmet", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> CHESTPLATE = MeshAccessor.create(EpicFight.MODID, "armor/chestplate", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> LEGGINS = MeshAccessor.create(EpicFight.MODID, "armor/leggins", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> BOOTS = MeshAccessor.create(EpicFight.MODID, "armor/boots", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
 	
 	// Particles
-	public static final MeshAccessor<ClassicMesh> AIR_BURST = MeshAccessor.create(EpicFightNeoForge.MODID, "particle/air_burst", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
-	public static final MeshAccessor<ClassicMesh> FORCE_FIELD = MeshAccessor.create(EpicFightNeoForge.MODID, "particle/force_field", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
-	public static final MeshAccessor<ClassicMesh> LASER = MeshAccessor.create(EpicFightNeoForge.MODID, "particle/laser", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
+	public static final MeshAccessor<ClassicMesh> AIR_BURST = MeshAccessor.create(EpicFight.MODID, "particle/air_burst", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
+	public static final MeshAccessor<ClassicMesh> FORCE_FIELD = MeshAccessor.create(EpicFight.MODID, "particle/force_field", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
+	public static final MeshAccessor<ClassicMesh> LASER = MeshAccessor.create(EpicFight.MODID, "particle/laser", (jsonModelLoader) -> jsonModelLoader.loadClassicMesh(ClassicMesh::new));
 	
 	// Layers
-	public static final MeshAccessor<SkinnedMesh> CAPE_DEFAULT = MeshAccessor.create(EpicFightNeoForge.MODID, "layer/default_cape", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+	public static final MeshAccessor<SkinnedMesh> CAPE_DEFAULT = MeshAccessor.create(EpicFight.MODID, "layer/default_cape", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
 	
 	public static void reload(ResourceManager resourceManager) {
 		Meshes.resourceManager = resourceManager;

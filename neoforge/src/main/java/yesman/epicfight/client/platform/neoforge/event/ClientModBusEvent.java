@@ -12,6 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.client.ClientEngine;
@@ -32,7 +33,7 @@ import yesman.epicfight.skill.SkillCategory;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
 public final class ClientModBusEvent {
 	private ClientModBusEvent() {}
 	

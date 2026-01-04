@@ -10,11 +10,12 @@ import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerFlyableFallEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.impl.VanillaEntityEventHooks;
 import yesman.epicfight.api.event.impl.VanillaItemEventHooks;
 import yesman.epicfight.main.EpicFightNeoForge;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public final class NeoForgeEntityEvent {
     @SubscribeEvent
 	public static void epicfight$entityConstructing(EntityEvent.EntityConstructing event) {

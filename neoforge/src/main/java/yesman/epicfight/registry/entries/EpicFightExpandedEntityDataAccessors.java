@@ -6,6 +6,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.ByteBufCodecsExtends;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -14,7 +15,7 @@ import yesman.epicfight.world.entity.data.ExpandedEntityDataAccessor;
 public final class EpicFightExpandedEntityDataAccessors {
 	private EpicFightExpandedEntityDataAccessors() {}
 	
-	public static final DeferredRegister<ExpandedEntityDataAccessor<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.Keys.EXPANDED_ENTITY_DATA_ACCESSOR, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<ExpandedEntityDataAccessor<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.Keys.EXPANDED_ENTITY_DATA_ACCESSOR, EpicFight.MODID);
 	
 	// LivingEntityPatch
 	public static final DeferredHolder<ExpandedEntityDataAccessor<?>, ExpandedEntityDataAccessor<Float>> STUN_SHIELD = REGISTRY.register("stun_shield", () -> 

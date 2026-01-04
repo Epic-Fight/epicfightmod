@@ -6,11 +6,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.event.impl.VanillaGUIEventHooks;
 import yesman.epicfight.api.client.event.impl.VanillaGeneralClientEventHooks;
 import yesman.epicfight.main.EpicFightNeoForge;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
 public final class ClientEvents {
 	@SubscribeEvent
 	public static void epicfight$mouseButtonPressedInScreenPre(ScreenEvent.MouseButtonPressed.Pre event) {

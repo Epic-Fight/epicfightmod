@@ -120,7 +120,7 @@ import java.util.function.Supplier;
  *
  *  @author yesman
  */
-@Mod(EpicFightNeoForge.MODID)
+@Mod(EpicFight.MODID)
 public class EpicFightNeoForge {
 
 	// TODO: Avoid using the deprecated fields in neoforge Gradle project, and migrate to the new shared ones in EpicFight via IDE structural replacement
@@ -138,14 +138,14 @@ public class EpicFightNeoForge {
 	public static final Logger LOGGER = EpicFight.LOGGER;
 
 	public static String prefix(String s) {
-		return String.format("%s:%s", MODID, s);
+		return String.format("%s:%s", EpicFight.MODID, s);
 	}
 
     /// @deprecated Consider using the generated object [LangKeys],
     /// which is type-safe and not error-prone to runtime bugs or crashes.
     @Deprecated(forRemoval = true)
 	public static String format(String s) {
-		return String.format(s, MODID);
+		return String.format(s, EpicFight.MODID);
 	}
 
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
@@ -200,16 +200,16 @@ public class EpicFightNeoForge {
     	NeoForge.EVENT_BUS.addListener(this::command);
         NeoForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
 
-    	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, LivingMotions.class);
-    	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, SkillCategories.class);
-    	SkillSlot.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, SkillSlots.class);
-    	Style.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, Styles.class);
-    	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, WeaponCategories.class);
-    	Faction.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, Factions.class);
-    	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, EntityPairingPacketTypes.class);
+    	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, LivingMotions.class);
+    	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, SkillCategories.class);
+    	SkillSlot.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, SkillSlots.class);
+    	Style.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, Styles.class);
+    	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, WeaponCategories.class);
+    	Faction.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, Factions.class);
+    	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, EntityPairingPacketTypes.class);
 
     	if (EpicFightSharedConstants.isPhysicalClient()) {
-            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, EpicFightInputAction.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, EpicFightInputAction.class);
             InputAction.ENUM_MANAGER.registerEnumCls("minecraft", MinecraftInputAction.class);
             WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
             WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
@@ -321,7 +321,7 @@ public class EpicFightNeoForge {
 
 	public void addPackFindersEvent(AddPackFindersEvent event) {
 		if (event.getPackType() == PackType.CLIENT_RESOURCES) {
-            Path resourcePath = ModList.get().getModFileById(EpicFightNeoForge.MODID).getFile().findResource("packs/epicfight_legacy");
+            Path resourcePath = ModList.get().getModFileById(EpicFight.MODID).getFile().findResource("packs/epicfight_legacy");
 
             PackLocationInfo packLocation = new PackLocationInfo("epicfight_legacy", Component.translatable("pack.epicfight_legacy.title"), PackSource.BUILT_IN, Optional.empty());
             Pack.ResourcesSupplier resourcesSupplier = new PathPackResources.PathResourcesSupplier(resourcePath);
@@ -353,7 +353,7 @@ public class EpicFightNeoForge {
         });
     }
 
-	@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
@@ -379,7 +379,7 @@ public class EpicFightNeoForge {
     	}
     }
 
-	@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.DEDICATED_SERVER)
+	@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.DEDICATED_SERVER)
     public static class ServerForgeEvents {
 		@SubscribeEvent(priority = EventPriority.HIGHEST)
 		public static void addReloadListnerEvent(final AddReloadListenerEvent event) {

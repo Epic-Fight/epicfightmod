@@ -12,12 +12,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 public final class EpicFightArmorMaterials {
 	private EpicFightArmorMaterials() {}
 	
-	public static final DeferredRegister<ArmorMaterial> REGISTRY = DeferredRegister.create(Registries.ARMOR_MATERIAL, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<ArmorMaterial> REGISTRY = DeferredRegister.create(Registries.ARMOR_MATERIAL, EpicFight.MODID);
 	
 	public static final DeferredHolder<ArmorMaterial, ArmorMaterial> STRAY_CLOTH =
 		REGISTRY.register(

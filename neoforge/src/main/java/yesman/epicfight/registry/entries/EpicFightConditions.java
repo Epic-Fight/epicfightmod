@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.entity.HealthPoint;
 import yesman.epicfight.data.conditions.entity.OffhandItemCategory;
@@ -21,7 +22,7 @@ import yesman.epicfight.registry.EpicFightRegistries;
 public final class EpicFightConditions {
 	private EpicFightConditions() {}
 	
-	public static final DeferredRegister<Supplier<Condition<?>>> REGISTRY = DeferredRegister.create(EpicFightRegistries.CONDITION, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<Supplier<Condition<?>>> REGISTRY = DeferredRegister.create(EpicFightRegistries.CONDITION, EpicFight.MODID);
 	
 	public static <T extends Condition<?>> Supplier<T> getConditionOrThrow(ResourceLocation key) throws NoSuchElementException, ClassCastException {
 		if (!EpicFightRegistries.CONDITION.containsKey(key)) {

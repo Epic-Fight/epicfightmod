@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
+import yesman.epicfight.EpicFight;
 
 public class EpicFightExtensibleEnums {
 	
@@ -13,7 +14,7 @@ public class EpicFightExtensibleEnums {
 	public static final EnumProxy<Rarity> UNIQUE_EMUM_PROXLY = new EnumProxy<> (
 		  Rarity.class
 		, -1
-		, EpicFightNeoForge.MODID + ":unique"
+		, EpicFight.MODID + ":unique"
 		, (UnaryOperator<Style>)style -> style.withColor(ChatFormatting.GREEN)
     );
 	

@@ -9,12 +9,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.data.recipes.pack.EpicFightRecipeProvider;
 import yesman.epicfight.data.tags.EpicFightBlockTagsProvider;
 import yesman.epicfight.data.tags.EpicFightItemTagsProvider;
 import yesman.epicfight.main.EpicFightNeoForge;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public final class DataEvents {
 	private DataEvents() {}
 	

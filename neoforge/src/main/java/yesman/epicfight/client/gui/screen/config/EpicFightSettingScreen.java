@@ -16,6 +16,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
 import yesman.epicfight.client.gui.screen.SideBarScreen;
@@ -153,7 +154,7 @@ public class EpicFightSettingScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawString(this.font, "EpicFight " + ModList.get().getModFileById(EpicFightNeoForge.MODID).versionString(), 4, this.height - 16, 0xFF9F9F9F);
+        guiGraphics.drawString(this.font, "EpicFight " + ModList.get().getModFileById(EpicFight.MODID).versionString(), 4, this.height - 16, 0xFF9F9F9F);
     }
 
     @Override

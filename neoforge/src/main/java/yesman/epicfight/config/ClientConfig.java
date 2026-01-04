@@ -15,6 +15,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.*;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.utils.CirculatableEnum;
 import yesman.epicfight.api.utils.math.Vec2i;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static yesman.epicfight.generated.LangKeys.*;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
 public class ClientConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

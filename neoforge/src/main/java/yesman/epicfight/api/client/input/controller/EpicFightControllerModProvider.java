@@ -3,6 +3,7 @@ package yesman.epicfight.api.client.input.controller;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 /// Provides access to the active [IEpicFightControllerMod] implementation.
@@ -37,7 +38,7 @@ public final class EpicFightControllerModProvider {
         }
         EpicFightControllerModProvider.instance = modInstance;
 
-        if (registrantModId.equals(EpicFightNeoForge.MODID)) {
+        if (registrantModId.equals(EpicFight.MODID)) {
             EpicFightNeoForge.LOGGER.info(
                     "Epic Fight detected and registered supported controller mod: '{}'.",
                     modInstance.getModName()

@@ -6,6 +6,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.ByteBufCodecsExtends;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -32,7 +33,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 public final class EpicFightSkillDataKeys {
 	private EpicFightSkillDataKeys() {}
 	
-	public static final DeferredRegister<SkillDataKey<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.SKILL_DATA_KEY, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<SkillDataKey<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.SKILL_DATA_KEY, EpicFight.MODID);
 	
 	public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> COMBO_COUNTER = REGISTRY.register("combo_counter", () -> 
 		SkillDataKey.createSkillDataKey(ByteBufCodecs.INT, 0, false, ComboAttacks.class, BladeRushSkill.class)

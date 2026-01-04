@@ -7,6 +7,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.data.conditions.Condition;
@@ -22,7 +23,7 @@ import yesman.epicfight.world.entity.data.ExpandedEntityDataAccessor;
 import java.util.List;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public abstract class EpicFightRegistries {
     public static final Registry<Supplier<Condition<?>>> CONDITION = new RegistryBuilder<> (Keys.CONDITION).create();
     public static final Registry<ExpandedEntityDataAccessor<?>> EXPANDED_ENTITY_DATA_ACCESSOR = new RegistryBuilder<> (Keys.EXPANDED_ENTITY_DATA_ACCESSOR).sync(true).create();

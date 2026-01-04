@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.GsonHelper;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.TransformSheet;
@@ -163,7 +164,7 @@ public class AnimationSubFileReader {
 						String type = GsonHelper.getAsString(jointMaskEntry, "type");
 						
 						if (!type.contains(":")) {
-							type = (new StringBuilder(EpicFightNeoForge.MODID)).append(":").append(type).toString();
+							type = (new StringBuilder(EpicFight.MODID)).append(":").append(type).toString();
 						}
 						
 						if (livingMotionName.equals("ALL")) {

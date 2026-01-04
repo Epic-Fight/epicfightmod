@@ -11,9 +11,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
 public class EpicFightShaders {
 	public static ShaderInstance positionColorNormalShader;
 	

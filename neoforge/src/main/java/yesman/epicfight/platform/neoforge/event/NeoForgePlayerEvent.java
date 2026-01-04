@@ -9,12 +9,13 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.impl.VanillaPlayerEventHooks;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
-@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public final class NeoForgePlayerEvent {
     @SubscribeEvent
     public static void arrowLoose(ArrowLooseEvent event) {

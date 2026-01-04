@@ -28,6 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
@@ -322,7 +323,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private static void registerModIntegration() {
-        EpicFightControllerModProvider.set(EpicFightNeoForge.MODID, new EpicFightControlifyControllerMod());
+        EpicFightControllerModProvider.set(EpicFight.MODID, new EpicFightControlifyControllerMod());
     }
 
     private static void registerEvents() {

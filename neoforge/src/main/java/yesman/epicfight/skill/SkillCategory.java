@@ -2,6 +2,7 @@ package yesman.epicfight.skill;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.ExtensibleEnum;
 import yesman.epicfight.api.utils.ExtensibleEnumManager;
 import yesman.epicfight.api.utils.ParseUtil;
@@ -25,7 +26,7 @@ public interface SkillCategory extends ExtensibleEnum {
     /// Returns a translation key
     /// For backward compatibility, this method is implemented as default
     default Component getTranslationKey() {
-        return Component.translatable(String.format("skill.%s.category.%s", EpicFightNeoForge.MODID, ParseUtil.toLowerCase(this.toString())));
+        return Component.translatable(String.format("skill.%s.category.%s", EpicFight.MODID, ParseUtil.toLowerCase(this.toString())));
     }
 
 	/// Texture location of the Skill book icon in inventory UI

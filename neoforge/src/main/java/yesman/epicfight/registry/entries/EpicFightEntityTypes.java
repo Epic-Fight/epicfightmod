@@ -10,6 +10,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.entity.AreaEffectBreath;
 import yesman.epicfight.world.entity.DeathHarvestOrb;
@@ -21,7 +22,7 @@ import yesman.epicfight.world.entity.WitherSkeletonMinion;
 public final class EpicFightEntityTypes {
 	private EpicFightEntityTypes() {}
 	
-	public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, EpicFightNeoForge.MODID);
+	public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, EpicFight.MODID);
 	
 	public static final DeferredHolder<EntityType<?>, EntityType<AreaEffectBreath>> AREA_EFFECT_BREATH = REGISTRY.register("area_effect_breath", () ->
 		EntityType.Builder.<AreaEffectBreath>of(AreaEffectBreath::new, MobCategory.MISC)

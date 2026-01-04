@@ -57,6 +57,7 @@ import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen;
 import yesman.epicfight.client.gui.widgets.AnchoredButton;
 import yesman.epicfight.client.gui.widgets.ColorDeterminator;
 import yesman.epicfight.client.gui.widgets.common.WidgetTheme;
+import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
@@ -171,6 +172,15 @@ public class EpicFightMod {
 		ModPlatformProvider.initialize(new NeoForgeModPlatform());
     	if (EpicFightSharedConstants.isPhysicalClient()) {
 			EpicFightClient.initialize(new NeoForgeClientModPlatform(modEventBus));
+			// TODO: (MULTI_LOADER) EpicFightKeyMappings must be in common and not neoforge,
+			//  and is temporarily kept here since CombatKeyMapping depends on ClientEngine,
+			//  which is not in common yet. https://github.com/Epic-Fight/epicfight/pull/2365
+			//  When ClientEngine#isEpicFightMode is migrated to common:
+			//  1. Move EpicFightKeyMappings and CombatKeyMapping to common (same package: yesman.epicfight.client.input)
+			//  2. Remove "EpicFightKeyMappings.registerKeys()" statement from here
+			//  3. Add it at the very end of "EpicFightClient.initialize()" method
+			EpicFightKeyMappings.registerKeys();
+
     		modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
     		modContainer.registerExtensionPoint(IConfigScreenFactory.class, EpicFightSettingScreen::new);
     		IEventBasedEngine.init(NeoForge.EVENT_BUS, modEventBus);

@@ -3,7 +3,7 @@ package yesman.epicfight.world.damagesource;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
-import yesman.epicfight.main.EpicFightNeoForge;
+import yesman.epicfight.EpicFight;
 
 public final class EpicFightDamageTypes {
 	private EpicFightDamageTypes() {}

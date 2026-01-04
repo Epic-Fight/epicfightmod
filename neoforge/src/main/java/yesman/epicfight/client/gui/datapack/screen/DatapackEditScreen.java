@@ -736,7 +736,7 @@ public class DatapackEditScreen extends Screen {
 									.addColumn(Grid.editbox("pack_item")
 													.editWidgetCreated((editbox) -> editbox.setFilter((str) -> ResourceLocation.isValidNamespace(str) && ResourceLocation.isValidPath(str)))
 													.valueChanged((event) -> this.packList.get(event.rowposition).setPackKey(ResourceLocation.parse(event.postValue)))
-									.defaultVal(EpicFightNeoForge.prefix("")).editable(registry == null ? true : false).width(180))
+									.defaultVal(EpicFight.prefix("")).editable(registry == null ? true : false).width(180))
 									.pressAdd((grid, button) -> {
 										if (registry != null) {
 											DatapackEditScreen.this.minecraft.setScreen(new SelectFromRegistryScreen<>(DatapackEditScreen.this, registry, (registryName, selItem) -> {
@@ -748,7 +748,7 @@ public class DatapackEditScreen extends Screen {
 											}, (registryName, selItem) -> {}, filter));
 										} else {
 											grid.setValueChangeEnabled(false);
-											int rowposition = grid.addRowWithDefaultValues("pack_item", EpicFightNeoForge.prefix(""));
+											int rowposition = grid.addRowWithDefaultValues("pack_item", EpicFight.prefix(""));
 											this.packList.add(rowposition, PackEntry.of(EpicFight.identifier(""), CompoundTag::new));
 											grid.setGridFocus(rowposition, "pack_item");
 											grid.setValueChangeEnabled(true);

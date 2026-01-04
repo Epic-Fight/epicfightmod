@@ -1,11 +1,11 @@
 package yesman.epicfight.skill.passive;
 
 import net.minecraft.nbt.CompoundTag;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;

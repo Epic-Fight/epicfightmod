@@ -9,10 +9,10 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.client.gui.widgets.common.AnchoredWidget;
 import yesman.epicfight.client.gui.widgets.common.ThemeApplicableWidget;
 import yesman.epicfight.client.gui.widgets.common.WidgetTheme;
-import yesman.epicfight.main.EpicFightNeoForge;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;

@@ -1,8 +1,8 @@
 package yesman.epicfight.world.capabilities.entitypatch;
 
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.main.EpicFightNeoForge;
 
 public enum Factions implements Faction {
 	NEUTRAL(EpicFight.identifier("textures/gui/healthbars1.png"), MathUtils.packColor(255, 255, 0, 100), 0),

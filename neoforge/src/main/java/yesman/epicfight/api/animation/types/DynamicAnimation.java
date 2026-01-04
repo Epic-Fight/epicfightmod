@@ -3,6 +3,7 @@ package yesman.epicfight.api.animation.types;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -14,7 +15,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMaskEntry;
 import yesman.epicfight.api.utils.datastructure.ParameterizedMap;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 

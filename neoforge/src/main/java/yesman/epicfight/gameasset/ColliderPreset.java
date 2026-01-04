@@ -1,24 +1,23 @@
 package yesman.epicfight.gameasset;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
 import yesman.epicfight.api.collider.OBBCollider;
-import yesman.epicfight.main.EpicFightNeoForge;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class ColliderPreset implements PreparableReloadListener {
 	private static final BiMap<ResourceLocation, Collider> PRESETS = HashBiMap.create();

@@ -4,16 +4,16 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.bindings.BindContext;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.main.EpicFightNeoForge;
 
 public final class EpicFightControlifyBindContexts {
     private EpicFightControlifyBindContexts() {
     }
 
-    public static final class EpicFight {
-        private EpicFight() {
+    public static final class EpicFightSpecific {
+        private EpicFightSpecific() {
         }
 
         public static final BindContext COMBAT_MODE = new BindContext(

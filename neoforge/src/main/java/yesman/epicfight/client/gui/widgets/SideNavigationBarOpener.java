@@ -8,10 +8,10 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.client.gui.screen.SideBarScreen;
 import yesman.epicfight.client.gui.widgets.common.AnchoredWidget;
 import yesman.epicfight.client.gui.widgets.common.PressableWidget;
-import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.util.List;
 import java.util.function.Function;

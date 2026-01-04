@@ -2,7 +2,6 @@ package yesman.epicfight.main;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
@@ -69,7 +68,6 @@ import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.network.EntityPairingPacketType;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.platform.ModPlatformProvider;
@@ -122,30 +120,6 @@ import java.util.function.Supplier;
  */
 @Mod(EpicFight.MODID)
 public class EpicFightNeoForge {
-
-	/// @deprecated Use [yesman.epicfight.EpicFight#MODID] instead
-	@Deprecated(forRemoval = true)
-	public static final String MODID = EpicFight.MODID;
-
-	/// @deprecated Use [yesman.epicfight.EpicFight#EPICSKINS_MODID] instead
-	@Deprecated(forRemoval = true)
-	public static final String EPICSKINS_MODID = EpicFight.EPICSKINS_MODID;
-
-	/// @deprecated Use [yesman.epicfight.EpicFight#LOGGER] instead
-	@Deprecated(forRemoval = true)
-	public static final Logger LOGGER = EpicFight.LOGGER;
-
-	public static String prefix(String s) {
-		return String.format("%s:%s", EpicFight.MODID, s);
-	}
-
-    /// @deprecated Consider using the generated object [LangKeys],
-    /// which is type-safe and not error-prone to runtime bugs or crashes.
-    @Deprecated(forRemoval = true)
-	public static String format(String s) {
-		return String.format(s, EpicFight.MODID);
-	}
-
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
 		logAndStacktraceIfDevSide(logFunction, message, exceptionProvider, message);
 	}
@@ -209,8 +183,8 @@ public class EpicFightNeoForge {
     	if (EpicFightSharedConstants.isPhysicalClient()) {
             InputAction.ENUM_MANAGER.registerEnumCls(EpicFight.MODID, EpicFightInputAction.class);
             InputAction.ENUM_MANAGER.registerEnumCls("minecraft", MinecraftInputAction.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
+            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFight.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
+            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFight.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
         }
 
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
@@ -427,17 +401,5 @@ public class EpicFightNeoForge {
 				SkillBookItem.setContainingSkill(holder, stack);
 				event.accept(stack);
 			});
-	}
-
-	/// @deprecated Use [yesman.epicfight.EpicFight#identifier(String)] instead
-	@Deprecated(forRemoval = true)
-	public static @NotNull ResourceLocation identifier(@NotNull String path) {
-        return EpicFight.identifier(path);
-	}
-
-	/// @deprecated Use [#identifier(String)] instead. [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
-	@Deprecated(forRemoval = true)
-	public static @NotNull ResourceLocation rl(@NotNull String path) {
-		return EpicFight.identifier(path);
 	}
 }

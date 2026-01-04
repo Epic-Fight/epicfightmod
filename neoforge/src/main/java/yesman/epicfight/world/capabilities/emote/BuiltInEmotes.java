@@ -1,8 +1,8 @@
 package yesman.epicfight.world.capabilities.emote;
 
 import net.minecraft.resources.ResourceKey;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.client.online.cosmetics.Emote;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 
 public interface BuiltInEmotes {

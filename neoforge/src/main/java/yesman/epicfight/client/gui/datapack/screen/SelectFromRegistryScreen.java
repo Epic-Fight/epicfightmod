@@ -82,7 +82,7 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	protected void init() {
 		this.registryList.updateSizeAndPosition(this.width, this.height - 68, 36);
 		
-		EditBox editBox = new EditBox(this.minecraft.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal(EpicFightNeoForge.prefix("")));
+		EditBox editBox = new EditBox(this.minecraft.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal(EpicFight.prefix("")));
 		editBox.setResponder(this.registryList::applyFilter);
 		
 		this.addRenderableWidget(this.registryList);

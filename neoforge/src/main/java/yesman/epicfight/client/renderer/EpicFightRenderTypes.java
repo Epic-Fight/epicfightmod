@@ -1,22 +1,10 @@
 package yesman.epicfight.client.renderer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import org.joml.Vector4f;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-
 import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -24,7 +12,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
-import yesman.epicfight.main.EpicFightNeoForge;
+import org.joml.Vector4f;
+import yesman.epicfight.EpicFight;
+
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public final class EpicFightRenderTypes extends RenderType {
 	public static RenderType makeTriangulated(RenderType renderType) {
@@ -42,20 +35,20 @@ public final class EpicFightRenderTypes extends RenderType {
 	private static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> TRIANGULATED_OUTLINE =
 		Util.memoize((texLocation, cullStateShard) -> {
 			return RenderType.create(
-				EpicFightNeoForge.prefix("outline"),
-				DefaultVertexFormat.POSITION_TEX_COLOR,
-				VertexFormat.Mode.TRIANGLES,
-				256,
-				false,
-				false,
-				RenderType.CompositeState.builder()
-					.setShaderState(RENDERTYPE_OUTLINE_SHADER)
-					.setTextureState(new RenderStateShard.TextureStateShard(texLocation, false, false))
-					.setCullState(cullStateShard)
-					.setDepthTestState(NO_DEPTH_TEST)
-					.setOutputState(OUTLINE_TARGET)
-					.createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)
-			);
+                    EpicFight.prefix("outline"),
+                    DefaultVertexFormat.POSITION_TEX_COLOR,
+                    VertexFormat.Mode.TRIANGLES,
+                    256,
+                    false,
+                    false,
+                    CompositeState.builder()
+                            .setShaderState(RENDERTYPE_OUTLINE_SHADER)
+                            .setTextureState(new TextureStateShard(texLocation, false, false))
+                            .setCullState(cullStateShard)
+                            .setDepthTestState(NO_DEPTH_TEST)
+                            .setOutputState(OUTLINE_TARGET)
+                            .createCompositeState(OutlineProperty.IS_OUTLINE)
+            );
 		});
 	
 	private static final Map<String, Map<ResourceLocation, RenderType>> TRIANGLED_RENDERTYPES_BY_NAME_TEXTURE = new HashMap<> ();
@@ -282,232 +275,232 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ENTITY_UI_COLORED = 
 		create(
-			  EpicFightNeoForge.prefix("ui_color")
-			, DefaultVertexFormat.POSITION_COLOR
-			, VertexFormat.Mode.QUADS
-			, 256
-			, true
-			, false
-			, RenderType.CompositeState.builder()
-				.setShaderState(POSITION_COLOR_SHADER)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(NO_LIGHTMAP)
-				.setOverlayState(NO_OVERLAY)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("ui_color")
+                , DefaultVertexFormat.POSITION_COLOR
+                , VertexFormat.Mode.QUADS
+                , 256
+                , true
+                , false
+                , CompositeState.builder()
+                        .setShaderState(POSITION_COLOR_SHADER)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setLightmapState(NO_LIGHTMAP)
+                        .setOverlayState(NO_OVERLAY)
+                        .createCompositeState(false)
+        );
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_UI_TEXTURE = Util.memoize(
-		(textureLocation) -> create( 
-			  EpicFightNeoForge.prefix("ui_texture")
-			, DefaultVertexFormat.POSITION_TEX
-			, VertexFormat.Mode.QUADS
-			, 256
-			, true
-			, false
-			, RenderType.CompositeState.builder()
-				.setShaderState(POSITION_TEX_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
-				.setTransparencyState(NO_TRANSPARENCY)
-				.setLightmapState(NO_LIGHTMAP)
-				.setOverlayState(NO_OVERLAY)
-				.createCompositeState(false)
-		)
+		(textureLocation) -> create(
+                EpicFight.prefix("ui_texture")
+                , DefaultVertexFormat.POSITION_TEX
+                , VertexFormat.Mode.QUADS
+                , 256
+                , true
+                , false
+                , CompositeState.builder()
+                        .setShaderState(POSITION_TEX_SHADER)
+                        .setTextureState(new TextureStateShard(textureLocation, false, false))
+                        .setTransparencyState(NO_TRANSPARENCY)
+                        .setLightmapState(NO_LIGHTMAP)
+                        .setOverlayState(NO_OVERLAY)
+                        .createCompositeState(false)
+        )
 	);
 	
 	private static final RenderType OBB = create(
-		  EpicFightNeoForge.prefix("debug_collider")
-		, DefaultVertexFormat.POSITION_COLOR_NORMAL
-		, VertexFormat.Mode.LINE_STRIP
-		, 256
-		, false
-		, false
-		, RenderType.CompositeState.builder()
-			.setShaderState(POSITION_COLOR_SHADER)
-			.setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
-			.setLayeringState(VIEW_OFFSET_Z_LAYERING)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setOutputState(ITEM_ENTITY_TARGET)
-			.setWriteMaskState(COLOR_DEPTH_WRITE)
-			.setCullState(NO_CULL)
-			.createCompositeState(false)
-	);
+            EpicFight.prefix("debug_collider")
+            , DefaultVertexFormat.POSITION_COLOR_NORMAL
+            , VertexFormat.Mode.LINE_STRIP
+            , 256
+            , false
+            , false
+            , CompositeState.builder()
+                    .setShaderState(POSITION_COLOR_SHADER)
+                    .setLineState(new LineStateShard(OptionalDouble.empty()))
+                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setOutputState(ITEM_ENTITY_TARGET)
+                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .setCullState(NO_CULL)
+                    .createCompositeState(false)
+    );
 	
 	private static final RenderType DEBUG_QUADS = create(
-		  EpicFightNeoForge.prefix("debug_quad")
-		, DefaultVertexFormat.POSITION_COLOR
-		, VertexFormat.Mode.QUADS
-		, 256
-		, false
-		, false
-		, RenderType.CompositeState.builder()
-			.setShaderState(POSITION_COLOR_SHADER)
-			.setLayeringState(VIEW_OFFSET_Z_LAYERING)
-			.setTransparencyState(NO_TRANSPARENCY)
-			.setWriteMaskState(COLOR_DEPTH_WRITE)
-			.setCullState(NO_CULL)
-			.createCompositeState(false)
-	);
+            EpicFight.prefix("debug_quad")
+            , DefaultVertexFormat.POSITION_COLOR
+            , VertexFormat.Mode.QUADS
+            , 256
+            , false
+            , false
+            , CompositeState.builder()
+                    .setShaderState(POSITION_COLOR_SHADER)
+                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                    .setTransparencyState(NO_TRANSPARENCY)
+                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .setCullState(NO_CULL)
+                    .createCompositeState(false)
+    );
 	
 	private static final RenderType GUI_TRIANGLE = create(
-		  EpicFightNeoForge.prefix("gui_triangle")
-		, DefaultVertexFormat.POSITION_COLOR
-		, VertexFormat.Mode.TRIANGLES
-		, 256
-		, false
-		, false
-		, RenderType.CompositeState.builder()
-			.setShaderState(RENDERTYPE_GUI_SHADER)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setDepthTestState(LEQUAL_DEPTH_TEST)
-			.createCompositeState(false)
-	);
+            EpicFight.prefix("gui_triangle")
+            , DefaultVertexFormat.POSITION_COLOR
+            , VertexFormat.Mode.TRIANGLES
+            , 256
+            , false
+            , false
+            , CompositeState.builder()
+                    .setShaderState(RENDERTYPE_GUI_SHADER)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
 	
 	private static final Function<ResourceLocation, RenderType> OVERLAY_MODEL = Util.memoize(texLocation -> {
 		return create(
-			EpicFightNeoForge.prefix("overlay_model"),
-			DefaultVertexFormat.NEW_ENTITY,
-			VertexFormat.Mode.TRIANGLES,
-			256,
-			false,
-			false,
-			RenderType.CompositeState.builder()
-				.setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(texLocation, false, false))
-				.setWriteMaskState(COLOR_WRITE)
-				.setCullState(NO_CULL)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(LIGHTMAP)
-				.createCompositeState(false)
-			);
+                EpicFight.prefix("overlay_model"),
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.TRIANGLES,
+                256,
+                false,
+                false,
+                CompositeState.builder()
+                        .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                        .setTextureState(new TextureStateShard(texLocation, false, false))
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setCullState(NO_CULL)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setLightmapState(LIGHTMAP)
+                        .createCompositeState(false)
+        );
 		}
 	);
 	
 	private static final RenderType ENTITY_AFTERIMAGE_WHITE = 
 		create(
-			EpicFightNeoForge.prefix("entity_afterimage"),
-			DefaultVertexFormat.PARTICLE,
-			VertexFormat.Mode.TRIANGLES,
-			256,
-			true,
-			true,
-			RenderType.CompositeState.builder()
-				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
-				.setCullState(NO_CULL)
-				.setWriteMaskState(COLOR_WRITE)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(LIGHTMAP)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("entity_afterimage"),
+                DefaultVertexFormat.PARTICLE,
+                VertexFormat.Mode.TRIANGLES,
+                256,
+                true,
+                true,
+                CompositeState.builder()
+                        .setShaderState(PARTICLE_SHADER)
+                        .setTextureState(new TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
+                        .setCullState(NO_CULL)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setLightmapState(LIGHTMAP)
+                        .createCompositeState(false)
+        );
 	
 	private static final RenderType ITEM_AFTERIMAGE_WHITE = 
 		create(
-			EpicFightNeoForge.prefix("item_afterimage"),
-			DefaultVertexFormat.PARTICLE,
-			VertexFormat.Mode.QUADS,
-			256,
-			true,
-			true,
-			RenderType.CompositeState.builder()
-				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
-				.setCullState(NO_CULL)
-				.setWriteMaskState(COLOR_WRITE)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(LIGHTMAP)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("item_afterimage"),
+                DefaultVertexFormat.PARTICLE,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                CompositeState.builder()
+                        .setShaderState(PARTICLE_SHADER)
+                        .setTextureState(new TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
+                        .setCullState(NO_CULL)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setLightmapState(LIGHTMAP)
+                        .createCompositeState(false)
+        );
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_PARTICLE = Util.memoize(texLocation -> {
 		return create(
-			EpicFightNeoForge.prefix("entity_particle"),
-			DefaultVertexFormat.NEW_ENTITY,
-			VertexFormat.Mode.TRIANGLES,
-			256,
-			true,
-			true,
-			RenderType.CompositeState.builder()
-				.setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(texLocation, false, false))
-				.setWriteMaskState(COLOR_WRITE)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setCullState(NO_CULL)
-				.setLightmapState(LIGHTMAP)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("entity_particle"),
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.TRIANGLES,
+                256,
+                true,
+                true,
+                CompositeState.builder()
+                        .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                        .setTextureState(new TextureStateShard(texLocation, false, false))
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setCullState(NO_CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .createCompositeState(false)
+        );
 	});
 	
 	private static final RenderType ITEM_PARTICLE = 
 		create(
-			EpicFightNeoForge.prefix("item_particle"),
-			DefaultVertexFormat.NEW_ENTITY,
-			VertexFormat.Mode.QUADS,
-			256,
-			true,
-			true,
-			RenderType.CompositeState.builder()
-				.setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
-				.setWriteMaskState(COLOR_WRITE)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setCullState(NO_CULL)
-				.setLightmapState(LIGHTMAP)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("item_particle"),
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                CompositeState.builder()
+                        .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                        .setTextureState(new TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setCullState(NO_CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .createCompositeState(false)
+        );
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_PARTICLE_STENCIL = Util.memoize(texLocation -> {
 		return create(
-			EpicFightNeoForge.prefix("entity_particle_stencil"),
-			DefaultVertexFormat.POSITION_TEX,
-			VertexFormat.Mode.TRIANGLES,
-			256,
-			false,
-			false,
-			RenderType.CompositeState.builder()
-				.setShaderState(POSITION_TEX_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(texLocation, false, false))
-				.setWriteMaskState(DEPTH_WRITE)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("entity_particle_stencil"),
+                DefaultVertexFormat.POSITION_TEX,
+                VertexFormat.Mode.TRIANGLES,
+                256,
+                false,
+                false,
+                CompositeState.builder()
+                        .setShaderState(POSITION_TEX_SHADER)
+                        .setTextureState(new TextureStateShard(texLocation, false, false))
+                        .setWriteMaskState(DEPTH_WRITE)
+                        .createCompositeState(false)
+        );
 	});
 	
 	private static final RenderType ITEM_PARTICLE_STENCIL = 
 		create(
-			EpicFightNeoForge.prefix("item_particle_stencil"),
-			DefaultVertexFormat.POSITION_TEX,
-			VertexFormat.Mode.QUADS,
-			256,
-			false,
-			false,
-			RenderType.CompositeState.builder()
-				.setShaderState(POSITION_TEX_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
-				.setWriteMaskState(DEPTH_WRITE)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("item_particle_stencil"),
+                DefaultVertexFormat.POSITION_TEX,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                false,
+                CompositeState.builder()
+                        .setShaderState(POSITION_TEX_SHADER)
+                        .setTextureState(new TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
+                        .setWriteMaskState(DEPTH_WRITE)
+                        .createCompositeState(false)
+        );
 	
 	private static final RenderType.CompositeRenderType BLOCK_HIGHLIGHT =
 		create(
-			EpicFightNeoForge.prefix("block_highlight"),
-			DefaultVertexFormat.BLOCK,
-			VertexFormat.Mode.QUADS,
-			256,
-			false,
-			true,
-			RenderType.CompositeState.builder()
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
-				.setLightmapState(LIGHTMAP)
-				.setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setDepthTestState(EQUAL_DEPTH_TEST)
-				//.setDepthTestState(NO_DEPTH_TEST)
-				.createCompositeState(false)
-		);
+                EpicFight.prefix("block_highlight"),
+                DefaultVertexFormat.BLOCK,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                CompositeState.builder()
+                        .setTextureState(new TextureStateShard(EpicFight.identifier("textures/common/white.png"), false, false))
+                        .setLightmapState(LIGHTMAP)
+                        .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setDepthTestState(EQUAL_DEPTH_TEST)
+                        //.setDepthTestState(NO_DEPTH_TEST)
+                        .createCompositeState(false)
+        );
 
 	private static RenderType replaceTextureShard(ResourceLocation texToReplace, RenderType renderType) {
 		if (renderType instanceof CompositeRenderType compositeRenderType && compositeRenderType.state.textureState instanceof TextureStateShard texStateShard) {
@@ -621,22 +614,22 @@ public final class EpicFightRenderTypes extends RenderType {
 		CompositeRenderType glintRenderType = WORLD_RENDERTYPES_COLORED_GLINT.computeIfAbsent(
 			owner,
 			k -> create(
-				EpicFightNeoForge.prefix("colored_glint"),
-				DefaultVertexFormat.POSITION_TEX,
-				VertexFormat.Mode.TRIANGLES,
-				256,
-				false,
-				false,
-				EpicFightRenderTypes.MutableCompositeState.mutableStateBuilder()
-					.setShaderState(RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
-					.setTextureState(new RenderStateShard.TextureStateShard(EpicFight.identifier("textures/entity/overlay/glint_white.png"), true, false))
-					.setWriteMaskState(COLOR_WRITE)
-					.setCullState(NO_CULL)
-					.setDepthTestState(EQUAL_DEPTH_TEST)
-					.setTransparencyState(GLINT_TRANSPARENCY)
-					.setTexturingState(ENTITY_GLINT_TEXTURING)
-					.createCompositeState(false)
-			));
+                    EpicFight.prefix("colored_glint"),
+                    DefaultVertexFormat.POSITION_TEX,
+                    VertexFormat.Mode.TRIANGLES,
+                    256,
+                    false,
+                    false,
+                    MutableCompositeState.mutableStateBuilder()
+                            .setShaderState(RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
+                            .setTextureState(new TextureStateShard(EpicFight.identifier("textures/entity/overlay/glint_white.png"), true, false))
+                            .setWriteMaskState(COLOR_WRITE)
+                            .setCullState(NO_CULL)
+                            .setDepthTestState(EQUAL_DEPTH_TEST)
+                            .setTransparencyState(GLINT_TRANSPARENCY)
+                            .setTexturingState(ENTITY_GLINT_TEXTURING)
+                            .createCompositeState(false)
+            ));
 		
 		((MutableCompositeState)glintRenderType.state).setShaderColor(r, g, b, 1.0F);
 		

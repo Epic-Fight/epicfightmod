@@ -1,45 +1,19 @@
 package yesman.epicfight.api.client.physics.cloth;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nullable;
-
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.*;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.client.model.CompositeMesh;
-import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.model.MeshPart;
-import yesman.epicfight.api.client.model.SoftBodyTranslatable;
-import yesman.epicfight.api.client.model.VertexBuilder;
+import yesman.epicfight.api.client.model.*;
 import yesman.epicfight.api.client.physics.AbstractSimulator;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator.ClothObjectBuilder;
 import yesman.epicfight.api.collider.OBBCollider;
@@ -48,8 +22,14 @@ import yesman.epicfight.api.physics.SimulationObject;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
+
+import javax.annotation.Nullable;
+import java.lang.Math;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Referred to Matthias Müller's Ten minuates physics tutorial video number 14, 15

@@ -1,11 +1,8 @@
 package yesman.epicfight.api.client.animation.property;
 
-import java.util.Locale;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.netty.util.internal.StringUtil;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,10 +13,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+
+import java.util.Locale;
 
 public record TrailInfo(
 	  Vec3 start

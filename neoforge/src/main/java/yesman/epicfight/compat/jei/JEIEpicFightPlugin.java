@@ -6,7 +6,7 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.resources.ResourceLocation;
-import yesman.epicfight.main.EpicFightNeoForge;
+import yesman.epicfight.EpicFight;
 
 @JeiPlugin
 public class JEIEpicFightPlugin implements IModPlugin{

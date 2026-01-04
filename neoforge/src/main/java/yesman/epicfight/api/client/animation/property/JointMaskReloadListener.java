@@ -1,8 +1,5 @@
 package yesman.epicfight.api.client.animation.property;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
@@ -11,14 +8,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.animation.property.JointMask.BindModifier;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
-import yesman.epicfight.main.EpicFightNeoForge;
+
+import java.util.Map;
+import java.util.Set;
 
 public class JointMaskReloadListener extends SimpleJsonResourceReloadListener {
 	private static final BiMap<ResourceLocation, JointMaskSet> JOINT_MASKS = HashBiMap.create();

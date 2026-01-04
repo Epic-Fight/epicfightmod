@@ -2,7 +2,7 @@ package yesman.epicfight.skill;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import yesman.epicfight.main.EpicFightNeoForge;
+import yesman.epicfight.EpicFight;
 
 import static yesman.epicfight.generated.LangKeys.*;
 

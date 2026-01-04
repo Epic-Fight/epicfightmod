@@ -5,12 +5,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import org.joml.Vector4f;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
-import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.HashMap;

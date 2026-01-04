@@ -30,4 +30,8 @@ public final class EpicFight {
     public static void initialize(@NotNull final ModPlatform platform) {
         ModPlatformProvider.initialize(platform);
     }
+
+    public static String prefix(String s) {
+        return String.format("%s:%s", EpicFight.MODID, s);
+    }
 }

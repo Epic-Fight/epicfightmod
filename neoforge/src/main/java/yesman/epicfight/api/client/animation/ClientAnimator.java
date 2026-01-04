@@ -21,7 +21,7 @@ import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
 import yesman.epicfight.api.client.animation.property.JointMaskEntry;
 import yesman.epicfight.api.utils.datastructure.ParameterizedHashMap;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.common.AbstractAnimatorControl;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -122,7 +122,7 @@ public class ClientAnimator extends Animator {
 	@Override
 	public void addLivingAnimation(LivingMotion livingMotion, AssetAccessor<? extends StaticAnimation> animation) {
 		if (AnimationManager.checkNull(animation)) {
-			EpicFightMod.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
+			EpicFightNeoForge.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
 			return;
 		}
 		

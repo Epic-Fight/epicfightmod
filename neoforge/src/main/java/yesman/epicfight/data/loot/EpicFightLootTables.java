@@ -14,11 +14,11 @@ import net.neoforged.neoforge.event.LootTableLoadEvent;
 import yesman.epicfight.api.event.types.registry.RegisterMobSkillBookLootTableEvent;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightItems;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
 public class EpicFightLootTables {
 	@SubscribeEvent
 	public static void onLootTableRegistry(final LootTableLoadEvent event) {

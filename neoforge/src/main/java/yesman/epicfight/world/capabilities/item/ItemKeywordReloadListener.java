@@ -18,7 +18,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ItemKeywordReloadListener extends SimplePreparableReloadListener<Ma
 					List<JsonElement> list = pOutput.computeIfAbsent(resourcelocation1, k -> new ArrayList<> ());
 					list.add(jsonelement);
 				} catch (IllegalArgumentException | IOException | JsonParseException jsonparseexception) {
-					EpicFightMod.LOGGER.error("Couldn't parse data file {} from {}", resourcelocation1, resourcelocation, jsonparseexception);
+					EpicFightNeoForge.LOGGER.error("Couldn't parse data file {} from {}", resourcelocation1, resourcelocation, jsonparseexception);
 				}
 			}
 		}

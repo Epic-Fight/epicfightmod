@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import org.lwjgl.opengl.GL33C;
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
@@ -16,7 +15,7 @@ import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBuf
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public class ComputeShaderProvider {
     public static ComputeProgram meshComputeVanilla;
@@ -46,8 +45,8 @@ public class ComputeShaderProvider {
         
         supportComputeShader = ((major > 4) || (major == 4 && minor >= 3));
         
-        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
-        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
+        EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
+        EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
     }
     
     public static void epicfight$registerComputeShaders(RegisterShadersEvent event) {
@@ -56,12 +55,12 @@ public class ComputeShaderProvider {
         clear();
         
         try {
-            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
-            if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightNeoForge.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightNeoForge.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
         } catch (Exception e) {
             supportComputeShader = false;
-            EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
-            EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
+            EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
+            EpicFightNeoForge.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
         }
     }
     

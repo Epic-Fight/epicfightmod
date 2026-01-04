@@ -12,9 +12,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerFlyableFallEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import yesman.epicfight.api.event.impl.VanillaEntityEventHooks;
 import yesman.epicfight.api.event.impl.VanillaItemEventHooks;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
 public final class NeoForgeEntityEvent {
     @SubscribeEvent
 	public static void epicfight$entityConstructing(EntityEvent.EntityConstructing event) {

@@ -24,7 +24,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public final class EpicFightRenderTypes extends RenderType {
 	public static RenderType makeTriangulated(RenderType renderType) {
@@ -42,7 +42,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	private static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> TRIANGULATED_OUTLINE =
 		Util.memoize((texLocation, cullStateShard) -> {
 			return RenderType.create(
-				EpicFightMod.prefix("outline"),
+				EpicFightNeoForge.prefix("outline"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				VertexFormat.Mode.TRIANGLES,
 				256,
@@ -282,7 +282,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ENTITY_UI_COLORED = 
 		create(
-			  EpicFightMod.prefix("ui_color")
+			  EpicFightNeoForge.prefix("ui_color")
 			, DefaultVertexFormat.POSITION_COLOR
 			, VertexFormat.Mode.QUADS
 			, 256
@@ -298,7 +298,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_UI_TEXTURE = Util.memoize(
 		(textureLocation) -> create( 
-			  EpicFightMod.prefix("ui_texture")
+			  EpicFightNeoForge.prefix("ui_texture")
 			, DefaultVertexFormat.POSITION_TEX
 			, VertexFormat.Mode.QUADS
 			, 256
@@ -315,7 +315,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	);
 	
 	private static final RenderType OBB = create(
-		  EpicFightMod.prefix("debug_collider")
+		  EpicFightNeoForge.prefix("debug_collider")
 		, DefaultVertexFormat.POSITION_COLOR_NORMAL
 		, VertexFormat.Mode.LINE_STRIP
 		, 256
@@ -333,7 +333,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	);
 	
 	private static final RenderType DEBUG_QUADS = create(
-		  EpicFightMod.prefix("debug_quad")
+		  EpicFightNeoForge.prefix("debug_quad")
 		, DefaultVertexFormat.POSITION_COLOR
 		, VertexFormat.Mode.QUADS
 		, 256
@@ -349,7 +349,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	);
 	
 	private static final RenderType GUI_TRIANGLE = create(
-		  EpicFightMod.prefix("gui_triangle")
+		  EpicFightNeoForge.prefix("gui_triangle")
 		, DefaultVertexFormat.POSITION_COLOR
 		, VertexFormat.Mode.TRIANGLES
 		, 256
@@ -364,7 +364,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final Function<ResourceLocation, RenderType> OVERLAY_MODEL = Util.memoize(texLocation -> {
 		return create(
-			EpicFightMod.prefix("overlay_model"),
+			EpicFightNeoForge.prefix("overlay_model"),
 			DefaultVertexFormat.NEW_ENTITY,
 			VertexFormat.Mode.TRIANGLES,
 			256,
@@ -385,7 +385,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ENTITY_AFTERIMAGE_WHITE = 
 		create(
-			EpicFightMod.prefix("entity_afterimage"),
+			EpicFightNeoForge.prefix("entity_afterimage"),
 			DefaultVertexFormat.PARTICLE,
 			VertexFormat.Mode.TRIANGLES,
 			256,
@@ -393,7 +393,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			true,
 			RenderType.CompositeState.builder()
 				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightNeoForge.identifier("textures/common/white.png"), false, false))
 				.setCullState(NO_CULL)
 				.setWriteMaskState(COLOR_WRITE)
 				.setDepthTestState(EQUAL_DEPTH_TEST)
@@ -404,7 +404,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ITEM_AFTERIMAGE_WHITE = 
 		create(
-			EpicFightMod.prefix("item_afterimage"),
+			EpicFightNeoForge.prefix("item_afterimage"),
 			DefaultVertexFormat.PARTICLE,
 			VertexFormat.Mode.QUADS,
 			256,
@@ -412,7 +412,7 @@ public final class EpicFightRenderTypes extends RenderType {
 			true,
 			RenderType.CompositeState.builder()
 				.setShaderState(PARTICLE_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightNeoForge.identifier("textures/common/white.png"), false, false))
 				.setCullState(NO_CULL)
 				.setWriteMaskState(COLOR_WRITE)
 				.setDepthTestState(EQUAL_DEPTH_TEST)
@@ -423,7 +423,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_PARTICLE = Util.memoize(texLocation -> {
 		return create(
-			EpicFightMod.prefix("entity_particle"),
+			EpicFightNeoForge.prefix("entity_particle"),
 			DefaultVertexFormat.NEW_ENTITY,
 			VertexFormat.Mode.TRIANGLES,
 			256,
@@ -443,7 +443,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ITEM_PARTICLE = 
 		create(
-			EpicFightMod.prefix("item_particle"),
+			EpicFightNeoForge.prefix("item_particle"),
 			DefaultVertexFormat.NEW_ENTITY,
 			VertexFormat.Mode.QUADS,
 			256,
@@ -462,7 +462,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final Function<ResourceLocation, RenderType> ENTITY_PARTICLE_STENCIL = Util.memoize(texLocation -> {
 		return create(
-			EpicFightMod.prefix("entity_particle_stencil"),
+			EpicFightNeoForge.prefix("entity_particle_stencil"),
 			DefaultVertexFormat.POSITION_TEX,
 			VertexFormat.Mode.TRIANGLES,
 			256,
@@ -478,7 +478,7 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType ITEM_PARTICLE_STENCIL = 
 		create(
-			EpicFightMod.prefix("item_particle_stencil"),
+			EpicFightNeoForge.prefix("item_particle_stencil"),
 			DefaultVertexFormat.POSITION_TEX,
 			VertexFormat.Mode.QUADS,
 			256,
@@ -493,14 +493,14 @@ public final class EpicFightRenderTypes extends RenderType {
 	
 	private static final RenderType.CompositeRenderType BLOCK_HIGHLIGHT =
 		create(
-			EpicFightMod.prefix("block_highlight"),
+			EpicFightNeoForge.prefix("block_highlight"),
 			DefaultVertexFormat.BLOCK,
 			VertexFormat.Mode.QUADS,
 			256,
 			false,
 			true,
 			RenderType.CompositeState.builder()
-				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/common/white.png"), false, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(EpicFightNeoForge.identifier("textures/common/white.png"), false, false))
 				.setLightmapState(LIGHTMAP)
 				.setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
 				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
@@ -621,7 +621,7 @@ public final class EpicFightRenderTypes extends RenderType {
 		CompositeRenderType glintRenderType = WORLD_RENDERTYPES_COLORED_GLINT.computeIfAbsent(
 			owner,
 			k -> create(
-				EpicFightMod.prefix("colored_glint"),
+				EpicFightNeoForge.prefix("colored_glint"),
 				DefaultVertexFormat.POSITION_TEX,
 				VertexFormat.Mode.TRIANGLES,
 				256,
@@ -629,7 +629,7 @@ public final class EpicFightRenderTypes extends RenderType {
 				false,
 				EpicFightRenderTypes.MutableCompositeState.mutableStateBuilder()
 					.setShaderState(RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
-					.setTextureState(new RenderStateShard.TextureStateShard(EpicFightMod.identifier("textures/entity/overlay/glint_white.png"), true, false))
+					.setTextureState(new RenderStateShard.TextureStateShard(EpicFightNeoForge.identifier("textures/entity/overlay/glint_white.png"), true, false))
 					.setWriteMaskState(COLOR_WRITE)
 					.setCullState(NO_CULL)
 					.setDepthTestState(EQUAL_DEPTH_TEST)

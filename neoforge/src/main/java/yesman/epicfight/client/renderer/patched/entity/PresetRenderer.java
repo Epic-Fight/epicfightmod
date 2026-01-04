@@ -33,7 +33,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.client.renderer.patched.layer.LayerUtil;
 import yesman.epicfight.client.renderer.patched.layer.PatchedLayer;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.mixin.client.MixinLivingEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -67,7 +67,7 @@ public class PresetRenderer extends PatchedEntityRenderer<LivingEntity, LivingEn
 				JsonElement jsonelement = GsonHelper.fromJson(new GsonBuilder().create(), reader, JsonElement.class);
 				layers.add(Pair.of(entry.getKey(), jsonelement));
 			} catch (IllegalArgumentException | IOException | JsonParseException jsonparseexception) {
-				EpicFightMod.LOGGER.error("Failed to parse layer file {} for {}", entry.getKey(), type);
+				EpicFightNeoForge.LOGGER.error("Failed to parse layer file {} for {}", entry.getKey(), type);
 				jsonparseexception.printStackTrace();
 			} finally {
 				try {

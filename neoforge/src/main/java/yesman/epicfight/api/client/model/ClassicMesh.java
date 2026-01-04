@@ -18,7 +18,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import yesman.epicfight.api.client.model.ClassicMesh.ClassicMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 	public ClassicMesh(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<VertexBuilder>> partBuilders, ClassicMesh parent, RenderProperties properties) {
@@ -39,7 +39,7 @@ public class ClassicMesh extends StaticMesh<ClassicMeshPart> {
 	@Override
 	protected ClassicMeshPart getOrLogException(Map<String, ClassicMeshPart> parts, String name) {
 		if (!parts.containsKey(name)) {
-			EpicFightMod.LOGGER.debug("Can not find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
+			EpicFightNeoForge.LOGGER.debug("Can not find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
 			return null;
 		}
 		

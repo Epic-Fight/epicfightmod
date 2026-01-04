@@ -37,7 +37,7 @@ import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.data.conditions.Condition.ParameterEditor;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 
@@ -137,7 +137,7 @@ public class CombatBehaviorScreen extends Screen {
 						String condtionName = ((CompoundTag)conditionTag).getString("predicate");
 						
 						if (!condtionName.contains(":")) {
-							condtionName = EpicFightMod.prefix(condtionName);
+							condtionName = EpicFightNeoForge.prefix(condtionName);
 							((CompoundTag)conditionTag).putString("predicate", condtionName);
 						}
 						

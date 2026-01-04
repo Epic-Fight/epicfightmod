@@ -5,12 +5,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public final class EpicFightSounds {
 	private EpicFightSounds() {}
 
-	public static final DeferredRegister<SoundEvent> REGISTRY = DeferredRegister.create(Registries.SOUND_EVENT, EpicFightMod.MODID);
+	public static final DeferredRegister<SoundEvent> REGISTRY = DeferredRegister.create(Registries.SOUND_EVENT, EpicFightNeoForge.MODID);
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> BLADE_HIT = registerVariableRangeSound("entity.hit.blade");
 	public static final DeferredHolder<SoundEvent, SoundEvent> BLUNT_HIT = registerVariableRangeSound("entity.hit.blunt");
@@ -61,13 +61,13 @@ public final class EpicFightSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> HOVER_WIDGET = registerVariableRangeSound("ui.hover");
 
 	public static DeferredHolder<SoundEvent, SoundEvent> registerVariableRangeSound(String name) {
-        ResourceLocation res = EpicFightMod.identifier(name);
+        ResourceLocation res = EpicFightNeoForge.identifier(name);
 		
 		return REGISTRY.register(name, () -> SoundEvent.createVariableRangeEvent(res));
 	}
 
 	public static DeferredHolder<SoundEvent, SoundEvent> registerFixedRangeSound(String name, float range) {
-        ResourceLocation res = EpicFightMod.identifier(name);
+        ResourceLocation res = EpicFightNeoForge.identifier(name);
 		
 		return REGISTRY.register(name, () -> SoundEvent.createFixedRangeEvent(res, range));
 	}

@@ -8,7 +8,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -21,7 +20,7 @@ import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
@@ -160,7 +159,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.interpolations(4)
 				.lifetime(9)
 				.updateInterval(1)
-				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
+				.texture(EpicFightNeoForge.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		public static final TrailInfo SPECTRAL_ARROW_TRAIL_DEFAULT
@@ -175,7 +174,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.r(252.0F / 255.0F)
 				.g(252.0F / 255.0F)
 				.b(118.0F / 255.0F)
-				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
+				.texture(EpicFightNeoForge.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		public static final TrailInfo TRIDENT_TRAIL_DEFAULT
@@ -190,7 +189,7 @@ public class ProjectileTrailParticle extends AbstractTrailParticle<ProjectilePat
 				.r(0.0F / 255.0F)
 				.g(232.0F / 255.0F)
 				.b(245.0F / 255.0F)
-				.texture(EpicFightMod.identifier("textures/particle/projectile_trail.png"))
+				.texture(EpicFightNeoForge.identifier("textures/particle/projectile_trail.png"))
 				.create();
 		
 		@SuppressWarnings("unchecked")

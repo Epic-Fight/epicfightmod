@@ -27,7 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public class SelectFromRegistryScreen<T> extends Screen {
 	private final RegistryList registryList;
@@ -82,7 +82,7 @@ public class SelectFromRegistryScreen<T> extends Screen {
 	protected void init() {
 		this.registryList.updateSizeAndPosition(this.width, this.height - 68, 36);
 		
-		EditBox editBox = new EditBox(this.minecraft.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal(EpicFightMod.prefix("")));
+		EditBox editBox = new EditBox(this.minecraft.font, this.width / 2, 12, this.width / 2 - 12, 16, Component.literal(EpicFightNeoForge.prefix("")));
 		editBox.setResponder(this.registryList::applyFilter);
 		
 		this.addRenderableWidget(this.registryList);

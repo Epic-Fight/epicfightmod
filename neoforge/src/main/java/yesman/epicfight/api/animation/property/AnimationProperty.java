@@ -36,7 +36,7 @@ import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.InverseKinemat
 import yesman.epicfight.api.utils.HitEntityList.Priority;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.skill.common.ComboAttacks;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -77,7 +77,7 @@ public abstract class AnimationProperty<T> {
 	}
 	
 	public T parseFrom(JsonElement e) {
-		return this.codecs.parse(JsonOps.INSTANCE, e).resultOrPartial((errm) -> EpicFightMod.LOGGER.warn("Failed to parse property " + this.name + " because of " + errm)).orElseThrow();
+		return this.codecs.parse(JsonOps.INSTANCE, e).resultOrPartial((errm) -> EpicFightNeoForge.LOGGER.warn("Failed to parse property " + this.name + " because of " + errm)).orElseThrow();
 	}
 	
 	public Codec<T> getCodecs() {

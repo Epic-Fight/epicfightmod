@@ -43,7 +43,7 @@ import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.mixin.common.MixinMob;
 import yesman.epicfight.mixin.common.MixinPlayer;
@@ -201,7 +201,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
             switch (packet.pairingPacketType().toEnum(EntityPairingPacketTypes.class)) {
             case BONEBREAKER_BEGIN -> {
                 this.entityDecorations.addDecorationOverlay(BonebreakerSkill.CRACKINESS, new DecorationOverlay() {
-                    static final ResourceLocation TEXTURE = EpicFightMod.identifier("textures/entity/overlay/crack_level1.png");
+                    static final ResourceLocation TEXTURE = EpicFightNeoForge.identifier("textures/entity/overlay/crack_level1.png");
 
                     @Override
                     public RenderType getRenderType() {
@@ -211,7 +211,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
             }
             case BONEBREAKER_MAX_STACK -> {
                 this.entityDecorations.addDecorationOverlay(BonebreakerSkill.CRACKINESS, new DecorationOverlay() {
-                    static final ResourceLocation TEXTURE = EpicFightMod.identifier("textures/entity/overlay/crack_level2.png");
+                    static final ResourceLocation TEXTURE = EpicFightNeoForge.identifier("textures/entity/overlay/crack_level2.png");
 
                     @Override
                     public RenderType getRenderType() {

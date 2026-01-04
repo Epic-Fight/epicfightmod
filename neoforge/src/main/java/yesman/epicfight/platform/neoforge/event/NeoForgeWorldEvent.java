@@ -12,7 +12,7 @@ import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillReloadListener;
 import yesman.epicfight.client.world.util.FakeLevel;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPDatapackSync;
@@ -24,7 +24,7 @@ import yesman.epicfight.world.capabilities.skill.PlayerSkills;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
 public final class NeoForgeWorldEvent {
 	private NeoForgeWorldEvent() {}
 	
@@ -98,7 +98,7 @@ public final class NeoForgeWorldEvent {
 			.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, player, others));
 	}
 	
-	@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
 	public static class WorldEventsClient {
 		@SubscribeEvent
 		public static void loadLevel(LevelEvent.Load event) {

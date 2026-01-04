@@ -33,7 +33,7 @@ import yesman.epicfight.api.client.event.types.registry.RegisterAttributeIconEve
 import yesman.epicfight.api.client.event.types.registry.RegisterWeaponCategoryIconEvent;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
@@ -54,7 +54,7 @@ import static yesman.epicfight.generated.LangKeys.*;
 public class SkillBookScreen extends Screen {
     private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = new HashMap<> ();
     private static final Map<Holder<Attribute>, TextureInfo> ATTRIBUTE_ICONS = new HashMap<> ();
-    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightMod.identifier("textures/gui/screen/skillbook.png");
+    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightNeoForge.identifier("textures/gui/screen/skillbook.png");
 
     public static final TextureInfo HEALTH_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 22, 205, 10, 10);
     public static final TextureInfo STAMINA_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 32, 205, 10, 10);
@@ -660,9 +660,9 @@ public class SkillBookScreen extends Screen {
 
     private static class LearnButton extends Button {
         protected static final WidgetSprites SPRITES = new WidgetSprites(
-            EpicFightMod.identifier("widget/skillbook_button"),
-            EpicFightMod.identifier("widget/skillbook_button_disabled"),
-            EpicFightMod.identifier("widget/skillbook_button_highlighted")
+            EpicFightNeoForge.identifier("widget/skillbook_button"),
+            EpicFightNeoForge.identifier("widget/skillbook_button_disabled"),
+            EpicFightNeoForge.identifier("widget/skillbook_button_highlighted")
         );
 
         protected LearnButton(Builder builder) {

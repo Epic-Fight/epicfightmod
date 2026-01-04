@@ -17,7 +17,7 @@ import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -89,7 +89,7 @@ public class RevelationSkill extends Skill {
             if (entityType != null) {
                 this.maxRevelationStacks.put(entityType, maxStacks.getInt(registryName));
             } else {
-                EpicFightMod.LOGGER.warn("Revelation registry error: no entity type named {}", registryName);
+                EpicFightNeoForge.LOGGER.warn("Revelation registry error: no entity type named {}", registryName);
             }
         }
     }

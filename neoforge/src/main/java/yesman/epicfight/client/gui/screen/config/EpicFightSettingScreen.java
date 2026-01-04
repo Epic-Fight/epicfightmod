@@ -23,7 +23,7 @@ import yesman.epicfight.client.gui.widgets.*;
 import yesman.epicfight.client.gui.widgets.common.AnchoredWidget;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.ClientConfig.HealthBarVisibility;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +153,7 @@ public class EpicFightSettingScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawString(this.font, "EpicFight " + ModList.get().getModFileById(EpicFightMod.MODID).versionString(), 4, this.height - 16, 0xFF9F9F9F);
+        guiGraphics.drawString(this.font, "EpicFight " + ModList.get().getModFileById(EpicFightNeoForge.MODID).versionString(), 4, this.height - 16, 0xFF9F9F9F);
     }
 
     @Override
@@ -716,7 +716,7 @@ public class EpicFightSettingScreen extends Screen {
                                     HumanoidModelBaker.exportModels(resourcePackDirectory);
                                     Util.getPlatform().openFile(resourcePackDirectory);
                                 } catch (IOException e) {
-                                    EpicFightMod.LOGGER.info("Failed to export custom armor models.", e);
+                                    EpicFightNeoForge.LOGGER.info("Failed to export custom armor models.", e);
                                 }
                             }
                         )

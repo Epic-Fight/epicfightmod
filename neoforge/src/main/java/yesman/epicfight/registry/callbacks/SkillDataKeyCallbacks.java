@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.registries.callback.AddCallback;
 import net.neoforged.neoforge.registries.callback.BakeCallback;
 import net.neoforged.neoforge.registries.callback.ClearCallback;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillDataKey;
@@ -49,7 +49,7 @@ public class SkillDataKeyCallbacks implements BakeCallback<SkillDataKey<?>>, Add
 			} while (Skill.class.isAssignableFrom(skillClass));
 			
 			if (!dataKeySet.isEmpty()) {
-				EpicFightMod.LOGGER.info("Data keys "  + dataKeySet.stream().map(Holder::getRegisteredName).toList() + " for " + holder.getRegisteredName());
+				EpicFightNeoForge.LOGGER.info("Data keys "  + dataKeySet.stream().map(Holder::getRegisteredName).toList() + " for " + holder.getRegisteredName());
 			}
 		});
     }

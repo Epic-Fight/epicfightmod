@@ -3,7 +3,7 @@ package yesman.epicfight.api.utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.chat.Component;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,10 +23,10 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
 
     public void registerEnumCls(String modid, Class<? extends ExtensibleEnum> cls) {
         if (this.enums.containsKey(modid)) {
-            EpicFightMod.LOGGER.error("{} is already registered in {}", modid, this.enumName);
+            EpicFightNeoForge.LOGGER.error("{} is already registered in {}", modid, this.enumName);
         }
 
-        EpicFightMod.LOGGER.debug("Registered Extensible Enum {} in ", this.enumName);
+        EpicFightNeoForge.LOGGER.debug("Registered Extensible Enum {} in ", this.enumName);
 
         this.enums.put(modid, cls);
     }
@@ -43,17 +43,17 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
                 Method m = cls.getMethod("values");
                 m.invoke(null);
 
-                EpicFightMod.LOGGER.debug("Loaded enums in {}", cls);
+                EpicFightNeoForge.LOGGER.debug("Loaded enums in {}", cls);
             }
         } catch (ClassCastException e) {
-            EpicFightMod.LOGGER.error("{} is not an Extensible Enum!", cls.getCanonicalName(), e);
+            EpicFightNeoForge.LOGGER.error("{} is not an Extensible Enum!", cls.getCanonicalName(), e);
         } catch (NoSuchMethodException e) {
-            EpicFightMod.LOGGER.error("{} is not an Enum class!", cls.getCanonicalName(), e);
+            EpicFightNeoForge.LOGGER.error("{} is not an Enum class!", cls.getCanonicalName(), e);
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            EpicFightMod.LOGGER.warn("Error while loading extensible enum {}", cls.getCanonicalName(), e);
+            EpicFightNeoForge.LOGGER.warn("Error while loading extensible enum {}", cls.getCanonicalName(), e);
         }
 
-        EpicFightMod.LOGGER.debug("All enums are loaded: {} {}", this.enumName, this.enumMapByName.values());
+        EpicFightNeoForge.LOGGER.debug("All enums are loaded: {} {}", this.enumName, this.enumMapByName.values());
     }
 
     public int assign(T value) {
@@ -102,6 +102,6 @@ public class ExtensibleEnumManager<T extends ExtensibleEnum> {
     }
 
     public String toTranslated(ExtensibleEnum e) {
-        return Component.translatable(String.format("%s.%s.%s", EpicFightMod.MODID, this.enumName, ParseUtil.toLowerCase(e.toString()))).getString();
+        return Component.translatable(String.format("%s.%s.%s", EpicFightNeoForge.MODID, this.enumName, ParseUtil.toLowerCase(e.toString()))).getString();
     }
 }

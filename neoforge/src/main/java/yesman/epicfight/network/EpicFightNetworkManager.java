@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.client.*;
 import yesman.epicfight.network.common.BiDirectionalAnimationVariable;
 import yesman.epicfight.network.common.BiDirectionalSyncAnimationPositionPacket;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
 public class EpicFightNetworkManager {
 	private static final String PROTOCOL_VERSION = "1";
 	

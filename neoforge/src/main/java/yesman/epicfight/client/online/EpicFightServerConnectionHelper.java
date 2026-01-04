@@ -3,7 +3,7 @@ package yesman.epicfight.client.online;
 import net.minecraft.Util;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import javax.net.ssl.SSLContext;
 import java.io.*;
@@ -25,7 +25,7 @@ public class EpicFightServerConnectionHelper {
 	}
 	
 	public static boolean init(String configPath) {
-		EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Initialize");
+		EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: Initialize");
 		
 		SupportedOS os = SupportedOS.getOS();
 		boolean supported = false;
@@ -36,17 +36,17 @@ public class EpicFightServerConnectionHelper {
 			
 			HTTP_CLIENT = HttpClient.newBuilder().sslContext(ssl).connectTimeout(Duration.ofMillis(60000)).build();
 		} catch (NoSuchAlgorithmException e) {
-			EpicFightMod.LOGGER.warn("TLS 1.3 not found, we do not support TLS communication lower than 1.3");
+			EpicFightNeoForge.LOGGER.warn("TLS 1.3 not found, we do not support TLS communication lower than 1.3");
 			HTTP_CLIENT = null;
 			SUPPORTED = false;
 			return false;
 		} catch (KeyManagementException e) {
-			EpicFightMod.LOGGER.warn("Failed at initializing SSL context");
+			EpicFightNeoForge.LOGGER.warn("Failed at initializing SSL context");
 			HTTP_CLIENT = null;
 			SUPPORTED = false;
 			return false;
 		} catch (Exception e) {
-			EpicFightMod.LOGGER.warn("Failed at initializing " + e);
+			EpicFightNeoForge.LOGGER.warn("Failed at initializing " + e);
 			HTTP_CLIENT = null;
 			SUPPORTED = false;
 			return false;
@@ -54,7 +54,7 @@ public class EpicFightServerConnectionHelper {
 		
 		if (os != null) {
 			String libpath = MessageFormat.format("/assets/epicfight/nativelib/{0}/{1}{2}", os.telemetryName(), LIB_FILE, os.libExtension());
-			InputStream inputstream = EpicFightMod.class.getResourceAsStream(libpath);
+			InputStream inputstream = EpicFightNeoForge.class.getResourceAsStream(libpath);
 			
 			if (inputstream != null) {
 				File configNativeFile = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
@@ -77,7 +77,7 @@ public class EpicFightServerConnectionHelper {
 				
 				if (shouldCreate) {
 					try {
-						EpicFightMod.LOGGER.info("Created temporary lib configNativeFile at: " + configNativeFile.getPath());
+						EpicFightNeoForge.LOGGER.info("Created temporary lib configNativeFile at: " + configNativeFile.getPath());
 						configNativeFile.delete();
 						
 						if (!configNativeFile.getParentFile().isDirectory()) {
@@ -92,7 +92,7 @@ public class EpicFightServerConnectionHelper {
 						fos.close();
 					} catch (IOException e) {
                         e.printStackTrace();
-						EpicFightMod.LOGGER.info("Can't read library configNativeFile: " + e.getMessage());
+						EpicFightNeoForge.LOGGER.info("Can't read library configNativeFile: " + e.getMessage());
 					}
 				}
 				
@@ -102,16 +102,16 @@ public class EpicFightServerConnectionHelper {
 					System.load(configNativeFile.toString());
 				} catch (UnsatisfiedLinkError e) {
 					exceptionOccurred = true;
-					EpicFightMod.LOGGER.warn("Failed at loading library configNativeFile");
+					EpicFightNeoForge.LOGGER.warn("Failed at loading library configNativeFile");
 				}
 				
 				supported = !exceptionOccurred;
 			} else {
 				supported = false;
-				EpicFightMod.LOGGER.info("Can't read library file: " + libpath);
+				EpicFightNeoForge.LOGGER.info("Can't read library file: " + libpath);
 			}
 		} else {
-			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Unsupported OS: " + Util.getPlatform().name());
+			EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: Unsupported OS: " + Util.getPlatform().name());
 		}
 		
 		SUPPORTED = supported;

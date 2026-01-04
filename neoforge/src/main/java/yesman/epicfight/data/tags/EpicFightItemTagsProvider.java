@@ -9,7 +9,7 @@ import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.Block;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightItems;
 
 public class EpicFightItemTagsProvider extends ItemTagsProvider {
@@ -19,7 +19,7 @@ public class EpicFightItemTagsProvider extends ItemTagsProvider {
         CompletableFuture<TagsProvider.TagLookup<Block>> blockTags,
         @org.jetbrains.annotations.Nullable net.neoforged.neoforge.common.data.ExistingFileHelper existingFileHelper
 	) {
-		super(output, lookupProvider, blockTags, EpicFightMod.MODID, existingFileHelper);
+		super(output, lookupProvider, blockTags, EpicFightNeoForge.MODID, existingFileHelper);
 	}
 	
 	@Override

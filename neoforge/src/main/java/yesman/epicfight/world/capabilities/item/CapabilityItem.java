@@ -23,7 +23,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPChangeSkill;
@@ -111,7 +111,7 @@ public class CapabilityItem {
 	
 	public void modifyItemTooltip(ItemStack itemstack, List<Component> itemTooltip, LivingEntityPatch<?> entitypatch) {
 		Style style = this instanceof RangedWeaponCapability ? Styles.RANGED : this.getStyle(entitypatch);
-		itemTooltip.add(1, Component.translatable(EpicFightMod.MODID + ".style." + style.toString().toLowerCase(Locale.ROOT)).withStyle(ChatFormatting.DARK_GRAY));
+		itemTooltip.add(1, Component.translatable(EpicFightNeoForge.MODID + ".style." + style.toString().toLowerCase(Locale.ROOT)).withStyle(ChatFormatting.DARK_GRAY));
 		
 		int index = 0;
 		boolean modifyIn = false;

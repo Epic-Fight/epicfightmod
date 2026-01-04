@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.data.conditions.Condition;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.callbacks.SkillCallbacks;
 import yesman.epicfight.registry.callbacks.SkillDataKeyCallbacks;
 import yesman.epicfight.registry.callbacks.SynchedAnimationVariableKeyCallbacks;
@@ -22,7 +22,7 @@ import yesman.epicfight.world.entity.data.ExpandedEntityDataAccessor;
 import java.util.List;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID)
 public abstract class EpicFightRegistries {
     public static final Registry<Supplier<Condition<?>>> CONDITION = new RegistryBuilder<> (Keys.CONDITION).create();
     public static final Registry<ExpandedEntityDataAccessor<?>> EXPANDED_ENTITY_DATA_ACCESSOR = new RegistryBuilder<> (Keys.EXPANDED_ENTITY_DATA_ACCESSOR).sync(true).create();
@@ -66,7 +66,7 @@ public abstract class EpicFightRegistries {
         ResourceKey<Registry<Emote>> EMOTE = key("emote");
 
         private static <T> ResourceKey<Registry<T>> key(String name) {
-            return ResourceKey.createRegistryKey(EpicFightMod.identifier(name));
+            return ResourceKey.createRegistryKey(EpicFightNeoForge.identifier(name));
         }
     }
 

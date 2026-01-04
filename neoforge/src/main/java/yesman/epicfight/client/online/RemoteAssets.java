@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.client.online.texture.RemoteTexture;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 import javax.annotation.Nullable;
@@ -51,7 +51,7 @@ public class RemoteAssets {
 		CompletableFuture.runAsync(() -> {
 			EpicFightServerConnectionHelper.loadRemoteMesh(EpicFightSharedConstants.webServerDomain(), path, (mesh, exception) -> {
 				if (exception != null) {
-					EpicFightMod.LOGGER.error("Failed at loading remote mesh " + seq + ": " + exception.getMessage());
+					EpicFightNeoForge.LOGGER.error("Failed at loading remote mesh " + seq + ": " + exception.getMessage());
 					exception.printStackTrace();
 				} else {
 					remoteMeshAccessor.load(mesh);
@@ -63,7 +63,7 @@ public class RemoteAssets {
 	}
 	
 	public synchronized ResourceLocation getRemoteTexture(String fileName) {
-		ResourceLocation textureLocation = ResourceLocation.fromNamespaceAndPath(EpicFightMod.EPICSKINS_MODID, "textures/remote/" + fileName);
+		ResourceLocation textureLocation = ResourceLocation.fromNamespaceAndPath(EpicFightNeoForge.EPICSKINS_MODID, "textures/remote/" + fileName);
 		AbstractTexture texture = TEXTURE_MANAGER.getTexture(textureLocation, MissingTextureAtlasSprite.getTexture());
 		
 		if (texture == MissingTextureAtlasSprite.getTexture()) {

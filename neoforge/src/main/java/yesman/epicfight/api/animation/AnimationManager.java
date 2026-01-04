@@ -31,7 +31,7 @@ import yesman.epicfight.api.utils.MutableBoolean;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPPairingAnimationRegistry;
@@ -66,9 +66,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	public static boolean checkNull(AssetAccessor<? extends StaticAnimation> animation) {
 		if (animation == null || animation.isEmpty()) {
 			if (animation != null) {
-				EpicFightMod.stacktraceIfDevSide("Empty animation accessor: " + animation.registryName(), NoSuchElementException::new);
+				EpicFightNeoForge.stacktraceIfDevSide("Empty animation accessor: " + animation.registryName(), NoSuchElementException::new);
 			} else {
-				EpicFightMod.stacktraceIfDevSide("Null animation accessor", NoSuchElementException::new);
+				EpicFightNeoForge.stacktraceIfDevSide("Null animation accessor", NoSuchElementException::new);
 			}
 			
 			return true;
@@ -185,9 +185,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
                 } catch (IOException | JsonParseException | IllegalArgumentException resourceReadException) {
-                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
+                    EpicFightNeoForge.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
                 } catch (Exception e) {
-                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId, e);
+                    EpicFightNeoForge.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
 
@@ -200,13 +200,13 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     MutableBoolean init = new MutableBoolean(true);
 
                     if (entry.getValue() == null || entry.getValue().getAccessor() == null) {
-                        EpicFightMod.logAndStacktraceIfDevSide(Logger::error, "Invalid animation implementation: " + entry.getKey(), AssetLoadingException::new);
+                        EpicFightNeoForge.logAndStacktraceIfDevSide(Logger::error, "Invalid animation implementation: " + entry.getKey(), AssetLoadingException::new);
                         init.set(false);
                     }
 
                     entry.getValue().getSubAnimations().forEach((subAnimation) -> {
                         if (subAnimation == null || subAnimation.get() == null) {
-                            EpicFightMod.logAndStacktraceIfDevSide(Logger::error, "Invalid sub animation implementation: " + entry.getKey(), AssetLoadingException::new);
+                            EpicFightNeoForge.logAndStacktraceIfDevSide(Logger::error, "Invalid sub animation implementation: " + entry.getKey(), AssetLoadingException::new);
                             init.set(false);
                         }
                     });
@@ -292,7 +292,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 					try {
 						return InstantiateInvoker.invoke(invocationCommand, StaticAnimation.class).getResult();
 					} catch (Exception e) {
-						EpicFightMod.LOGGER.warn("Failed at creating animation from server resource pack", e);
+						EpicFightNeoForge.LOGGER.warn("Failed at creating animation from server resource pack", e);
 						return Animations.EMPTY_ANIMATION;
 					}
 				});
@@ -374,7 +374,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			if (NO_WARNING_MODID.contains(rl.getNamespace())) {
 				return;
 			} else {
-				EpicFightMod.logAndStacktraceIfDevSide(
+				EpicFightNeoForge.logAndStacktraceIfDevSide(
 					  Logger::error
 					, "Datapack animation reading failed: No constructor information has provided: " + rl
 					, IllegalStateException::new

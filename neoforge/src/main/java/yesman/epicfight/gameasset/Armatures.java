@@ -17,7 +17,7 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.model.armature.CreeperArmature;
 import yesman.epicfight.model.armature.DragonArmature;
 import yesman.epicfight.model.armature.EndermanArmature;
@@ -45,18 +45,18 @@ public class Armatures {
 	private static final Map<ArmatureAccessor<? extends Armature>, Armature> ARMATURES = new HashMap<> ();
 	private static final Map<EntityType<?>, AssetAccessor<? extends Armature>> ENTITY_TYPE_ARMATURE_MAPPER = new HashMap<> ();
 	
-	public static final ArmatureAccessor<HumanoidArmature> BIPED = ArmatureAccessor.create(EpicFightMod.MODID, "entity/biped", HumanoidArmature::new);
-	public static final ArmatureAccessor<CreeperArmature> CREEPER = ArmatureAccessor.create(EpicFightMod.MODID, "entity/creeper", CreeperArmature::new);
-	public static final ArmatureAccessor<EndermanArmature> ENDERMAN = ArmatureAccessor.create(EpicFightMod.MODID, "entity/enderman", EndermanArmature::new);
-	public static final ArmatureAccessor<HumanoidArmature> SKELETON = ArmatureAccessor.create(EpicFightMod.MODID, "entity/skeleton", HumanoidArmature::new);
-	public static final ArmatureAccessor<SpiderArmature> SPIDER = ArmatureAccessor.create(EpicFightMod.MODID, "entity/spider", SpiderArmature::new);
-	public static final ArmatureAccessor<IronGolemArmature> IRON_GOLEM = ArmatureAccessor.create(EpicFightMod.MODID, "entity/iron_golem", IronGolemArmature::new);
-	public static final ArmatureAccessor<RavagerArmature> RAVAGER = ArmatureAccessor.create(EpicFightMod.MODID, "entity/ravager", RavagerArmature::new);
-	public static final ArmatureAccessor<VexArmature> VEX = ArmatureAccessor.create(EpicFightMod.MODID, "entity/vex", VexArmature::new);
-	public static final ArmatureAccessor<PiglinArmature> PIGLIN = ArmatureAccessor.create(EpicFightMod.MODID, "entity/piglin", PiglinArmature::new);
-	public static final ArmatureAccessor<HoglinArmature> HOGLIN = ArmatureAccessor.create(EpicFightMod.MODID, "entity/hoglin", HoglinArmature::new);
-	public static final ArmatureAccessor<DragonArmature> DRAGON = ArmatureAccessor.create(EpicFightMod.MODID, "entity/dragon", DragonArmature::new);
-	public static final ArmatureAccessor<WitherArmature> WITHER = ArmatureAccessor.create(EpicFightMod.MODID, "entity/wither", WitherArmature::new);
+	public static final ArmatureAccessor<HumanoidArmature> BIPED = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/biped", HumanoidArmature::new);
+	public static final ArmatureAccessor<CreeperArmature> CREEPER = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/creeper", CreeperArmature::new);
+	public static final ArmatureAccessor<EndermanArmature> ENDERMAN = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/enderman", EndermanArmature::new);
+	public static final ArmatureAccessor<HumanoidArmature> SKELETON = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/skeleton", HumanoidArmature::new);
+	public static final ArmatureAccessor<SpiderArmature> SPIDER = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/spider", SpiderArmature::new);
+	public static final ArmatureAccessor<IronGolemArmature> IRON_GOLEM = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/iron_golem", IronGolemArmature::new);
+	public static final ArmatureAccessor<RavagerArmature> RAVAGER = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/ravager", RavagerArmature::new);
+	public static final ArmatureAccessor<VexArmature> VEX = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/vex", VexArmature::new);
+	public static final ArmatureAccessor<PiglinArmature> PIGLIN = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/piglin", PiglinArmature::new);
+	public static final ArmatureAccessor<HoglinArmature> HOGLIN = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/hoglin", HoglinArmature::new);
+	public static final ArmatureAccessor<DragonArmature> DRAGON = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/dragon", DragonArmature::new);
+	public static final ArmatureAccessor<WitherArmature> WITHER = ArmatureAccessor.create(EpicFightNeoForge.MODID, "entity/wither", WitherArmature::new);
 	
 	public static void registerEntityTypes() {
 		registerEntityTypeArmature(EntityType.CAVE_SPIDER, SPIDER);

@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModList;
 import yesman.epicfight.generated.LangKeys;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public class VersionNotifier {
     private final Minecraft minecraft;
@@ -15,7 +15,7 @@ public class VersionNotifier {
 
     public VersionNotifier(Minecraft minecraft) {
         this.minecraft = minecraft;
-        this.visible = ModList.get().getModFileById(EpicFightMod.MODID).versionString().matches("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+");
+        this.visible = ModList.get().getModFileById(EpicFightNeoForge.MODID).versionString().matches("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+");
     }
 
     public void init() {
@@ -37,12 +37,12 @@ public class VersionNotifier {
 
         if (inWorld) {
             String l1 = Component.translatable(LangKeys.GUI_MESSAGE_VERSION_NOTIFIER_TEST_VERSION_WARNING_LINE1).getString();
-            String l2 = Component.translatable(LangKeys.GUI_MESSAGE_VERSION_NOTIFIER_TEST_VERSION_WARNING_LINE2, ModList.get().getModFileById(EpicFightMod.MODID).versionString()).getString();
+            String l2 = Component.translatable(LangKeys.GUI_MESSAGE_VERSION_NOTIFIER_TEST_VERSION_WARNING_LINE2, ModList.get().getModFileById(EpicFightNeoForge.MODID).versionString()).getString();
 
             guiGraphics.drawString(this.minecraft.font, l1, (width - this.minecraft.font.width(l1) - 2), 8, 16777215);
             guiGraphics.drawString(this.minecraft.font, l2, (width - this.minecraft.font.width(l2) - 2), 20, 16777215);
         } else {
-            String l1 = Component.translatable(LangKeys.GUI_MESSAGE_VERSION_NOTIFIER, ModList.get().getModFileById(EpicFightMod.MODID).versionString()).getString();
+            String l1 = Component.translatable(LangKeys.GUI_MESSAGE_VERSION_NOTIFIER, ModList.get().getModFileById(EpicFightNeoForge.MODID).versionString()).getString();
             guiGraphics.drawString(this.minecraft.font, l1, (width - this.minecraft.font.width(l1) - 2), 8, 16777215);
         }
     }

@@ -11,7 +11,7 @@ import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -24,7 +24,7 @@ import yesman.epicfight.skill.SkillContainer;
 import java.util.List;
 
 public class VengeanceSkill extends PassiveSkill {
-    public static final IdentifierProvider TARGET = IdentifierProvider.constant(EpicFightMod.identifier("vengeance_target"));
+    public static final IdentifierProvider TARGET = IdentifierProvider.constant(EpicFightNeoForge.identifier("vengeance_target"));
 
     private float damageBonus;
 

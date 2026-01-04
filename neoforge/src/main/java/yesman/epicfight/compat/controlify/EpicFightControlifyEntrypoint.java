@@ -42,7 +42,7 @@ import yesman.epicfight.compat.controlify.screenop.EpicFightSettingScreenProcess
 import yesman.epicfight.compat.controlify.screenop.SkillBookScreenProcessor;
 import yesman.epicfight.compat.controlify.screenop.SkillEditScreenProcessor;
 import yesman.epicfight.generated.LangKeys;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -138,8 +138,8 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     private enum EpicFightRadialIcons {
-        UCHIGATANA(EpicFightMod.identifier("textures/item/uchigatana_gui.png")),
-        SKILL_BOOK(EpicFightMod.identifier("textures/item/skillbook.png"));
+        UCHIGATANA(EpicFightNeoForge.identifier("textures/item/uchigatana_gui.png")),
+        SKILL_BOOK(EpicFightNeoForge.identifier("textures/item/skillbook.png"));
 
         private final @NotNull ResourceLocation id;
 
@@ -318,11 +318,11 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_EMOTE_WHEEL_SCREEN -> "open_emote_wheel_screen";
             case SWITCH_VANILLA_MODEL_DEBUGGING -> "switch_vanilla_mode_debugging";
         };
-        return EpicFightMod.identifier(path);
+        return EpicFightNeoForge.identifier(path);
     }
 
     private static void registerModIntegration() {
-        EpicFightControllerModProvider.set(EpicFightMod.MODID, new EpicFightControlifyControllerMod());
+        EpicFightControllerModProvider.set(EpicFightNeoForge.MODID, new EpicFightControlifyControllerMod());
     }
 
     private static void registerEvents() {
@@ -345,14 +345,14 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
 
     private static void registerGuides(GuideDomainRegistry<InGameCtx> inGameRegistry, GuideDomainRegistry<ContainerCtx> containerRegistry) {
         // Facts are registered here; rules in "assets/controlify/guides/in_game.json" reference these facts.
-        inGameRegistry.registerFact(new Fact<>(EpicFightMod.identifier("can_perform_dodge"), ctx -> {
+        inGameRegistry.registerFact(new Fact<>(EpicFightNeoForge.identifier("can_perform_dodge"), ctx -> {
             final LocalPlayerPatch localPlayerPatch = EpicFightCapabilities.getCachedLocalPlayerPatch();
             if (localPlayerPatch == null || !localPlayerPatch.isEpicFightMode()) {
                 return false;
             }
             return localPlayerPatch.getPlayerSkills().hasCategory(SkillCategories.DODGE);
         }));
-        containerRegistry.registerFact(new Fact<>(EpicFightMod.identifier("can_show_weapon_innate_skill_tooltip"), ctx -> {
+        containerRegistry.registerFact(new Fact<>(EpicFightNeoForge.identifier("can_show_weapon_innate_skill_tooltip"), ctx -> {
             final Slot hoveredSlot = ctx.hoveredSlot();
             if (hoveredSlot == null || !ctx.hoveredSlot().hasItem()) {
                 return false;
@@ -415,7 +415,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
                     "The method IEpicFightControllerMod#getInputState must not be called when the input mode is not %s",
                     InputMode.CONTROLLER.name()
             );
-            EpicFightMod.LOGGER.error(message);
+            EpicFightNeoForge.LOGGER.error(message);
             throw new IllegalStateException(message);
         }
 

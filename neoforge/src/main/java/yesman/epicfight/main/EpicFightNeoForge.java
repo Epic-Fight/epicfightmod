@@ -120,8 +120,8 @@ import java.util.function.Supplier;
  *
  *  @author yesman
  */
-@Mod(EpicFightMod.MODID)
-public class EpicFightMod {
+@Mod(EpicFightNeoForge.MODID)
+public class EpicFightNeoForge {
 
 	// TODO: Rename class to EpicFightNeoForge
 	// TODO: Avoid using the deprecated fields in neoforge Gradle project, and migrate to the new shared ones in EpicFight via IDE structural replacement
@@ -168,7 +168,7 @@ public class EpicFightMod {
 		}
 	}
 
-    public EpicFightMod(IEventBus modEventBus, ModContainer modContainer) {
+    public EpicFightNeoForge(IEventBus modEventBus, ModContainer modContainer) {
 		ModPlatformProvider.initialize(new NeoForgeModPlatform());
     	if (EpicFightSharedConstants.isPhysicalClient()) {
 			EpicFightClient.initialize(new NeoForgeClientModPlatform(modEventBus));
@@ -201,19 +201,19 @@ public class EpicFightMod {
     	NeoForge.EVENT_BUS.addListener(this::command);
         NeoForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
 
-    	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, LivingMotions.class);
-    	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, SkillCategories.class);
-    	SkillSlot.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, SkillSlots.class);
-    	Style.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Styles.class);
-    	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, WeaponCategories.class);
-    	Faction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, Factions.class);
-    	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EntityPairingPacketTypes.class);
+    	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, LivingMotions.class);
+    	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, SkillCategories.class);
+    	SkillSlot.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, SkillSlots.class);
+    	Style.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, Styles.class);
+    	WeaponCategory.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, WeaponCategories.class);
+    	Faction.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, Factions.class);
+    	EntityPairingPacketType.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, EntityPairingPacketTypes.class);
 
     	if (EpicFightSharedConstants.isPhysicalClient()) {
-            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputAction.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.MODID, EpicFightInputAction.class);
             InputAction.ENUM_MANAGER.registerEnumCls("minecraft", MinecraftInputAction.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
+            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
+            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightNeoForge.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
         }
 
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
@@ -234,11 +234,11 @@ public class EpicFightMod {
                     if (mod == MinecraftMod.AZURE_LIB || mod == MinecraftMod.AZURE_LIB_ARMOR) {
                         final Integer major = mod.getVersionComponent(MinecraftMod.VersionComponent.MAJOR);
                         if (major == null) {
-                            EpicFightMod.LOGGER.error("{} support provided by Epic Fight has been disabled as the AzureLib mod version could not be parsed.", mod.name());
+                            EpicFightNeoForge.LOGGER.error("{} support provided by Epic Fight has been disabled as the AzureLib mod version could not be parsed.", mod.name());
                             return false;
                         }
                         if (major >= 3) {
-                            EpicFightMod.LOGGER.info(
+                            EpicFightNeoForge.LOGGER.info(
                                     "'{}' support provided by Epic Fight has been disabled to prevent game load " +
                                             "crash due to breaking changes in '3.0.0'. " +
                                             "For more details: https://github.com/Epic-Fight/epicfight/issues/2279",
@@ -322,7 +322,7 @@ public class EpicFightMod {
 
 	public void addPackFindersEvent(AddPackFindersEvent event) {
 		if (event.getPackType() == PackType.CLIENT_RESOURCES) {
-            Path resourcePath = ModList.get().getModFileById(EpicFightMod.MODID).getFile().findResource("packs/epicfight_legacy");
+            Path resourcePath = ModList.get().getModFileById(EpicFightNeoForge.MODID).getFile().findResource("packs/epicfight_legacy");
 
             PackLocationInfo packLocation = new PackLocationInfo("epicfight_legacy", Component.translatable("pack.epicfight_legacy.title"), PackSource.BUILT_IN, Optional.empty());
             Pack.ResourcesSupplier resourcesSupplier = new PathPackResources.PathResourcesSupplier(resourcePath);
@@ -354,7 +354,7 @@ public class EpicFightMod {
         });
     }
 
-	@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
@@ -380,7 +380,7 @@ public class EpicFightMod {
     	}
     }
 
-	@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.DEDICATED_SERVER)
+	@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.DEDICATED_SERVER)
     public static class ServerForgeEvents {
 		@SubscribeEvent(priority = EventPriority.HIGHEST)
 		public static void addReloadListnerEvent(final AddReloadListenerEvent event) {

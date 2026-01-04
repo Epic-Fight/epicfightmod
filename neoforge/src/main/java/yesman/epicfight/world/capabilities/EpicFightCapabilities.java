@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightAttachmentTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class EpicFightCapabilities {
 	public static final ItemCapability<CapabilityItem, Void> CAPABILITY_ITEM =
 		ItemCapability.createVoid(
-            EpicFightMod.identifier("item_capability"),
+            EpicFightNeoForge.identifier("item_capability"),
             CapabilityItem.class
         );
 

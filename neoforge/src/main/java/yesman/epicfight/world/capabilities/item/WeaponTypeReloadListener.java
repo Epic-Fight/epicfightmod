@@ -30,7 +30,7 @@ import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -49,22 +49,22 @@ import java.util.stream.Stream;
 public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
-        typeEntry.put(EpicFightMod.identifier("axe"), WeaponCapabilityPresets.AXE);
-        typeEntry.put(EpicFightMod.identifier("fist"), WeaponCapabilityPresets.FIST);
-        typeEntry.put(EpicFightMod.identifier("hoe"), WeaponCapabilityPresets.HOE);
-        typeEntry.put(EpicFightMod.identifier("pickaxe"), WeaponCapabilityPresets.PICKAXE);
-        typeEntry.put(EpicFightMod.identifier("shovel"), WeaponCapabilityPresets.SHOVEL);
-        typeEntry.put(EpicFightMod.identifier("sword"), WeaponCapabilityPresets.SWORD);
-        typeEntry.put(EpicFightMod.identifier("spear"), WeaponCapabilityPresets.SPEAR);
-        typeEntry.put(EpicFightMod.identifier("greatsword"), WeaponCapabilityPresets.GREATSWORD);
-        typeEntry.put(EpicFightMod.identifier("uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
-        typeEntry.put(EpicFightMod.identifier("tachi"), WeaponCapabilityPresets.TACHI);
-        typeEntry.put(EpicFightMod.identifier("longsword"), WeaponCapabilityPresets.LONGSWORD);
-        typeEntry.put(EpicFightMod.identifier("dagger"), WeaponCapabilityPresets.DAGGER);
-        typeEntry.put(EpicFightMod.identifier("bow"), WeaponCapabilityPresets.BOW);
-        typeEntry.put(EpicFightMod.identifier("crossbow"), WeaponCapabilityPresets.CROSSBOW);
-        typeEntry.put(EpicFightMod.identifier("trident"), WeaponCapabilityPresets.TRIDENT);
-        typeEntry.put(EpicFightMod.identifier("shield"), WeaponCapabilityPresets.SHIELD);
+        typeEntry.put(EpicFightNeoForge.identifier("axe"), WeaponCapabilityPresets.AXE);
+        typeEntry.put(EpicFightNeoForge.identifier("fist"), WeaponCapabilityPresets.FIST);
+        typeEntry.put(EpicFightNeoForge.identifier("hoe"), WeaponCapabilityPresets.HOE);
+        typeEntry.put(EpicFightNeoForge.identifier("pickaxe"), WeaponCapabilityPresets.PICKAXE);
+        typeEntry.put(EpicFightNeoForge.identifier("shovel"), WeaponCapabilityPresets.SHOVEL);
+        typeEntry.put(EpicFightNeoForge.identifier("sword"), WeaponCapabilityPresets.SWORD);
+        typeEntry.put(EpicFightNeoForge.identifier("spear"), WeaponCapabilityPresets.SPEAR);
+        typeEntry.put(EpicFightNeoForge.identifier("greatsword"), WeaponCapabilityPresets.GREATSWORD);
+        typeEntry.put(EpicFightNeoForge.identifier("uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
+        typeEntry.put(EpicFightNeoForge.identifier("tachi"), WeaponCapabilityPresets.TACHI);
+        typeEntry.put(EpicFightNeoForge.identifier("longsword"), WeaponCapabilityPresets.LONGSWORD);
+        typeEntry.put(EpicFightNeoForge.identifier("dagger"), WeaponCapabilityPresets.DAGGER);
+        typeEntry.put(EpicFightNeoForge.identifier("bow"), WeaponCapabilityPresets.BOW);
+        typeEntry.put(EpicFightNeoForge.identifier("crossbow"), WeaponCapabilityPresets.CROSSBOW);
+        typeEntry.put(EpicFightNeoForge.identifier("trident"), WeaponCapabilityPresets.TRIDENT);
+        typeEntry.put(EpicFightNeoForge.identifier("shield"), WeaponCapabilityPresets.SHIELD);
 
         WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.post(weaponCapabilityPresetRegistryEvent);
@@ -99,7 +99,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
                 PRESETS.put(entry.getKey(), (itemstack) -> deserializeWeaponCapabilityBuilder(entry.getKey(), comptagFinal));
                 CAPABILITY_COMPOUNDS.put(entry.getKey(), compTag);
             } catch (Exception e) {
-                EpicFightMod.LOGGER.warn("Error while deserializing weapon type datapack: " + entry.getKey());
+                EpicFightNeoForge.LOGGER.warn("Error while deserializing weapon type datapack: " + entry.getKey());
                 e.printStackTrace();
             }
         }
@@ -142,9 +142,9 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle")));
 
             if (particleType == null) {
-                EpicFightMod.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
+                EpicFightNeoForge.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
             } else if (!(particleType instanceof HitParticleType)) {
-                EpicFightMod.LOGGER.warn(tag.getString("hit_particle") + " is not a hit particle type in " + rl);
+                EpicFightNeoForge.LOGGER.warn(tag.getString("hit_particle") + " is not a hit particle type in " + rl);
             } else {
                 builder.hitParticle((HitParticleType)particleType);
             }
@@ -154,7 +154,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound")));
 
             if (sound == null) {
-                EpicFightMod.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
+                EpicFightNeoForge.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
             } else {
                 builder.swingSound(sound);
             }
@@ -164,7 +164,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound")));
 
             if (sound == null) {
-                EpicFightMod.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
+                EpicFightNeoForge.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
             } else {
                 builder.hitSound(sound);
             }

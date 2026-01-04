@@ -6,14 +6,14 @@ import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.server.commands.arguments.AnimationArgument;
 import yesman.epicfight.server.commands.arguments.SkillArgument;
 
 public final class EpicFightCommandArgumentTypes {
 	private EpicFightCommandArgumentTypes() {}
 	
-	public static final DeferredRegister<ArgumentTypeInfo<?, ?>> REGISTRY = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, EpicFightMod.MODID);
+	public static final DeferredRegister<ArgumentTypeInfo<?, ?>> REGISTRY = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, EpicFightNeoForge.MODID);
 	
 	public static final DeferredHolder<ArgumentTypeInfo<?, ?>, ArgumentTypeInfo<SkillArgument, ?>> SKILL = REGISTRY.register("skill", () -> SingletonArgumentInfo.contextFree(SkillArgument::skill));
 	public static final DeferredHolder<ArgumentTypeInfo<?, ?>, ArgumentTypeInfo<AnimationArgument, ?>> ANIMATION = REGISTRY.register("animation", () -> SingletonArgumentInfo.contextFree(AnimationArgument::animation));

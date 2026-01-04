@@ -10,13 +10,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.particle.HitParticleType;
 
 public final class EpicFightParticles {
 	private EpicFightParticles() {}
 	
-	public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(Registries.PARTICLE_TYPE, EpicFightMod.MODID);
+	public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(Registries.PARTICLE_TYPE, EpicFightNeoForge.MODID);
 	
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ADRENALINE_PLAYER_BEATING = REGISTRY.register("adrenaline_player_beating", () -> new SimpleParticleType(true));
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ASH_DIRECTIONAL = REGISTRY.register("ash_directional", () -> new SimpleParticleType(true));

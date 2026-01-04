@@ -2,25 +2,24 @@ package yesman.epicfight.registry.entries;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public final class EpicFightCreativeTabs {
 	private EpicFightCreativeTabs() {}
 	
-	public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EpicFightMod.MODID);
+	public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EpicFightNeoForge.MODID);
 
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ITEMS = REGISTRY.register("items", () ->
 		CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup.epicfight.items"))
 			.icon(() -> new ItemStack(EpicFightItems.SKILLBOOK.get()))
 			.withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
-			.backgroundTexture(EpicFightMod.identifier("textures/gui/container/epicfight_creative_tab.png"))
+			.backgroundTexture(EpicFightNeoForge.identifier("textures/gui/container/epicfight_creative_tab.png"))
 			.hideTitle()
 			.displayItems((params, output) -> {
 				EpicFightItems.REGISTRY.getEntries().forEach(item -> {

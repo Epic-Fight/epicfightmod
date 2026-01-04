@@ -38,7 +38,7 @@ import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.entity.HasCustomTag;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.network.server.SPDatapackSync;
@@ -86,7 +86,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 			ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), pathString);
 			
 			if (!BuiltInRegistries.ENTITY_TYPE.containsKey(registryName)) {
-				EpicFightMod.LOGGER.warn("Mob Patch Exception: No Entity named " + registryName);
+				EpicFightNeoForge.LOGGER.warn("Mob Patch Exception: No Entity named " + registryName);
 				continue;
 			}
 			
@@ -96,7 +96,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 			try {
 				tag = TagParser.parseTag(entry.getValue().toString());
 			} catch (CommandSyntaxException e) {
-				EpicFightMod.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
+				EpicFightNeoForge.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
 				continue;
 			}
 			
@@ -105,7 +105,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 			try {
 				abstractMobpatchProvider = deserialize(entityType, tag, false, resourceManager);
 			} catch (Exception e) {
-                EpicFightMod.LOGGER.warn("Can't deserialize mob capability: {}: {}", registryName, e.getLocalizedMessage());
+                EpicFightNeoForge.LOGGER.warn("Can't deserialize mob capability: {}: {}", registryName, e.getLocalizedMessage());
 				continue;
 			}
 			
@@ -166,17 +166,17 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		@Override
 		public EntityPatch<?> get(Entity entity) {
 			if (this.humanoidCombatBehaviors == null && !entity.level().isClientSide()) {
-				EpicFightMod.LOGGER.warn("Custom humanoid mob capability undefined combat behaviors");
+				EpicFightNeoForge.LOGGER.warn("Custom humanoid mob capability undefined combat behaviors");
 				return null;
 			}
 			
 			if (this.humanoidWeaponMotions == null && !entity.level().isClientSide()) {
-				EpicFightMod.LOGGER.warn("Custom humanoid mob capability undefined weapon motions");
+				EpicFightNeoForge.LOGGER.warn("Custom humanoid mob capability undefined weapon motions");
 				return null;
 			}
 			
 			if (!(entity instanceof PathfinderMob pathfinderMob)) {
-				EpicFightMod.LOGGER.warn(entity.getClass().getSimpleName() + " is not a subtype of Pathfinder Mob");
+				EpicFightNeoForge.LOGGER.warn(entity.getClass().getSimpleName() + " is not a subtype of Pathfinder Mob");
 				return null;
 			}
 			
@@ -207,12 +207,12 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		@Override
 		public EntityPatch<?> get(Entity entity) {
 			if (this.combatBehaviorsBuilder == null && !entity.level().isClientSide()) {
-				EpicFightMod.LOGGER.warn("Combat behavior undefined for mob capability of " + entity.getClass());
+				EpicFightNeoForge.LOGGER.warn("Combat behavior undefined for mob capability of " + entity.getClass());
 				return null;
 			}
 			
 			if (!(entity instanceof PathfinderMob pathfinderMob)) {
-				EpicFightMod.LOGGER.warn(entity.getClass().getSimpleName() + " is not a subtype of Pathfinder Mob");
+				EpicFightNeoForge.LOGGER.warn(entity.getClass().getSimpleName() + " is not a subtype of Pathfinder Mob");
 				return null;
 			}
 			
@@ -283,7 +283,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		
 		if ("has_tags".equals(predicateType)) {
 			if (!tag.contains("tags", 9)) {
-				EpicFightMod.LOGGER.info("Mob capability deserializing exception: Can't find a proper argument for %s. [identifier: %s, type: %s]".formatted("has_tags", "tags", "string list"));
+				EpicFightNeoForge.LOGGER.info("Mob capability deserializing exception: Can't find a proper argument for %s. [identifier: %s, type: %s]".formatted("has_tags", "tags", "string list"));
 			}
 			
 			predicate = new HasCustomTag(tag.getList("tags", 8));
@@ -499,7 +499,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		if (type.contains(":")) {
 			rl = ResourceLocation.parse(type);
 		} else {
-			rl = EpicFightMod.identifier(type);
+			rl = EpicFightNeoForge.identifier(type);
 		}
 		
 		Supplier<Condition<T>> predicateProvider = EpicFightConditions.getConditionOrNull(rl);

@@ -24,7 +24,7 @@ import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.animation.property.*;
 import yesman.epicfight.api.exception.AssetLoadingException;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
@@ -54,7 +54,7 @@ public class AnimationSubFileReader {
 		try {
 			subFileType.apply(inputstream, animation);
 		} catch (JsonParseException e) {
-			EpicFightMod.LOGGER.warn("Can't read sub file " + subFileType.directory + " for " + animation);
+			EpicFightNeoForge.LOGGER.warn("Can't read sub file " + subFileType.directory + " for " + animation);
 			e.printStackTrace();
 		}
 	}
@@ -163,7 +163,7 @@ public class AnimationSubFileReader {
 						String type = GsonHelper.getAsString(jointMaskEntry, "type");
 						
 						if (!type.contains(":")) {
-							type = (new StringBuilder(EpicFightMod.MODID)).append(":").append(type).toString();
+							type = (new StringBuilder(EpicFightNeoForge.MODID)).append(":").append(type).toString();
 						}
 						
 						if (livingMotionName.equals("ALL")) {

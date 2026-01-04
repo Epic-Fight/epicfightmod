@@ -14,7 +14,7 @@ import yesman.epicfight.compat.playeranimator.PlayerAnimatorCompat;
 import yesman.epicfight.compat.skinlayer3d.SkinLayer3DCompat;
 import yesman.epicfight.compat.vampirism.VampirismCompat;
 import yesman.epicfight.compat.werewolves.WerewolvesCompat;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 // List of mods with custom compatibility modules.
 // Only includes mods requiring manual registration via ICompatModule.
@@ -90,7 +90,7 @@ public enum MinecraftMod {
             final String[] parts = version.split("\\.");
             return Integer.parseInt(parts[component.index]);
         } catch (Exception e) {
-            EpicFightMod.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
+            EpicFightNeoForge.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
             return null;
         }
     }

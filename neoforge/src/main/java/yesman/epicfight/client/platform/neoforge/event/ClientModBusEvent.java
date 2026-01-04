@@ -23,7 +23,7 @@ import yesman.epicfight.client.renderer.entity.WitherGhostRenderer;
 import yesman.epicfight.client.renderer.entity.WitherSkeletonMinionRenderer;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightBlockEntities;
 import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -32,7 +32,7 @@ import yesman.epicfight.skill.SkillCategory;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
 public final class ClientModBusEvent {
 	private ClientModBusEvent() {}
 	
@@ -101,10 +101,10 @@ public final class ClientModBusEvent {
 	
 	@SubscribeEvent
 	public static void epicfight$registerGuiOverlaysEvent(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(EpicFightMod.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
-		event.registerAboveAll(EpicFightMod.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
-		event.registerAboveAll(EpicFightMod.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
-		event.registerAboveAll(EpicFightMod.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
+		event.registerAboveAll(EpicFightNeoForge.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
+		event.registerAboveAll(EpicFightNeoForge.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
+		event.registerAboveAll(EpicFightNeoForge.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
+		event.registerAboveAll(EpicFightNeoForge.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
 	}
 	
 	private static ResourceLocation wrapItemModelPath(ResourceLocation rl) {
@@ -137,7 +137,7 @@ public final class ClientModBusEvent {
 			
 			ItemOverrides overrides = event.getModels().get(skillbookLocation).getOverrides();
 			overrides.overrides = skillCategoryOverrides.toArray(ItemOverrides.BakedOverride[]::new);
-			overrides.properties = new ResourceLocation[] {EpicFightMod.identifier("skill")};
+			overrides.properties = new ResourceLocation[] {EpicFightNeoForge.identifier("skill")};
 		}
 	}
 }

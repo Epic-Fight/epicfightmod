@@ -6,7 +6,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.event.Event;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public class AnimatedArmorTextureEvent extends Event {
 	private final LivingEntity livingentity;
@@ -28,7 +28,7 @@ public class AnimatedArmorTextureEvent extends Event {
 	
 	public void setResultLocation(ResourceLocation resultLocation) {
 		if (this.resultLocation != null) {
-			EpicFightMod.LOGGER.debug("AnimatedArmorTextureEvent: You've overriden the existing texutre location " + this.resultLocation);
+			EpicFightNeoForge.LOGGER.debug("AnimatedArmorTextureEvent: You've overriden the existing texutre location " + this.resultLocation);
 		}
 		
 		this.resultLocation = resultLocation;

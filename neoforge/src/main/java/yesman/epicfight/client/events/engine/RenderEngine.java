@@ -76,7 +76,7 @@ import yesman.epicfight.client.renderer.patched.entity.*;
 import yesman.epicfight.client.renderer.patched.item.*;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -135,7 +135,7 @@ public class RenderEngine implements IEventBasedEngine {
 		builder.put(ResourceLocation.withDefaultNamespace("map"), RenderFilledMap::new);
 		builder.put(ResourceLocation.withDefaultNamespace("shield"), RenderShield::new);
 		builder.put(ResourceLocation.withDefaultNamespace("trident"), RenderTrident::new);
-		builder.put(EpicFightMod.identifier("uchigatana"), RenderKatana::new);
+		builder.put(EpicFightNeoForge.identifier("uchigatana"), RenderKatana::new);
 
         EpicFightClientEventHooks.Registry.PATCHED_ITEM.post(new RegisterPatchedRenderersEvent.Item(builder));
 
@@ -157,7 +157,7 @@ public class RenderEngine implements IEventBasedEngine {
 			ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), pathString);
 			
 			if (!BuiltInRegistries.ITEM.containsKey(registryName)) {
-				EpicFightMod.LOGGER.warn("Failed to load item skin: no item named " + registryName);
+				EpicFightNeoForge.LOGGER.warn("Failed to load item skin: no item named " + registryName);
 				continue;
 			}
 			
@@ -170,7 +170,7 @@ public class RenderEngine implements IEventBasedEngine {
 				if (itemRenderers.containsKey(rendererName)) {
 					rendererProvider = itemRenderers.get(rendererName);
 				} else {
-					EpicFightMod.LOGGER.warn("No renderer named " + rendererName);
+					EpicFightNeoForge.LOGGER.warn("No renderer named " + rendererName);
 					rendererProvider = RenderItemBase::new;
 				}
 			} else {
@@ -298,7 +298,7 @@ public class RenderEngine implements IEventBasedEngine {
 	
 	public Set<ResourceLocation> getRendererEntries() {
 		Set<ResourceLocation> availableRendererEntities = this.entityRendererProvider.keySet().stream().map((entityType) -> EntityType.getKey(entityType)).collect(Collectors.toSet());
-		availableRendererEntities.add(EpicFightMod.identifier("custom"));
+		availableRendererEntities.add(EpicFightNeoForge.identifier("custom"));
 		
 		return availableRendererEntities;
 	}

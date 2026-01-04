@@ -7,13 +7,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey.SynchedIndependentAnimationVariableKey;
 import yesman.epicfight.api.utils.ByteBufCodecsExtends;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 
 public final class EpicFightSynchedAnimationVariableKeys {
 	private EpicFightSynchedAnimationVariableKeys() {}
 	
-	public static final DeferredRegister<SynchedAnimationVariableKey<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.SYNCHED_ANIMATION_VARIABLE, EpicFightMod.MODID);
+	public static final DeferredRegister<SynchedAnimationVariableKey<?>> REGISTRY = DeferredRegister.create(EpicFightRegistries.SYNCHED_ANIMATION_VARIABLE, EpicFightNeoForge.MODID);
 	
 	public static final DeferredHolder<SynchedAnimationVariableKey<?>, SynchedIndependentAnimationVariableKey<Vec3>> DESTINATION =
 		REGISTRY.register("destination", () -> 

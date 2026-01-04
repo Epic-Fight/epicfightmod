@@ -6,7 +6,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.Skill.ActivateType;
@@ -35,7 +35,7 @@ import java.util.Set;
 public final class EpicFightSkills {
     private EpicFightSkills() {}
 
-    public static final DeferredRegister<Skill> REGISTRY = DeferredRegister.create(EpicFightRegistries.Keys.SKILL, EpicFightMod.MODID);
+    public static final DeferredRegister<Skill> REGISTRY = DeferredRegister.create(EpicFightRegistries.Keys.SKILL, EpicFightNeoForge.MODID);
 
     public static final DeferredHolder<Skill, Skill> EMPTY = REGISTRY.register("empty", key ->
         Skill.EMPTY

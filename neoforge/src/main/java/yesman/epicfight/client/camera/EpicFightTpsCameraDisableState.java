@@ -3,7 +3,7 @@ package yesman.epicfight.client.camera;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ public final class EpicFightTpsCameraDisableState {
         Objects.requireNonNull(reason, "reason must not be null");
 
         EpicFightTpsCameraDisableState.reason = reason;
-        EpicFightMod.LOGGER.info("Epic Fight TPS mode has been disabled due to a mod conflict with {}", reason.getModName());
+        EpicFightNeoForge.LOGGER.info("Epic Fight TPS mode has been disabled due to a mod conflict with {}", reason.getModName());
 
         if (!eventRegistered) {
             EpicFightClientEventHooks.Camera.ACTIVATE_TPS_CAMERA.registerEvent(e -> {

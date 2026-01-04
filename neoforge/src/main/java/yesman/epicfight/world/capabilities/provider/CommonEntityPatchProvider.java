@@ -20,7 +20,7 @@ import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.GlobalMobPatch;
@@ -153,7 +153,7 @@ public final class CommonEntityPatchProvider {
             try {
                 return provider.apply(entity);
             } catch (Exception e) {
-                EpicFightMod.stacktraceIfDevSide("Can't apply entity patch provider", (s) -> e);
+                EpicFightNeoForge.stacktraceIfDevSide("Can't apply entity patch provider", (s) -> e);
             }
         } else if (entity instanceof Mob mob && EpicFightGameRules.GLOBAL_STUN.getRuleValue(entity.level())) {
             return new GlobalMobPatch(mob);

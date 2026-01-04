@@ -45,7 +45,7 @@ import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRender
 import yesman.epicfight.client.renderer.patched.layer.PatchedCapeLayer;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.List;
@@ -89,11 +89,11 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 		ResourceLocation textureLocation = vanillarenderer.getTextureLocation(entitypatch.getOriginal());
 		
 		if (textureLocation == null) {
-			EpicFightMod.logAndStacktraceIfDevSide(Logger::warn, "No texture for " + entitypatch.getOriginal(), NullPointerException::new, "No texture is provided by vanilla renderer " + vanillarenderer.getClass().getSimpleName());
+			EpicFightNeoForge.logAndStacktraceIfDevSide(Logger::warn, "No texture for " + entitypatch.getOriginal(), NullPointerException::new, "No texture is provided by vanilla renderer " + vanillarenderer.getClass().getSimpleName());
 		}
 		
 		if (meshAccessor == null || meshAccessor.isEmpty()) {
-			EpicFightMod.logAndStacktraceIfDevSide(Logger::warn, "No mesh for " + entitypatch.getOriginal(), NullPointerException::new, "No mesh is provided by patched renderer " + patchedrenderer.getClass().getSimpleName());
+			EpicFightNeoForge.logAndStacktraceIfDevSide(Logger::warn, "No mesh for " + entitypatch.getOriginal(), NullPointerException::new, "No mesh is provided by patched renderer " + patchedrenderer.getClass().getSimpleName());
 		}
 		
 		this.entityFigure = new RenderableFigure(meshAccessor.get(), textureLocation);

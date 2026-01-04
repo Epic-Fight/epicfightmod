@@ -25,7 +25,7 @@ import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
 import yesman.epicfight.client.gui.widgets.ColorDeterminator;
 import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.main.AuthenticationHelper.AuthenticationProvider;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import static yesman.epicfight.generated.LangKeys.*;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EpicFightNeoForge.MODID, value = Dist.CLIENT)
 public class ClientConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
@@ -251,7 +251,7 @@ public class ClientConfig {
         chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
 
         if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
-            EpicFightMod.LOGGER.info("Epic Fight web server connection helper: supported");
+            EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: supported");
 
             try {
                 // Try loading epic skins code dynamically
@@ -260,10 +260,10 @@ public class ClientConfig {
                 authImpl.setAccessible(true);
                 Object o = authImpl.newInstance();
             } catch (Exception e) {
-                EpicFightMod.LOGGER.info("Epic Fight web server status: Failed at initializing Authentication provider: " + e);
+                EpicFightNeoForge.LOGGER.info("Epic Fight web server status: Failed at initializing Authentication provider: " + e);
             }
         } else {
-            EpicFightMod.LOGGER.info("Epic Fight web server connection helper: unsupported");
+            EpicFightNeoForge.LOGGER.info("Epic Fight web server connection helper: unsupported");
         }
 
         if (EpicFightServerConnectionHelper.supported() && ClientEngine.getInstance().getAuthHelper().valid()) {

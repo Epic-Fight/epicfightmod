@@ -13,7 +13,7 @@ public class EpicFightExtensibleEnums {
 	public static final EnumProxy<Rarity> UNIQUE_EMUM_PROXLY = new EnumProxy<> (
 		  Rarity.class
 		, -1
-		, EpicFightMod.MODID + ":unique"
+		, EpicFightNeoForge.MODID + ":unique"
 		, (UnaryOperator<Style>)style -> style.withColor(ChatFormatting.GREEN)
     );
 	

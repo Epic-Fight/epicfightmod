@@ -10,7 +10,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.animation.InitAnimatorEvent;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
@@ -105,7 +105,7 @@ public abstract class Animator {
 	
 	public void addLivingAnimation(LivingMotion livingMotion, AssetAccessor<? extends StaticAnimation> animation) {
 		if (AnimationManager.checkNull(animation)) {
-			EpicFightMod.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
+			EpicFightNeoForge.LOGGER.warn("Unable to put an empty animation for " + livingMotion);
 			return;
 		}
 		

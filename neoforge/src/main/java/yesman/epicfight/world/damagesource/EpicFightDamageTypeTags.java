@@ -1,10 +1,9 @@
 package yesman.epicfight.world.damagesource;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 public interface EpicFightDamageTypeTags {
 	/**
@@ -63,6 +62,6 @@ public interface EpicFightDamageTypeTags {
 	TagKey<DamageType> IS_MAGIC = create("is_magic");
 	
 	private static TagKey<DamageType> create(String tagName) {
-		return TagKey.create(Registries.DAMAGE_TYPE, EpicFightMod.identifier(tagName));
+		return TagKey.create(Registries.DAMAGE_TYPE, EpicFightNeoForge.identifier(tagName));
 	}
 }

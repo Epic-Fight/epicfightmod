@@ -47,14 +47,14 @@ import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.compat.skinlayer3d.client.SkinLayer3DTransformer;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
 public class SkinLayer3DCompat implements ICompatModule {
-	public static final DeferredRegister<AttachmentType<?>> REGISTRY = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, EpicFightMod.MODID);
+	public static final DeferredRegister<AttachmentType<?>> REGISTRY = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, EpicFightNeoForge.MODID);
 	
 	public static final DeferredHolder<AttachmentType<?>, AttachmentType<SkinLayer3DMeshes>> SKINLAYER_MESH = REGISTRY.register(
             "skinlayer_mesh",

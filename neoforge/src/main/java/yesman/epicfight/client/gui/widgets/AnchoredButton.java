@@ -12,7 +12,7 @@ import net.minecraft.util.Mth;
 import yesman.epicfight.client.gui.widgets.common.AnchoredWidget;
 import yesman.epicfight.client.gui.widgets.common.ThemeApplicableWidget;
 import yesman.epicfight.client.gui.widgets.common.WidgetTheme;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -106,21 +106,21 @@ public class AnchoredButton extends Button implements AnchoredWidget, ThemeAppli
     }
 
     static final WidgetSprites NUMBERED_TAB_SPRITES = new WidgetSprites(
-        EpicFightMod.identifier("widget/numbered_tab_button"),
-        EpicFightMod.identifier("widget/numbered_tab_button_disabled"),
-        EpicFightMod.identifier("widget/numbered_tab_button_highlighted")
+        EpicFightNeoForge.identifier("widget/numbered_tab_button"),
+        EpicFightNeoForge.identifier("widget/numbered_tab_button_disabled"),
+        EpicFightNeoForge.identifier("widget/numbered_tab_button_highlighted")
     );
 
     static final WidgetSprites EMOTE_WHEEL_UP_SPRITES = new WidgetSprites(
-        EpicFightMod.identifier("widget/emote_wheel_up"),
-        EpicFightMod.identifier("widget/emote_wheel_up"),
-        EpicFightMod.identifier("widget/emote_wheel_up_highlighted")
+        EpicFightNeoForge.identifier("widget/emote_wheel_up"),
+        EpicFightNeoForge.identifier("widget/emote_wheel_up"),
+        EpicFightNeoForge.identifier("widget/emote_wheel_up_highlighted")
     );
 
     static final WidgetSprites EMOTE_WHEEL_DOWN_SPRITES = new WidgetSprites(
-        EpicFightMod.identifier("widget/emote_wheel_down"),
-        EpicFightMod.identifier("widget/emote_wheel_down"),
-        EpicFightMod.identifier("widget/emote_wheel_down_highlighted")
+        EpicFightNeoForge.identifier("widget/emote_wheel_down"),
+        EpicFightNeoForge.identifier("widget/emote_wheel_down"),
+        EpicFightNeoForge.identifier("widget/emote_wheel_down_highlighted")
     );
 
     public enum BuiltInTheme implements ButtonTheme {

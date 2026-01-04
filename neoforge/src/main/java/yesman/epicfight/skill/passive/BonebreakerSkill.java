@@ -10,7 +10,7 @@ import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -22,7 +22,7 @@ import yesman.epicfight.skill.SkillContainer;
 import java.util.List;
 
 public class BonebreakerSkill extends PassiveSkill {
-    public static final IdentifierProvider CRACKINESS = IdentifierProvider.constant(EpicFightMod.identifier("bonebreaker_target_crackiness"));
+    public static final IdentifierProvider CRACKINESS = IdentifierProvider.constant(EpicFightNeoForge.identifier("bonebreaker_target_crackiness"));
 
 	private float damageBonus;
 	private int maxDamageBonusStacks;

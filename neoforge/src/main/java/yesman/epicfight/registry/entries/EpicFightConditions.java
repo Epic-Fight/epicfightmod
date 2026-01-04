@@ -15,13 +15,13 @@ import yesman.epicfight.data.conditions.entity.RandomChance;
 import yesman.epicfight.data.conditions.entity.TargetInDistance;
 import yesman.epicfight.data.conditions.entity.TargetInEyeHeight;
 import yesman.epicfight.data.conditions.entity.TargetInPov;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.registry.EpicFightRegistries;
 
 public final class EpicFightConditions {
 	private EpicFightConditions() {}
 	
-	public static final DeferredRegister<Supplier<Condition<?>>> REGISTRY = DeferredRegister.create(EpicFightRegistries.CONDITION, EpicFightMod.MODID);
+	public static final DeferredRegister<Supplier<Condition<?>>> REGISTRY = DeferredRegister.create(EpicFightRegistries.CONDITION, EpicFightNeoForge.MODID);
 	
 	public static <T extends Condition<?>> Supplier<T> getConditionOrThrow(ResourceLocation key) throws NoSuchElementException, ClassCastException {
 		if (!EpicFightRegistries.CONDITION.containsKey(key)) {

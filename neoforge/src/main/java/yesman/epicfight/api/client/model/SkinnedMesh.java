@@ -31,7 +31,7 @@ import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.main.EpicFightNeoForge;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
@@ -128,7 +128,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	protected SkinnedMeshPart getOrLogException(Map<String, SkinnedMeshPart> parts, String name) {
 		if (!parts.containsKey(name)) {
 			if (EpicFightSharedConstants.IS_DEV_ENV) {
-				EpicFightMod.LOGGER.debug("Cannot find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
+				EpicFightNeoForge.LOGGER.debug("Cannot find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
 			}
 			
 			return null;

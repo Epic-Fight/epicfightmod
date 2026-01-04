@@ -35,6 +35,7 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.EpicFight;
+import yesman.epicfight.EpicFightClient;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -72,6 +73,7 @@ import yesman.epicfight.network.EntityPairingPacketType;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.platform.ModPlatformProvider;
 import yesman.epicfight.platform.neoforge.NeoForgeModPlatform;
+import yesman.epicfight.platform.neoforge.client.NeoForgeClientModPlatform;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.server.commands.AnimatorCommand;
@@ -168,6 +170,7 @@ public class EpicFightMod {
     public EpicFightMod(IEventBus modEventBus, ModContainer modContainer) {
 		ModPlatformProvider.initialize(new NeoForgeModPlatform());
     	if (EpicFightSharedConstants.isPhysicalClient()) {
+			EpicFightClient.initialize(new NeoForgeClientModPlatform(modEventBus));
     		modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
     		modContainer.registerExtensionPoint(IConfigScreenFactory.class, EpicFightSettingScreen::new);
     		IEventBasedEngine.init(NeoForge.EVENT_BUS, modEventBus);

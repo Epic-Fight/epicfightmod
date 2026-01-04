@@ -7,7 +7,7 @@ import net.minecraft.world.entity.monster.WitherSkeleton;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 public class WitherSkeletonMinionRenderer extends WitherSkeletonRenderer {
-    private static final ResourceLocation WITHER_SKELETON_LOCATION = EpicFightNeoForge.identifier("textures/entity/wither_skeleton_minion.png");
+	private static final ResourceLocation WITHER_SKELETON_LOCATION = EpicFight.identifier("textures/entity/wither_skeleton_minion.png");
 
 	public WitherSkeletonMinionRenderer(Context context) {
 		super(context);

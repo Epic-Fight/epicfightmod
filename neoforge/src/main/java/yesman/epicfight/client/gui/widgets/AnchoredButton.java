@@ -106,21 +106,21 @@ public class AnchoredButton extends Button implements AnchoredWidget, ThemeAppli
     }
 
     static final WidgetSprites NUMBERED_TAB_SPRITES = new WidgetSprites(
-        EpicFightNeoForge.identifier("widget/numbered_tab_button"),
-        EpicFightNeoForge.identifier("widget/numbered_tab_button_disabled"),
-        EpicFightNeoForge.identifier("widget/numbered_tab_button_highlighted")
+            EpicFight.identifier("widget/numbered_tab_button"),
+            EpicFight.identifier("widget/numbered_tab_button_disabled"),
+            EpicFight.identifier("widget/numbered_tab_button_highlighted")
     );
 
     static final WidgetSprites EMOTE_WHEEL_UP_SPRITES = new WidgetSprites(
-        EpicFightNeoForge.identifier("widget/emote_wheel_up"),
-        EpicFightNeoForge.identifier("widget/emote_wheel_up"),
-        EpicFightNeoForge.identifier("widget/emote_wheel_up_highlighted")
+            EpicFight.identifier("widget/emote_wheel_up"),
+            EpicFight.identifier("widget/emote_wheel_up"),
+            EpicFight.identifier("widget/emote_wheel_up_highlighted")
     );
 
     static final WidgetSprites EMOTE_WHEEL_DOWN_SPRITES = new WidgetSprites(
-        EpicFightNeoForge.identifier("widget/emote_wheel_down"),
-        EpicFightNeoForge.identifier("widget/emote_wheel_down"),
-        EpicFightNeoForge.identifier("widget/emote_wheel_down_highlighted")
+            EpicFight.identifier("widget/emote_wheel_down"),
+            EpicFight.identifier("widget/emote_wheel_down"),
+            EpicFight.identifier("widget/emote_wheel_down_highlighted")
     );
 
     public enum BuiltInTheme implements ButtonTheme {

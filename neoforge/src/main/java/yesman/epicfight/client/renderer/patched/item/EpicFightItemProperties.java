@@ -9,7 +9,7 @@ import yesman.epicfight.world.item.SkillBookItem;
 
 public class EpicFightItemProperties {
 	public static void registerItemProperties() {
-		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), EpicFightNeoForge.identifier("skill"), (itemstack, level, entity, i) -> {
+		ItemProperties.register(EpicFightItems.SKILLBOOK.get(), EpicFight.identifier("skill"), (itemstack, level, entity, i) -> {
             Holder<Skill> skill = SkillBookItem.getContainSkill(itemstack).orElse(null);
 
             if (skill != null) {

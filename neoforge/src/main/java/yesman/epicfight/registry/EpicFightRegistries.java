@@ -66,7 +66,7 @@ public abstract class EpicFightRegistries {
         ResourceKey<Registry<Emote>> EMOTE = key("emote");
 
         private static <T> ResourceKey<Registry<T>> key(String name) {
-            return ResourceKey.createRegistryKey(EpicFightNeoForge.identifier(name));
+            return ResourceKey.createRegistryKey(EpicFight.identifier(name));
         }
     }
 

@@ -118,7 +118,7 @@ public abstract class Skill implements IdentifierProvider {
 
 	@ApiStatus.Internal
 	private Skill() {
-        this.registryName = EpicFightNeoForge.identifier("empty");
+		this.registryName = EpicFight.identifier("empty");
 		this.category = SkillCategories.EMPTY;
 		this.creativeTab = null;
 		this.activateType = ActivateType.ONE_SHOT;

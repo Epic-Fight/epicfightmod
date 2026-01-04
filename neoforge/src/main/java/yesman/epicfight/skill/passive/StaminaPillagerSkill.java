@@ -16,7 +16,7 @@ import yesman.epicfight.skill.SkillContainer;
 import java.util.List;
 
 public class StaminaPillagerSkill extends PassiveSkill {
-    public static final IdentifierProvider ASHEN_DECORATIONS = IdentifierProvider.constant(EpicFightNeoForge.identifier("stamina_pillager_ashen"));
+    public static final IdentifierProvider ASHEN_DECORATIONS = IdentifierProvider.constant(EpicFight.identifier("stamina_pillager_ashen"));
 
     protected float regenRate;
 

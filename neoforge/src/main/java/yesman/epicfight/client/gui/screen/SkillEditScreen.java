@@ -29,11 +29,11 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class SkillEditScreen extends Screen {
-    public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = EpicFightNeoForge.identifier("textures/gui/empty.png");
-    public static final ResourceLocation SCROLL_ARROW_UP = EpicFightNeoForge.identifier("textures/gui/scroll_arrow_up.png");
-    public static final ResourceLocation SCROLL_ARROW_DOWN = EpicFightNeoForge.identifier("textures/gui/scroll_arrow_down.png");
+    public static final ResourceLocation EMPTY_SKILL_SLOT_ICON = EpicFight.identifier("textures/gui/empty.png");
+    public static final ResourceLocation SCROLL_ARROW_UP = EpicFight.identifier("textures/gui/scroll_arrow_up.png");
+    public static final ResourceLocation SCROLL_ARROW_DOWN = EpicFight.identifier("textures/gui/scroll_arrow_down.png");
 
-    private static final ResourceLocation SKILL_EDIT_UI = EpicFightNeoForge.identifier("textures/gui/screen/skill_edit.png");
+    private static final ResourceLocation SKILL_EDIT_UI = EpicFight.identifier("textures/gui/screen/skill_edit.png");
     private static final MutableComponent NO_SKILLS = Component.translatable(LangKeys.GUI_MESSAGE_SKILL_EDIT_NO_SKILLS);
 
     private static final int MAX_SKILL_OPTIONS_ROWS = 6;

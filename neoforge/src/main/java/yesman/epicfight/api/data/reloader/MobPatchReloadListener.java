@@ -499,7 +499,7 @@ public class MobPatchReloadListener extends SimpleJsonResourceReloadListener {
 		if (type.contains(":")) {
 			rl = ResourceLocation.parse(type);
 		} else {
-			rl = EpicFightNeoForge.identifier(type);
+			rl = EpicFight.identifier(type);
 		}
 		
 		Supplier<Condition<T>> predicateProvider = EpicFightConditions.getConditionOrNull(rl);

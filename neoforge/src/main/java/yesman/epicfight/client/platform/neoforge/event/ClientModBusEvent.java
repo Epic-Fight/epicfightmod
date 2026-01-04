@@ -101,10 +101,10 @@ public final class ClientModBusEvent {
 	
 	@SubscribeEvent
 	public static void epicfight$registerGuiOverlaysEvent(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(EpicFightNeoForge.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
-		event.registerAboveAll(EpicFightNeoForge.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
-		event.registerAboveAll(EpicFightNeoForge.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
-		event.registerAboveAll(EpicFightNeoForge.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
+		event.registerAboveAll(EpicFight.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
+		event.registerAboveAll(EpicFight.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
+		event.registerAboveAll(EpicFight.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
+		event.registerAboveAll(EpicFight.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
 	}
 	
 	private static ResourceLocation wrapItemModelPath(ResourceLocation rl) {
@@ -137,7 +137,7 @@ public final class ClientModBusEvent {
 			
 			ItemOverrides overrides = event.getModels().get(skillbookLocation).getOverrides();
 			overrides.overrides = skillCategoryOverrides.toArray(ItemOverrides.BakedOverride[]::new);
-			overrides.properties = new ResourceLocation[] {EpicFightNeoForge.identifier("skill")};
+			overrides.properties = new ResourceLocation[]{EpicFight.identifier("skill")};
 		}
 	}
 }

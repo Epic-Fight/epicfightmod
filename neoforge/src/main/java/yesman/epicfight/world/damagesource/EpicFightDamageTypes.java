@@ -8,6 +8,6 @@ import yesman.epicfight.main.EpicFightNeoForge;
 public final class EpicFightDamageTypes {
 	private EpicFightDamageTypes() {}
 	
-	public static final ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFightNeoForge.identifier("shockwave"));
-	public static final ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFightNeoForge.identifier("wither_beam"));
+	public static final ResourceKey<DamageType> SHOCKWAVE = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFight.identifier("shockwave"));
+	public static final ResourceKey<DamageType> WITHER_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, EpicFight.identifier("wither_beam"));
 }

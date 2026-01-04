@@ -22,7 +22,7 @@ import yesman.epicfight.skill.SkillContainer;
 import java.util.List;
 
 public class BonebreakerSkill extends PassiveSkill {
-    public static final IdentifierProvider CRACKINESS = IdentifierProvider.constant(EpicFightNeoForge.identifier("bonebreaker_target_crackiness"));
+    public static final IdentifierProvider CRACKINESS = IdentifierProvider.constant(EpicFight.identifier("bonebreaker_target_crackiness"));
 
 	private float damageBonus;
 	private int maxDamageBonusStacks;

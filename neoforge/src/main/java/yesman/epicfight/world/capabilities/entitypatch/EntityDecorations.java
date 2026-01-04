@@ -188,7 +188,7 @@ public final class EntityDecorations {
 
     @ClientOnly
     public interface DecorationOverlay {
-        ResourceLocation GENERIC = EpicFightNeoForge.identifier("textures/common/white.png");
+        ResourceLocation GENERIC = EpicFight.identifier("textures/common/white.png");
         Vector4f NO_COLOR = new Vector4f(1.0F);
 
         default Vector4f color(float partialTick) {

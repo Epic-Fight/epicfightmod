@@ -49,22 +49,22 @@ import java.util.stream.Stream;
 public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
-        typeEntry.put(EpicFightNeoForge.identifier("axe"), WeaponCapabilityPresets.AXE);
-        typeEntry.put(EpicFightNeoForge.identifier("fist"), WeaponCapabilityPresets.FIST);
-        typeEntry.put(EpicFightNeoForge.identifier("hoe"), WeaponCapabilityPresets.HOE);
-        typeEntry.put(EpicFightNeoForge.identifier("pickaxe"), WeaponCapabilityPresets.PICKAXE);
-        typeEntry.put(EpicFightNeoForge.identifier("shovel"), WeaponCapabilityPresets.SHOVEL);
-        typeEntry.put(EpicFightNeoForge.identifier("sword"), WeaponCapabilityPresets.SWORD);
-        typeEntry.put(EpicFightNeoForge.identifier("spear"), WeaponCapabilityPresets.SPEAR);
-        typeEntry.put(EpicFightNeoForge.identifier("greatsword"), WeaponCapabilityPresets.GREATSWORD);
-        typeEntry.put(EpicFightNeoForge.identifier("uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
-        typeEntry.put(EpicFightNeoForge.identifier("tachi"), WeaponCapabilityPresets.TACHI);
-        typeEntry.put(EpicFightNeoForge.identifier("longsword"), WeaponCapabilityPresets.LONGSWORD);
-        typeEntry.put(EpicFightNeoForge.identifier("dagger"), WeaponCapabilityPresets.DAGGER);
-        typeEntry.put(EpicFightNeoForge.identifier("bow"), WeaponCapabilityPresets.BOW);
-        typeEntry.put(EpicFightNeoForge.identifier("crossbow"), WeaponCapabilityPresets.CROSSBOW);
-        typeEntry.put(EpicFightNeoForge.identifier("trident"), WeaponCapabilityPresets.TRIDENT);
-        typeEntry.put(EpicFightNeoForge.identifier("shield"), WeaponCapabilityPresets.SHIELD);
+        typeEntry.put(EpicFight.identifier("axe"), WeaponCapabilityPresets.AXE);
+        typeEntry.put(EpicFight.identifier("fist"), WeaponCapabilityPresets.FIST);
+        typeEntry.put(EpicFight.identifier("hoe"), WeaponCapabilityPresets.HOE);
+        typeEntry.put(EpicFight.identifier("pickaxe"), WeaponCapabilityPresets.PICKAXE);
+        typeEntry.put(EpicFight.identifier("shovel"), WeaponCapabilityPresets.SHOVEL);
+        typeEntry.put(EpicFight.identifier("sword"), WeaponCapabilityPresets.SWORD);
+        typeEntry.put(EpicFight.identifier("spear"), WeaponCapabilityPresets.SPEAR);
+        typeEntry.put(EpicFight.identifier("greatsword"), WeaponCapabilityPresets.GREATSWORD);
+        typeEntry.put(EpicFight.identifier("uchigatana"), WeaponCapabilityPresets.UCHIGATANA);
+        typeEntry.put(EpicFight.identifier("tachi"), WeaponCapabilityPresets.TACHI);
+        typeEntry.put(EpicFight.identifier("longsword"), WeaponCapabilityPresets.LONGSWORD);
+        typeEntry.put(EpicFight.identifier("dagger"), WeaponCapabilityPresets.DAGGER);
+        typeEntry.put(EpicFight.identifier("bow"), WeaponCapabilityPresets.BOW);
+        typeEntry.put(EpicFight.identifier("crossbow"), WeaponCapabilityPresets.CROSSBOW);
+        typeEntry.put(EpicFight.identifier("trident"), WeaponCapabilityPresets.TRIDENT);
+        typeEntry.put(EpicFight.identifier("shield"), WeaponCapabilityPresets.SHIELD);
 
         WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.post(weaponCapabilityPresetRegistryEvent);

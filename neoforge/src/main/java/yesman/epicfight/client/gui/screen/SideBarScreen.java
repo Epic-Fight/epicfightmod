@@ -109,8 +109,8 @@ public class SideBarScreen extends Screen {
     }
 
     private class CloseButton extends AbstractButton implements AnchoredWidget {
-        private static final ResourceLocation ARROW_SPRITE = EpicFightNeoForge.identifier("widget/arrow");
-        private static final ResourceLocation ARROW_HIGHLIGHTED_SPRITE = EpicFightNeoForge.identifier("widget/arrow_highlighted");
+        private static final ResourceLocation ARROW_SPRITE = EpicFight.identifier("widget/arrow");
+        private static final ResourceLocation ARROW_HIGHLIGHTED_SPRITE = EpicFight.identifier("widget/arrow_highlighted");
 
         private CloseButton(int sideBarWidth) {
             super(0, 0, 0, 0, Component.empty());

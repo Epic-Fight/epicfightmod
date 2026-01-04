@@ -123,7 +123,6 @@ import java.util.function.Supplier;
 @Mod(EpicFightNeoForge.MODID)
 public class EpicFightNeoForge {
 
-	// TODO: Rename class to EpicFightNeoForge
 	// TODO: Avoid using the deprecated fields in neoforge Gradle project, and migrate to the new shared ones in EpicFight via IDE structural replacement
 
 	/// @deprecated Use [yesman.epicfight.EpicFight#MODID] instead
@@ -441,6 +440,6 @@ public class EpicFightNeoForge {
 	/// @deprecated Use [#identifier(String)] instead. [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
 	@Deprecated(forRemoval = true)
 	public static @NotNull ResourceLocation rl(@NotNull String path) {
-		return identifier(path);
+		return EpicFight.identifier(path);
 	}
 }

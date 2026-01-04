@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public class SideNavigationBarOpener extends AbstractWidget implements AnchoredWidget, PressableWidget {
-    private static final ResourceLocation ARROW_SPRITE = EpicFightNeoForge.identifier("widget/arrow");
-    private static final ResourceLocation ARROW_HIGHLIGHTED_SPRITE = EpicFightNeoForge.identifier("widget/arrow_highlighted");
+    private static final ResourceLocation ARROW_SPRITE = EpicFight.identifier("widget/arrow");
+    private static final ResourceLocation ARROW_HIGHLIGHTED_SPRITE = EpicFight.identifier("widget/arrow_highlighted");
 
     private final Screen owner;
     private final Screen twoStepsParent;

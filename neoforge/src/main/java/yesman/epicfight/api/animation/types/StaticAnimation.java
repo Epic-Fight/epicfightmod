@@ -85,7 +85,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
     public StaticAnimation() {
         super(0.0F, true);
 
-        this.resourceLocation = EpicFightNeoForge.identifier("emtpy");
+        this.resourceLocation = EpicFight.identifier("emtpy");
         this.armature = null;
         this.filehash = StringUtil.EMPTY_STRING;
     }

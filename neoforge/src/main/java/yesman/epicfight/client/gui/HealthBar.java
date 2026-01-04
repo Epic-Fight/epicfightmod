@@ -29,8 +29,8 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.effect.VisibleMobEffect;
 
 public class HealthBar extends EntityUI {
-    public static final ResourceLocation HEALTHBARS1 = EpicFightNeoForge.identifier("textures/gui/healthbars1.png");
-    public static final ResourceLocation HEALTHBARS2 = EpicFightNeoForge.identifier("textures/gui/healthbars2.png");
+	public static final ResourceLocation HEALTHBARS1 = EpicFight.identifier("textures/gui/healthbars1.png");
+	public static final ResourceLocation HEALTHBARS2 = EpicFight.identifier("textures/gui/healthbars2.png");
 	
 	private final Map<LivingEntity, EntityAttributeTracker> trackingEntities = Maps.newConcurrentMap();
 	

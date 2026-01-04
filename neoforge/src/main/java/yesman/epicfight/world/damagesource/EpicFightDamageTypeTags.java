@@ -62,6 +62,6 @@ public interface EpicFightDamageTypeTags {
 	TagKey<DamageType> IS_MAGIC = create("is_magic");
 	
 	private static TagKey<DamageType> create(String tagName) {
-		return TagKey.create(Registries.DAMAGE_TYPE, EpicFightNeoForge.identifier(tagName));
+		return TagKey.create(Registries.DAMAGE_TYPE, EpicFight.identifier(tagName));
 	}
 }

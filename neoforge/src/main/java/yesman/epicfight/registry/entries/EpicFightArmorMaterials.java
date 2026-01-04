@@ -37,7 +37,7 @@ public final class EpicFightArmorMaterials {
 					, 15
 					, SoundEvents.ARMOR_EQUIP_LEATHER
 					, () -> Ingredient.of(Items.STRING)
-					, List.of(new ArmorMaterial.Layer(EpicFightNeoForge.identifier("stray_cloth")))
+					, List.of(new ArmorMaterial.Layer(EpicFight.identifier("stray_cloth")))
 					, 0.0F
 					, 0.0F
 				)

@@ -139,7 +139,7 @@ public abstract class DynamicAnimation {
     }
 
     public ResourceLocation getRegistryName() {
-        return EpicFightNeoForge.identifier("");
+        return EpicFight.identifier("");
     }
 
     public int getId() {

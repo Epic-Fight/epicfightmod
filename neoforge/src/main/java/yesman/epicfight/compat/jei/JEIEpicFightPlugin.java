@@ -12,7 +12,7 @@ import yesman.epicfight.main.EpicFightNeoForge;
 public class JEIEpicFightPlugin implements IModPlugin{
 	@Override
 	public ResourceLocation getPluginUid() {
-        return EpicFightNeoForge.identifier("jei_plugin");
+		return EpicFight.identifier("jei_plugin");
 	}
 	
 	@Override

@@ -37,9 +37,9 @@ public class LayerUtil {
 	
 	public static <E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> void addLayer(LayerRenderer<E, T, M> renderer, EntityType<?> entityType, List<Pair<ResourceLocation, JsonElement>> layers) {
 		Map<ResourceLocation, LayerProvider<E, T, M, R, AM>> layersbyid = new HashMap<> ();
-		layersbyid.put(EpicFightNeoForge.identifier("invisible"), LayerUtil::getInvisibleLayer);
-		layersbyid.put(EpicFightNeoForge.identifier("eyes"), LayerUtil::getEyesLayer);
-		layersbyid.put(EpicFightNeoForge.identifier("model_original"), LayerUtil::getOriginalModelLayer);
+		layersbyid.put(EpicFight.identifier("invisible"), LayerUtil::getInvisibleLayer);
+		layersbyid.put(EpicFight.identifier("eyes"), LayerUtil::getEyesLayer);
+		layersbyid.put(EpicFight.identifier("model_original"), LayerUtil::getOriginalModelLayer);
 
 		for (Pair<ResourceLocation, JsonElement> entry : layers) {
 			try {

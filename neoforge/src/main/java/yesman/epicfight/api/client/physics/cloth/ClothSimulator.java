@@ -59,8 +59,8 @@ import yesman.epicfight.main.EpicFightSharedConstants;
  * https://www.youtube.com/@TenMinutePhysics
  **/
 public class ClothSimulator extends AbstractSimulator<ResourceLocation, ClothObjectBuilder, SoftBodyTranslatable, ClothSimulatable, ClothSimulator.ClothObject> {
-    public static final ResourceLocation PLAYER_CLOAK = EpicFightNeoForge.identifier("ingame_cloak");
-    public static final ResourceLocation MODELPREVIEWER_CLOAK = EpicFightNeoForge.identifier("previewer_cloak");
+	public static final ResourceLocation PLAYER_CLOAK = EpicFight.identifier("ingame_cloak");
+	public static final ResourceLocation MODELPREVIEWER_CLOAK = EpicFight.identifier("previewer_cloak");
 	private static final float SPATIAL_HASH_SPACING = 0.05F;
 	
 	public static class ClothObjectBuilder extends SimulationObject.SimulationObjectBuilder {

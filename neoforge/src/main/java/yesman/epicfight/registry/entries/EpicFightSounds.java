@@ -61,13 +61,13 @@ public final class EpicFightSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> HOVER_WIDGET = registerVariableRangeSound("ui.hover");
 
 	public static DeferredHolder<SoundEvent, SoundEvent> registerVariableRangeSound(String name) {
-        ResourceLocation res = EpicFightNeoForge.identifier(name);
+		ResourceLocation res = EpicFight.identifier(name);
 		
 		return REGISTRY.register(name, () -> SoundEvent.createVariableRangeEvent(res));
 	}
 
 	public static DeferredHolder<SoundEvent, SoundEvent> registerFixedRangeSound(String name, float range) {
-        ResourceLocation res = EpicFightNeoForge.identifier(name);
+		ResourceLocation res = EpicFight.identifier(name);
 		
 		return REGISTRY.register(name, () -> SoundEvent.createFixedRangeEvent(res, range));
 	}

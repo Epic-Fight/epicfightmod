@@ -46,7 +46,7 @@ public class SkillReloadListener extends SimpleJsonResourceReloadListener {
 		if (name.indexOf(':') >= 0) {
 			rl = ResourceLocation.parse(name);
 		} else {
-            rl = EpicFightNeoForge.identifier(name);
+			rl = EpicFight.identifier(name);
 		}
 		
 		if (EpicFightRegistries.SKILL.containsKey(rl)) {

@@ -54,7 +54,7 @@ import static yesman.epicfight.generated.LangKeys.*;
 public class SkillBookScreen extends Screen {
     private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = new HashMap<> ();
     private static final Map<Holder<Attribute>, TextureInfo> ATTRIBUTE_ICONS = new HashMap<> ();
-    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightNeoForge.identifier("textures/gui/screen/skillbook.png");
+    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFight.identifier("textures/gui/screen/skillbook.png");
 
     public static final TextureInfo HEALTH_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 22, 205, 10, 10);
     public static final TextureInfo STAMINA_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 32, 205, 10, 10);
@@ -660,9 +660,9 @@ public class SkillBookScreen extends Screen {
 
     private static class LearnButton extends Button {
         protected static final WidgetSprites SPRITES = new WidgetSprites(
-            EpicFightNeoForge.identifier("widget/skillbook_button"),
-            EpicFightNeoForge.identifier("widget/skillbook_button_disabled"),
-            EpicFightNeoForge.identifier("widget/skillbook_button_highlighted")
+                EpicFight.identifier("widget/skillbook_button"),
+                EpicFight.identifier("widget/skillbook_button_disabled"),
+                EpicFight.identifier("widget/skillbook_button_highlighted")
         );
 
         protected LearnButton(Builder builder) {

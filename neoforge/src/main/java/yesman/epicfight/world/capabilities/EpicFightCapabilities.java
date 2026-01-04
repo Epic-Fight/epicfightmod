@@ -27,8 +27,8 @@ import java.util.Optional;
 public class EpicFightCapabilities {
 	public static final ItemCapability<CapabilityItem, Void> CAPABILITY_ITEM =
 		ItemCapability.createVoid(
-            EpicFightNeoForge.identifier("item_capability"),
-            CapabilityItem.class
+                EpicFight.identifier("item_capability"),
+                CapabilityItem.class
         );
 
 	public static final CommonEntityPatchProvider ENTITY_PATCH_PROVIDER = CommonEntityPatchProvider.INSTANCE;

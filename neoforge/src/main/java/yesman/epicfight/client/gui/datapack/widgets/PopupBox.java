@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /// We're refactoring UI codes, use [yesman.epicfight.client.gui.widgets.PopupBox] instead
 @Deprecated
 public abstract class PopupBox<T> extends AbstractWidget implements DataBindingComponent<T, Pair<String, T>> {
-    public static final ResourceLocation POPUP_ICON = EpicFightNeoForge.identifier("textures/gui/widget/popup_icon.png");
+	public static final ResourceLocation POPUP_ICON = EpicFight.identifier("textures/gui/widget/popup_icon.png");
 	
 	protected final Screen owner;
 	protected final Font font;

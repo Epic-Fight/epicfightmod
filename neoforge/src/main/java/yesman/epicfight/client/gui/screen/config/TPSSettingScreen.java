@@ -19,10 +19,10 @@ import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.main.EpicFightNeoForge;
 
 public class TPSSettingScreen extends Screen {
-    private static final ResourceLocation DIRECTION_BUTTON_SPRITE = EpicFightNeoForge.identifier("widget/direction_button");
-    private static final ResourceLocation DIRECTION_BUTTON_DISABLED_SPRITE = EpicFightNeoForge.identifier("widget/direction_button_disabled");
-    private static final ResourceLocation DIRECTION_BUTTON_HIGHLIGHTED_SPRITE = EpicFightNeoForge.identifier("widget/direction_button_highlighted");
-    private static final ResourceLocation ZOOM_SCROLL_SPRITE = EpicFightNeoForge.identifier("widget/zoom_scroll");
+    private static final ResourceLocation DIRECTION_BUTTON_SPRITE = EpicFight.identifier("widget/direction_button");
+    private static final ResourceLocation DIRECTION_BUTTON_DISABLED_SPRITE = EpicFight.identifier("widget/direction_button_disabled");
+    private static final ResourceLocation DIRECTION_BUTTON_HIGHLIGHTED_SPRITE = EpicFight.identifier("widget/direction_button_highlighted");
+    private static final ResourceLocation ZOOM_SCROLL_SPRITE = EpicFight.identifier("widget/zoom_scroll");
 
     private static final Component NO_WORLD_WARNING = Component.translatable(LangKeys.GUI_MESSAGE_SETTINGS_CAMERA_TPS_PERSPECTIVE_RECOMMEND_JOIN_WORLD);
 

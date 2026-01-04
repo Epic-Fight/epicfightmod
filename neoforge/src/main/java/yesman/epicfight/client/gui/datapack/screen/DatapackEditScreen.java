@@ -748,7 +748,7 @@ public class DatapackEditScreen extends Screen {
 										} else {
 											grid.setValueChangeEnabled(false);
 											int rowposition = grid.addRowWithDefaultValues("pack_item", EpicFightNeoForge.prefix(""));
-											this.packList.add(rowposition, PackEntry.of(EpicFightNeoForge.identifier(""), CompoundTag::new));
+											this.packList.add(rowposition, PackEntry.of(EpicFight.identifier(""), CompoundTag::new));
 											grid.setGridFocus(rowposition, "pack_item");
 											grid.setValueChangeEnabled(true);
 										}

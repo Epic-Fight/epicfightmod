@@ -1,32 +1,14 @@
 package yesman.epicfight.client.renderer.shader.compute;
 
-import static org.lwjgl.opengl.GL11C.GL_BYTE;
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_SHORT;
-import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15C.glBindBuffer;
-import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30C.glVertexAttribIPointer;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
-import org.lwjgl.opengl.GL46;
 import org.lwjgl.opengl.GL46C;
 import org.lwjgl.system.MemoryUtil;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -36,10 +18,18 @@ import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedBuffer;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
-import yesman.epicfight.client.renderer.shader.compute.backend.utils.MemUtils;
-import yesman.epicfight.client.renderer.shader.compute.backend.utils.SimpleMemoryInterface;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.config.ClientConfig;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+
+import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL15C.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15C.glBindBuffer;
+import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30C.glVertexAttribIPointer;
 
 public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 	
@@ -161,6 +151,7 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		}
 
 		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
+
 		if(use_persist){
 			// pose
 			int pose_len = poses.length + skinnedMesh.getAllParts().size();

@@ -50,6 +50,7 @@ public class ClientConfig {
     // Graphics
     public static final BooleanValue BLOOD_EFFECTS = BUILDER.define("ingame.blood_effects", () -> true);
     public static final BooleanValue ACTIVATE_COMPUTE_SHADER = BUILDER.define("ingame.use_compute_shader", () -> false);
+    public static final BooleanValue ACTIVATE_PERSISTENT_BUFFER = BUILDER.define("ingame.use_persistent_buffer", () -> false);
 
     // Model
     public static final IntValue MAX_STUCK_PROJECTILES = BUILDER.defineInRange("ingame.max_hit_projectiles", 30, 0, 30);
@@ -138,6 +139,7 @@ public class ClientConfig {
     // Graphic Config values
     public static boolean bloodEffects;
     public static boolean activateComputeShader;
+    public static boolean activatePersistentBuffer;
 
     // Model Config values
     public static int maxStuckProjectiles;
@@ -203,6 +205,7 @@ public class ClientConfig {
         bloodEffects = BLOOD_EFFECTS.get();
         showEpicFightAttributesInTooltip = SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get();
         activateComputeShader = ACTIVATE_COMPUTE_SHADER.get();
+        activatePersistentBuffer = ACTIVATE_PERSISTENT_BUFFER.get();
         enableAnimatedFirstPersonModel = ENABLE_ANIMATED_FIRST_PERSON_MODEL.get();
         mineBlockGuideOption = MINE_BLOCK_GUIDE_OPTION.get();
         enableTargetEntityGuide = ENABLE_TARGET_ENTITY_GUIDE.get();

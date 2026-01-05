@@ -1,23 +1,21 @@
 package yesman.epicfight.client.renderer.shader.compute.loader;
 
-import java.nio.FloatBuffer;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-import org.lwjgl.opengl.GL33C;
-
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import org.lwjgl.opengl.GL33C;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.VanillaComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.backend.pool.BuffersPool;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.DynamicSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.IArrayBufferProxy;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.IArrayBufferProxy;
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
-import yesman.epicfight.main.EpicFightMod;
+
+import java.nio.FloatBuffer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ComputeShaderProvider {
     public static ComputeProgram meshComputeVanilla;
@@ -45,7 +43,7 @@ public class ComputeShaderProvider {
     	return supportComputeShader;
     }
 
-    public static boolean supportPersistentMapping(){
+    public static boolean supportPersistentMapping() {
         return supportPersistentMapping;
     }
 
@@ -57,12 +55,12 @@ public class ComputeShaderProvider {
     	String glVersion = GL33C.glGetString(GL33C.GL_VERSION);
         int major = GL33C.glGetInteger(GL33C.GL_MAJOR_VERSION);
         int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
-        
+
         supportComputeShader = ((major > 4) || (major == 4 && minor >= 3));
         supportPersistentMapping = ((major > 4) || (major == 4 && minor >= 6));
 
-        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
-        EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
+        EpicFight.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: {}", glVersion);
+        EpicFight.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: {}", (supportComputeShader ? "Supported" : "Unsupported"));
     }
     
     public static void epicfight$registerComputeShaders(RegisterShadersEvent event) {
@@ -91,8 +89,8 @@ public class ComputeShaderProvider {
 
         } catch (Exception e) {
             supportComputeShader = false;
-            EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
-            EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
+            EpicFight.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
+            EpicFight.LOGGER.warn("[Computer Shader Acceleration] Detail: {0}", e);
         }
     }
 

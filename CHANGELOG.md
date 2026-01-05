@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Holding emote wheel key (default 'Y') will open Emote screen, where you can select a emote to play
     - Emote system is data-driven. Meaning that users can add custom emotes
     - Similar to other datapack systems, it requires each client to load emote animation provided as resource pack
+- Persistent Mapped Buffer (by @dfdyz)
+    - Boosts frame rate by removing the uploading process of buffers to shader
+    - Requires OpenGL version over 4.6
 
 ### Changed
 

@@ -1,26 +1,18 @@
 package yesman.epicfight.api.client.model;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
@@ -33,6 +25,11 @@ import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvi
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 	protected final float[] weights;
@@ -87,7 +84,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 		}
 		
 		this.maxJointCount = maxJointId;
-		
+
 		if (ComputeShaderProvider.supportComputeShader()) {
 			if (RenderSystem.isOnRenderThread()) {
 				this.computerShaderSetup = ComputeShaderProvider.getComputeShaderSetup(this);
@@ -241,7 +238,7 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 
 	@Override
 	public void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
-		if (ClientConfig.activateComputeShader && this.computerShaderSetup != null) {
+        if (ClientConfig.activateComputeShader && this.computerShaderSetup != null) {
 			this.computerShaderSetup.drawWithShader(this, poseStack, bufferSources, EpicFightRenderTypes.getTriangulated(renderType), packedLight, r, g, b, a, overlay, armature, poses);
 		} else {
 			this.drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), drawingFunction, packedLight, r, g, b, a, overlay, armature, poses);

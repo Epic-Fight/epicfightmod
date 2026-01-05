@@ -541,6 +541,38 @@ public class EpicFightSettingScreen extends Screen {
                         Component.translatable(GUI_WIDGET_SETTINGS_GRAPHICS_BLOOD_PARTICLES),
                         false
                     )
+                )
+                .newRow()
+                .addWidget(
+                    new SettingTitle(
+                        minecraft.font,
+                        this.widgetTable.nextX(4),
+                        125,
+                        0,
+                        15,
+                        AnchoredWidget.HorizontalAnchorType.LEFT_RIGHT,
+                        AnchoredWidget.VerticalAnchorType.TOP_HEIGHT,
+                        GUI_WIDGET_SETTINGS_GRAPHICS_PERSISTENT_BUFFER,
+                        this.textBox::setMessage,
+                        this::getHoveringSettingTitle,
+                        this::setHoveringSettingTitle,
+                        EpicFightSettingScreen.this::getFocusedWidgetFromTable
+                    )
+                )
+                .addWidget(
+                    new CheckBox(
+                        minecraft.font,
+                        9,
+                        12,
+                        0,
+                        12,
+                        AnchoredWidget.HorizontalAnchorType.RIGHT_WIDTH,
+                        AnchoredWidget.VerticalAnchorType.TOP_HEIGHT,
+                        () -> ClientConfig.activatePersistentBuffer,
+                        value -> ClientConfig.activatePersistentBuffer = value,
+                        Component.translatable(GUI_TOOLTIP_SETTINGS_GRAPHICS_PERSISTENT_BUFFER),
+                        false
+                    )
                 );
 
             this.widgetTable.initialize(false);

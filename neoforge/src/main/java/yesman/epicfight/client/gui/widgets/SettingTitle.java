@@ -141,7 +141,7 @@ public class SettingTitle extends AbstractWidget implements AnchoredWidget, Pres
     @Override
     public void setFocused(boolean focused) {
         super.setFocused(focused);
-        this.onPressed();
+        if (focused) this.onPressed();
     }
 
     @Override

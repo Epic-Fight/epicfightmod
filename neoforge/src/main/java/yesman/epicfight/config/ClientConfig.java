@@ -276,13 +276,17 @@ public class ClientConfig {
     /// @param discard   queued tasks when discard changes
     public static void checkUnsaved(List<Runnable> save, List<Runnable> discard) {
         if (maxStuckProjectiles != MAX_STUCK_PROJECTILES.get()) {
-            save.add(() -> MAX_STUCK_PROJECTILES.set(maxStuckProjectiles));
+            save.add(() -> {
+                MAX_STUCK_PROJECTILES.set(maxStuckProjectiles);
+                MAX_STUCK_PROJECTILES.save();
+            });
             discard.add(() -> maxStuckProjectiles = MAX_STUCK_PROJECTILES.get());
         }
 
         if (targetOutlineColor != TARGET_OUTLINE_COLOR.get()) {
             save.add(() -> {
                 TARGET_OUTLINE_COLOR.set(targetOutlineColor);
+                TARGET_OUTLINE_COLOR.save();
                 packedTargetOutlineColor = ColorDeterminator.positionToPackedRGBA(targetOutlineColor);
             });
             discard.add(() -> {
@@ -292,93 +296,155 @@ public class ClientConfig {
         }
 
         if (bloodEffects != BLOOD_EFFECTS.get()) {
-            save.add(() -> BLOOD_EFFECTS.set(bloodEffects));
+            save.add(() -> {
+                BLOOD_EFFECTS.set(bloodEffects);
+                BLOOD_EFFECTS.save();
+            });
             discard.add(() -> bloodEffects = BLOOD_EFFECTS.get());
         }
 
         if (showEpicFightAttributesInTooltip != SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get()) {
-            save.add(() -> SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.set(showEpicFightAttributesInTooltip));
+            save.add(() -> {
+                SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.set(showEpicFightAttributesInTooltip);
+                SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.save();
+            });
             discard.add(() -> showEpicFightAttributesInTooltip = SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get());
         }
 
         if (activateComputeShader != ACTIVATE_COMPUTE_SHADER.get()) {
-            save.add(() -> ACTIVATE_COMPUTE_SHADER.set(activateComputeShader));
+            save.add(() -> {
+                ACTIVATE_COMPUTE_SHADER.set(activateComputeShader);
+                ACTIVATE_COMPUTE_SHADER.save();
+            });
             discard.add(() -> activateComputeShader = ACTIVATE_COMPUTE_SHADER.get());
         }
 
+        if (activatePersistentBuffer != ACTIVATE_PERSISTENT_BUFFER.get()) {
+            save.add(() -> {
+                ACTIVATE_PERSISTENT_BUFFER.set(activatePersistentBuffer);
+                ACTIVATE_PERSISTENT_BUFFER.save();
+            });
+            discard.add(() -> activatePersistentBuffer = ACTIVATE_PERSISTENT_BUFFER.get());
+        }
+
         if (enableAnimatedFirstPersonModel != ENABLE_ANIMATED_FIRST_PERSON_MODEL.get()) {
-            save.add(() -> ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel));
+            save.add(() -> {
+                ENABLE_ANIMATED_FIRST_PERSON_MODEL.set(enableAnimatedFirstPersonModel);
+                ENABLE_ANIMATED_FIRST_PERSON_MODEL.save();
+            });
             discard.add(() -> enableAnimatedFirstPersonModel = ENABLE_ANIMATED_FIRST_PERSON_MODEL.get());
         }
 
         //
         if (mineBlockGuideOption != MINE_BLOCK_GUIDE_OPTION.get()) {
-            save.add(() -> MINE_BLOCK_GUIDE_OPTION.set(mineBlockGuideOption));
+            save.add(() -> {
+                MINE_BLOCK_GUIDE_OPTION.set(mineBlockGuideOption);
+                MINE_BLOCK_GUIDE_OPTION.save();
+            });
             discard.add(() -> mineBlockGuideOption = MINE_BLOCK_GUIDE_OPTION.get());
         }
 
         if (enableTargetEntityGuide != ENABLE_TARGET_ENTITY_GUIDE.get()) {
-            save.add(() -> ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide));
+            save.add(() -> {
+                ENABLE_TARGET_ENTITY_GUIDE.set(enableTargetEntityGuide);
+                ENABLE_TARGET_ENTITY_GUIDE.save();
+            });
             discard.add(() -> enableTargetEntityGuide = ENABLE_TARGET_ENTITY_GUIDE.get());
         }
 
         if (enableFirstPersonCameraMove != ENABLE_FIRST_PERSON_CAMERA_MOVE.get()) {
-            save.add(() -> ENABLE_FIRST_PERSON_CAMERA_MOVE.set(enableFirstPersonCameraMove));
+            save.add(() -> {
+                ENABLE_FIRST_PERSON_CAMERA_MOVE.set(enableFirstPersonCameraMove);
+                ENABLE_FIRST_PERSON_CAMERA_MOVE.save();
+            });
             discard.add(() -> enableFirstPersonCameraMove = ENABLE_FIRST_PERSON_CAMERA_MOVE.get());
         }
 
         if (enableCosmetics != ENABLE_COSMETICS.get()) {
-            save.add(() -> ENABLE_COSMETICS.set(enableCosmetics));
+            save.add(() -> {
+                ENABLE_COSMETICS.set(enableCosmetics);
+                ENABLE_COSMETICS.save();
+            });
             discard.add(() -> enableCosmetics = ENABLE_COSMETICS.get());
         }
 
         if (enableOriginalModel != ENABLE_PLAYER_VANILLA_MODEL.get()) {
-            save.add(() -> ENABLE_PLAYER_VANILLA_MODEL.set(enableOriginalModel));
+            save.add(() -> {
+                ENABLE_PLAYER_VANILLA_MODEL.set(enableOriginalModel);
+                ENABLE_PLAYER_VANILLA_MODEL.save();
+            });
             discard.add(() -> enableOriginalModel = ENABLE_PLAYER_VANILLA_MODEL.get());
         }
 
         if (tpsType != TPS_TYPE.get()) {
-            save.add(() -> TPS_TYPE.set(tpsType));
+            save.add(() -> {
+                TPS_TYPE.set(tpsType);
+                TPS_TYPE.save();
+            });
             discard.add(() -> tpsType = TPS_TYPE.get());
         }
 
         if (cameraHorizontalLocation != CAMERA_HORIZONTAL_LOCATION.get()) {
-            save.add(() -> CAMERA_HORIZONTAL_LOCATION.set(cameraHorizontalLocation));
+            save.add(() -> {
+                CAMERA_HORIZONTAL_LOCATION.set(cameraHorizontalLocation);
+                CAMERA_HORIZONTAL_LOCATION.save();
+            });
             discard.add(() -> cameraHorizontalLocation = CAMERA_HORIZONTAL_LOCATION.get());
         }
 
         if (cameraVerticalLocation != CAMERA_VERTICAL_LOCATION.get()) {
-            save.add(() -> CAMERA_VERTICAL_LOCATION.set(cameraVerticalLocation));
+            save.add(() -> {
+                CAMERA_VERTICAL_LOCATION.set(cameraVerticalLocation);
+                CAMERA_VERTICAL_LOCATION.save();
+            });
             discard.add(() -> cameraVerticalLocation = CAMERA_VERTICAL_LOCATION.get());
         }
 
         if (cameraZoom != CAMERA_ZOOM.get()) {
-            save.add(() -> CAMERA_ZOOM.set(cameraZoom));
+            save.add(() -> {
+                CAMERA_ZOOM.set(cameraZoom);
+                CAMERA_ZOOM.save();
+            });
             discard.add(() -> cameraZoom = CAMERA_ZOOM.get());
         }
 
         if (holdingThreshold != HOLDING_THRESHOLD.get()) {
-            save.add(() -> HOLDING_THRESHOLD.set(holdingThreshold));
+            save.add(() -> {
+                HOLDING_THRESHOLD.set(holdingThreshold);
+                HOLDING_THRESHOLD.save();
+            });
             discard.add(() -> holdingThreshold = HOLDING_THRESHOLD.get());
         }
 
         if (autoPerspectiveSwithing != AUTO_PERSPECTIVE_SWITCHING.get()) {
-            save.add(() -> AUTO_PERSPECTIVE_SWITCHING.set(autoPerspectiveSwithing));
+            save.add(() -> {
+                AUTO_PERSPECTIVE_SWITCHING.set(autoPerspectiveSwithing);
+                AUTO_PERSPECTIVE_SWITCHING.save();
+            });
             discard.add(() -> autoPerspectiveSwithing = AUTO_PERSPECTIVE_SWITCHING.get());
         }
 
         if (lockOnSnapping != LOCK_ON_SNAPPING.get()) {
-            save.add(() -> LOCK_ON_SNAPPING.set(lockOnSnapping));
+            save.add(() -> {
+                LOCK_ON_SNAPPING.set(lockOnSnapping);
+                LOCK_ON_SNAPPING.save();
+            });
             discard.add(() -> lockOnSnapping = LOCK_ON_SNAPPING.get());
         }
 
         if (canceledVanillaActions != CANCEL_VANILLA_ACTION.get()) {
-            save.add(() -> CANCEL_VANILLA_ACTION.set(canceledVanillaActions));
+            save.add(() -> {
+                CANCEL_VANILLA_ACTION.set(canceledVanillaActions);
+                CANCEL_VANILLA_ACTION.save();
+            });
             discard.add(() -> canceledVanillaActions = CANCEL_VANILLA_ACTION.get());
         }
 
         if (playerBehaviorStrategy != PLAYER_BEHAVIOR_STRATEGY.get()) {
-            save.add(() -> PLAYER_BEHAVIOR_STRATEGY.set(playerBehaviorStrategy));
+            save.add(() -> {
+                PLAYER_BEHAVIOR_STRATEGY.set(playerBehaviorStrategy);
+                PLAYER_BEHAVIOR_STRATEGY.save();
+            });
             discard.add(() -> playerBehaviorStrategy = PLAYER_BEHAVIOR_STRATEGY.get());
         }
 
@@ -388,7 +454,10 @@ public class ClientConfig {
                 .collect(Collectors.toSet())
         )
         ) {
-            save.add(() -> COMBAT_CATEGORIZED_ITEMS.set(combatCategorizedItems.stream().map(item -> BuiltInRegistries.ITEM.getKey(item).toString()).toList()));
+            save.add(() -> {
+                COMBAT_CATEGORIZED_ITEMS.set(combatCategorizedItems.stream().map(item -> BuiltInRegistries.ITEM.getKey(item).toString()).toList());
+                COMBAT_CATEGORIZED_ITEMS.save();
+            });
             discard.add(() -> {
                 combatCategorizedItems.clear();
                 combatCategorizedItems.addAll(COMBAT_CATEGORIZED_ITEMS.get().stream().map(itemStr -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemStr))).toList());
@@ -402,7 +471,10 @@ public class ClientConfig {
                     .collect(Collectors.toSet())
             )
         ) {
-            save.add(() -> MINING_CATEGORIZED_ITEMS.set(miningCategorizedItems.stream().map(item -> BuiltInRegistries.ITEM.getKey(item).toString()).toList()));
+            save.add(() -> {
+                MINING_CATEGORIZED_ITEMS.set(miningCategorizedItems.stream().map(item -> BuiltInRegistries.ITEM.getKey(item).toString()).toList());
+                MINING_CATEGORIZED_ITEMS.save();
+            });
             discard.add(() -> {
                 miningCategorizedItems.clear();
                 miningCategorizedItems.addAll(MINING_CATEGORIZED_ITEMS.get().stream().map(itemStr -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemStr))).toList());
@@ -410,97 +482,154 @@ public class ClientConfig {
         }
 
         if (showTargetIndicator != SHOW_TARGET_INDICATOR.get()) {
-            save.add(() -> SHOW_TARGET_INDICATOR.set(showTargetIndicator));
+            save.add(() -> {
+                SHOW_TARGET_INDICATOR.set(showTargetIndicator);
+                SHOW_TARGET_INDICATOR.save();
+            });
             discard.add(() -> showTargetIndicator = SHOW_TARGET_INDICATOR.get());
         }
 
         if (healthBarVisibility != HEALTH_BAR_VISIBILITY.get()) {
-            save.add(() -> HEALTH_BAR_VISIBILITY.set(healthBarVisibility));
+            save.add(() -> {
+                HEALTH_BAR_VISIBILITY.set(healthBarVisibility);
+                HEALTH_BAR_VISIBILITY.save();
+            });
             discard.add(() -> healthBarVisibility = HEALTH_BAR_VISIBILITY.get());
         }
 
         if (staminaBarX != STAMINA_BAR_X.get()) {
-            save.add(() -> STAMINA_BAR_X.set(staminaBarX));
+            save.add(() -> {
+                STAMINA_BAR_X.set(staminaBarX);
+                STAMINA_BAR_X.save();
+            });
             discard.add(() -> staminaBarX = STAMINA_BAR_X.get());
         }
 
         if (staminaBarY != STAMINA_BAR_Y.get()) {
-            save.add(() -> STAMINA_BAR_Y.set(staminaBarY));
+            save.add(() -> {
+                STAMINA_BAR_Y.set(staminaBarY);
+                STAMINA_BAR_Y.save();
+            });
             discard.add(() -> staminaBarY = STAMINA_BAR_Y.get());
         }
 
         if (staminaBarBaseX != STAMINA_BAR_BASE_X.get()) {
-            save.add(() -> STAMINA_BAR_BASE_X.set(staminaBarBaseX));
+            save.add(() -> {
+                STAMINA_BAR_BASE_X.set(staminaBarBaseX);
+                STAMINA_BAR_BASE_X.save();
+            });
             discard.add(() -> staminaBarBaseX = STAMINA_BAR_BASE_X.get());
         }
 
         if (staminaBarBaseY != STAMINA_BAR_BASE_Y.get()) {
-            save.add(() -> STAMINA_BAR_BASE_Y.set(staminaBarBaseY));
+            save.add(() -> {
+                STAMINA_BAR_BASE_Y.set(staminaBarBaseY);
+                STAMINA_BAR_BASE_Y.save();
+            });
             discard.add(() -> staminaBarBaseY = STAMINA_BAR_BASE_Y.get());
         }
 
         if (weaponInnateX != WEAPON_INNATE_X.get()) {
-            save.add(() -> WEAPON_INNATE_X.set(weaponInnateX));
+            save.add(() -> {
+                WEAPON_INNATE_X.set(weaponInnateX);
+                WEAPON_INNATE_X.save();
+            });
             discard.add(() -> weaponInnateX = WEAPON_INNATE_X.get());
         }
 
         if (weaponInnateY != WEAPON_INNATE_Y.get()) {
-            save.add(() -> WEAPON_INNATE_Y.set(weaponInnateY));
+            save.add(() -> {
+                WEAPON_INNATE_Y.set(weaponInnateY);
+                WEAPON_INNATE_Y.save();
+            });
             discard.add(() -> weaponInnateY = WEAPON_INNATE_Y.get());
         }
 
         if (weaponInnateBaseX != WEAPON_INNATE_BASE_X.get()) {
-            save.add(() -> WEAPON_INNATE_BASE_X.set(weaponInnateBaseX));
+            save.add(() -> {
+                WEAPON_INNATE_BASE_X.set(weaponInnateBaseX);
+                WEAPON_INNATE_BASE_X.save();
+            });
             discard.add(() -> weaponInnateBaseX = WEAPON_INNATE_BASE_X.get());
         }
 
         if (weaponInnateBaseY != WEAPON_INNATE_BASE_Y.get()) {
-            save.add(() -> WEAPON_INNATE_BASE_Y.set(weaponInnateBaseY));
+            save.add(() -> {
+                WEAPON_INNATE_BASE_Y.set(weaponInnateBaseY);
+                WEAPON_INNATE_BASE_Y.save();
+            });
             discard.add(() -> weaponInnateBaseY = WEAPON_INNATE_BASE_Y.get());
         }
 
         if (passiveX != PASSIVE_X.get()) {
-            save.add(() -> PASSIVE_X.set(passiveX));
+            save.add(() -> {
+                PASSIVE_X.set(passiveX);
+                PASSIVE_X.save();
+            });
             discard.add(() -> passiveX = PASSIVE_X.get());
         }
 
         if (passiveY != PASSIVE_Y.get()) {
-            save.add(() -> PASSIVE_Y.set(passiveY));
+            save.add(() -> {
+                PASSIVE_Y.set(passiveY);
+                PASSIVE_Y.save();
+            });
             discard.add(() -> passiveY = PASSIVE_Y.get());
         }
 
         if (passiveBaseX != PASSIVE_BASE_X.get()) {
-            save.add(() -> PASSIVE_BASE_X.set(passiveBaseX));
+            save.add(() -> {
+                PASSIVE_BASE_X.set(passiveBaseX);
+                PASSIVE_BASE_Y.save();
+            });
             discard.add(() -> passiveBaseX = PASSIVE_BASE_X.get());
         }
 
         if (passiveBaseY != PASSIVE_BASE_Y.get()) {
-            save.add(() -> PASSIVE_BASE_Y.set(passiveBaseY));
+            save.add(() -> {
+                PASSIVE_BASE_Y.set(passiveBaseY);
+                PASSIVE_BASE_Y.save();
+            });
             discard.add(() -> passiveBaseY = PASSIVE_BASE_Y.get());
         }
 
         if (passiveAlignDirection != PASSIVE_ALIGN_DIRECTION.get()) {
-            save.add(() -> PASSIVE_ALIGN_DIRECTION.set(passiveAlignDirection));
+            save.add(() -> {
+                PASSIVE_ALIGN_DIRECTION.set(passiveAlignDirection);
+                PASSIVE_ALIGN_DIRECTION.save();
+            });
             discard.add(() -> passiveAlignDirection = PASSIVE_ALIGN_DIRECTION.get());
         }
 
         if (chargingBarX != CHARGING_BAR_X.get()) {
-            save.add(() -> CHARGING_BAR_X.set(chargingBarX));
+            save.add(() -> {
+                CHARGING_BAR_X.set(chargingBarX);
+                CHARGING_BAR_X.save();
+            });
             discard.add(() -> chargingBarX = CHARGING_BAR_X.get());
         }
 
         if (chargingBarY != CHARGING_BAR_Y.get()) {
-            save.add(() -> CHARGING_BAR_Y.set(chargingBarY));
+            save.add(() -> {
+                CHARGING_BAR_Y.set(chargingBarY);
+                CHARGING_BAR_Y.save();
+            });
             discard.add(() -> chargingBarY = CHARGING_BAR_Y.get());
         }
 
         if (chargingBarBaseX != CHARGING_BAR_BASE_X.get()) {
-            save.add(() -> CHARGING_BAR_BASE_X.set(chargingBarBaseX));
+            save.add(() -> {
+                CHARGING_BAR_BASE_X.set(chargingBarBaseX);
+                CHARGING_BAR_BASE_X.save();
+            });
             discard.add(() -> chargingBarBaseX = CHARGING_BAR_BASE_X.get());
         }
 
         if (chargingBarBaseY != CHARGING_BAR_BASE_Y.get()) {
-            save.add(() -> CHARGING_BAR_BASE_Y.set(chargingBarBaseY));
+            save.add(() -> {
+                CHARGING_BAR_BASE_Y.set(chargingBarBaseY);
+                CHARGING_BAR_BASE_Y.save();
+            });
             discard.add(() -> chargingBarBaseY = CHARGING_BAR_BASE_Y.get());
         }
     }

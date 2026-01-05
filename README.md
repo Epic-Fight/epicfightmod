@@ -129,8 +129,7 @@ classified into three types:
 
 - **Making different mods compatible**  
   Achieving compatibility can be complex and may require Java knowledge.  
-  If you are a mod developer,
-  refer to the [API Guide](https://epicfight-docs.readthedocs.io/API/Starting/) for detailed instructions.  
+  If you are a mod developer, refer to the [API Guide](https://moddedmc.wiki/en/project/epicfight/latest/docs) for detailed instructions.  
   Alternatively, you can explore the [Epic Fight Wiki](https://epicfight-docs.readthedocs.io/) for additional guidance.
 
 - **Creating custom weapons or assigning weapon types to modded weapons**  
@@ -280,10 +279,11 @@ They are **not officially supported** and may not be compatible with all version
 
 ## **📚 WIKI**
 
-For detailed information on **Epic Fight**, including skills, recipes, API and Blender guides,
-custom trails, weapon or
-entity patches, armor fixes, resource pack integrations and more, visit
-the [Epic Fight WIKI](https://epicfight-docs.readthedocs.io/).
+- **Player guides:** [Epic Fight WIKI](https://epicfight-docs.readthedocs.io/)
+  - Explains the **Epic Fight** mod features, including skills, recipes, Blender guides,
+    custom trails, weapon or armor fixes, resource/data pack integrations, and more.
+- **Developer guides:** [Epic Fight Developer WIKI](https://moddedmc.wiki/en/project/epicfight/latest/docs).
+  - Explains the public APIs with tutorials to develop an Epic Fight addon or mod compatibility using Java code.
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 

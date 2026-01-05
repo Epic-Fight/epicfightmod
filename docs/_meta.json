@@ -1,0 +1,10 @@
+{
+  "migration": {
+    "name": "Migration",
+    "icon": "Plus"
+  },
+  "misc": {
+    "name": "Misc",
+    "icon": "Info"
+  }
+}

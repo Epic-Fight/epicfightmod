@@ -45,6 +45,7 @@ shoulderSurfing = "1.21.1-4.18.1+neoforge"
 # Helper Gradle-plugins
 mcSafeResources = "0.0.2"
 modPublish = "1.1.0"
+wikitoolkit = "0.4.1"
 
 [libraries]
 # Fabric
@@ -94,3 +95,4 @@ fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric-loo
 
 # Helper plugins
 mcSafeResources = { id = "dev.echoellet.mc-safe-resources", version.ref = "mcSafeResources" }
+wikitoolkit = { id = "org.moddedmc.wiki.toolkit", version.ref = "wikitoolkit" }

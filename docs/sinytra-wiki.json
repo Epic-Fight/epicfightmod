@@ -1,0 +1,8 @@
+{
+  "id": "epicfight",
+  "modid": "epicfight",
+  "platforms": {
+    "modrinth": "epic-fight",
+    "curseforge": "epic-fight-mod"
+  }
+}

@@ -1,0 +1,92 @@
+## Setting up your Gradle Build
+
+To add Epic Fight to your mod project as a dependency, add the following to `build.gradle` (or `build.gradle.kts`) file.
+
+### Add Modrinth maven repository
+
+Add [Modrinth Maven](https://support.modrinth.com/en/articles/8801191-modrinth-maven) repository,
+to download the JAR files from.
+
+<CodeTabs>
+
+```groovy !!tabs (NeoForge) build.gradle
+repositories {
+    exclusiveContent {
+        forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+        filter { includeGroup "maven.modrinth" }
+    }
+}
+```
+
+```groovy !!tabs (Forge) build.gradle
+repositories {
+    exclusiveContent {
+        forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+        forRepositories(fg.repository)
+        filter { includeGroup "maven.modrinth" }
+    }
+}
+```
+
+</CodeTabs>
+
+### Add mod dependency
+
+<CodeTabs>
+
+```groovy !!tabs (NeoForge) build.gradle
+dependencies {
+	implementation("maven.modrinth:epic-fight:${epicfight_version}")
+}
+```
+
+```groovy !!tabs (Forge) build.gradle
+dependencies {
+	implementation fg.deobf("maven.modrinth:epic-fight:${epicfight_version}")
+}
+```
+
+</CodeTabs>
+
+### Choosing a version
+
+Refer to the listings on [Modrinth](https://modrinth.com/mod/epic-fight/versions).
+
+> For an easier setup of your dependencies, you can click on the version you want to use on Modrinth, then copy either the **Version Number** as the Epic Fight version.
+>
+> For example, `21.14.4-mc1.21.1-neoforge`; then include it in `gradle.properties`:
+>
+> ```properties
+> epicfight_version=21.14.4-mc1.21.1-neoforge
+> ```
+>
+> <ModAsset width="500" title="Modrinth Download" location="epicfight:images/modrinth_version_details.jpg" />
+
+### Require Epic Fight dependency
+
+It's recommended to add the minimum required Epic Fight version
+for your mod if Epic Fight APIs are used.
+
+<CodeTabs>
+
+```toml !!tabs (NeoForge) neoforge.mods.toml
+[[dependencies."${modId}"]]
+modId = "epicfight"
+type = "required"
+versionRange = "[21.14.4,)"
+ordering = "NONE"
+side = "BOTH"
+```
+
+```toml !!tabs (Forge) mods.toml
+[[dependencies."${modId}"]]
+modId = "epicfight"
+mandatory = true
+versionRange = "[21.14.4,)"
+ordering = "NONE"
+side = "BOTH"
+```
+
+</CodeTabs>
+
+> This will produce a more user-friendly error when an outdated or incompatible version is used.

@@ -1,14 +1,5 @@
 package yesman.epicfight.epicskins.client.screen;
-/*
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
-public class AvatarEditScreen extends Screen {
-    public AvatarEditScreen(Screen screen) {
-        super(Component.empty());
-    }
-}
-*/
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.systems.RenderSystem;

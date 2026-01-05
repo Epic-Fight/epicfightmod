@@ -191,11 +191,28 @@ fun Project.configureModPublish(
         file.set(jarFile())
         additionalFiles.from(sourcesJar)
 
+        val requiredDependencies = buildList {
+            if (modLoader.isFabricLike) {
+                add("fabric-api")
+                add("forge-config-api-port")
+            }
+        }
+
+        val optionalDependencies =
+            buildList {
+                if (modLoader.isFabricLike) {
+                    add("modmenu")
+                }
+            }
+
         curseforge {
             accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
             projectId.set("405076")
             minecraftVersions.add(mcVersion)
             projectSlug.set("epic-fight-mod")
+
+            requiredDependencies.forEach { requires(it) }
+            optionalDependencies.forEach { optional(it) }
         }
 
         modrinth {
@@ -207,6 +224,9 @@ fun Project.configureModPublish(
             projectDescription.set(
                 providers.fileContents(rootProject.layout.projectDirectory.file("README.md")).asText
             )
+
+            requiredDependencies.forEach { requires(it) }
+            optionalDependencies.forEach { optional(it) }
         }
 
         discord {

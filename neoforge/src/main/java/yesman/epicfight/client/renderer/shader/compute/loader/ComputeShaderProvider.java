@@ -11,8 +11,9 @@ import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
 import yesman.epicfight.client.renderer.shader.compute.VanillaComputeShaderSetup;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.DynamicSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.IArrayBufferProxy;
+import yesman.epicfight.client.renderer.shader.compute.backend.pool.BuffersPool;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.DynamicSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.IArrayBufferProxy;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.iris.IrisComputeShaderSetup;
@@ -20,10 +21,19 @@ import yesman.epicfight.main.EpicFightMod;
 
 public class ComputeShaderProvider {
     public static ComputeProgram meshComputeVanilla;
+    public static ComputeProgram batchedMeshComputeVanilla;
     public static ComputeProgram meshComputeIris;
-    
+
+    public static BuffersPool posesBufferPool;
+    public static BuffersPool hiddenFlagPool;
+
     private static boolean supportComputeShader = false;
+    private static boolean supportPersistentMapping = false;
+
     private static boolean irisLoaded = false;
+    private static long maxSSBOLen = 0;
+    private static long ssboAlignment = 0;
+
     private static Function<SkinnedMesh, ComputeShaderSetup> computeShaderProvider = VanillaComputeShaderSetup::new;
     
     public static void initIris() {
@@ -34,7 +44,11 @@ public class ComputeShaderProvider {
     public static boolean supportComputeShader() {
     	return supportComputeShader;
     }
-    
+
+    public static boolean supportPersistentMapping(){
+        return supportPersistentMapping;
+    }
+
     public static boolean irisLoaded() {
         return irisLoaded;
     }
@@ -45,7 +59,8 @@ public class ComputeShaderProvider {
         int minor = GL33C.glGetInteger(GL33C.GL_MINOR_VERSION);
         
         supportComputeShader = ((major > 4) || (major == 4 && minor >= 3));
-        
+        supportPersistentMapping = ((major > 4) || (major == 4 && minor >= 6));
+
         EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] OpenGL Version: " + glVersion);
         EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: " + (supportComputeShader ? "Supported" : "Unsupported"));
     }
@@ -56,15 +71,43 @@ public class ComputeShaderProvider {
         clear();
         
         try {
-            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
-            if (irisLoaded) meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFightMod.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFight.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            batchedMeshComputeVanilla =
+                    ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(),
+                            EpicFight.identifier("shaders/compute/batched/vanilla_batched_mesh_transformer.comp"),
+                            BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            if (irisLoaded)
+            {
+                meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFight.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            }
+
+            maxSSBOLen = ComputeShaderLoader.getGLMaxSSBOSize();
+            ssboAlignment = ComputeShaderLoader.getSSBOAlignment();
+
+            if(supportPersistentMapping) {
+                posesBufferPool = new BuffersPool(8, 256 * 1024 * 16 * 4);
+                hiddenFlagPool = new BuffersPool(8,  16 * 1024 * 4);
+            }
+
         } catch (Exception e) {
             supportComputeShader = false;
             EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] There were some errors while loading the compute shader, and this feature will be forcibly disabled.");
             EpicFightMod.LOGGER.warn("[Computer Shader Acceleration] Detail: " + e);
         }
     }
-    
+
+    public static long getMaxSSBO(){
+        return maxSSBOLen;
+    }
+
+    public static long getSSBOAlignment(){
+        return ssboAlignment;
+    }
+
+    public static long align(long offset, long align) {
+        return (offset + align - 1) / align * align;
+    }
+
     public static void clear() {
         if (meshComputeVanilla != null) {
         	meshComputeVanilla.delete();

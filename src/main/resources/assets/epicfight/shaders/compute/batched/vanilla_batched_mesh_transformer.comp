@@ -1,0 +1,152 @@
+// Uncomplete
+
+#version 430 core
+
+layout(local_size_x = 128) in;
+
+// struct define
+struct VertexData {
+    float px,py,pz,nx,ny,nz,u,v;
+    int jts,jte;
+};
+
+struct ElemInfo{
+    int pool_idx;
+    int part_idx;
+};
+
+struct JointInfo{
+    int jtId;
+    float weight;
+};
+
+struct VertexAttr{
+    float px,py,pz, r,g,b,a, u0,v0;
+    uint nor, uv1, uv2;
+};
+
+struct ModelInfo{
+    uint offset;
+};
+
+// Dynamic Input Buffer
+layout(std430, binding = 0) readonly buffer PoseBuffer {
+    mat4 poses[];
+};
+
+layout(std430, binding = 6) readonly buffer Models {
+    ModelInfo models;
+};
+
+// Static Buffer
+layout(std430, binding = 1) readonly buffer ElementsPool {
+    ElemInfo elements[];
+};
+
+layout(std430, binding = 2) readonly buffer VertexBuffer {
+    VertexData vertices[];
+};
+
+layout(std430, binding = 3) readonly buffer JointsPool {
+    JointInfo joints[];
+};
+
+layout(std430, binding = 4) readonly buffer PartHiddenFlagBuffer {
+    int part_hidden[];
+};
+
+// Output Buffer
+layout(std430, binding = 5) writeonly buffer VertexOut {
+    VertexAttr out_vert[];
+};
+
+layout(location=0) uniform vec4 colorIn;
+layout(location=1) uniform uint uv1In;
+layout(location=2) uniform uint uv2In;
+layout(location=3) uniform uint part_offset;
+layout(location=4) uniform mat4 model_view_matrix;
+layout(location=5) uniform mat3 normal_matrix;
+
+vec4 getPosInPool(int pool_index){
+    return vec4(vertices[pool_index].px, vertices[pool_index].py, vertices[pool_index].pz, 1.0);
+}
+
+vec4 getNormInPool(int pool_index){
+    return vec4(normalize(vec3(vertices[pool_index].nx, vertices[pool_index].ny, vertices[pool_index].nz)), 1.0);
+}
+
+struct VertInfo{
+    vec3 pos, nor;
+    vec2 uv;
+};
+
+void storeElem(uint elem_idx, VertInfo vertInfo){
+    out_vert[elem_idx].px = vertInfo.pos.x;
+    out_vert[elem_idx].py = vertInfo.pos.y;
+    out_vert[elem_idx].pz = vertInfo.pos.z;
+
+    out_vert[elem_idx].nor = packSnorm4x8(vec4(normalize(vertInfo.nor), 0.0));
+
+    out_vert[elem_idx].r = colorIn.x;
+    out_vert[elem_idx].g = colorIn.y;
+    out_vert[elem_idx].b = colorIn.z;
+    out_vert[elem_idx].a = colorIn.w;
+
+    out_vert[elem_idx].u0 = vertInfo.uv.x;
+    out_vert[elem_idx].v0 = vertInfo.uv.y;
+
+    out_vert[elem_idx].uv1 = uv1In;
+    out_vert[elem_idx].uv2 = uv2In;
+}
+
+void storeElemEmpty(uint elem_idx){
+    out_vert[elem_idx].px = 0;  out_vert[elem_idx].py = 0;  out_vert[elem_idx].pz = 0;
+    out_vert[elem_idx].nor = 0;
+    out_vert[elem_idx].r = 0;   out_vert[elem_idx].g = 0;   out_vert[elem_idx].b = 0;   out_vert[elem_idx].a = 0;
+    out_vert[elem_idx].uv1 = uv1In;     out_vert[elem_idx].uv2 = uv2In;
+    out_vert[elem_idx].u0 = 0;          out_vert[elem_idx].v0 = 0;
+}
+
+bool isPartHidden(ElemInfo elem){
+    int flags = part_hidden[elem.part_idx / 32];
+    int off = elem.part_idx % 32;
+    return ((flags >> off) & 1) == 1;
+}
+
+VertInfo getFinalVertInfo(ElemInfo elem){
+    mat4 partTransform = poses[part_offset + elem.part_idx];
+    vec4 pos = getPosInPool(elem.pool_idx);
+    vec4 norm = getNormInPool(elem.pool_idx);
+    vec4 fpos = vec4(0.0);
+    vec4 fnorm = vec4(0.0);
+
+    JointInfo jtInfo;
+    for (int i = vertices[elem.pool_idx].jts; i < vertices[elem.pool_idx].jte; ++i) {
+        jtInfo = joints[i];
+        if (jtInfo.weight > 0.0) {
+            mat4 boneMat = poses[jtInfo.jtId] * partTransform;
+            fpos += (boneMat * pos) * jtInfo.weight;
+            fnorm += (boneMat * norm) * jtInfo.weight;
+        }
+    }
+	
+    VertInfo result;
+    result.pos = (model_view_matrix * fpos).xyz;
+    result.nor = normalize(normal_matrix * fnorm.xyz);
+    result.uv = vec2(vertices[elem.pool_idx].u, vertices[elem.pool_idx].v);
+    return result;
+}
+
+void main() {
+    uint vertex_id = gl_GlobalInvocationID.x;
+    
+    if(vertex_id >= elements.length()) return;
+    
+    if(isPartHidden(elements[vertex_id])){
+        storeElemEmpty(vertex_id);
+        return;
+    }
+
+    VertInfo v1 = getFinalVertInfo(elements[vertex_id]);
+    storeElem(vertex_id, v1);
+}

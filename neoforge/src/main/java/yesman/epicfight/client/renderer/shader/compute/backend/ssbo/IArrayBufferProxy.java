@@ -1,4 +1,4 @@
-package yesman.epicfight.client.renderer.shader.compute.backend.buffers;
+package yesman.epicfight.client.renderer.shader.compute.backend.ssbo;
 
 
 public interface IArrayBufferProxy {

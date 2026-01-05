@@ -8,6 +8,7 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import org.lwjgl.opengl.GL43C;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.BarrierFlags;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeShader;
@@ -58,7 +59,15 @@ public final class ComputeShaderLoader {
 		
 		return program;
 	}
-	
+
+	public static long getGLMaxSSBOSize(){
+		return GL43C.glGetInteger64(GL43C.GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+	}
+
+	public static long getSSBOAlignment(){
+		return GL43C.glGetInteger(GL43C.GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT);
+	}
+
     public record ShaderSource(String source, int barrierFlags) {
     }
     

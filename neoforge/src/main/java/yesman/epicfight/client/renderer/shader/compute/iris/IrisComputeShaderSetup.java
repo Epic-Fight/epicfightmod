@@ -26,15 +26,21 @@ import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL46C;
+import org.lwjgl.system.MemoryUtil;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.SkinnedMesh.SkinnedMeshPart;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
-import yesman.epicfight.client.renderer.shader.compute.backend.buffers.StaticSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedBuffer;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.StaticSSBO;
 import yesman.epicfight.client.renderer.shader.compute.backend.program.ComputeProgram;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
+import yesman.epicfight.config.ClientConfig;
 
 public class IrisComputeShaderSetup extends ComputeShaderSetup {
 	protected StaticSSBO<Float> midUVBO;
@@ -136,27 +142,50 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("entity_id_1").uploadUnsignedInt(getItem() << 16);
 		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
 		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
-		
-		ComputeShaderSetup.POSE_BO.bindBufferBase(0);
-		
+
+		if(use_persist){
+			pose_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0,
+					poses_off, pose_size);
+			hf_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4,
+					hidden_flag_off, hiddenFlags.length * 4L);
+		}
+		else {
+			ComputeShaderSetup.POSE_BO.bindBufferBase(0);
+			this.hiddenFlagsBO.bindBufferBase(4);
+		}
+
 		this.elementsBO.bindBufferBase(1);
 		this.vObjBO.bindBufferBase(2);
 		this.jointBO.bindBufferBase(3);
-		this.hiddenFlagsBO.bindBufferBase(4);
 		this.outVertexAttrBO.bindBufferBase(5);
 		
 		int workGroupCount = ((this.vcount / 3) + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
+		if (use_persist) GL46C.glMemoryBarrier(GL46C.GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 		shader.dispatch(workGroupCount, 1, 1);
 		shader.waitBarriers();
-		
-		ComputeShaderSetup.POSE_BO.unbind();
+
+		if(use_persist){
+			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, 0);
+			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 4, 0);
+		}
+		else {
+			ComputeShaderSetup.POSE_BO.unbind();
+			this.hiddenFlagsBO.unbind();
+		}
+
 		this.elementsBO.unbind();
 		this.vObjBO.unbind();
 		this.jointBO.unbind();
-		this.hiddenFlagsBO.unbind();
 		this.outVertexAttrBO.unbind();
 	}
-	
+
+	private long hidden_flag_off = 0;
+	private long poses_off = 0;
+	private long pose_size = 0;
+	private boolean use_persist = true;
+	private MappedBuffer pose_buffer;
+	private MappedBuffer hf_buffer;
+
 	@Override
 	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
 		// pose setup and upload
@@ -182,9 +211,47 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 			int flag = this.hiddenFlags[flagPos];
 			this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
 		}
-		
-		this.hiddenFlagsBO.updateAll();
-		POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+
+		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
+		if(use_persist){
+			// pose
+			int pose_len = poses.length + skinnedMesh.getAllParts().size();
+			pose_size = ComputeShaderProvider.align(pose_len * 16 * 4L,
+					ComputeShaderProvider.getSSBOAlignment());
+			pose_buffer = ComputeShaderProvider.posesBufferPool.getOrWait(
+					pose_size
+			);
+
+			long address_base = pose_buffer.reserve(pose_size, true);
+			var tmp = pose_buffer.addressAt(0);
+			poses_off = address_base - tmp;
+
+			// upload
+
+			for (int i = 0; i < pose_len; i++) {
+				TOTAL_POSES[i].store(address_base + (16L * 4 * i));
+			}
+
+			// hidden flag
+			hf_buffer = ComputeShaderProvider.hiddenFlagPool.getOrWait(
+					hiddenFlags.length * 4L
+			);
+
+			var aligned_size = ComputeShaderProvider.align(hiddenFlags.length * 4L,
+					ComputeShaderProvider.getSSBOAlignment());
+
+			address_base = hf_buffer.reserve(aligned_size);
+			hidden_flag_off = address_base - hf_buffer.addressAt(0);
+
+			for (int i = 0; i < hiddenFlags.length; i++) {
+				int hf = hiddenFlags[i];
+				MemoryUtil.memPutInt(address_base + 4L * i, hf);
+			}
+		}
+		else {
+			this.hiddenFlagsBO.updateAll();
+			POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+		}
 		
 		// state trace
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);

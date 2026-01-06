@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - run: git config --global --add safe.directory /github/workspace
+      - run: sudo git config --global --add safe.directory /github/workspace
 
       - name: Check IntelliJ Formatting
         uses: sidhant92/intellij-format-action@v1

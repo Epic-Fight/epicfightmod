@@ -18,6 +18,7 @@ jobs:
       - name: Check IntelliJ Formatting
         uses: sidhant92/intellij-format-action@v1
         with:
+          tool_name: 'IntelliJ Diff'
           github_token: ${{ secrets.github_token }}
           fail_on_changes: true
           path: '.'

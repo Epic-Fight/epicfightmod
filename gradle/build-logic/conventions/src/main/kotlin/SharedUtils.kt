@@ -130,7 +130,7 @@ private fun Project.extractCurrentVersionChangelog(): String? {
 
     // Extracts the current version changelog without the version heading 2 and "For Devs" heading 3.
     val versionSectionRegex =
-        "(?s)## \\[$modVersion\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"
+        "(?s)## \\[$modVersion\\] - (\\d{4}-\\d{2}-\\d{2}|Unreleased)\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"
     val matcher = Regex(versionSectionRegex).find(fullChangelogText) ?: return null
 
     val versionChangelog = matcher.groupValues[1]

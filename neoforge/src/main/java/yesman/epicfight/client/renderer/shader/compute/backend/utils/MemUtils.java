@@ -6,7 +6,6 @@ import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 public class MemUtils {
-
     public static void putNormal(long address, float value) {
         MemoryUtil.memPutByte(address, (byte) ((int) (Mth.clamp(value, -1.0f, 1.0f) * 127.0f) & 0xFF));
     }

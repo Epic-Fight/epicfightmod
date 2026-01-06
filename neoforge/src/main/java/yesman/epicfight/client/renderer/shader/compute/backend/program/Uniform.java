@@ -5,16 +5,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL46C;
 import org.lwjgl.system.MemoryStack;
 
-
-public class Uniform {
-    private final int programHandle;
-    private final int uniformLocation;
-    
-    public Uniform(int programHandle, int uniformLocation) {
-		this.programHandle = programHandle;
-		this.uniformLocation = uniformLocation;
-    }
-    
+public record Uniform(int programHandle, int uniformLocation) {
     public void uploadMatrix3f(Matrix3f matrix) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
 			GL46C.glProgramUniformMatrix3fv(this.programHandle, this.uniformLocation, false, matrix.get(stack.callocFloat(9)));

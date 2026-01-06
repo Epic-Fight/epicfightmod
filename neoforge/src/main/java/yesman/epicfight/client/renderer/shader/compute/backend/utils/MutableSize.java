@@ -1,13 +1,12 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.utils;
 
 public class MutableSize {
-
-	protected boolean	resized;
-	protected long		size;
+	protected boolean resized;
+	protected long size;
 
 	public MutableSize(long initialSize) {
-		this.resized	= false;
-		this.size		= initialSize;
+		this.resized = false;
+		this.size = initialSize;
 	}
 
 	public void expand(long bytes) {
@@ -15,44 +14,41 @@ public class MutableSize {
 			return;
 		}
 
-		beforeExpand();
-		onExpand	(bytes);
-		doExpand	(size, bytes);
+		this.beforeExpand();
+        this.onExpand(bytes);
+        this.doExpand(this.size, bytes);
 
-		resized	=	true;
-		size	+=	bytes;
+        this.resized = true;
+        this.size += bytes;
 
-		afterExpand();
+        this.afterExpand();
 	}
 
 	public void onExpand(long bytes) {
-
 	}
 
 	public void doExpand(long size, long bytes) {
-
 	}
 
 	public void beforeExpand() {
-
 	}
 
 	public void afterExpand() {
-
 	}
 
 	public void resize(long atLeast) {
-		resizeTo(Long.highestOneBit(atLeast) << 1);
+        this.resizeTo(Long.highestOneBit(atLeast) << 1);
 	}
 
 	public void resizeTo(long newBufferSize) {
-		expand(newBufferSize - size);
+        this.expand(newBufferSize - this.size);
 	}
 
 	public void resetResized() {
-		resized = false;
+        this.resized = false;
 	}
 
-	public long getSize(){return size;}
-
+	public long getSize() {
+        return this.size;
+    }
 }

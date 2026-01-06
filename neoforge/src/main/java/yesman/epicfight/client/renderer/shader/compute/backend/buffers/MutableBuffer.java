@@ -5,77 +5,65 @@ import yesman.epicfight.client.renderer.shader.compute.backend.utils.MutableSize
 import java.nio.ByteBuffer;
 
 public class MutableBuffer extends MutableSize implements IServerBuffer {
-
-	private final	int				bits;
-
-	protected		ImmutableBuffer glBuffer;
+	private final int bits;
+	protected ImmutableBuffer glBuffer;
 
 	public MutableBuffer(long initialSize, int bits) {
 		super(initialSize);
 
-		this.bits		= bits;
-		this.glBuffer	= new ImmutableBuffer(this.size, bits);
+		this.bits = bits;
+		this.glBuffer = new ImmutableBuffer(this.size, bits);
 	}
 
 	@Override
 	public void doExpand(long size, long bytes) {
-		var newSize		= size + bytes;
-		var newBuffer	= new ImmutableBuffer(newSize, bits);
+		var newSize	= size + bytes;
+		var newBuffer = new ImmutableBuffer(newSize, this.bits);
 
-		glBuffer.copyTo(newBuffer, size);
-		glBuffer.delete();
-		glBuffer = newBuffer;
+		this.glBuffer.copyTo(newBuffer, size);
+        this.glBuffer.delete();
+        this.glBuffer = newBuffer;
 	}
 
 	public long map(int flags) {
-		return glBuffer.map(size, flags);
+		return this.glBuffer.map(this.size, flags);
 	}
 
 	public void unmap() {
-		glBuffer.unmap();
+        this.glBuffer.unmap();
 	}
 
 	public void copyTo(IServerBuffer buffer) {
-		glBuffer.copyTo(buffer, size);
+        this.glBuffer.copyTo(buffer, this.size);
 	}
 
 	@Override
 	public int getBufferHandle() {
-		return glBuffer.getBufferHandle();
+		return this.glBuffer.getBufferHandle();
 	}
 
 	@Override
 	public void delete() {
-		glBuffer.delete();
+        this.glBuffer.delete();
 	}
 
 	@Override
 	public void bind(int target) {
-		glBuffer.bind(target);
+        this.glBuffer.bind(target);
 	}
 
 	@Override
 	public void data(ByteBuffer data) {
-		glBuffer.data(data);
+        this.glBuffer.data(data);
 	}
 
 	@Override
 	public void bindBase(int target, int index) {
-		glBuffer.bindBase(target, index);
+        this.glBuffer.bindBase(target, index);
 	}
 
 	@Override
-	public void bindRange(
-			int		target,
-			int		index,
-			long	offset,
-			long	size
-	) {
-		glBuffer.bindRange(
-				target,
-				index,
-				offset,
-				size
-		);
+	public void bindRange(int target, int index, long offset, long size) {
+        this.glBuffer.bindRange(target, index, offset, size);
 	}
 }

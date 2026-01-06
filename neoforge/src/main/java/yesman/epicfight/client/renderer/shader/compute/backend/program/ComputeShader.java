@@ -10,7 +10,6 @@ import static org.lwjgl.opengl.GL20.glGetShaderi;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
-
 public class ComputeShader {
     public final int shaderId;
 

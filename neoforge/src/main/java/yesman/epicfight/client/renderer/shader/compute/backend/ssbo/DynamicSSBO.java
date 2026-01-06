@@ -1,16 +1,15 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.ssbo;
 
-import java.io.Closeable;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.function.BiConsumer;
-
+import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL43C;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import java.io.Closeable;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.function.BiConsumer;
 
 
 public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
@@ -74,7 +73,6 @@ public class DynamicSSBO<T> implements Closeable, IArrayBufferProxy {
     
     @Override
 	public void unbind() {
-
         if (this.lastBinding >= 0) {
         	GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, this.lastBinding, 0);
         }

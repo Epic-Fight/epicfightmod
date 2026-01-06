@@ -80,13 +80,10 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
 		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
 
-		if(use_persist){
-			pose_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0,
-					poses_off, pose_size);
-			hf_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4,
-					hidden_flag_off, hiddenFlags.length * 4L);
-		}
-		else {
+		if (this.usePersist) {
+			this.poseBuffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0, this.posesOff, this.poseSize);
+            this.hfBuffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4, this.hiddenFlagOff, this.hiddenFlags.length * 4L);
+		} else {
 			ComputeShaderSetup.POSE_BO.bindBufferBase(0);
 			this.hiddenFlagsBO.bindBufferBase(4);
 		}
@@ -97,15 +94,14 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		this.outVertexAttrBO.bindBufferBase(5);
 
 		int workGroupCount = (this.vcount + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
-		if (use_persist) GL46C.glMemoryBarrier(GL46C.GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
+		if (this.usePersist) GL46C.glMemoryBarrier(GL46C.GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 		shader.dispatch(workGroupCount, 1, 1);
 		shader.waitBarriers();
 
-		if(use_persist){
+		if (this.usePersist) {
 			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, 0);
 			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 4, 0);
-		}
-		else {
+		} else {
 			ComputeShaderSetup.POSE_BO.unbind();
 			this.hiddenFlagsBO.unbind();
 		}
@@ -116,12 +112,12 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		this.outVertexAttrBO.unbind();
 	}
 
-	private long hidden_flag_off = 0;
-	private long poses_off = 0;
-	private long pose_size = 0;
-	private boolean use_persist = true;
-	private MappedBuffer pose_buffer;
-	private MappedBuffer hf_buffer;
+	private long hiddenFlagOff = 0;
+	private long posesOff = 0;
+	private long poseSize = 0;
+	private boolean usePersist = true;
+	private MappedBuffer poseBuffer;
+	private MappedBuffer hfBuffer;
 
 	@Override
 	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
@@ -150,45 +146,34 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 			this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
 		}
 
-		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
+		this.usePersist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
 
-		if(use_persist){
+		if (this.usePersist) {
 			// pose
-			int pose_len = poses.length + skinnedMesh.getAllParts().size();
-			pose_size = ComputeShaderProvider.align(pose_len * 16 * 4L,
-					ComputeShaderProvider.getSSBOAlignment());
-			pose_buffer = ComputeShaderProvider.posesBufferPool.getOrWait(
-					pose_size
-			);
-
-			long address_base = pose_buffer.reserve(pose_size, true);
-			var tmp = pose_buffer.addressAt(0);
-			poses_off = address_base - tmp;
+			int poseLen = poses.length + skinnedMesh.getAllParts().size();
+            this.poseSize = ComputeShaderProvider.align(poseLen * 16 * 4L, ComputeShaderProvider.getSSBOAlignment());
+            this.poseBuffer = ComputeShaderProvider.posesBufferPool.getOrWait(this.poseSize);
+			long addressBase = this.poseBuffer.reserve(this.poseSize, true);
+			var tmp = this.poseBuffer.addressAt(0);
+            this.posesOff = addressBase - tmp;
 
 			// upload
-
-			for (int i = 0; i < pose_len; i++) {
-				TOTAL_POSES[i].store(address_base + (16L * 4 * i));
+			for (int i = 0; i < poseLen; i++) {
+				TOTAL_POSES[i].store(addressBase + (16L * 4 * i));
 			}
 
 			// hidden flag
-			hf_buffer = ComputeShaderProvider.hiddenFlagPool.getOrWait(
-					hiddenFlags.length * 4L
-			);
+            this.hfBuffer = ComputeShaderProvider.hiddenFlagPool.getOrWait(this.hiddenFlags.length * 4L);
+			var aligned_size = ComputeShaderProvider.align(this.hiddenFlags.length * 4L, ComputeShaderProvider.getSSBOAlignment());
 
-			var aligned_size = ComputeShaderProvider.align(hiddenFlags.length * 4L,
-					ComputeShaderProvider.getSSBOAlignment());
+			addressBase = this.hfBuffer.reserve(aligned_size);
+            this.hiddenFlagOff = addressBase - this.hfBuffer.addressAt(0);
 
-			address_base = hf_buffer.reserve(aligned_size);
-			hidden_flag_off = address_base - hf_buffer.addressAt(0);
-
-			for (int i = 0; i < hiddenFlags.length; i++) {
-				int hf = hiddenFlags[i];
-				MemoryUtil.memPutInt(address_base + 4L * i, hf);
+			for (int i = 0; i < this.hiddenFlags.length; i++) {
+				int hf = this.hiddenFlags[i];
+				MemoryUtil.memPutInt(addressBase + 4L * i, hf);
 			}
-
-		}
-		else {
+		} else {
 			this.hiddenFlagsBO.updateAll();
 			POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
 		}

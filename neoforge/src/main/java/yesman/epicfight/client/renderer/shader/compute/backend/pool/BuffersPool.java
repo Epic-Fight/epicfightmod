@@ -4,93 +4,93 @@ import yesman.epicfight.client.renderer.shader.compute.backend.Sync;
 import yesman.epicfight.client.renderer.shader.compute.backend.buffers.MappedBuffer;
 
 public class BuffersPool {
-
     private MappedBuffer current;
-    private int current_id = 0;
-    private final MappedBuffer[] buffers_pool;
-    private final Sync[] sync_pool;
+    private final int currentId = 0;
+    private final MappedBuffer[] buffersPool;
+    private final Sync[] syncPool;
     private int size = 0;
-    private final long buffer_size;
+    private final long bufferSize;
 
-    public BuffersPool(int cap, long bufferSize){
-        this.buffers_pool = new MappedBuffer[cap];
-        sync_pool = new Sync[cap];
-        for (int i = 0; i < sync_pool.length; i++) {
-            sync_pool[i] = new Sync();
+    public BuffersPool(int cap, long bufferSize) {
+        this.buffersPool = new MappedBuffer[cap];
+        this.syncPool = new Sync[cap];
+
+        for (int i = 0; i < this.syncPool.length; i++) {
+            this.syncPool[i] = new Sync();
         }
-        buffer_size = bufferSize;
+
+        this.bufferSize = bufferSize;
     }
 
-    public MappedBuffer get(long space){
-        if (current == null){
-            current = new MappedBuffer(buffer_size);
-            buffers_pool[size++] = current;
-            return current;
+    public MappedBuffer get(long space) {
+        if (this.current == null) {
+            this.current = new MappedBuffer(this.bufferSize);
+            this.buffersPool[this.size++] = this.current;
+            return this.current;
         }
 
-        if (current.getSize() - current.getTail() >= space){ // current ok
-            return current;
-        }
-        else { // small and mark using
-            sync_pool[current_id].setSync();
+        if (this.current.getSize() - this.current.getTail() >= space) { // current ok
+            return this.current;
+        } else { // small and mark using
+            this.syncPool[currentId].setSync();
         }
 
-        if (size < buffers_pool.length){ // if not full, new one
-            current = new MappedBuffer(buffer_size);
-            buffers_pool[size++] = current;
-            return current;
-        }
-        else { // full try use old
-            for (int i = 0; i < sync_pool.length; i++) {
-                var sync = sync_pool[i];
+        if (this.size < this.buffersPool.length) { // if not full, new one
+            this.current = new MappedBuffer(this.bufferSize);
+            this.buffersPool[size++] = this.current;
 
-                if (isFree(sync)){ // matched and return
-                    current = buffers_pool[i];
-                    current.reset();
-                    return current;
+            return this.current;
+        } else { // full try use old
+            for (int i = 0; i < this.syncPool.length; i++) {
+                var sync = this.syncPool[i];
+
+                if (this.isFree(sync)) { // matched and return
+                    this.current = this.buffersPool[i];
+                    this.current.reset();
+                    return this.current;
                 }
             }
         }
+
         return null;
     }
 
-
-    public MappedBuffer getOrWait(long space){
-        if (current == null){
-            current = new MappedBuffer(buffer_size);
-            buffers_pool[size++] = current;
-            return current;
+    public MappedBuffer getOrWait(long space) {
+        if (this.current == null) {
+            this.current = new MappedBuffer(this.bufferSize);
+            this.buffersPool[size++] = this.current;
+            return this.current;
         }
 
-        if (current.getSize() - current.getTail() >= space){ // current ok
-            return current;
-        }
-        else { // small and mark using
-            sync_pool[current_id].setSync();
+        if (this.current.getSize() - this.current.getTail() >= space) { // current ok
+            return this.current;
+        } else { // small and mark using
+            this.syncPool[this.currentId].setSync();
         }
 
-        if (size < buffers_pool.length){ // if not full, new one
-            current = new MappedBuffer(buffer_size);
-            buffers_pool[size++] = current;
-            return current;
-        }
-        else { // full try use old
-            for (int i = 0; i < sync_pool.length; i++) {
-                var sync = sync_pool[i];
+        if (this.size < this.buffersPool.length) { // if not full, new one
+            this.current = new MappedBuffer(this.bufferSize);
+            this.buffersPool[this.size++] = this.current;
+            return this.current;
+        } else { // full try use old
+            for (int i = 0; i < this.syncPool.length; i++) {
+                var sync = this.syncPool[i];
 
-                if (isFree(sync)){ // matched and return
-                    current = buffers_pool[i];
-                    current.reset();
-                    return current;
+                if (this.isFree(sync)) { // matched and return
+                    this.current = this.buffersPool[i];
+                    this.current.reset();
+                    return this.current;
                 }
             }
-            current = buffers_pool[0];
-            waitSync(sync_pool[0]);
-            return current;
+
+            this.current = this.buffersPool[0];
+            this.waitSync(this.syncPool[0]);
+
+            return this.current;
         }
     }
 
-    private void waitSync(Sync sync){
+    private void waitSync(Sync sync) {
         if (!sync.isSyncSet()) {
             return;
         }
@@ -99,8 +99,8 @@ public class BuffersPool {
             sync.waitSync();
         }
 
-        sync.deleteSync	();
-        sync.resetSync	();
+        sync.deleteSync();
+        sync.resetSync();
     }
 
     private boolean isFree(Sync sync) {
@@ -112,10 +112,9 @@ public class BuffersPool {
             return false;
         }
 
-        sync.deleteSync	();
-        sync.resetSync	();
+        sync.deleteSync();
+        sync.resetSync();
 
         return true;
     }
-
 }

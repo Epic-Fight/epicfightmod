@@ -27,137 +27,144 @@ import static org.lwjgl.opengl.GL30C.glVertexAttribIPointer;
 
 @SuppressWarnings("Unfinished")
 public class VanillaBatchedComputeShaderSetup extends BatchedComputeShaderSetup {
-
-	public VanillaBatchedComputeShaderSetup(SkinnedMesh skinnedMesh) {
+    public VanillaBatchedComputeShaderSetup(SkinnedMesh skinnedMesh) {
         super(skinnedMesh, 12);
     }
-	
-	@Override
-	public void bindBufferFormat(VertexFormat vertexFormat) {
-		var elems = vertexFormat.getElements();
-		glBindBuffer(GL_ARRAY_BUFFER, this.outVertexAttrBO.glSSBO);
-		
-		for (int i = 0; i < elems.size(); ++i) {
-			VertexFormatElement elem = elems.get(i);
-			
-			if (elem == VertexFormatElement.POSITION) {
-				glVertexAttribPointer(i, 3, GL_FLOAT, false, 48, 0);
-				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV0) {
-				glVertexAttribPointer(i, 2, GL_FLOAT, false, 48, 28);
-				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.COLOR) {
-				glVertexAttribPointer(i, 4, GL_FLOAT, true, 48, 12);
-				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.NORMAL) {
-				glVertexAttribPointer(i, 3, GL_BYTE, true, 48, 36);
-				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV1) {
-				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 40);
-				glEnableVertexAttribArray(i);
-			} else if (elem == VertexFormatElement.UV2) {
-				glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 44);
-				glEnableVertexAttribArray(i);
-			}
-		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-	
-	@Override
-	public void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount) {
-		ComputeProgram shader = ComputeShaderProvider.meshComputeVanilla;
-		shader.useProgram();
-		shader.getUniform("colorIn").uploadVec4(r, g, b, a);
-		shader.getUniform("uv1In").uploadUnsignedInt(overlay);
-		shader.getUniform("uv2In").uploadUnsignedInt(light);
-		shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
-		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
-		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
+    @Override
+    public void bindBufferFormat(VertexFormat vertexFormat) {
+        var elems = vertexFormat.getElements();
+        glBindBuffer(GL_ARRAY_BUFFER, this.outVertexAttrBO.glSSBO);
 
-		POSES_DATA_BO.bindBufferBase(0);
-		HIDDEN_FLAGS_BO.bindBufferBase(4);
-		MODEL_INFOS_BO.bindBufferBase(6);
+        for (int i = 0; i < elems.size(); ++i) {
+            VertexFormatElement elem = elems.get(i);
 
-		this.elementsBO.bindBufferBase(1);
-		this.vObjBO.bindBufferBase(2);
-		this.jointBO.bindBufferBase(3);
-		this.outVertexAttrBO.bindBufferBase(5);
+            if (elem == VertexFormatElement.POSITION) {
+                glVertexAttribPointer(i, 3, GL_FLOAT, false, 48, 0);
+                glEnableVertexAttribArray(i);
+            } else if (elem == VertexFormatElement.UV0) {
+                glVertexAttribPointer(i, 2, GL_FLOAT, false, 48, 28);
+                glEnableVertexAttribArray(i);
+            } else if (elem == VertexFormatElement.COLOR) {
+                glVertexAttribPointer(i, 4, GL_FLOAT, true, 48, 12);
+                glEnableVertexAttribArray(i);
+            } else if (elem == VertexFormatElement.NORMAL) {
+                glVertexAttribPointer(i, 3, GL_BYTE, true, 48, 36);
+                glEnableVertexAttribArray(i);
+            } else if (elem == VertexFormatElement.UV1) {
+                glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 40);
+                glEnableVertexAttribArray(i);
+            } else if (elem == VertexFormatElement.UV2) {
+                glVertexAttribIPointer(i, 2, GL_UNSIGNED_SHORT, 48, 44);
+                glEnableVertexAttribArray(i);
+            }
+        }
 
-		int workGroupCount = (this.vcount + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
-		shader.dispatch(workGroupCount, 1, 1);
-		shader.waitBarriers();
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
-		POSES_DATA_BO.unbind();
-		HIDDEN_FLAGS_BO.unbind();
-		MODEL_INFOS_BO.unbind();
+    @Override
+    public void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount) {
+        ComputeProgram shader = ComputeShaderProvider.meshComputeVanilla;
+        shader.useProgram();
+        shader.getUniform("colorIn").uploadVec4(r, g, b, a);
+        shader.getUniform("uv1In").uploadUnsignedInt(overlay);
+        shader.getUniform("uv2In").uploadUnsignedInt(light);
+        shader.getUniform("part_offset").uploadUnsignedInt(jointCount);
+        shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
+        shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
 
-		this.elementsBO.unbind();
-		this.vObjBO.unbind();
-		this.jointBO.unbind();
-		this.outVertexAttrBO.unbind();
-	}
-	
-	@Override
-	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack,
-							   MultiBufferSource buffers, RenderType renderType,
-							   int packedLight, float r, float g, float b, float a,
-							   int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
-		// pose setup and upload
-		// todo
+        POSES_DATA_BO.bindBufferBase(0);
+        HIDDEN_FLAGS_BO.bindBufferBase(4);
+        MODEL_INFOS_BO.bindBufferBase(6);
 
-		for (int i = 0; i < poses.length; i++) {
-			TOTAL_POSES[i].load(poses[i]);
+        this.elementsBO.bindBufferBase(1);
+        this.vObjBO.bindBufferBase(2);
+        this.jointBO.bindBufferBase(3);
+        this.outVertexAttrBO.bindBufferBase(5);
 
-			if (armature != null) {
-				TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
-			}
-		}
+        int workGroupCount = (this.vcount + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
+        shader.dispatch(workGroupCount, 1, 1);
+        shader.waitBarriers();
 
-		Arrays.fill(this.hiddenFlags, 0);
+        POSES_DATA_BO.unbind();
+        HIDDEN_FLAGS_BO.unbind();
+        MODEL_INFOS_BO.unbind();
 
-		for (SkinnedMeshPart part : skinnedMesh.getAllParts()) {
-			OpenMatrix4f mat = part.getVanillaPartTransform();
-			if (mat == null) mat = OpenMatrix4f.IDENTITY;
-			TOTAL_POSES[poses.length + part.getPartVBO().partIdx()].load(mat);
+        this.elementsBO.unbind();
+        this.vObjBO.unbind();
+        this.jointBO.unbind();
+        this.outVertexAttrBO.unbind();
+    }
 
-			if (!part.isHidden()) continue;
+    @Override
+    public void drawWithShader(
+        SkinnedMesh skinnedMesh,
+        PoseStack poseStack,
+        MultiBufferSource buffers,
+        RenderType renderType,
+        int packedLight,
+        float r,
+        float g,
+        float b,
+        float a,
+        int overlay,
+        @Nullable Armature armature,
+        OpenMatrix4f[] poses
+    ) {
+        // pose setup and upload
+        for (int i = 0; i < poses.length; i++) {
+            TOTAL_POSES[i].load(poses[i]);
 
-			int flagPos = part.getPartVBO().partIdx() / 32;
-			int flagOffset = part.getPartVBO().partIdx() % 32;
-			int flag = this.hiddenFlags[flagPos];
-			this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
-		}
+            if (armature != null) {
+                TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
+            }
+        }
 
-		this.hiddenFlagsBO.updateAll();
-		POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+        Arrays.fill(this.hiddenFlags, 0);
 
-		// state trace
-		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
-		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
+        for (SkinnedMeshPart part : skinnedMesh.getAllParts()) {
+            OpenMatrix4f mat = part.getVanillaPartTransform();
+            if (mat == null) mat = OpenMatrix4f.IDENTITY;
+            TOTAL_POSES[poses.length + part.getPartVBO().partIdx()].load(mat);
 
-		// setup state
-		GlStateManager._glBindVertexArray(this.arrayObjectId);
-		
-		this.draw(poseStack, renderType, r, g, b, a, overlay, packedLight, poses.length);
-		
-		if (buffers instanceof OutlineBufferSource outlineBufferSource) {
-			renderType.outline().ifPresent(outlineRendertype -> {
-				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
-			});
-		}
-		
-		GlStateManager._glBindVertexArray(currentBoundVao);
-		GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
-	}
-	
-	@Override
-	public int vaoId() {
-		return this.arrayObjectId;
-	}
-	
-	@Override
-	public int vertexCount() {
-		return this.vcount;
-	}
+            if (!part.isHidden()) continue;
+
+            int flagPos = part.getPartVBO().partIdx() / 32;
+            int flagOffset = part.getPartVBO().partIdx() % 32;
+            int flag = this.hiddenFlags[flagPos];
+            this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
+        }
+
+        this.hiddenFlagsBO.updateAll();
+        POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+
+        // state trace
+        int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
+        int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);
+
+        // setup state
+        GlStateManager._glBindVertexArray(this.arrayObjectId);
+
+        this.draw(poseStack, renderType, r, g, b, a, overlay, packedLight, poses.length);
+
+        if (buffers instanceof OutlineBufferSource outlineBufferSource) {
+            renderType.outline().ifPresent(outlineRendertype -> {
+                this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+            });
+        }
+
+        GlStateManager._glBindVertexArray(currentBoundVao);
+        GlStateManager._glBindBuffer(GLConstants.GL_ARRAY_BUFFER, currentBoundVbo);
+    }
+
+    @Override
+    public int vaoId() {
+        return this.arrayObjectId;
+    }
+
+    @Override
+    public int vertexCount() {
+        return this.vcount;
+    }
 }

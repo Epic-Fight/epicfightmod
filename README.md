@@ -290,7 +290,7 @@ They are **not officially supported** and may not be compatible with all version
 ## **Contributing**
 
 For contribution guidelines,
-please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight/blob/1.21.1/CONTRIBUTING.md).
+please refer to the [Contributing Guide](https://github.com/Epic-Fight/epicfight/blob/HEAD/CONTRIBUTING.md).
 
 ## **License**
 

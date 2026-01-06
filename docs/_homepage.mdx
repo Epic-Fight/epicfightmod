@@ -94,3 +94,24 @@ side = "BOTH"
 </CodeTabs>
 
 > This will produce a more user-friendly error when an outdated or incompatible version is used.
+
+### Public APIs
+
+There are two types of APIs:
+
+- **public API:** Inside the `api` package, and are intended for addons or other mods (**highly recommended**).
+- **internal API:** Outside the `api` package are intended for Epic Fight only, so breaking changes may not be documented, and may break more often with updates (use as a **last resort**).
+
+For example, always prefer the `yesman.epicfight.api.client.camera.EpicFightCameraAPI` class
+over `yesman.epicfight.client.camera.CameraUtils` to avoid future breakage upon updating.
+
+> As for now, the public APIs are still **unstable**, WIP, and under active **rewriting** for more future-proof addon development.
+> Consider filing [a GitHub issue](https://github.com/Epic-Fight/epicfight/issues/new?template=03_api.yml) for any missing public APIs.
+>
+> Using public APIs is considered a **best practice**, since internal APIs may work for now,
+> but may break in future Epic Fight or Minecraft versions, and it's time-consuming to find the API equivalent.
+
+**See also the:**
+
+- [The APIs that are subject to change in future Epic Fight versions](https://github.com/Epic-Fight/epicfight/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22public%20API%20breaking%20change%22)
+- [Epic Fight `CHANGELOG.md`](https://github.com/Epic-Fight/epicfight/blob/HEAD/CHANGELOG.md) file.

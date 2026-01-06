@@ -4,7 +4,7 @@ This guide is for developers interested in contributing to the Epic Fight projec
 
 > [!NOTE]  
 > While we welcome contributions, we highly
-> encourage [creating issues on GitHub](https://github.com/Epic-Fight/epicfight//issues/new) before
+> encourage [creating issues on GitHub](https://github.com/Epic-Fight/epicfight/issues/new) before
 > working on them—especially for medium to large changes.
 
 ## 📜 Code of Conduct
@@ -17,12 +17,13 @@ participating in this project.
 - Linux, macOS, or Windows.
 - A [Java JDK](https://adoptium.net/temurin/releases). The exact JDK version depends on the Minecraft
   version, for example:
-    - **1.21.1**: [21](https://adoptium.net/temurin/releases?version=21)
-    - **1.20.1**: [17](https://adoptium.net/temurin/releases?version=17&os=any&arch=any)
+  - **`26.1`**: [25](https://adoptium.net/temurin/releases?version=25&os=any&arch=any)
+  - **`1.21.1`**: [21](https://adoptium.net/temurin/releases?version=21)
+  - **`1.20.1`**: [17](https://adoptium.net/temurin/releases?version=17&os=any&arch=any)
 - [git](https://git-scm.com/) for version control.
 - [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/)
   with [Minecraft Development IDE plugin](https://plugins.jetbrains.com/plugin/8327-minecraft-development) (**optional
-  but recommended**).
+  but highly recommended**).
 - [Commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
   set up for your GitHub account (**optional but recommended**).
 - [Minecraft account](https://www.minecraft.net/store/minecraft-deluxe-collection-pc) to launch the game and test
@@ -101,7 +102,7 @@ $ ./gradlew runServer
 
 - Update [`CHANGELOG.md`](CHANGELOG.md) whenever you make changes.
     - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for format and style.
-    - If the change is **breaking** or affects other mods/addons, document it in the `For Devs` section.
+    - If the change is **breaking** or affects other mods/addons, document it in the `For Devs` section and update existing Markdown documents in the [`docs/`](./docs) directory.
 
 ## 🧩 Code Style & Recommendations
 
@@ -287,7 +288,13 @@ Always take time to ensure your code is simple and easy to understand.
 
 ### 8. Document public APIs
 
-Although our existing public APIs lack documentation, we're working to improve this going forward.
+Consider adding/updating guides in [`docs/`](./docs) when making any **public API breaking changes** or new features under the `api` package.
+Although our existing public APIs lack documentation, we're improving the situation going forward.
+
+**The classes:**
+
+- Inside the `api` package are public APIs intended for addons or other mods (**highly recommended**).
+- Outside the `api` package are internal APIs intended for Epic Fight only, so breaking changes may not be documented, and may break more often with updates (use as a **last resort**). 
 
 ### 9. Keep code formatting consistent
 

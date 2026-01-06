@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantments;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
@@ -91,7 +92,11 @@ public class CapabilityItem {
 		
 		return attributeModifiers;
 	}
-	
+
+    private static boolean validateAttribute(LivingEntityPatch<?> patch, Holder<Attribute> attributeHolder) {
+        return patch.getOriginal().getAttributes().hasAttribute(attributeHolder);
+    }
+
 	protected Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
 	protected Map<Style, ItemAttributeModifiers> modifiers;
 	protected Collider collider;
@@ -142,7 +147,7 @@ public class CapabilityItem {
 			Holder<Attribute> impact = EpicFightAttributes.IMPACT;
 			Holder<Attribute> maxStrikes = EpicFightAttributes.MAX_STRIKES;
 			
-			if (attribute.containsKey(armorNegation)) {
+			if (attribute.containsKey(armorNegation) && validateAttribute(entitypatch, armorNegation)) {
 				double value = attribute.get(armorNegation).amount() + entitypatch.getOriginal().getAttribute(armorNegation).getBaseValue();
 
 				if (value > 0.0D) {
@@ -150,7 +155,7 @@ public class CapabilityItem {
 				}
 			}
 			
-			if (attribute.containsKey(impact)) {
+			if (attribute.containsKey(impact) && validateAttribute(entitypatch, impact)) {
 				double value = attribute.get(impact).amount() + entitypatch.getOriginal().getAttribute(impact).getBaseValue();
 
 				if (value > 0.0D) {
@@ -160,7 +165,7 @@ public class CapabilityItem {
 				}
 			}
 			
-			if (attribute.containsKey(maxStrikes)) {
+			if (attribute.containsKey(maxStrikes) && validateAttribute(entitypatch, maxStrikes)) {
 				double value = attribute.get(maxStrikes).amount() + entitypatch.getOriginal().getAttribute(maxStrikes).getBaseValue();
 
 				if (value > 0.0D) {
@@ -325,7 +330,8 @@ public class CapabilityItem {
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> playerpatch, InteractionHand hand) {
 		return Maps.newHashMap();
 	}
-	
+
+    @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {
 		return this.canBePlacedOffhand() ? Styles.ONE_HAND : Styles.TWO_HAND;
 	}

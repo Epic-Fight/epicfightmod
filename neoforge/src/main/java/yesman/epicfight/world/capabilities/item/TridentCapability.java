@@ -1,14 +1,11 @@
 package yesman.epicfight.world.capabilities.item;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantments;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -22,6 +19,9 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class TridentCapability extends RangedWeaponCapability {
 	private List<AnimationAccessor<? extends AttackAnimation>> attackMotion;
 	private List<AnimationAccessor<? extends AttackAnimation>> mountAttackMotion;
@@ -33,7 +33,7 @@ public class TridentCapability extends RangedWeaponCapability {
 		this.mountAttackMotion = List.of(Animations.SPEAR_MOUNT_ATTACK);
 	}
 	
-	@Override
+	@Override @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {
 		return Styles.ONE_HAND;
 	}

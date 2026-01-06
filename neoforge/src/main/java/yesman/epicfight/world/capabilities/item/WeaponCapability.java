@@ -1,17 +1,13 @@
 package yesman.epicfight.world.capabilities.item;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -25,6 +21,10 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public class WeaponCapability extends CapabilityItem {
 	protected final Function<LivingEntityPatch<?>, Style> stylegetter;
@@ -82,7 +82,7 @@ public class WeaponCapability extends CapabilityItem {
 		return this.autoAttackMotions.get(Styles.MOUNT);
 	}
 	
-	@Override
+	@Override @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {
 		return this.stylegetter.apply(entitypatch);
 	}
@@ -130,9 +130,9 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	@Override
-	public UseAnim getUseAnimation(LivingEntityPatch<?> playerpatch) {
+	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
 		if (this.livingMotionModifiers != null) {
-			Style style = this.getStyle(playerpatch);
+			Style style = this.getStyle(entitypatch);
 			
 			if (this.livingMotionModifiers.containsKey(style)) {
 				if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {

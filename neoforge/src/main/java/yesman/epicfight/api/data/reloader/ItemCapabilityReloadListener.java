@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,17 +17,20 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
+import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -36,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -50,7 +55,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 	}
 	
 	@Override
-	protected Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, ProfilerFiller profileIn) {
+	protected Map<ResourceLocation, JsonElement> prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profileIn) {
 		ARMOR_COMPOUNDS.clear();
 		WEAPON_COMPOUNDS.clear();
 		
@@ -58,7 +63,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 	}
 	
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
+	protected void apply(Map<ResourceLocation, JsonElement> objectIn, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
 		for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
 			ResourceLocation rl = entry.getKey();
 			String path = rl.getPath();
@@ -68,7 +73,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 				ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), str[1]);
 				
 				if (!BuiltInRegistries.ITEM.containsKey(registryName)) {
-					EpicFightMod.LOGGER.warn("Item Capability Exception: No item named " + registryName);
+					EpicFightMod.LOGGER.warn("Item Capability Exception: No item named {}", registryName);
 					continue;
 				}
 				
@@ -78,7 +83,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 				try {
 					tag = TagParser.parseTag(entry.getValue().toString());
 				} catch (CommandSyntaxException e) {
-					EpicFightMod.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
+                    warnDeserialize(registryName, e);
 					continue;
 				}
 				
@@ -93,14 +98,18 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 						WEAPON_COMPOUNDS.put(item, tag);
 					}
 				} catch (Exception e) {
-					EpicFightMod.LOGGER.warn("Error while deserializing datapack for " + registryName + ": " + e.getLocalizedMessage());
+                    warnDeserialize(registryName, e);
 				}
 			}
 		}
 		
 		EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.addDefaultItems();
 	}
-	
+
+    private static void warnDeserialize(ResourceLocation registryName, Exception e) {
+        EpicFightMod.LOGGER.warn("Error while deserializing datapack for {}: {}", registryName, e.getLocalizedMessage());
+    }
+
 	public static CapabilityItem deserializeArmor(Item item, CompoundTag tag) {
 		ArmorCapability.Builder builder = ArmorCapability.builder();
 		
@@ -113,7 +122,13 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 		
 		return builder.build();
 	}
-	
+
+    private static void setSound(String location, Function<SoundEvent, WeaponCapability.Builder> setter) {
+        ResourceLocation soundLocation = ResourceLocation.parse(location);
+        SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(soundLocation);
+        setter.apply(sound);
+    }
+
 	public static CapabilityItem deserializeWeapon(Item item, CompoundTag tag) {
 		CapabilityItem capability;
 		
@@ -158,7 +173,31 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					}
 				}
 			}
-			
+
+            if (builder instanceof WeaponCapability.Builder weaponBuilder) {
+                if (tag.contains("swing_sound"))
+                {
+                    setSound(tag.getString("swing_sound"), weaponBuilder::swingSound);
+                }
+                if (tag.contains("hit_sound"))
+                {
+                    setSound(tag.getString("hit_sound"), weaponBuilder::hitSound);
+                }
+                if (tag.contains("hit_particle"))
+                {
+                    ResourceLocation hitParticleLocation = ResourceLocation.parse(tag.getString("hit_particle"));
+                    ParticleType<?> hitParticle = BuiltInRegistries.PARTICLE_TYPE.get(hitParticleLocation);
+                    if (hitParticle instanceof HitParticleType trueParticle)
+                    {
+                        weaponBuilder.hitParticle(trueParticle);
+                    }
+                    else
+                    {
+                        EpicFightMod.LOGGER.warn("Hit Particle Type not found: {}", hitParticleLocation);
+                    }
+                }
+            }
+
 			if (tag.contains("collider")) {
 				CompoundTag colliderTag = tag.getCompound("collider");
 				
@@ -166,7 +205,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					Collider collider = ColliderPreset.deserializeSimpleCollider(colliderTag);
 					builder.collider(collider);
 				} catch (IllegalArgumentException e) {
-					EpicFightMod.LOGGER.warn("Can't deserialize collider of " + item + ": " + e.getMessage());
+                    EpicFightMod.LOGGER.warn("Can't deserialize collider of {}: {}", item, e.getMessage());
 				}
 			}
 			
@@ -197,22 +236,21 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 		
 		return modifierMap;
 	}
-	
-	public static Stream<CompoundTag> getArmorDataStream() {
-		Stream<CompoundTag> tagStream = ARMOR_COMPOUNDS.entrySet().stream().map((entry) -> {
-			entry.getValue().putInt("id", Item.getId(entry.getKey()));
-			return entry.getValue();
-		});
-		return tagStream;
-	}
-	
-	public static Stream<CompoundTag> getWeaponDataStream() {
-		Stream<CompoundTag> tagStream = WEAPON_COMPOUNDS.entrySet().stream().map((entry) -> {
-			entry.getValue().putInt("id", Item.getId(entry.getKey()));
-			return entry.getValue();
-		});
-		return tagStream;
-	}
+
+    private static Stream<CompoundTag> getStream(Map<Item, CompoundTag> map) {
+        return map.entrySet().stream().map((entry) -> {
+            entry.getValue().putInt("id", Item.getId(entry.getKey()));
+            return entry.getValue();
+        });
+    }
+
+    public static Stream<CompoundTag> getArmorDataStream() {
+        return getStream(ARMOR_COMPOUNDS);
+    }
+
+    public static Stream<CompoundTag> getWeaponDataStream() {
+        return getStream(WEAPON_COMPOUNDS);
+    }
 	
 	private static boolean armorReceived = false;
 	private static boolean weaponReceived = false;
@@ -254,9 +292,9 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					CapabilityItem itemCap = deserializeArmor(item, tag);
 					EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.put(item, itemCap);
 				} catch (NoSuchElementException e) {
-					EpicFightMod.LOGGER.warn("Error while creating capability " + item + ": " + e.getLocalizedMessage());
+                    EpicFightMod.LOGGER.warn("Error while creating capability {}: {}", item, e.getLocalizedMessage());
 				} catch (Exception e) {
-					EpicFightMod.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
+                    EpicFightMod.LOGGER.warn("Can't read item capability for {}: {}", item, e.getLocalizedMessage());
 				}
 			});
 			
@@ -264,9 +302,9 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 				try {
 					CapabilityItem itemCap = deserializeWeapon(item, tag);
 					EpicFightCapabilities.ITEM_CAPABILITY_PROVIDER.put(item, itemCap);
-				} catch (NoSuchElementException e) {
+				} catch (NoSuchElementException ignored) {
 				} catch (Exception e) {
-					EpicFightMod.LOGGER.warn("Can't read item capability for " + item + ": " + e.getLocalizedMessage());
+					EpicFightMod.LOGGER.warn("Can't read item capability for {}: {}", item, e.getLocalizedMessage());
 				}
 			});
 			

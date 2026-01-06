@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Set;
 
 public class ComboAttacks extends Skill {
+    private static final double MIN_AIR_ATTACK_Y_VELOCITY = -0.05D;
+
 	/// Decides if the animation used for combo attack
 	public static final IndependentVariableKey<Boolean> COMBO = AnimationVariables.unsyncIndependent(animator -> false, false);
 	
@@ -120,11 +122,11 @@ public class ComboAttacks extends Skill {
 		SkillDataManager dataManager = skillContainer.getDataManager();
 		int comboCounter = dataManager.getDataValue(EpicFightSkillDataKeys.COMBO_COUNTER);
         boolean dashAttack = player.isSprinting();
-        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater();
+        boolean airAttack = !skillContainer.getExecutor().getOriginal().onGround() && !skillContainer.getExecutor().getOriginal().isInWater() && skillContainer.getExecutor().getOriginal().getDeltaMovement().y() > MIN_AIR_ATTACK_Y_VELOCITY;
 
         if (player.isPassenger()) {
 			Entity entity = player.getVehicle();
-			
+
 			if ((entity instanceof PlayerRideableJumping rideable && rideable.canJump()) && cap.availableOnHorse() && cap.getMountAttackMotion() != null) {
 				comboCounter %= cap.getMountAttackMotion().size();
 				attackMotion = cap.getMountAttackMotion().get(comboCounter);
@@ -132,7 +134,7 @@ public class ComboAttacks extends Skill {
 			}
 		} else {
 			List<AnimationAccessor<? extends AttackAnimation>> combo = cap.getAutoAttackMotion(executor);
-			
+
 			if (combo == null) {
 				return;
 			}

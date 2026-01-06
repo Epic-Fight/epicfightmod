@@ -133,6 +133,8 @@ public abstract class Skill implements IdentifierProvider {
 		this.maxStackSize = parameters.contains("max_stacks") ? parameters.getInt("max_stacks") : 1;
 		this.attributes.clear();
 
+        AttributeModifier attributeModifier = AttributeModifier.CODEC.parse(NbtOps.INSTANCE, compoundTag).result().get();
+
 		if (parameters.contains("attribute_modifiers")) {
 			ListTag modifierListTag = parameters.getList("attribute_modifiers", Tag.TAG_COMPOUND);
 			ATTRIBUTE_ENTRY_CODEC.parse(NbtOps.INSTANCE, modifierListTag).result().ifPresent(modifiers -> modifiers.forEach(modifierEntry -> this.attributes.put(modifierEntry.attribute, modifierEntry.modifier)));

@@ -3,7 +3,7 @@ name: Code Quality Checks
 on: [ push, pull_request ]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -22,5 +22,3 @@ jobs:
           fail_on_changes: true
           path: '.'
           file_mask: '*.java'
-          reporter: github-pr-review
-          filter_mode: nofilter

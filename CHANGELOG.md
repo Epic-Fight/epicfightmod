@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Persistent Mapped Buffer (by @dfdyz)
     - Boosts frame rate by removing the uploading process of buffers to shader
     - Requires OpenGL version over 4.6
+- Added "swing_sound", "hit_sound", and "hit_particle" that is configurable in ItemCapability
+    - This is not supported by data pack editor, as we're going to refactor the data pack screen
 
 ### Changed
 

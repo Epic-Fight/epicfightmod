@@ -22,3 +22,5 @@ jobs:
           fail_on_changes: true
           path: '.'
           file_mask: '*.java'
+          reporter: github-pr-review
+          filter_mode: nofilter

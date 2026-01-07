@@ -2,6 +2,8 @@ name: Mirror docs to EpicFight-Docs
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "docs/**"
 
@@ -19,12 +21,12 @@ jobs:
 
       - name: Sync Documents
         run: |
-          mkdir -p target/docs/API/${{ github.ref_name }}
+          mkdir -p target/docs/API/main
 
-          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/${{ github.ref_name }}/
+          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/main/
 
           if [ -d "docs/universal-docs" ]; then
-            rsync -av docs/universal-docs/ target/docs/API/
+            rsync -av --delete --exclude='*/' docs/universal-docs/ target/docs/API/
           fi
 
       - name: Commit and push changes
@@ -34,5 +36,10 @@ jobs:
           git config user.email "docs-bot@users.noreply.github.com"
           
           git add docs/API
-          git commit -m "Sync docs: Version ${{ github.ref_name }} and Universal updates" || echo "No changes"
-          git push
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync docs: Reflect changes/deletions from main branch"
+            git push
+          fi

@@ -12,20 +12,20 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
-        # Automatically checks out the current branch
 
       - name: Clone target repo
         run: |
           git clone https://x-access-token:${{ secrets.DOCS_MIRROR_TOKEN }}@github.com/Epic-Fight/EpicFight-Docs.git target
 
-      - name: Sync docs into versioned folder
+      - name: Sync Documents
         run: |
-          # Create a specific directory for THIS branch/version
-          # target/docs/API/1.21.1 or target/docs/API/main
           mkdir -p target/docs/API/${{ github.ref_name }}
-          
-          # Sync files into that specific subfolder
-          rsync -av --delete docs/ target/docs/API/${{ github.ref_name }}/
+
+          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/${{ github.ref_name }}/
+
+          if [ -d "docs/universal-docs" ]; then
+            rsync -av docs/universal-docs/ target/docs/API/
+          fi
 
       - name: Commit and push changes
         run: |
@@ -33,8 +33,6 @@ jobs:
           git config user.name "EpicFight Docs Bot"
           git config user.email "docs-bot@users.noreply.github.com"
           
-          # Add only the specific version folder changed
-          git add docs/API/${{ github.ref_name }}
-          
-          git commit -m "Sync API docs for version ${{ github.ref_name }}" || echo "No changes"
+          git add docs/API
+          git commit -m "Sync docs: Version ${{ github.ref_name }} and Universal updates" || echo "No changes"
           git push

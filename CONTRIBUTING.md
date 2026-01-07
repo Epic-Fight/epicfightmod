@@ -103,6 +103,57 @@ $ ./gradlew runServer
     - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for format and style.
     - If the change is **breaking** or affects other mods/addons, document it in the `For Devs` section.
 
+## ✏️ API Documentation
+
+Clearly documenting your changes in a simple and understandable manner is one of the best ways to communicate updates to other developers and users.
+Documentation helps new developers understand the API and contributes to a smoother, more efficient workflow overall.
+
+In Epic Fight, we’ve created a system that allows developers to create new documentation pages explaining the API, while also having them automatically displayed on our [Official Wiki](https://epicfight-docs.readthedocs.io). 
+Below are a few useful steps to help you make use of this system.
+
+1. Getting Started<br>
+The first step is to create your documentation file. All documentation files must be placed within the ``root/docs/`` directory.
+At this point, you can decide whether your new documentation page is version-specific or universal, meaning it applies to any Epic Fight version.
+Files that apply to multiple versions may be included in the Universal directory to simplify maintenance and reuse.<br>
+Below is an example demonstrating how pages are generated inside the wiki:
+
+| Source Path (in EpicFight) | Target Path (in EpicFight-Docs) |
+|---------------------------|--------------------------------|
+| docs/universal-docs/General_Info.en.md | docs/API/General_Info.en.md |
+| docs/Items.en.md (on branch 1.21.1) | docs/API/1.21.1/Items.en.md |
+| docs/Items.en.md (on branch 1.20.1) | docs/API/1.20.1/Items.en.md |
+| docs/Animations/Math.en.md (on branch 1.21.1) | docs/API/1.21.1/Animations/Math.en.md |
+
+2. File name<br>
+Naming your file is straightforward. Create the file and append the ``.en.md``.suffix when specifying the file extension.
+This generates an English documentation page, which is the default language for our wiki.<br>
+The list of available languages is shown below.
+
+| Language | ISO codes |
+|---------------------------|--------------------------------|
+| English [Default] | ``.en.`` |
+| Portuguease | ``.pt.`` |
+| Spanish | ``.es.`` |
+| Russian | ``.ru.`` |
+| Polish | ``.pl.`` |
+| Japanese | ``.ja.`` |
+| Chinese | ``.zh.`` |
+| Korean | ``.ko.`` |
+| Croatian | ``.hr.`` |
+
+Keep in mind that contributors are not required to translate their documentation pages. That said, ***we encourage writing documentation in English to ensure it is accessible to a wider audience***.
+
+3. Page metadata (Hiding version warning)
+As the last step, add the following metadata to the top of your documentation page.
+```
+---
+hide:
+  - announcement
+---
+```
+
+This prevents the wiki from prompting users to search for a newer version of the page. It is a simple adjustment that should be included in all current documentation.
+
 ## 🧩 Code Style & Recommendations
 
 ### 1. Keep the code independent of mod loader APIs

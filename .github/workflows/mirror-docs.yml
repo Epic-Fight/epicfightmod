@@ -2,8 +2,6 @@ name: Mirror docs to EpicFight-Docs
 
 on:
   push:
-    branches:
-      - main
     paths:
       - "docs/**"
 

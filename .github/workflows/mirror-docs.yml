@@ -1,0 +1,35 @@
+name: Mirror docs to EpicFight-Docs
+
+on:
+  push:
+    branches: [ "1.21.1" ]
+    paths:
+      - "docs/**"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo (1.21.1)
+        uses: actions/checkout@v4
+        with:
+          ref: 1.21.1
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.DOCS_MIRROR_TOKEN }}@github.com/Epic-Fight/EpicFight-Docs.git target
+
+      - name: Sync docs into docs/API
+        run: |
+          mkdir -p target/docs/API
+          rsync -av --delete docs/ target/docs/API/
+
+      - name: Commit and push changes
+        run: |
+          cd target
+          git config user.name "EpicFight Docs Bot"
+          git config user.email "docs-bot@users.noreply.github.com"
+          git add docs/API
+          git commit -m "Sync API docs from epicfight (1.21.1)" || echo "No changes"
+          git push

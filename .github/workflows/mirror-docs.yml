@@ -2,7 +2,6 @@ name: Mirror docs to EpicFight-Docs
 
 on:
   push:
-    branches: [ "1.21.1" ]
     paths:
       - "docs/**"
 
@@ -11,25 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source repo (1.21.1)
+      - name: Checkout source repo
         uses: actions/checkout@v4
-        with:
-          ref: 1.21.1
+        # Automatically checks out the current branch
 
       - name: Clone target repo
         run: |
           git clone https://x-access-token:${{ secrets.DOCS_MIRROR_TOKEN }}@github.com/Epic-Fight/EpicFight-Docs.git target
 
-      - name: Sync docs into docs/API
+      - name: Sync docs into versioned folder
         run: |
-          mkdir -p target/docs/API
-          rsync -av --delete docs/ target/docs/API/
+          # Create a specific directory for THIS branch/version
+          # target/docs/API/1.21.1 or target/docs/API/main
+          mkdir -p target/docs/API/${{ github.ref_name }}
+          
+          # Sync files into that specific subfolder
+          rsync -av --delete docs/ target/docs/API/${{ github.ref_name }}/
 
       - name: Commit and push changes
         run: |
           cd target
           git config user.name "EpicFight Docs Bot"
           git config user.email "docs-bot@users.noreply.github.com"
-          git add docs/API
-          git commit -m "Sync API docs from epicfight (1.21.1)" || echo "No changes"
+          
+          # Add only the specific version folder changed
+          git add docs/API/${{ github.ref_name }}
+          
+          git commit -m "Sync API docs for version ${{ github.ref_name }}" || echo "No changes"
           git push

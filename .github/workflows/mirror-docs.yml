@@ -2,6 +2,8 @@ name: Mirror docs to EpicFight-Docs
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "docs/**"
 
@@ -19,9 +21,9 @@ jobs:
 
       - name: Sync Documents
         run: |
-          mkdir -p target/docs/API/main
+          mkdir -p target/docs/API/${{ github.ref_name }}
 
-          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/main/
+          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/${{ github.ref_name }}/
 
           if [ -d "docs/universal-docs" ]; then
             rsync -av --delete --exclude='*/' docs/universal-docs/ target/docs/API/

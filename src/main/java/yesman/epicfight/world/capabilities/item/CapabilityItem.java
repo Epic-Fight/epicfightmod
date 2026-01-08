@@ -31,6 +31,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.gameasset.Animations;
@@ -52,6 +53,8 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
+import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent.ComboCounterHandler;
 
 public class CapabilityItem {
 	public static CapabilityItem EMPTY = CapabilityItem.builder().build();
@@ -335,8 +338,19 @@ public class CapabilityItem {
 		return true;
 	}
 	
+	/**
+	 * Use {@link #handleComboCounter(PlayerPatch, AnimationAccessor)} with animation sensitive version
+	 */
+	@Deprecated(forRemoval = true)
 	public boolean shouldCancelCombo(LivingEntityPatch<?> entitypatch) {
 		return true;
+	}
+	
+	/**
+	 * @param nextAnimation null when causal == {@link ComboCounterHandleEvent.Causal#TIME_EXPIRED}
+	 */
+	public int handleComboCounter(ComboCounterHandleEvent.Causal causal, PlayerPatch<?> entitypatch, @Nullable AnimationAccessor<? extends MainFrameAnimation> nextAnimation, int original) {
+		return ComboCounterHandler.DEFAULT_COMBO_HANDLER.handleComboCounter(this, causal, entitypatch, nextAnimation, original);
 	}
 	
 	public boolean isEmpty() {

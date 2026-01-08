@@ -50,7 +50,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		super(entity);
 
         this.getEventListener().registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_POST,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
             event -> {
                 if (!event.getDamageSource().shouldChargeWeapon()) return;
 

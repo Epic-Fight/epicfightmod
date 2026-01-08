@@ -65,7 +65,7 @@ public class VengeanceSkill extends PassiveSkill {
         );
 
         eventListener.registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_PRE,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_PRE,
             event -> {
                 int currentTargetId = container.getDataManager().getDataValue(EpicFightSkillDataKeys.ENTITY_ID);
 

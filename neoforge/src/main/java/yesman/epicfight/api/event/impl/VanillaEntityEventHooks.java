@@ -183,7 +183,7 @@ public final class VanillaEntityEventHooks {
 
             if (playerpatch != null) {
                 DealDamageEvent.Income dealDamageAttack = new DealDamageEvent.Income(playerpatch, entity, epicfightDamagesource, amount);
-                EpicFightEventHooks.Entity.DELIEVER_DAMAGE_INCOME.postWithListener(dealDamageAttack, playerpatch.getEventListener());
+                EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME.postWithListener(dealDamageAttack, playerpatch.getEventListener());
 
                 if (dealDamageAttack.isCanceled()) {
                     return true;
@@ -228,7 +228,7 @@ public final class VanillaEntityEventHooks {
 
                 if (epicfightDamageSource != null) {
                     DealDamageEvent.Pre dealDamagePre = new DealDamageEvent.Pre(causingEntityPatch, hitEntity, epicfightDamageSource, finalDamage);
-                    EpicFightEventHooks.Entity.DELIEVER_DAMAGE_PRE.postWithListener(dealDamagePre, causingEntityPatch.getEventListener());
+                    EpicFightEventHooks.Entity.DELIVER_DAMAGE_PRE.postWithListener(dealDamagePre, causingEntityPatch.getEventListener());
                 }
             }
         }
@@ -369,7 +369,7 @@ public final class VanillaEntityEventHooks {
     public static void onCalculateDamagePost(LivingEntity hitEntity, DamageSource damageSource, float amount) {
         if (damageSource instanceof EpicFightDamageSource epicFightDamageSource) {
             EpicFightCapabilities.getUnparameterizedEntityPatch(damageSource.getEntity(), LivingEntityPatch.class).ifPresent(entitypatch -> {
-                EpicFightEventHooks.Entity.DELIEVER_DAMAGE_POST.postWithListener(new DealDamageEvent.Post(entitypatch, hitEntity, epicFightDamageSource, amount), entitypatch.getEventListener());
+                EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST.postWithListener(new DealDamageEvent.Post(entitypatch, hitEntity, epicFightDamageSource, amount), entitypatch.getEventListener());
             });
         }
 

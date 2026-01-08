@@ -32,7 +32,7 @@ public class GuillotineAxeSkill extends SimpleWeaponInnateSkill {
         super.onInitiate(container, eventListener);
 
         eventListener.registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_PRE,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_PRE,
             event -> {
                 if (event.getDamageSource().getAnimation() == Animations.THE_GUILLOTINE) {
                     ValueModifier.ResultCalculator executionMinHealth = ValueModifier.calculator();

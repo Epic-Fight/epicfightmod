@@ -203,7 +203,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
         );
 
         eventListener.registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_POST,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
             event -> {
                 // clears penalty multiplier on hit
                 skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.PENALTY, 0.0F);

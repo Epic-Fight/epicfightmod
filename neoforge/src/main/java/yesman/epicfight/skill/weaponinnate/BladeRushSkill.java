@@ -86,7 +86,7 @@ public class BladeRushSkill extends WeaponInnateSkill {
         super.onInitiate(container, eventListener);
 
         eventListener.registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_POST,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
             event -> {
                 if (event.getDamageSource().getAnimation().idBetween(Animations.BLADE_RUSH_COMBO1, Animations.BLADE_RUSH_COMBO3) && this.tryAnimations.containsKey(event.getTarget().getType())) {
                     MobEffectInstance effectInstance = event.getTarget().getEffect(EpicFightMobEffects.INSTABILITY);

@@ -26,44 +26,58 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 /// only can register events that inherit [LivingEntityPatchEvent] for per entity events.
 ///
 /// For common event hooks for both client and server side, refer to [EpicFightEventHooks]
-public interface EpicFightClientEventHooks {
-    interface Camera {
-        CancelableEventHook<BuildCameraTransform.Pre> BUILD_TRANSFORM_PRE = CancelableEventHook.createCancelableEventHook();
-        EventHook<BuildCameraTransform.Post> BUILD_TRANSFORM_POST = EventHook.createEventHook();
-        EventHook<ItemUsedInDecoupledCamera> ITEM_USED_WHEN_DECOUPLED = EventHook.createEventHook();
-        EventHook<CoupleTPSCamera> COUPLE_CAMERA = EventHook.createEventHook();
-        EventHook<LockOnEvent.Start> LOCK_ON_START = CancelableEventHook.createCancelableEventHook();
-        EventHook<LockOnEvent.Tick> LOCK_ON_TICK = EventHook.createEventHook();
-        EventHook<LockOnEvent.Release> LOCK_ON_RELEASED = CancelableEventHook.createCancelableEventHook();
-        EventHook<ActivateTPSCamera> ACTIVATE_TPS_CAMERA = CancelableEventHook.createCancelableEventHook();
+public final class EpicFightClientEventHooks {
+    public static final class Camera {
+        public static final CancelableEventHook<BuildCameraTransform.Pre> BUILD_TRANSFORM_PRE = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<BuildCameraTransform.Post> BUILD_TRANSFORM_POST = EventHook.createEventHook();
+        public static final EventHook<ItemUsedInDecoupledCamera> ITEM_USED_WHEN_DECOUPLED = EventHook.createEventHook();
+        public static final EventHook<CoupleTPSCamera> COUPLE_CAMERA = EventHook.createEventHook();
+        public static final EventHook<LockOnEvent.Start> LOCK_ON_START = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<LockOnEvent.Tick> LOCK_ON_TICK = EventHook.createEventHook();
+        public static final EventHook<LockOnEvent.Release> LOCK_ON_RELEASED = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<ActivateTPSCamera> ACTIVATE_TPS_CAMERA = CancelableEventHook.createCancelableEventHook();
+
+        private Camera() {}
     }
 
-    interface Control {
-        EventHook<MappedMovementInputUpdateEvent> MAPPED_MOVEMENT_INPUT_UPDATE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+    public static final class Control {
+        public static final EventHook<MappedMovementInputUpdateEvent> MAPPED_MOVEMENT_INPUT_UPDATE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+
+        private Control() {}
     }
 
-    interface Entity {
-        EventHook<ProcessEntityPairingPacketEvent> HANDLE_ENTITY_PAIRING_PACKET = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.CLIENT);
-        EventHook<ModifyPlayerLivingMotionEvent.BaseLayer> MODIFY_PLAYER_LIVING_MOTION_BASE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<ModifyPlayerLivingMotionEvent.CompositeLayer> MODIFY_PLAYER_LIVING_MOTION_COMPOSITE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+    public static final class Entity {
+        public static final EventHook<ProcessEntityPairingPacketEvent> HANDLE_ENTITY_PAIRING_PACKET = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.CLIENT);
+        public static final EventHook<ModifyPlayerLivingMotionEvent.BaseLayer> MODIFY_PLAYER_LIVING_MOTION_BASE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<ModifyPlayerLivingMotionEvent.CompositeLayer> MODIFY_PLAYER_LIVING_MOTION_COMPOSITE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+
+        private Entity() {}
     }
 
-    interface HUD {
-        EventHook<TickTargetIndicatorEvent> TARGET_INDICATOR_TICK = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+    public static final class HUD {
+        public static final EventHook<TickTargetIndicatorEvent> TARGET_INDICATOR_TICK = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+
+        private HUD() {}
     }
 
-    interface Registry {
-        EventHook<RegisterAttributeIconEvent> ATTRIBUTE_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<RegisterPatchedRenderersEvent.ModifyEntity> MODIFY_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<RegisterPatchedRenderersEvent.AddEntity> ADD_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<RegisterPatchedRenderersEvent.Item> PATCHED_ITEM = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<RegisterWeaponCategoryIconEvent> WEAPON_CATEGORY_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+    public static final class Registry {
+        public static final EventHook<RegisterAttributeIconEvent> ATTRIBUTE_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<RegisterPatchedRenderersEvent.ModifyEntity> MODIFY_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<RegisterPatchedRenderersEvent.AddEntity> ADD_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<RegisterPatchedRenderersEvent.Item> PATCHED_ITEM = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<RegisterWeaponCategoryIconEvent> WEAPON_CATEGORY_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+
+        private Registry() {}
     }
 
-    interface Render {
-        EventHook<AnimatedArmorTextureEvent> ANIMATED_ARMOR_TEXTURE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<PrepareModelEvent> PREPARE_MODEL_TO_RENDER = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<RenderEnderDragonEvent> RENDER_ENDER_DRAGON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        EventHook<ValidatePlayerModelEvent> VALIDATE_PLAYER_MODEL_TO_RENDER = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+    public static final class Render {
+        public static final EventHook<AnimatedArmorTextureEvent> ANIMATED_ARMOR_TEXTURE = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<PrepareModelEvent> PREPARE_MODEL_TO_RENDER = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<RenderEnderDragonEvent> RENDER_ENDER_DRAGON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+        public static final EventHook<ValidatePlayerModelEvent> VALIDATE_PLAYER_MODEL_TO_RENDER = EventHook.createSidedEventHook(LogicalSide.CLIENT);
+
+        private Render() {}
     }
+
+    private EpicFightClientEventHooks() {}
 }

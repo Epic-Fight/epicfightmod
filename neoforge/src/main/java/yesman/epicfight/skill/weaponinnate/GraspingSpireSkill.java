@@ -42,7 +42,7 @@ public class GraspingSpireSkill extends WeaponInnateSkill {
         );
 
         eventListener.registerEvent(
-            EpicFightEventHooks.Entity.DELIEVER_DAMAGE_POST,
+            EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
             event -> {
                 if (this.second.equals(event.getDamageSource().getAnimation())) {
                     event.getDamageSource().attachImpactModifier(ValueModifier.adder(skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.LAST_HIT_COUNT) * 0.4F));

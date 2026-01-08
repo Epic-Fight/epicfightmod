@@ -18,51 +18,61 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 /// If you want to listen an event not globally, but per entity, call the exact same registering methods in
 /// [EntityEventListener], which you can access by [LivingEntityPatch#getEventListener]. Be aware that you
 /// only can register events that inherit [LivingEntityPatchEvent] for per entity events.
-public interface EpicFightEventHooks {
-    interface Animation {
-        EventHook<AnimationBeginEvent> BEGIN = EventHook.createEventHook();
-        EventHook<AnimationEndEvent> END = EventHook.createEventHook();
-        EventHook<AttackPhaseEndEvent> ATTACK_PHASE_END = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<InitAnimatorEvent> INIT_ANIMATOR = EventHook.createEventHook();
-        EventHook<StartActionEvent> START_ACTION = EventHook.createEventHook();
+public final class EpicFightEventHooks {
+    public static final class Animation {
+        public static final EventHook<AnimationBeginEvent> BEGIN = EventHook.createEventHook();
+        public static final EventHook<AnimationEndEvent> END = EventHook.createEventHook();
+        public static final EventHook<AttackPhaseEndEvent> ATTACK_PHASE_END = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<InitAnimatorEvent> INIT_ANIMATOR = EventHook.createEventHook();
+        public static final EventHook<StartActionEvent> START_ACTION = EventHook.createEventHook();
+
+        private Animation() {}
     }
 
-    interface Entity {
-        CancelableEventHook<DealDamageEvent.Income> DELIEVER_DAMAGE_INCOME = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        EventHook<DealDamageEvent.Pre> DELIEVER_DAMAGE_PRE = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<DealDamageEvent.Post> DELIEVER_DAMAGE_POST = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<DodgeEvent> ON_DODGE = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<FallEvent> ON_FALL = EventHook.createEventHook();
-        EventHook<HandleEntityDataEvent.Load> NBT_LOAD = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<HandleEntityDataEvent.Save> NBT_SAVE = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        CancelableEventHook<HitByProjectileEvent> HIT_BY_PROJECTILE = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        EventHook<KillEntityEvent> KILL_ENTITY = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<ModifyAttackSpeedEvent> MODIFY_ATTACK_SPEED = EventHook.createEventHook();
-        EventHook<ModifyBaseDamageEvent> MODIFY_ATTACK_DAMAGE = EventHook.createEventHook();
-        EventHook<EntityRemovedEvent> ON_REMOVED = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<StunnedEvent> ON_STUNNED = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        CancelableEventHook<TakeDamageEvent.Income> TAKE_DAMAGE_INCOME = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        EventHook<TakeDamageEvent.Pre> TAKE_DAMAGE_PRE = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        EventHook<TakeDamageEvent.Post> TAKE_DAMAGE_POST = EventHook.createSidedEventHook(LogicalSide.SERVER);
+    public static final class Entity {
+        public static final CancelableEventHook<DealDamageEvent.Income> DELIVER_DAMAGE_INCOME = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final EventHook<DealDamageEvent.Pre> DELIVER_DAMAGE_PRE = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<DealDamageEvent.Post> DELIVER_DAMAGE_POST = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<DodgeEvent> ON_DODGE = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<FallEvent> ON_FALL = EventHook.createEventHook();
+        public static final EventHook<HandleEntityDataEvent.Load> NBT_LOAD = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<HandleEntityDataEvent.Save> NBT_SAVE = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<HitByProjectileEvent> HIT_BY_PROJECTILE = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final EventHook<KillEntityEvent> KILL_ENTITY = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<ModifyAttackSpeedEvent> MODIFY_ATTACK_SPEED = EventHook.createEventHook();
+        public static final EventHook<ModifyBaseDamageEvent> MODIFY_ATTACK_DAMAGE = EventHook.createEventHook();
+        public static final EventHook<EntityRemovedEvent> ON_REMOVED = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<StunnedEvent> ON_STUNNED = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<TakeDamageEvent.Income> TAKE_DAMAGE_INCOME = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final EventHook<TakeDamageEvent.Pre> TAKE_DAMAGE_PRE = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<TakeDamageEvent.Post> TAKE_DAMAGE_POST = EventHook.createSidedEventHook(LogicalSide.SERVER);
+
+        private Entity() {}
     }
 
-    interface Player {
-        EventHook<ChangeInnateSkillEvent> CHANGE_INNATE_SKILL = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        CancelableEventHook<ComboAttackEvent> COMBO_ATTACK = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        CancelableEventHook<ModifyComboCounter> MODIFY_COMBO_COUNTER = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        CancelableEventHook<SetTargetEvent> SET_TARGET = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
-        EventHook<SkillCancelEvent> CANCEL_SKILL = EventHook.createSidedEventHook(LogicalSide.SERVER);
-        CancelableEventHook<SkillCastEvent> CAST_SKILL = CancelableEventHook.createCancelableEventHook();
-        CancelableEventHook<SkillConsumeEvent> CONSUME_SKILL = CancelableEventHook.createCancelableEventHook();
-        CancelableEventHook<TickPlayerEpicFightModeEvent> TICK_EPICFIGHT_MODE = CancelableEventHook.createCancelableEventHook();
-        EventHook<TogglePlayerModeEvent> TOGGLE_MODE = CancelableEventHook.createCancelableEventHook();
-        EventHook<StartUsingItemEvent> USE_ITEM = EventHook.createEventHook();
+    public static final class Player {
+        public static final EventHook<ChangeInnateSkillEvent> CHANGE_INNATE_SKILL = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<ComboAttackEvent> COMBO_ATTACK = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<ModifyComboCounter> MODIFY_COMBO_COUNTER = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<SetTargetEvent> SET_TARGET = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
+        public static final EventHook<SkillCancelEvent> CANCEL_SKILL = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final CancelableEventHook<SkillCastEvent> CAST_SKILL = CancelableEventHook.createCancelableEventHook();
+        public static final CancelableEventHook<SkillConsumeEvent> CONSUME_SKILL = CancelableEventHook.createCancelableEventHook();
+        public static final CancelableEventHook<TickPlayerEpicFightModeEvent> TICK_EPICFIGHT_MODE = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<TogglePlayerModeEvent> TOGGLE_MODE = CancelableEventHook.createCancelableEventHook();
+        public static final EventHook<StartUsingItemEvent> USE_ITEM = EventHook.createEventHook();
+
+        private Player() {}
     }
 
-    interface Registry {
-        EventHook<EntityPatchRegistryEvent> ENTITY_PATCH = EventHook.createEventHook();
-        EventHook<SkillBuilderModificationEvent> MODIFY_SKILL_BUILDER = EventHook.createEventHook();
-        EventHook<RegisterMobSkillBookLootTableEvent> SKILLBOOK_LOOT_TABLE = EventHook.createEventHook();
-        EventHook<WeaponCapabilityPresetRegistryEvent> WEAPON_CAPABILITY_PRESET = EventHook.createEventHook();
+    public static final class Registry {
+        public static final EventHook<EntityPatchRegistryEvent> ENTITY_PATCH = EventHook.createEventHook();
+        public static final EventHook<SkillBuilderModificationEvent> MODIFY_SKILL_BUILDER = EventHook.createEventHook();
+        public static final EventHook<RegisterMobSkillBookLootTableEvent> SKILLBOOK_LOOT_TABLE = EventHook.createEventHook();
+        public static final EventHook<WeaponCapabilityPresetRegistryEvent> WEAPON_CAPABILITY_PRESET = EventHook.createEventHook();
+
+        private Registry() {}
     }
+
+    private EpicFightEventHooks() {}
 }

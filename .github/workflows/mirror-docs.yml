@@ -7,6 +7,7 @@ on:
 
 jobs:
   mirror:
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +21,6 @@ jobs:
       - name: Sync Documents
         run: |
           mkdir -p target/docs/API/${{ github.ref_name }}
-
           rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/${{ github.ref_name }}/
 
           if [ -d "docs/universal-docs" ]; then
@@ -38,6 +38,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Sync docs: Reflect changes/deletions from main branch"
+            git commit -m "Sync docs: Reflect changes/deletions from default branch"
             git push
           fi

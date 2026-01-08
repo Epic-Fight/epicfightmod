@@ -51,7 +51,7 @@ public class SkillBuilder<B extends SkillBuilder<?>> {
 		return (B)this;
 	}
 
-	public <T extends Skill> T build(ResourceLocation key, Class<T> skillCls) {
+	public <T extends Skill> T build(ResourceLocation key) {
 		this.setRegistryName(key);
 
         SkillBuilderModificationEvent builderModificationEvent = new SkillBuilderModificationEvent(key, this);

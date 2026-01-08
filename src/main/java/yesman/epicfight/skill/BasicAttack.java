@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
 
+import dev.tr7zw.skinlayers.versionless.util.Mth;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,7 +57,7 @@ public class BasicAttack extends Skill {
 		int prevValue = container.getDataManager().getDataValue(SkillDataKeys.COMBO_COUNTER.get());
 		ComboCounterHandleEvent comboResetEvent = new ComboCounterHandleEvent(reason, playerpatch, causalAnimation, prevValue, modifiedCombo);
 		container.getExecutor().getEventListener().triggerEvents(EventType.COMBO_COUNTER_HANDLE_EVENT, comboResetEvent);
-		container.getDataManager().setData(SkillDataKeys.COMBO_COUNTER.get(), comboResetEvent.getNextValue());
+		container.getDataManager().setData(SkillDataKeys.COMBO_COUNTER.get(), Mth.clamp(comboResetEvent.getNextValue(), 0, itemCapability.getAutoAttackMotion(playerpatch).size() - 3));
 	}
 	
 	/// Consumption amount when basic attacks set to use stamina

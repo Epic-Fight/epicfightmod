@@ -7,12 +7,12 @@ Epic Fight now uses the Deferred register from NeoForge. This gets rid of the in
 and provides more integrated system with mod loader.
 
 ### Affections
-- `yesman.epicfight.api.forgeevent.SkillBuildEvent` is removed as the skill registration is now throug
+- `yesman.epicfight.api.forgeevent.SkillBuildEvent` is removed as the skill registration is now through
 Deferred Register.
 
 ### Migration Example
 
-This is a comparision of BasicAttack(ComboAttacks in 1.21.1) registration
+This is a comparison of BasicAttack(ComboAttacks in 1.21.1) registration
 
 *In 1.20.1*
 
@@ -32,11 +32,11 @@ public static final DeferredHolder<Skill, ComboAttacks> COMBO_ATTACKS = REGISTRY
 );
 ```
 
-You can keep the old builder pattren, but the method that constructs skill by builder is significantly different.
+You can keep the old builder pattern, but the method that constructs skill by builder is significantly different.
 It receives the registration key as `ResourceLocation`, which you need to register skills via consumer,
 `(key) -> {}` not, `() -> {}`
 
-This is more complicated skill registration example with damage-source property pattern.
+This is a more complicated skill registration example with damage-source property pattern.
 
 *In 1.20.1*
 
@@ -72,7 +72,7 @@ public static final DeferredHolder<Skill, EviscerateSkill> EVISCERATE = REGISTRY
     );
 ```
 
-If you have no idea what **Deferred Register** is, it's Forge and NeoForge's registration system to add more entries to
+If you have no idea what a **Deferred Register** is, it's Forge and NeoForge's registration system to add more entries to
 Minecraft's frozen registries with controling the registration timing and freezing status. Check out their
 [document](https://docs.neoforged.net/docs/concepts/registries/#deferredregister) for better explanation.
 

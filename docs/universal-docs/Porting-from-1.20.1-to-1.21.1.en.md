@@ -1,4 +1,5 @@
 ---
+icon: material/vector-line
 hide:
   - announcement
 ---

@@ -10,4 +10,3 @@ This document is a WIP that explains how the player and other entity models work
 ## References
 
 * [Nvidia Mesh Skinning](https://developer.download.nvidia.com/assets/gamedev/docs/skinning.pdf)
-* 

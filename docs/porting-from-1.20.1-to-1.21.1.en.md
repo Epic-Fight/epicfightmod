@@ -1,10 +1,14 @@
+---
+hide:
+  - announcement
+---
 In this article, I'll introduce the most breaking changes from 1.20.1 and help add-on developers to figure out
 how to properly adapt the changes for their project.
 
 # Skill Registration
 
 Epic Fight now uses the Deferred register from NeoForge. This gets rid of the incongruous registration of skills
-and provides more integrated system with mod loader.
+and provides a more integrated system with mod loader.
 
 ### Affections
 - `yesman.epicfight.api.forgeevent.SkillBuildEvent` is removed as the skill registration is now through
@@ -36,7 +40,7 @@ You can keep the old builder pattern, but the method that constructs skill by bu
 It receives the registration key as `ResourceLocation`, which you need to register skills via consumer,
 `(key) -> {}` not, `() -> {}`
 
-This is a more complicated skill registration example with damage-source property pattern.
+This is a more complicated skill registration example with a damage-source property pattern.
 
 *In 1.20.1*
 
@@ -72,15 +76,15 @@ public static final DeferredHolder<Skill, EviscerateSkill> EVISCERATE = REGISTRY
     );
 ```
 
-If you have no idea what a **Deferred Register** is, it's Forge and NeoForge's registration system to add more entries to
-Minecraft's frozen registries with controling the registration timing and freezing status. Check out their
+**Deferred Register** is Forge and NeoForge's registration system to add more entries to
+Minecraft's frozen registries have control over registration timing and freezing status. Check out their
 [document](https://docs.neoforged.net/docs/concepts/registries/#deferredregister) for better explanation.
 
-# Adding & removing Skill Events to listener
+# Adding & removing Skill Events to the listener
 
 When the `Skill` is equipped to players, we registered listeners for specific event hooks and manually removed them when
 the skill is unequipped. In 1.21.1, Epic Fight provides more streamlined registration without `UUID` and needs to remove
-listener manually.
+listeners manually.
 
 ### Example
 
@@ -134,35 +138,35 @@ Replaces `EventType` in `1.20.1`, but it uses our newer Event API system that I'
 and `yesman.epicfight.api.client.event.EpicFightClientEventHooks`
 
 ### Param2: `DefaultEventSubscription` or `ContextAwareEventSubscription` for `registerContextAwareEvent`
-A functional interface where you set tasks when the event is triggered. I'll explain it in detailed on
+A functional interface where you set tasks when the event is triggered. I'll explain it in detail on
 the [according section](#Epic-Fight-now-seeks-more-independent-event-system-from-mod-loaders) too.
 
 ### Param3: `IdentifierProvider`
-You'll always give the skill instance itself since the skill is inherits `IdentifierProvider` interface. This replaces
-the work for what `UUID` did in `1.20.1` but automatically when the skill is unequipped.
+You'll always give the skill instance itself since the skill inherits the `IdentifierProvider` interface. This replaces
+the work for what `UUID` did in the older system, but automatically when the skill is unequipped.
 
 ### Param4(Skipped in example snippet): Priority(int)
 For the cases that you need to intercept other event subscribers, I made it to be ordered in descending order. Which
-means, you can cancel the events with lower priority. (This feature was already in `1.20.1`)
+means you can cancel the events with lower priority. (This feature was already in `1.20.1`)
 
 # Epic Fight now seeks Multi-loader structure
-Out team discussed a lot on this topic and concluded that the project should be more future-proofing and open more to
+Our team discussed a lot on this topic and concluded that the project should be more future-proof and open more to
 other mod-loaders like Fabric, which we've asked for a decade, for the growth of the project as we're transforming Epic
-Fight to the API and newer standard for Minecraft modding. For now, we only have a prototype of multi-loader structure
-and didn't really port to Fabric, but we already demonstrated Epic Fight could be a multi-platformed project.
-We won't do this in 1.21.1 tho, so addon developers have nothing to migrate by this change, but keep in mind to decouple
+Fight for the API and newer standard for Minecraft modding. For now, we only have a prototype of the multi-loader structure
+and haven't really ported it to Fabric, but we already demonstrated that Epic Fight could be a multi-platform project.
+Thoough we won't do this in 1.21.1, so addon developers have nothing to migrate by this change, but keep in mind to decouple
 NeoForge's code if you want to port your project to Fabric as well.
 
-# Epic Fight now seeks more independent event system from mod-loaders
-Driven by [the decision](#Epic-Fight-now-seeks-Multi-loader-structure), we needed to decouple the code from NeoForge since it will make the maintenency harder
-as we need to create multiple event instances by the number of mod-loaders that we depend. Instead, Epic Fight now has
-the unique Event system independent of whatever mod-loader.
+# Epic Fight now seeks a more independent event system from mod-loaders
+Driven by [the decision](#Epic-Fight-now-seeks-Multi-loader-structure), we needed to decouple the code from NeoForge since it will make the maintenance harder
+as we need to create multiple event instances for the number of mod-loaders that we depend on. Instead, Epic Fight now has
+a unique Event system independent of whatever mod loader.
 
-The main target that is affected by this change is skill event listener, which I already introduced in
+The main target that is affected by this change is the skill event listener, which I already introduced in
 [this](#Adding-&-removing-Skill-Events-to-listener) section.
 
 ### Example
-This is a simple example that adding a subscriber that prints a message when innate skill is set to Sweeping Edge.
+This is a simple example of adding a subscriber that prints a message when the innate skill is set to Sweeping Edge.
 
 ```java
 EpicFightEventHooks.Player.CHANGE_INNATE_SKILL.registerEvent(event -> {
@@ -171,10 +175,10 @@ EpicFightEventHooks.Player.CHANGE_INNATE_SKILL.registerEvent(event -> {
     }
 });
 ```
-Basically, you can call this registration event in anywhere, but I strongly recommend to register events in mod
+Basically, you can call this registration event anywhere, but I strongly recommend registering events in the mod
 initializing stage.
 
-### Example with full-arguments
+### Example with full arguments
 
 ```java
 EpicFightEventHooks.Player.CHANGE_INNATE_SKILL.registerEvent(
@@ -188,18 +192,18 @@ EpicFightEventHooks.Player.CHANGE_INNATE_SKILL.registerEvent(
 );
 ```
 
-You also can set the name of your subscriber, which is mainly used by `ContextAwareEventSubscription` which I will
-explain on the following section.
+You can also set the name of your subscriber, which is mainly used by `ContextAwareEventSubscription`, which will
+be explained in the following section.
 
-The priority will organize the subscribers in descending order. Any event subscriber that cancels the event will prevent
+The priority will organize the subscribers in descending order. Any event subscriber who cancels the event will prevent
 triggering events with lower priorities.
 
 ### Event Cancelation, and Context Awaring Subscriber
 The new event system also provides ways to interrupt the following process. Some event hooks are instances of
-`CancelableEventHook`, that means, you can cancel the event to intercept the folloing process.
+`CancelableEventHook`, that means, you can cancel the event to intercept the following process.
 
-Even thought an event is canceled, you're still able to trigger your task. Registering as `ContextAwareEventSubscription`
-will still visit your subscriber even if it's canceled by another event with higher priority.
+Even though an event is canceled, you're still able to trigger your task. Registering as `ContextAwareEventSubscription`
+will still visit your subscriber even if it's canceled by another event with a higher priority.
 
 ```java
 EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerEvent(
@@ -222,22 +226,22 @@ EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent(
 );
 ```
 
-The first subscriber in the example will make entities never die if their health is below than 1.0. However, the
-following subscriber kills the entity with checking the subscriber name. The first subscriber will be triggered before
-the second one is trigger and cancel the event, but the second subscriber is still be triggered since it's
+The first subscriber in the example will make entities never die if their health is below 1.0. However, the
+following subscriber kills the entity by checking the subscriber name. The first subscriber will be triggered before
+the second one is triggered and cancel the event, but the second subscriber will still be triggered since it's
 `ContextAwareEventSubscription`.
 
 ### Creating Custom Event Hooks
 
 You can create custom event hooks for your usage. You first need a class that will contain all your event hook instances.
-If you make an event hook as *sided*, they will only trigger events in given **logical** side.
+If you make an event hook as *sided*, they will only trigger events in the given **logical** side.
 
 ```java
 public final class MyEventHooks {
     // parameterize with your event class
     public static final EventHook<MyEventHook> MY_EVENT_HOOK = EventHook.createEventHook();
     
-    // subscribers only be trigerred in server side even tho it's called in client
+    // subscribers only be triggered in server side even tho it's called in client
     public static final EventHook<MyServerEventHook> MY_SERVER_SIDE_EVENT_HOOK = EventHook.createSidedEventHook(LogicalSide.CLIENT);
     
     // Cancelable events allow interrupting the final task of the event
@@ -258,7 +262,7 @@ MyEventHooks.MY_EVENT_HOOK.post(new MyEventHook());
 You can also check if the event is canceled:
 ```java
 if (!MyEventHooks.MY_CANCELABLE_EVENT_HOOK.post(new MyCancelableEventHook()).isCanceled()) { // Checks if event is canceled
-    // Do tasks when event is not canceled
+    // Do tasks when the event is not canceled
 }
 ```
 

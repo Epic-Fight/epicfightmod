@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,6 +24,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -1009,24 +1011,39 @@ public class ControlEngine {
 				}
 			}
 			
+			LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(controlEngine.minecraft.player, LocalPlayerPatch.class);
+			
+			if (playerpatch == null) {
+				return;
+			}
+			
+			if (playerpatch.isVanillaMode() && triggeredAction == MinecraftInputAction.ATTACK_DESTROY) {
+				// Blocks vanilla attacks against living entities
+				if (
+					!EpicFightGameRules.ALLOW_VANILLA_MELEE.getRuleValue(playerpatch.getOriginal().level()) &&
+					controlEngine.minecraft.hitResult instanceof EntityHitResult entityHitResult &&
+					(entityHitResult.getEntity() instanceof LivingEntity || entityHitResult.getEntity() instanceof PartEntity)
+				) {
+					event.setSwingHand(false);
+					event.setCanceled(true);
+				}
+			}
+			
 			if (
                 triggeredAction == MinecraftInputAction.USE &&
                 InputManager.isBoundToSamePhysicalInput(MinecraftInputAction.USE, EpicFightInputAction.GUARD)
 			) {
 				MutableBoolean canGuard = new MutableBoolean(false);
 				MutableBoolean vanillaMode = new MutableBoolean(false);
+				SkillContainer skillcontainer = playerpatch.getSkill(SkillSlots.GUARD);
 				
-				EpicFightCapabilities.getUnparameterizedEntityPatch(controlEngine.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
-					SkillContainer skillcontainer = playerpatch.getSkill(SkillSlots.GUARD);
-					
-					if (playerpatch.getPlayerMode() == PlayerPatch.PlayerMode.VANILLA) {
-						vanillaMode.setTrue();
-					}
-					
-					if (skillcontainer.getSkill() != null && skillcontainer.getSkill().canExecute(skillcontainer)) {
-						canGuard.setValue(true);
-					}
-				});
+				if (playerpatch.getPlayerMode() == PlayerPatch.PlayerMode.VANILLA) {
+					vanillaMode.setTrue();
+				}
+				
+				if (skillcontainer.getSkill() != null && skillcontainer.getSkill().canExecute(skillcontainer)) {
+					canGuard.setValue(true);
+				}
 				
 				if (!vanillaMode.getValue()) {
 					if (controlEngine.minecraft.hitResult.getType() == HitResult.Type.MISS) {

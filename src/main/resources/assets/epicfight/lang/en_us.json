@@ -163,7 +163,7 @@
 	"gameMode.epicfight.vanilla": "Vanilla",
 	"gameMode.epicfight.epicfight": "EpicFight",
 
-	"gamerule.doVanillaAttack": "Enable vanilla attack",
+	"gamerule.allowVanillaMelee": "Enable Vanilla Melee Attacks",
 	"gamerule.hasFallAnimation": "Enable landing animation",
 	"gamerule.keepSkills": "Keep skills after death",
 	"gamerule.weightPenalty": "Weight Penalty applied to Attack Speed.",

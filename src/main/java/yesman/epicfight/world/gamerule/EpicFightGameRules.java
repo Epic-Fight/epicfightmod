@@ -105,6 +105,14 @@ public class EpicFightGameRules {
 			, true
 	);
 	
+	public static final ConfigurableGameRule<Boolean, ForgeConfigSpec.BooleanValue, GameRules.BooleanValue> ALLOW_VANILLA_MELEE = EpicFightGameRules.create(
+			  "allowVanillaMelee"
+			, GameRules.Category.PLAYER
+			, configBuilder -> configBuilder.define("default_gamerule.allow_vanilla_melee", true)
+			, RuleType.BOOLEAN
+			, true
+	);
+	
 	public static final Map<String, ConfigurableGameRule<?, ?, ?>> GAME_RULES = ImmutableMap.<String, ConfigurableGameRule<?, ?, ?>>builder()
 			.put("globalStun", GLOBAL_STUN)
 			.put("keepSkills", KEEP_SKILLS)
@@ -117,6 +125,7 @@ public class EpicFightGameRules {
 			.put("weightPenalty", WEIGHT_PENALTY)
 			.put("epicDrop", EPIC_DROP)
 			.put("skillReplaceCooldown", SKILL_REPLACE_COOLDOWN)
+			.put("allowVanillaMelee", ALLOW_VANILLA_MELEE)
 			.build();
 	
 	public static void registerGameRules() {

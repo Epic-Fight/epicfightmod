@@ -3,6 +3,7 @@ icon: material/vector-line
 hide:
   - announcement
 ---
+
 In this article, I'll introduce the most breaking changes from 1.20.1 and help add-on developers to figure out
 how to properly adapt the changes for their project.
 

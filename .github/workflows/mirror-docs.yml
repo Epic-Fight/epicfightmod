@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout source repo
-        uses: actions/checkout@v4
+        uses: checkout@v4
 
       - name: Clone target repo
         run: |
@@ -20,11 +20,11 @@ jobs:
 
       - name: Sync Documents
         run: |
-          if [ -d "docs/universal-docs" ]; then
+          if [ -d "docs/universal_docs" ]; then
             rsync -av --delete \
               --exclude='${{ github.ref_name }}/' \
               --exclude='.gitkeep' \
-              docs/universal-docs/ target/docs/API/
+              docs/universal_docs/ target/docs/API/
           fi
 
           if [ -d "docs/version_specific" ]; then
@@ -34,7 +34,9 @@ jobs:
               docs/version_specific/ target/docs/API/${{ github.ref_name }}/
           else
             echo "version_specific deleted from source. Cleaning target version folder..."
-            find target/docs/API/${{ github.ref_name }} -mindepth 1 ! -name '.gitkeep' -delete
+            if [ -d "target/docs/API/${{ github.ref_name }}" ]; then
+              find target/docs/API/${{ github.ref_name }} -mindepth 1 ! -name '.gitkeep' -delete
+            fi
           fi
 
       - name: Commit and push changes
@@ -53,6 +55,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync docs: ${{ github.event.head_commit.message }} (Ref: ${{ github.sha }})"
+            
             git pull --rebase origin main
             git push
           fi

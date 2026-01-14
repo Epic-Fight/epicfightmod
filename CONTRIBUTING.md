@@ -112,17 +112,22 @@ In Epic Fight, we’ve created a system that allows developers to create new doc
 Below are a few useful steps to help you make use of this system.
 
 1. Getting Started<br>
-The first step is to create your documentation file. All documentation files must be placed within the ``root/docs/`` directory.
-At this point, you can decide whether your new documentation page is version-specific or universal, meaning it applies to any Epic Fight version.
-Files that apply to multiple versions may be included in the Universal directory to simplify maintenance and reuse.<br>
-Below is an example demonstrating how pages are generated inside the wiki:
+The first step is to create your documentation file. All documentation files must be placed within the ``docs/`` directory of the repository.
+You must decide whether your new documentation page is Universal (applies to all versions of the mod) or Version-Specific (applies only to the current branch).
+Using the universal_docs folder simplifies maintenance by allowing you to update a single file that reflects across the entire wiki.<br>
+Below is a guide on how files are mapped from the source repository to the public wiki:
 
 | Source Path (in EpicFight) | Target Path (in EpicFight-Docs) |
 |---------------------------|--------------------------------|
-| docs/universal-docs/General_Info.en.md | docs/API/General_Info.en.md |
-| docs/Items.en.md (on branch 1.21.1) | docs/API/1.21.1/Items.en.md |
-| docs/Items.en.md (on branch 1.20.1) | docs/API/1.20.1/Items.en.md |
-| docs/Animations/Math.en.md (on branch 1.21.1) | docs/API/1.21.1/Animations/Math.en.md |
+| docs/universal_docs/General_Info.en.md | docs/API/General_Info.en.md |
+| docs/universal_docs/porting/Guide.en.md | docs/API/porting/Guide.en.md |
+| docs/version_specific/Items.en.md (on branch 1.21.1) | docs/API/1.21.1/Items.en.md |
+| docs/version_specific/Items.en.md (on branch 1.20.1) | docs/API/1.20.1/Items.en.md |
+| docs/version_specific/Animations/Math.en.md (on branch 1.21.1) | docs/API/1.21.1/Animations/Math.en.md |
+
+* **Universal Directory:** Files placed in ``docs/universal_docs/`` will appear at the root of the API section. This keeps the navigation clean and avoids deep nesting for general information.
+
+* **Version Specific Directory:** Files placed in ``docs/version_specific/`` will be automatically nested inside a folder named after your current branch (e.g., main, 1.21.1, 1.20.1).
 
 2. File name<br>
 Naming your file is straightforward. Create the file and append the ``.en.md``.suffix when specifying the file extension.

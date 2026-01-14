@@ -20,24 +20,34 @@ jobs:
 
       - name: Sync Documents
         run: |
-          mkdir -p target/docs/API/${{ github.ref_name }}
-          rsync -av --delete --exclude='universal-docs/' docs/ target/docs/API/${{ github.ref_name }}/
-
+          
           if [ -d "docs/universal-docs" ]; then
-            rsync -av --delete --exclude='*/' docs/universal-docs/ target/docs/API/
+            rsync -av --delete \
+              --exclude='${{ github.ref_name }}/' \
+              docs/universal-docs/ target/docs/API/
+          fi
+
+          
+          if [ -d "docs/version_specific" ]; then
+            mkdir -p target/docs/API/${{ github.ref_name }}
+            rsync -av --delete docs/version_specific/ target/docs/API/${{ github.ref_name }}/
           fi
 
       - name: Commit and push changes
         run: |
           cd target
-          git config user.name "EpicFight Docs Bot"
-          git config user.email "docs-bot@users.noreply.github.com"
+
+          AUTHOR_NAME="${{ github.event.head_commit.author.name }}"
+          AUTHOR_EMAIL="${{ github.event.head_commit.author.email }}"
+
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
           
           git add docs/API
 
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Sync docs: Reflect changes/deletions from default branch"
+            git commit -m "Sync docs: ${{ github.event.head_commit.message }} (Ref: ${{ github.sha }})"
             git push
           fi

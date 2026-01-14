@@ -20,17 +20,21 @@ jobs:
 
       - name: Sync Documents
         run: |
-          
           if [ -d "docs/universal-docs" ]; then
             rsync -av --delete \
               --exclude='${{ github.ref_name }}/' \
+              --exclude='.gitkeep' \
               docs/universal-docs/ target/docs/API/
           fi
 
-          
           if [ -d "docs/version_specific" ]; then
             mkdir -p target/docs/API/${{ github.ref_name }}
-            rsync -av --delete docs/version_specific/ target/docs/API/${{ github.ref_name }}/
+            rsync -av --delete \
+              --exclude='.gitkeep' \
+              docs/version_specific/ target/docs/API/${{ github.ref_name }}/
+          else
+            echo "version_specific deleted from source. Cleaning target version folder..."
+            find target/docs/API/${{ github.ref_name }} -mindepth 1 ! -name '.gitkeep' -delete
           fi
 
       - name: Commit and push changes
@@ -49,8 +53,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync docs: ${{ github.event.head_commit.message }} (Ref: ${{ github.sha }})"
-            
             git pull --rebase origin main
-            
             git push
           fi

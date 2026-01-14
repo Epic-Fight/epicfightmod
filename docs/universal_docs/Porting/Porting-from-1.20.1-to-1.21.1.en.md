@@ -4,17 +4,20 @@ hide:
   - announcement
 ---
 
+# Porting 1.20.1 :material-arrow-right: 1.21.1
+
 In this article, I'll introduce the most breaking changes from 1.20.1 and help add-on developers to figure out
 how to properly adapt the changes for their project.
 
-# Skill Registration
+***
+## Skill Registration
 
 Epic Fight now uses the Deferred register from NeoForge. This gets rid of the incongruous registration of skills
 and provides a more integrated system with mod loader.
 
 ### Affections
 - `yesman.epicfight.api.forgeevent.SkillBuildEvent` is removed as the skill registration is now through
-Deferred Register.
+  Deferred Register.
 
 ### Migration Example
 
@@ -79,10 +82,11 @@ public static final DeferredHolder<Skill, EviscerateSkill> EVISCERATE = REGISTRY
 ```
 
 **Deferred Register** is Forge and NeoForge's registration system to add more entries to
-Minecraft's frozen registries have control over registration timing and freezing status. Check out their
-[document](https://docs.neoforged.net/docs/concepts/registries/#deferredregister) for better explanation.
+Minecraft's frozen registries have control over registration timing and freezing status. Check out
+[Neoforge's Deffered Register Document] for a more in-depth explanation.
 
-# Adding & removing Skill Events to the listener
+***
+## Adding & removing Skill Events to the listener
 
 When the `Skill` is equipped to players, we registered listeners for specific event hooks and manually removed them when
 the skill is unequipped. In 1.21.1, Epic Fight provides more streamlined registration without `UUID` and needs to remove
@@ -131,41 +135,54 @@ public class BerserkerSkill extends PassiveSkill {
     // public void onRemoved(SkillContainer container), No need to call remove methods, it's fully automated!
 }
 ```
+***
+## Method Parameters Overview
 
-Let me explain with each parameter for `registerEvent` method
+Below is an explanation of each parameter used by the `registerEvent` method.
 
-### Param1: `EventHook<T>`
-Replaces `EventType` in `1.20.1`, but it uses our newer Event API system that I'll explain in the
-[according section](#Epic-Fight-now-seeks-more-independent-event-system-from-mod-loaders). You can check the type of event hooks both in `yesman.epicfight.api.event.EpicFightEventHooks`
-and `yesman.epicfight.api.client.event.EpicFightClientEventHooks`
+* Param1: `EventHook<T>`
+  Replaces `EventType` in `1.20.1`, but it uses our newer Event API system, as described at [Independent Event API].
+  You can check the type of event hooks both in `yesman.epicfight.api.event.EpicFightEventHooks`
+  and `yesman.epicfight.api.client.event.EpicFightClientEventHooks`
 
-### Param2: `DefaultEventSubscription` or `ContextAwareEventSubscription` for `registerContextAwareEvent`
-A functional interface where you set tasks when the event is triggered. I'll explain it in detail on
-the [according section](#Epic-Fight-now-seeks-more-independent-event-system-from-mod-loaders) too.
+* Param2: `DefaultEventSubscription` or `ContextAwareEventSubscription` for `registerContextAwareEvent`
+  A functional interface where you set tasks when the event is triggered. See [Independent Event API] for details.
 
-### Param3: `IdentifierProvider`
-You'll always give the skill instance itself since the skill inherits the `IdentifierProvider` interface. This replaces
-the work for what `UUID` did in the older system, but automatically when the skill is unequipped.
+* Param3: `IdentifierProvider`
+  You'll always give the skill instance itself since the skill inherits the `IdentifierProvider` interface. This replaces
+  the work for what `UUID` did in the older system, but automatically when the skill is unequipped.
 
-### Param4(Skipped in example snippet): Priority(int)
-For the cases that you need to intercept other event subscribers, I made it to be ordered in descending order. Which
-means you can cancel the events with lower priority. (This feature was already in `1.20.1`)
+* Param4(Skipped in example snippet): Priority(int)
+  For the cases that you need to intercept other event subscribers, I made it to be ordered in descending order. Which
+  means you can cancel the events with lower priority. (This feature was already in `1.20.1`)
 
-# Epic Fight now seeks Multi-loader structure
-Our team discussed a lot on this topic and concluded that the project should be more future-proof and open more to
-other mod-loaders like Fabric, which we've asked for a decade, for the growth of the project as we're transforming Epic
-Fight for the API and newer standard for Minecraft modding. For now, we only have a prototype of the multi-loader structure
-and haven't really ported it to Fabric, but we already demonstrated that Epic Fight could be a multi-platform project.
-Thoough we won't do this in 1.21.1, so addon developers have nothing to migrate by this change, but keep in mind to decouple
-NeoForge's code if you want to port your project to Fabric as well.
+***
+## Epic Fight now seeks Multi-loader structure
+After extensive discussion, our team concluded that Epic Fight should become more future-proof by
+adopting a more open, multi-loader architecture. This shift aims to better support additional mod loaders
+such as Fabric, which the community has requested for years, and to align Epic Fight with newer APIs and modern Minecraft modding standards.
 
-# Epic Fight now seeks a more independent event system from mod-loaders
-Driven by [the decision](#Epic-Fight-now-seeks-Multi-loader-structure), we needed to decouple the code from NeoForge since it will make the maintenance harder
+!!! info "Prototype Status"
+
+	At present, the multi-loader structure exists only as a prototype, and Epic Fight has not yet been ported to Fabric.
+	However, this prototype already demonstrates that Epic Fight can function as a multi-platform project.
+
+
+!!! tip
+
+	This change will not be introduced in ``1.21.1``, meaning addon developers do not need to migrate anything for this version.
+	That said, if you plan to support Fabric in the future, you should begin decoupling NeoForge-specific code in your project.
+
+
+
+***
+## Epic Fight now seeks a more independent event system from mod-loaders
+Driven by the [move toward a multi-loader architecture], we needed to decouple the codebase from
 as we need to create multiple event instances for the number of mod-loaders that we depend on. Instead, Epic Fight now has
 a unique Event system independent of whatever mod loader.
 
-The main target that is affected by this change is the skill event listener, which I already introduced in
-[this](#Adding-&-removing-Skill-Events-to-listener) section.
+The main target that is affected by this change is the skill event listener, which was introduced at the
+[Adding & removing Skill Events to listener] section.
 
 ### Example
 This is a simple example of adding a subscriber that prints a message when the innate skill is set to Sweeping Edge.
@@ -269,7 +286,7 @@ if (!MyEventHooks.MY_CANCELABLE_EVENT_HOOK.post(new MyCancelableEventHook()).isC
 ```
 
 ### Using `EntityEventListener` to trigger attachable event listeners
-As described in [#Adding & removing Skill Events to listener](#Adding-&-removing-Skill-Events-to-listener) section,
+As described in [Adding & removing Skill Events to listener] section,
 there are some event types that developers can attach and detach listeners dynamically. Those event types all inherit
 `LivingEntityPatchEvent`.
 

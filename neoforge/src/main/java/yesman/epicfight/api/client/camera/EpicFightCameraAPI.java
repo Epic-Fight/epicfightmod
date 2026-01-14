@@ -883,6 +883,7 @@ public final class EpicFightCameraAPI {
             }
 
             buildCameraEventPre.setVanillaCameraSetupCanceled(true);
+            this.fireCameraBuildPost(camera, partialTick);
 
             return buildCameraEventPre;
         } else if (this.lockingOnTarget && this.focusingEntity != null) {
@@ -906,6 +907,7 @@ public final class EpicFightCameraAPI {
                 }
 
                 buildCameraEventPre.setVanillaCameraSetupCanceled(true);
+                this.fireCameraBuildPost(camera, partialTick);
 
                 return buildCameraEventPre;
             } else if (this.minecraft.options.getCameraType() == CameraType.FIRST_PERSON) {

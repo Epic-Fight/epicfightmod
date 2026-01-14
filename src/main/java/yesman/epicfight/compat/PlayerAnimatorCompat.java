@@ -25,7 +25,12 @@ public class PlayerAnimatorCompat implements ICompatModule {
 
     @OnlyIn(Dist.CLIENT)
     private void renderEvent(RenderEpicFightPlayerEvent event) {
-        AnimationApplier emote = ((IAnimatedPlayer) event.getPlayerPatch().getOriginal()).playerAnimator_getAnimation();
-        if (emote.isActive()) event.setShouldRender(false);
+        AnimationApplier playerAnimatorAnimation = ((IAnimatedPlayer) event.getPlayerPatch().getOriginal()).playerAnimator_getAnimation();
+        
+        if (!event.getPlayerPatch().getClientAnimator().getPlayerFor(null).getAnimation().get().isMainFrameAnimation() && // The case when playing EF animation that controls player location
+        		playerAnimatorAnimation.isActive()
+        ) {
+        	event.setShouldRender(false);
+        }
     }
 }

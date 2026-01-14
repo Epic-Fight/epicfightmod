@@ -49,5 +49,8 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync docs: ${{ github.event.head_commit.message }} (Ref: ${{ github.sha }})"
+            
+            git pull --rebase origin main
+            
             git push
           fi

@@ -3,6 +3,7 @@ package yesman.epicfight.skill.weaponinnate;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,11 +22,20 @@ public class EviscerateSkill extends WeaponInnateSkill {
 	private AssetAccessor<? extends AttackAnimation> first;
 	private AssetAccessor<? extends AttackAnimation> second;
 	
+	private float damageCap;
+	
 	public EviscerateSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
 		super(builder);
 		
 		this.first = Animations.EVISCERATE_FIRST;
 		this.second = Animations.EVISCERATE_SECOND;
+	}
+	
+	@Override
+	public void setParams(CompoundTag parameters) {
+		super.setParams(parameters);
+		
+		this.damageCap = parameters.getFloat("damage_cap");
 	}
 	
 	@Override
@@ -70,5 +80,11 @@ public class EviscerateSkill extends WeaponInnateSkill {
 		this.second.get().phases[0].addProperties(this.properties.get(1).entrySet());
 		
 		return this;
+	}
+	
+	/// TODO: bad implementation but to avoid breaking changes
+	/// make [ExtraDamageInstance] configurable via skill parameters
+	public float getDamageCap() {
+		return this.damageCap;
 	}
 }

@@ -7,6 +7,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.enchantment.Enchantments;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.skill.weaponinnate.EviscerateSkill;
 
 public class ExtraDamageInstance {
 	@SuppressWarnings("deprecation")
@@ -17,8 +19,11 @@ public class ExtraDamageInstance {
 			if (itemstack.getItem() instanceof TieredItem tieredItem) {
 				tier += tieredItem.getTier().getLevel();
 			}
-		
-			return (target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier);
+			
+			System.out.println(((EviscerateSkill)EpicFightSkills.EVISCERATE).getDamageCap() +" "+ (target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier));
+			
+			// Bad implementation: add parameter to ExtraDamageFunction to accept skill parameters
+			return Math.min((target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier), ((EviscerateSkill)EpicFightSkills.EVISCERATE).getDamageCap());
 		},
 		(itemstack, tooltips, baseDamage, params) -> {
 			int tier = 0;

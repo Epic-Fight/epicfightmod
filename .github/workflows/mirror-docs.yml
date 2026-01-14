@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout source repo
-        uses: checkout@v4
+        uses: actions/checkout@v4
 
       - name: Clone target repo
         run: |
@@ -34,9 +34,7 @@ jobs:
               docs/version_specific/ target/docs/API/${{ github.ref_name }}/
           else
             echo "version_specific deleted from source. Cleaning target version folder..."
-            if [ -d "target/docs/API/${{ github.ref_name }}" ]; then
-              find target/docs/API/${{ github.ref_name }} -mindepth 1 ! -name '.gitkeep' -delete
-            fi
+            find target/docs/API/${{ github.ref_name }} -mindepth 1 ! -name '.gitkeep' -delete
           fi
 
       - name: Commit and push changes
@@ -55,7 +53,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync docs: ${{ github.event.head_commit.message }} (Ref: ${{ github.sha }})"
-            
             git pull --rebase origin main
             git push
           fi

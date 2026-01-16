@@ -20,8 +20,6 @@ public class ExtraDamageInstance {
 				tier += tieredItem.getTier().getLevel();
 			}
 			
-			System.out.println(((EviscerateSkill)EpicFightSkills.EVISCERATE).getDamageCap() +" "+ (target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier));
-			
 			// Bad implementation: add parameter to ExtraDamageFunction to accept skill parameters
 			return Math.min((target.getMaxHealth() - target.getHealth()) * (params[0] + 0.05F * tier), ((EviscerateSkill)EpicFightSkills.EVISCERATE).getDamageCap());
 		},

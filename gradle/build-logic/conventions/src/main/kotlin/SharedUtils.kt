@@ -229,11 +229,6 @@ fun Project.configureModPublish(
             projectId.set("vu3NZ5Ma")
             minecraftVersions.add(mcVersion)
 
-            // Syncs the GitHub README with the Modrinth project description
-            projectDescription.set(
-                providers.fileContents(rootProject.layout.projectDirectory.file("README.md")).asText
-            )
-
             requiredDependencies.forEach { requires(it) }
             optionalDependencies.forEach { optional(it) }
         }

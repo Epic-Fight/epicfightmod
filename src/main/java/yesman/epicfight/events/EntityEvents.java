@@ -36,12 +36,10 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
-import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -526,20 +524,6 @@ public class EntityEvents {
 					entitypatch.playAnimationInClientSide(jumpAnimation, 0.0F);
 				}
 			}
-		});
-	}
-
-	@SubscribeEvent
-	public static void fallEvent(LivingFallEvent event) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LivingEntityPatch.class).ifPresent(entitypatch -> {
-			entitypatch.onFall(event);
-		});
-	}
-	
-	@SubscribeEvent
-	public static void playerFallEvent(PlayerFlyableFallEvent event) {
-		EpicFightCapabilities.getPlayerPatchAsOptional(event.getEntity()).ifPresent(entitypatch -> {
-			entitypatch.onFall(new LivingFallEvent(event.getEntity(), event.getDistance(), event.getMultiplier()));
 		});
 	}
 }

@@ -247,6 +247,11 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		}
 	}
 	
+	/**
+	 * This method is not triggered by forge event hook since it has the problem that it's only triggered when an entity gets hurt
+	 * Due to the reasons mentioned above, {@link LivingFallEvent#getDamageMultiplier()} always returns 1.0F. @param event should
+	 * have been unboxed but left as is for the backward compatibility
+	 */
 	public void onFall(LivingFallEvent event) {
 		if (!this.getOriginal().level().isClientSide() && this.isAirborneState()) {
 			AssetAccessor<? extends StaticAnimation> fallAnimation = this.getAnimator().getLivingAnimation(LivingMotions.LANDING_RECOVERY, this.getHitAnimation(StunType.FALL));

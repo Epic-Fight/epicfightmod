@@ -108,7 +108,7 @@ public abstract class MixinEntity {
 		
 		if (!onGround && pOnGround) { // When a player touches a ground from air.
 			if (self.tickCount - lastOnGroundTick >= 4) { // 4 ticks are noise guard for floating point calculation error
-				EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch((LivingEntity)(Object)this, LivingEntity.class, LivingEntityPatch.class).ifPresent(entitypatch -> {
+				EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(self, LivingEntity.class, LivingEntityPatch.class).ifPresent(entitypatch -> {
 					entitypatch.onFall(new LivingFallEvent(entitypatch.getOriginal(), entitypatch.getOriginal().fallDistance, 1.0F));
 				});
 			}

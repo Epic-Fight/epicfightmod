@@ -1,7 +1,16 @@
 package yesman.epicfight.client.events.engine;
 
+import java.util.Set;
+
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
+
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -29,11 +38,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputManager;
@@ -62,8 +66,6 @@ import yesman.epicfight.world.entity.eventlistener.MovementInputEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
-
-import java.util.Set;
 
 public class ControlEngine {
 	private final Set<Object> packets = Sets.newHashSet();
@@ -671,7 +673,8 @@ public class ControlEngine {
     public static void makeUnpressed(KeyMapping keyMapping) {
         while (keyMapping.consumeClick()) {
         }
-        KeyMapping.set(keyMapping.getKey(), false);
+        
+        keyMapping.setDown(false);
     }
 
     /**
@@ -687,7 +690,7 @@ public class ControlEngine {
     @SuppressWarnings("JavadocReference")
     @Deprecated(forRemoval = true)
     public static void setKeyBind(KeyMapping key, boolean setter) {
-        KeyMapping.set(key.getKey(), setter);
+    	key.setDown(setter);
     }
 
     /**
@@ -703,7 +706,7 @@ public class ControlEngine {
      */
     @SuppressWarnings("JavadocReference")
     public static void setSprintingKeyStateNotDown() {
-        KeyMapping.set(MinecraftInputAction.SPRINT.keyMapping().getKey(), false);
+    	MinecraftInputAction.SPRINT.keyMapping().setDown(false);
     }
 
     /**

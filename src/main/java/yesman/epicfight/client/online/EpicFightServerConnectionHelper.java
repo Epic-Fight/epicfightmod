@@ -28,6 +28,12 @@ public class EpicFightServerConnectionHelper {
 		EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Initialize");
 		
 		SupportedOS os = SupportedOS.getOS();
+		
+		if (os == null) {
+			EpicFightMod.LOGGER.error("Unsupported OS type {} for dynamic library", Util.getPlatform());
+            return false;
+        }
+		
 		boolean supported = false;
 		
 		try {
@@ -52,66 +58,62 @@ public class EpicFightServerConnectionHelper {
 			return false;
 		}
 		
-		if (os != null) {
-			String libpath = MessageFormat.format("/assets/epicfight/nativelib/{0}/{1}{2}", os.telemetryName(), LIB_FILE, os.libExtension());
-			InputStream inputstream = EpicFightMod.class.getResourceAsStream(libpath);
+		String libpath = MessageFormat.format("/assets/epicfight/nativelib/{0}/{1}{2}", os.telemetryName(), LIB_FILE, os.libExtension());
+		InputStream inputstream = EpicFightMod.class.getResourceAsStream(libpath);
+		
+		if (inputstream != null) {
+			File configNativeFile = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
+			byte[] resourceBytes = null;
+			boolean shouldCreate;
 			
-			if (inputstream != null) {
-				File configNativeFile = new File(configPath + "/epicfight/native/" + LIB_FILE + os.libExtension());
-				byte[] resourceBytes = null;
-				boolean shouldCreate;
-				
-				if (configNativeFile.exists()) {
-					try {
-						String configFileSHA256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(configNativeFile).readAllBytes());
-						resourceBytes = inputstream.readAllBytes();
-						String resourceFileSHA256 = ParseUtil.getBytesSHA256Hash(resourceBytes);
-						shouldCreate = !configFileSHA256.equals(resourceFileSHA256);
-					} catch (IOException e) {
-						e.printStackTrace();
-						shouldCreate = true;
-					}
-				} else {
+			if (configNativeFile.exists()) {
+				try {
+					String configFileSHA256 = ParseUtil.getBytesSHA256Hash(new FileInputStream(configNativeFile).readAllBytes());
+					resourceBytes = inputstream.readAllBytes();
+					String resourceFileSHA256 = ParseUtil.getBytesSHA256Hash(resourceBytes);
+					shouldCreate = !configFileSHA256.equals(resourceFileSHA256);
+				} catch (IOException e) {
+					e.printStackTrace();
 					shouldCreate = true;
 				}
-				
-				if (shouldCreate) {
-					try {
-						EpicFightMod.LOGGER.info("Created temporary lib file at: " + configNativeFile.getPath());
-						configNativeFile.delete();
-						
-						if (!configNativeFile.getParentFile().isDirectory()) {
-							configNativeFile.getParentFile().mkdirs();
-						}
-						
-						configNativeFile.createNewFile();
-						FileOutputStream fos = new FileOutputStream(configNativeFile);
-						if (resourceBytes == null) resourceBytes = inputstream.readAllBytes();
-						fos.write(resourceBytes, 0, resourceBytes.length);
-						fos.flush();
-						fos.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-						EpicFightMod.LOGGER.info("Can't read library file: " + e);
-					}
-				}
-				
-				boolean exceptionOccurred = false;
-				
-				try {
-					System.load(configNativeFile.toString());
-				} catch (UnsatisfiedLinkError e) {
-					exceptionOccurred = true;
-					EpicFightMod.LOGGER.warn("Failed at loading library file");
-				}
-				
-				supported = !exceptionOccurred;
 			} else {
-				supported = false;
-				EpicFightMod.LOGGER.info("Can't read library file: " + libpath);
+				shouldCreate = true;
 			}
+			
+			if (shouldCreate) {
+				try {
+					EpicFightMod.LOGGER.info("Created temporary lib file at: " + configNativeFile.getPath());
+					configNativeFile.delete();
+					
+					if (!configNativeFile.getParentFile().isDirectory()) {
+						configNativeFile.getParentFile().mkdirs();
+					}
+					
+					configNativeFile.createNewFile();
+					FileOutputStream fos = new FileOutputStream(configNativeFile);
+					if (resourceBytes == null) resourceBytes = inputstream.readAllBytes();
+					fos.write(resourceBytes, 0, resourceBytes.length);
+					fos.flush();
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					EpicFightMod.LOGGER.info("Can't read library file: " + e);
+				}
+			}
+			
+			boolean exceptionOccurred = false;
+			
+			try {
+				System.load(configNativeFile.toString());
+			} catch (UnsatisfiedLinkError e) {
+				exceptionOccurred = true;
+				EpicFightMod.LOGGER.warn("Failed at loading library file");
+			}
+			
+			supported = !exceptionOccurred;
 		} else {
-			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: Unsupported OS: " + Util.getPlatform().name());
+			supported = false;
+			EpicFightMod.LOGGER.info("Can't read library file: " + libpath);
 		}
 		
 		SUPPORTED = supported;
@@ -134,10 +136,10 @@ public class EpicFightServerConnectionHelper {
 	public static native void loadRemoteMesh(String domain, String path, BiConsumer<Mesh, Exception> onResponse);
 	
 	private enum SupportedOS {
-		//LINUX("linux", ".so"),
+		LINUX("linux", ".so"),
 		//SOLARIS("solaris", ".so"),
 		WINDOWS("windows", ".dll"),
-		//OSX("mac", ".dylib")
+		//MAC_OS("mac", ".dylib")
 		;
 		
 		public static SupportedOS getOS() {

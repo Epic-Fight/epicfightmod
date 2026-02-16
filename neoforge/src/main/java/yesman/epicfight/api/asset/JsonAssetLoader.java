@@ -439,6 +439,7 @@ public class JsonAssetLoader {
         }
 
         JsonObject obj = this.rootJson.getAsJsonObject("armature");
+        TransformFormat transformFormat = getAsTransformFormatOrDefault(obj, "armature_format");
         JsonObject hierarchy = obj.get("hierarchy").getAsJsonArray().get(0).getAsJsonObject();
         JsonArray nameAsVertexGroups = obj.getAsJsonArray("joints");
         Map<String, Integer> jointIds = Maps.newHashMap();
@@ -457,7 +458,7 @@ public class JsonAssetLoader {
         }
 
         Map<String, Joint> jointMap = Maps.newHashMap();
-        Joint joint = getJoint(hierarchy, jointIds, jointMap, true);
+        Joint joint = getJoint(hierarchy, jointIds, jointMap, transformFormat, true);
         joint.initOriginTransform(new OpenMatrix4f());
 
         String armatureName = this.resourceLocation.toString().replaceAll("(animmodels/|\\.json)", "");
@@ -465,8 +466,12 @@ public class JsonAssetLoader {
         return constructor.invoke(armatureName, jointMap.size(), joint, jointMap);
     }
 
-    private static Joint getJoint(JsonObject object, Map<String, Integer> jointIdMap, Map<String, Joint> jointMap, boolean root) {
+    private static Joint getJoint(JsonObject object, Map<String, Integer> jointIdMap, Map<String, Joint> jointMap, TransformFormat transformFormat, boolean root) {
         String name = object.get("name").getAsString();
+
+        if (!jointIdMap.containsKey(name)) {
+            throw new AssetLoadingException("Can't load joint: joint name " + name + " doesn't exist in armature hierarchy.");
+        }
 
         // Skip Coord bone
         if (name.equals(COORD_BONE)) {
@@ -477,20 +482,56 @@ public class JsonAssetLoader {
             } else if (coordChildren.size() > 1) {
                 throw new AssetLoadingException("Coord bone can't have multiple children");
             } else {
-                return getJoint(coordChildren.get(0).getAsJsonObject(), jointIdMap, jointMap, false);
+                return getJoint(coordChildren.get(0).getAsJsonObject(), jointIdMap, jointMap, transformFormat, false);
             }
         }
 
-        float[] floatArray = ParseUtil.toFloatArrayPrimitive(object.get("transform").getAsJsonArray());
-        OpenMatrix4f localMatrix = OpenMatrix4f.load(null, floatArray);
-        localMatrix.transpose();
+        JsonElement transform = GsonHelper.getNonNull(object, "transform");
 
-        if (root) {
-            localMatrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
+        // WORKAROUND: The case when transform format is wrongly specified!
+        if (transformFormat == TransformFormat.ATTRIBUTES && transform.isJsonArray()) {
+            transformFormat = TransformFormat.MATRIX;
+        } else if (transformFormat == TransformFormat.MATRIX && transform.isJsonObject()) {
+            transformFormat = TransformFormat.ATTRIBUTES;
         }
 
-        if (!jointIdMap.containsKey(name)) {
-            throw new AssetLoadingException("Can't load joint: joint name " + name + " doesn't exist in armature hierarchy.");
+        OpenMatrix4f localMatrix = null;
+
+        switch (transformFormat) {
+            case MATRIX -> {
+                float[] matrixElements = ParseUtil.toFloatArrayPrimitive(GsonHelper.convertToJsonArray(transform, "transform"));
+                localMatrix = OpenMatrix4f.load(null, matrixElements);
+                localMatrix.transpose();
+
+                if (root) {
+                    localMatrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
+                }
+            }
+            case ATTRIBUTES -> {
+                JsonObject transformObject = transform.getAsJsonObject();
+                JsonArray locArray = transformObject.get("loc").getAsJsonArray();
+                JsonArray rotArray = transformObject.get("rot").getAsJsonArray();
+                JsonArray scaArray = transformObject.get("sca").getAsJsonArray();
+                JointTransform jointTransform
+                    = JointTransform.fromPrimitives(
+                    locArray.get(0).getAsFloat()
+                    , locArray.get(1).getAsFloat()
+                    , locArray.get(2).getAsFloat()
+                    , -rotArray.get(1).getAsFloat()
+                    , -rotArray.get(2).getAsFloat()
+                    , -rotArray.get(3).getAsFloat()
+                    , rotArray.get(0).getAsFloat()
+                    , scaArray.get(0).getAsFloat()
+                    , scaArray.get(1).getAsFloat()
+                    , scaArray.get(2).getAsFloat()
+                );
+
+                localMatrix = jointTransform.toMatrix();
+
+                if (root) {
+                    localMatrix.mulFront(BLENDER_TO_MINECRAFT_COORD);
+                }
+            }
         }
 
         Joint joint = new Joint(name, jointIdMap.get(name), localMatrix);
@@ -498,7 +539,7 @@ public class JsonAssetLoader {
 
         if (object.has("children")) {
             for (JsonElement children : object.get("children").getAsJsonArray()) {
-                joint.addSubJoints(getJoint(children.getAsJsonObject(), jointIdMap, jointMap, false));
+                joint.addSubJoints(getJoint(children.getAsJsonObject(), jointIdMap, jointMap, transformFormat, false));
             }
         }
 
@@ -514,7 +555,7 @@ public class JsonAssetLoader {
             EpicFightMod.LOGGER.error("Animation " + animation + " doesn't have an armature.");
         }
 
-        TransformFormat format = this.rootJson.has("format") ? ParseUtil.enumValueOfOrNull(TransformFormat.class, GsonHelper.getAsString(this.rootJson, "format")) : TransformFormat.MATRIX;
+        TransformFormat format = getAsTransformFormatOrDefault(this.rootJson, "format");
         JsonArray array = this.rootJson.get("animation").getAsJsonArray();
         boolean action = animation instanceof MainFrameAnimation;
         boolean attack = animation instanceof AttackAnimation;
@@ -584,7 +625,7 @@ public class JsonAssetLoader {
     }
 
     public AnimationClip loadAllJointsClipForAnimation(StaticAnimation animation) {
-        TransformFormat format = this.getTransformFormat();
+        TransformFormat format = getAsTransformFormatOrDefault(this.rootJson, "format");
         JsonArray array = this.rootJson.get("animation").getAsJsonArray();
         boolean root = true;
 
@@ -630,12 +671,12 @@ public class JsonAssetLoader {
         return this.filehash;
     }
 
-    public TransformFormat getTransformFormat() {
-        return this.rootJson.has("format") ? ParseUtil.enumValueOfOrNull(TransformFormat.class, GsonHelper.getAsString(this.rootJson, "format")) : TransformFormat.MATRIX;
+    public static TransformFormat getAsTransformFormatOrDefault(JsonObject jsonObject, String propertyName) {
+        return jsonObject.has(propertyName) ? ParseUtil.enumValueOfOrNull(TransformFormat.class, GsonHelper.getAsString(jsonObject, propertyName)) : TransformFormat.MATRIX;
     }
 
     public AnimationClip loadAnimationClip(Armature armature) {
-        TransformFormat format = this.getTransformFormat();
+        TransformFormat format = getAsTransformFormatOrDefault(this.rootJson, "format");
         JsonArray array = this.rootJson.get("animation").getAsJsonArray();
         AnimationClip clip = new AnimationClip();
         boolean root = true;

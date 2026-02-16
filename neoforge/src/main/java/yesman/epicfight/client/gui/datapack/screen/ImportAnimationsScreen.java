@@ -833,7 +833,13 @@ public class ImportAnimationsScreen extends Screen {
 						armatureName = armatureName.substring(armatureName.indexOf(":") + 1);
 						
 						String animationPath = modid + ":" + armatureName.substring(armatureName.lastIndexOf("/") + 1) + "/" + file.getName().replace(".json", "");
-						EditorAnimation animation = new EditorAnimation(animationPath, this.modelPreviewer.getArmature(), jsonLoader.loadAnimationClip(this.modelPreviewer.getArmature().get()), jsonLoader.getTransformFormat(), jsonLoader.getRootJson().getAsJsonArray("animation"));
+						EditorAnimation animation = new EditorAnimation(
+                            animationPath,
+                            this.modelPreviewer.getArmature(),
+                            jsonLoader.loadAnimationClip(this.modelPreviewer.getArmature().get()),
+                            JsonAssetLoader.getAsTransformFormatOrDefault(jsonLoader.getRootJson(), "format"),
+                            jsonLoader.getRootJson().getAsJsonArray("animation")
+                        );
 						
 						this.fakeAnimations.add(animation);
 						this.animationGrid.addRowWithDefaultValues("animation_name", animationPath);

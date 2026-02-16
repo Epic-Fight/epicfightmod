@@ -659,7 +659,16 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					
 					JsonAssetLoader modelLoader = new JsonAssetLoader(jsonObject, resourceLocation);
 					animation.setAnimationClip(modelLoader.loadAnimationClip(animation.get().getArmature().get()));
-					this.userAnimations.put(animation.registryName(), PackEntry.ofValue(animation.readAnimationFromJson(modelLoader.getTransformFormat(), modelLoader.getRootJson().get("animation").getAsJsonArray()), animation));
+					this.userAnimations.put(
+                        animation.registryName(),
+                        PackEntry.ofValue(
+                            animation.readAnimationFromJson(
+                                JsonAssetLoader.getAsTransformFormatOrDefault(modelLoader.getRootJson(), "format"),
+                                modelLoader.getRootJson().get("animation").getAsJsonArray()
+                            ),
+                            animation
+                        )
+                    );
 				} catch (Exception e) {
 					EpicFightMod.LOGGER.error("Failed to read animation " + resourceLocation);
 					e.printStackTrace();

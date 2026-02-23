@@ -9,6 +9,17 @@ where all entities have new and challenging fighting mechanics.
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
+<p align="center">
+  <a title="Patreon" href="https://www.patreon.com/bePatron?u=53051224" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/patreon.svg" alt="Patreon" width="100" height="100" /></a>
+  <a title="Discord" href="https://discord.com/invite/NbAJwj8RHg" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/discord.svg" alt="Discord" width="100" height="100" /></a>
+  <a title="YouTube" href="https://www.youtube.com/@yesman4100" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/youtube.svg" alt="YouTube" width="100" height="100" /></a>
+  <a title="GitHub" href="https://github.com/Yesssssman/epicfightmod/" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/github.svg" alt="GitHub" width="100" height="100" /></a>
+  <a title="CurseForge" href="https://www.curseforge.com/minecraft/mc-mods/epic-fight-mod" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/curseforge.svg" alt="CurseForge" width="100" height="100" /></a>
+  <a title="Modrinth" href="https://modrinth.com/mod/epic-fight" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/Epic-Fight/EpicFight-Files/Wiki-Images/Icons/SVG/modrinth.svg" alt="Modrinth" width="100" height="100" /></a>
+</p>
+
+<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
+
 ## **Controls**
 
 <details><summary>Tap to show/hide</summary>
@@ -123,10 +134,6 @@ classified into three types:
 
 <details><summary>Tap to show/hide</summary>
 
-- **Fabric port?**  
-  Currently, there are no immediate plans for a Fabric port due to the extensive development involved.  
-  It may be considered in the future.
-
 - **Making different mods compatible**  
   Achieving compatibility can be complex and may require Java knowledge.  
   If you are a mod developer,
@@ -173,8 +180,6 @@ classified into three types:
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-<center><a title="Patreon" href="https://www.patreon.com/bePatron?u=53051224" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/7c517b51-581a-48dc-9130-aaad326dbcb4" alt="Patreon" width="150" height="150" /></a>&nbsp; &nbsp;<a title="Discord" href="https://discord.com/invite/NbAJwj8RHg" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/f3358cb9-f3cd-46e7-9ed0-a90bc2b1b188" alt="Discord" width="150" height="150" /></a>&nbsp; &nbsp;<a title="YouTube" href="https://www.youtube.com/@yesman4100" target="_blank" rel="noopener noreferrer"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/3f2de855-e926-4eb9-a20c-4c6f44828250" alt="Youtube" width="150" height="150" /></a>&nbsp; &nbsp;<a href="https://epicfight-docs.readthedocs.io/en/latest/"><img src="https://github.com/Yesssssman/epicfightmod/assets/77132244/23220c47-c1e5-4e2b-82aa-876a86d7ed1a" alt="GitHub" width="150" height="150" /></a></center>
-
 ## 🔧 **Compatibility**
 
 ### **✅ Fully Supported and Compatible Mods**
@@ -182,21 +187,16 @@ classified into three types:
 <details><summary>Tap to show/hide</summary>
 
 - [Epic Fight: Skill Tree](https://modrinth.com/mod/epic-fight-skill-tree)
-- [Controlify](https://modrinth.com/mod/controlify) OR [Controlify: Forgified 1.20.1 (Unofficial)](https://modrinth.com/mod/controlify-forgified)
-- [ParCool](https://modrinth.com/mod/parcool) (via [Epic x ParCool](https://modrinth.com/mod/official-epic-x-parcool))
-- [Just Enough Items (JEI)](https://modrinth.com/mod/jei)
+- [Controlify](https://modrinth.com/mod/controlify)
+- [ParCool](https://modrinth.com/mod/parcool)
 - [Sodium](https://modrinth.com/mod/sodium)
 - [Iris Shaders](https://modrinth.com/mod/iris)
 - [3D Skin Layers](https://modrinth.com/mod/3dskinlayers)
-- [Vampirism](https://modrinth.com/mod/vampirism)
-- [Werewolves](https://modrinth.com/mod/werewolves)
 - [Shoulder Surfing Reloaded](https://modrinth.com/mod/shoulder-surfing-reloaded)
 - [playerAnimator](https://modrinth.com/mod/playeranimator)
 - [Geckolib](https://modrinth.com/mod/geckolib)
 - [AzureLib](https://modrinth.com/mod/azurelib)
 - [First-person Model](https://modrinth.com/mod/first-person-model)
-- [Curios API](https://modrinth.com/mod/curios)
-- [Do a Barrel Roll](https://modrinth.com/mod/do-a-barrel-roll)
 - [KubeJS](https://modrinth.com/mod/kubejs)
 
 </details>
@@ -206,8 +206,8 @@ classified into three types:
 <details><summary>Tap to show/hide</summary>
 
 - **Optifine** (closed-source mod)
-- [Controllable](https://www.curseforge.com/minecraft/mc-mods/controllable) —
-  Consider [Controlify](https://modrinth.com/mod/controlify)
+- [Controllable](https://www.curseforge.com/minecraft/mc-mods/controllable)
+- 
 
 </details>
 
@@ -228,7 +228,7 @@ If you encounter any crashes or bugs in **Epic Fight**:
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
-## **Official Integrations**
+## **Official Integrations/Addons**
 
 ### **Skill Tree**
 
@@ -236,45 +236,10 @@ The [Epic Fight: Skill Tree](https://modrinth.com/mod/epic-fight-skill-tree) is 
 developed by the Epic Fight team to replace the **Skill Book Items** system with a **Skill Tree**,
 providing a more RPG-focused experience.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KtY_zayLzYw?si=62WHXDS6TV2bagbO&amp;start=116" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
 ### **ParCool**
 
-The [Epic x ParCool](https://modrinth.com/mod/official-epic-x-parcool) is an official addon
+The [Epic ParCool](https://modrinth.com/mod/official-epic-x-parcool) mod is an official addon
 developed in collaboration with the [ParCool](https://modrinth.com/mod/parcool) project authors.
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/T-uMmLCYbn4?si=kY0vKLD2PNeAaN48" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-### **Controlify (Controller Support)**
-
-In recent versions of Epic Fight, the Epic Fight team added an
-official [Controlify](https://modrinth.com/mod/controlify) integration,
-allowing you to use Epic Fight seamlessly with a controller,
-with enhanced support for all input actions and GUI operations.
-
-> **Tip:** If you're on Forge 1.20.1,
-> use [Controlify: Forgified (Unofficial backport)](https://modrinth.com/mod/controlify-forgified) instead.
-> Epic Fight's on-screen controller button guides are **not supported** on Minecraft 1.20.1.
-
-<img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
-
-## **Community addons**
-
-These are community-made mods that add optional support for this mod.
-They are **not officially supported** and may not be compatible with all versions.
-
-<details><summary>Tap to show/hide</summary>
-
-- [Epic Fight - Sword Soaring](https://www.curseforge.com/minecraft/mc-mods/sword-soaring)
-- [Weapons of miracles](https://modrinth.com/mod/weapons-of-miracles)
-- [Epic Fight: More Skill Slots](https://modrinth.com/mod/epic-fight-more-skill-slots)
-- [P1nero's Epic Fight X Cataclysm](https://www.curseforge.com/minecraft/mc-mods/p1neros-epic-x-cataclysm)
-- [P1nero's Epic Bow](https://www.curseforge.com/minecraft/mc-mods/p1neros-epic-bow)
-- [Epic Fight - The Wraithon](https://www.curseforge.com/minecraft/mc-mods/epic-fight-wraithon)
-- [Epic Fight : Dodge Parry Reward](https://www.curseforge.com/minecraft/mc-mods/epic-fight-dodge-parry-reward)
-- [Epic Fight Nightfall](https://www.curseforge.com/minecraft/mc-mods/epicfight-nightfall)
-
-</details>
 
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 

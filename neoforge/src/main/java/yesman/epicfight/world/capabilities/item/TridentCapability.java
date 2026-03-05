@@ -54,7 +54,7 @@ public class TridentCapability extends RangedWeaponCapability {
 	}
 	
 	@Override
-	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
+	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerPatch) {
 		return this.mountAttackMotion;
 	}
 	

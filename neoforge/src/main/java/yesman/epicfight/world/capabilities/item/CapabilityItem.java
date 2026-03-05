@@ -220,7 +220,7 @@ public class CapabilityItem {
 		return getBasicAutoAttackMotions();
 	}
 
-	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
+	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerPatch) {
 		return null;
 	}
 	
@@ -230,7 +230,7 @@ public class CapabilityItem {
 	}
 	
 	@Nullable
-	public Skill getPassiveSkill() {
+	public Skill getPassiveSkill(PlayerPatch<?> playerPatch) {
 		return null;
 	}
 	
@@ -258,7 +258,7 @@ public class CapabilityItem {
 		
 		toRemote.and(new SPSetRemotePlayerSkill(SkillSlots.WEAPON_INNATE, playerpatch.getOriginal().getId(), Skill.holderOrNull(weaponInnateSkill)));
 		
-		Skill passiveSkill = this.getPassiveSkill();
+		Skill passiveSkill = this.getPassiveSkill(playerpatch);
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
 		
 		if (passiveSkill != null) {

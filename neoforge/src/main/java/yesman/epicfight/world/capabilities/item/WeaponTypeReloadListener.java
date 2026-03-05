@@ -86,25 +86,24 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> packEntry, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         clear();
-
-        for (Map.Entry<ResourceLocation, JsonElement> entry : packEntry.entrySet()) {
+        packEntry.forEach((key, value) -> {
             CompoundTag compTag = null;
 
             try {
-                compTag = TagParser.parseTag(entry.getValue().toString());
+                compTag = TagParser.parseTag(value.toString());
             } catch (CommandSyntaxException e) {
                 e.printStackTrace();
             }
 
             try {
                 final CompoundTag comptagFinal = compTag;
-                PRESETS.put(entry.getKey(), (itemstack) -> deserializeWeaponCapabilityBuilder(entry.getKey(), comptagFinal));
-                CAPABILITY_COMPOUNDS.put(entry.getKey(), compTag);
+                PRESETS.put(key, (itemstack) -> deserializeWeaponCapabilityBuilder(key, comptagFinal));
+                CAPABILITY_COMPOUNDS.put(key, compTag);
             } catch (Exception e) {
-                EpicFight.LOGGER.warn("Error while deserializing weapon type datapack: " + entry.getKey());
+                EpicFight.LOGGER.warn("Error while deserializing weapon type datapack: " + key);
                 e.printStackTrace();
             }
-        }
+        });
     }
 
     public static Function<Item, ? extends CapabilityItem.Builder<?>> getOrThrow(String typeName) {

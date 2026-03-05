@@ -34,15 +34,7 @@ import java.util.Set;
 
 public class ParryingSkill extends GuardSkill {
 	public static GuardSkill.Builder createActiveGuardBuilder() {
-		return GuardSkill.createGuardBuilder(ParryingSkill::new)
-				.addAdvancedGuardMotion(WeaponCategories.SWORD, (itemCap, playerpatch) -> itemCap.getStyle(playerpatch) == Styles.ONE_HAND ?
-					List.of(Animations.SWORD_GUARD_ACTIVE_HIT1, Animations.SWORD_GUARD_ACTIVE_HIT2) : List.of(Animations.SWORD_GUARD_ACTIVE_HIT2, Animations.SWORD_GUARD_ACTIVE_HIT3))
-				.addAdvancedGuardMotion(WeaponCategories.LONGSWORD, (itemCap, playerpatch) ->
-					List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2 ))
-				.addAdvancedGuardMotion(WeaponCategories.UCHIGATANA, (itemCap, playerpatch) ->
-					List.of(Animations.SWORD_GUARD_ACTIVE_HIT1, Animations.SWORD_GUARD_ACTIVE_HIT2 ))
-				.addAdvancedGuardMotion(WeaponCategories.TACHI, (itemCap, playerpatch) ->
-					List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2 ));
+		return GuardSkill.createGuardBuilder(ParryingSkill::new);
 	}
 	
 	private int parryWindow;

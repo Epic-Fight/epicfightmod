@@ -57,33 +57,34 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class GuardSkill extends Skill implements HoldableSkill {
+public abstract class GuardSkill extends Skill implements HoldableSkill {
 	public static class Builder extends SkillBuilder<GuardSkill.Builder> {
-		protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardMotions = new HashMap<> ();
-		protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> advancedGuardMotions = new HashMap<> ();
-		protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardBreakMotions = new HashMap<> ();
+		protected static final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardMotions = new HashMap<> ();
+		protected static final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> advancedGuardMotions = new HashMap<> ();
+		protected static final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardBreakMotions = new HashMap<> ();
 
 		public Builder(Function<Builder, ? extends GuardSkill> constructor) {
 			super(constructor);
 		}
 
 		public Builder addGuardMotion(WeaponCategory weaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, AnimationAccessor<? extends StaticAnimation>> function) {
-			this.guardMotions.put(weaponCategory, function);
+			guardMotions.put(weaponCategory, function);
 			return this;
 		}
 
 		public Builder addAdvancedGuardMotion(WeaponCategory weaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?> function) {
-			this.advancedGuardMotions.put(weaponCategory, function);
+			advancedGuardMotions.put(weaponCategory, function);
 			return this;
 		}
 
 		public Builder addGuardBreakMotion(WeaponCategory weaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, AnimationAccessor<? extends StaticAnimation>> function) {
-			this.guardBreakMotions.put(weaponCategory, function);
+			guardBreakMotions.put(weaponCategory, function);
 			return this;
 		}
 	}
@@ -97,6 +98,10 @@ public class GuardSkill extends Skill implements HoldableSkill {
 				.addGuardMotion(WeaponCategories.SPEAR, (item, player) -> item.getStyle(player) == Styles.TWO_HAND ? Animations.SPEAR_GUARD_HIT : null)
 				.addGuardMotion(WeaponCategories.SWORD, (item, player) -> item.getStyle(player) == Styles.ONE_HAND ? Animations.SWORD_GUARD_HIT : Animations.SWORD_DUAL_GUARD_HIT)
 				.addGuardMotion(WeaponCategories.TACHI, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
+                .addAdvancedGuardMotion(WeaponCategories.SWORD, (itemCap, playerpatch) -> itemCap.getStyle(playerpatch) == Styles.ONE_HAND ? List.of(Animations.SWORD_GUARD_ACTIVE_HIT1, Animations.SWORD_GUARD_ACTIVE_HIT2) : List.of(Animations.SWORD_GUARD_ACTIVE_HIT2, Animations.SWORD_GUARD_ACTIVE_HIT3))
+                .addAdvancedGuardMotion(WeaponCategories.LONGSWORD, (itemCap, playerpatch) -> List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2 ))
+                .addAdvancedGuardMotion(WeaponCategories.UCHIGATANA, (itemCap, playerpatch) -> List.of(Animations.SWORD_GUARD_ACTIVE_HIT1, Animations.SWORD_GUARD_ACTIVE_HIT2 ))
+                .addAdvancedGuardMotion(WeaponCategories.TACHI, (itemCap, playerpatch) -> List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2 ))
 				.addGuardBreakMotion(WeaponCategories.AXE, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
 				.addGuardBreakMotion(WeaponCategories.GREATSWORD, (item, player) -> Animations.GREATSWORD_GUARD_BREAK)
 				.addGuardBreakMotion(WeaponCategories.UCHIGATANA, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
@@ -106,8 +111,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 				.addGuardBreakMotion(WeaponCategories.TACHI, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
 				.setCategory(SkillCategories.GUARD)
 				.setActivateType(ActivateType.HELD)
-				.setResource(Resource.STAMINA)
-				;
+				.setResource(Resource.STAMINA);
 	}
 
 	protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardMotions;
@@ -117,9 +121,9 @@ public class GuardSkill extends Skill implements HoldableSkill {
 
 	public GuardSkill(GuardSkill.Builder builder) {
 		super(builder);
-		this.guardMotions = builder.guardMotions;
-		this.advancedGuardMotions = builder.advancedGuardMotions;
-		this.guardBreakMotions = builder.guardBreakMotions;
+		this.guardMotions = Builder.guardMotions;
+		this.advancedGuardMotions = Builder.advancedGuardMotions;
+		this.guardBreakMotions = Builder.guardBreakMotions;
 	}
 
 	@Override

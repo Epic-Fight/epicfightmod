@@ -24,6 +24,7 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.builders.MoveSet;
 
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,14 @@ public class WeaponCapability extends CapabilityItem {
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
 	protected final HitParticleType hitParticle;
+    protected final Map<Style, MoveSet> moveSets;
+    @Deprecated
 	protected final Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotions;
+    @Deprecated
 	protected final Map<Style, Function<ItemStack, Skill>> innateSkill;
+    @Deprecated
 	protected final Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
+
 	protected final boolean canBePlacedOffhand;
     @Deprecated
     protected final Function<Style, Boolean> comboCancel;
@@ -48,45 +54,51 @@ public class WeaponCapability extends CapabilityItem {
 	
 	protected WeaponCapability(WeaponCapability.Builder builder) {
 		super(builder);
-		
-		WeaponCapability.Builder weaponBuilder = (WeaponCapability.Builder)builder;
-		
-		this.autoAttackMotions = weaponBuilder.autoAttackMotionMap;
-		this.innateSkill = weaponBuilder.innateSkillByStyle;
-		this.livingMotionModifiers = weaponBuilder.livingMotionModifiers;
-		this.stylegetter = weaponBuilder.styleProvider;
-		this.weaponCombinationPredicator = weaponBuilder.weaponCombinationPredicator;
-		this.passiveSkill = weaponBuilder.passiveSkill;
-		this.smashingSound = weaponBuilder.swingSound;
-		this.hitParticle = weaponBuilder.hitParticle;
-		this.hitSound = weaponBuilder.hitSound;
-		this.canBePlacedOffhand = weaponBuilder.canBePlacedOffhand;
-		this.comboCancel = weaponBuilder.comboCancel;
-        this.comboCounterHandler = weaponBuilder.comboCounterHandler;
-		this.zoomInType = weaponBuilder.zoomInType;
-		this.reach = weaponBuilder.reach;
+        this.autoAttackMotions = builder.autoAttackMotionMap;
+		this.innateSkill = builder.innateSkillByStyle;
+		this.livingMotionModifiers = builder.livingMotionModifiers;
+		this.stylegetter = builder.styleProvider;
+		this.weaponCombinationPredicator = builder.weaponCombinationPredicator;
+		this.passiveSkill = builder.passiveSkill;
+		this.smashingSound = builder.swingSound;
+		this.hitParticle = builder.hitParticle;
+		this.hitSound = builder.hitSound;
+		this.canBePlacedOffhand = builder.canBePlacedOffhand;
+		this.comboCancel = builder.comboCancel;
+        this.comboCounterHandler = builder.comboCounterHandler;
+		this.zoomInType = builder.zoomInType;
+		this.reach = builder.reach;
 	}
-	
+
+    private MoveSet getCurrentSet(PlayerPatch<?> patch)
+    {
+        Style style = stylegetter.apply(patch);
+        return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
+    }
+
 	@Override
 	public final List<AnimationAccessor<? extends AttackAnimation>> getAutoAttackMotion(PlayerPatch<?> playerpatch) {
-		return this.autoAttackMotions.getOrDefault(this.getStyle(playerpatch), this.autoAttackMotions.get(Styles.COMMON));
+        MoveSet set = getCurrentSet(playerpatch);
+		return set.getComboAttackAnimations();
 	}
 	
 	@Override
 	public final Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
-		Function<ItemStack, Skill> innateProvider = this.innateSkill.getOrDefault(this.getStyle(playerpatch), this.innateSkill.get(Styles.COMMON));
-		return innateProvider == null ? null : innateProvider.apply(itemstack);
+        MoveSet set = getCurrentSet(playerpatch);
+        return set.getWeaponInnateSkill() == null ? null : set.getWeaponInnateSkill().apply(itemstack);
 	}
 	
 	@Override
-	public Skill getPassiveSkill() {
-		return this.passiveSkill;
+	public Skill getPassiveSkill(PlayerPatch<?> playerPatch) {
+		MoveSet set = getCurrentSet(playerPatch);
+        return set.getWeaponPassiveSkill();
 	}
-	
+
 	@Override
-	public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
-		return this.autoAttackMotions.get(Styles.MOUNT);
-	}
+	public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerpatch) {
+        MoveSet set = getCurrentSet(playerpatch);
+        return set.getMountAttackAnimations();
+    }
 	
 	@Override @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {
@@ -238,6 +250,11 @@ public class WeaponCapability extends CapabilityItem {
 			this.hitParticle = hitParticle;
 			return this;
 		}
+
+        public Builder addMoveSet(Style style, MoveSet moveSet) {
+
+            return this;
+        }
 		
 		public Builder canBePlacedOffhand(boolean canBePlacedOffhand) {
 			this.canBePlacedOffhand = canBePlacedOffhand;

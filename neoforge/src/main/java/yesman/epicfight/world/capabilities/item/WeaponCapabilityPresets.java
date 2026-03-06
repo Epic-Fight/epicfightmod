@@ -21,6 +21,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.ZoomInType;
+import yesman.epicfight.world.capabilities.item.builders.WeaponCapabilityPresetBuilders;
 
 public abstract class WeaponCapabilityPresets {
 	public static int vanillaTierToLevel(Tier tier) {
@@ -42,14 +43,7 @@ public abstract class WeaponCapabilityPresets {
 	}
 	
 	public static final Function<Item, WeaponCapability.Builder> AXE = (item) -> {
-		WeaponCapability.Builder builder = WeaponCapability.builder()
-			.category(WeaponCategories.AXE)
-			.hitSound(EpicFightSounds.BLADE_HIT.get())
-			.collider(ColliderPreset.TOOLS)
-			.newStyleCombo(Styles.ONE_HAND, Animations.AXE_AUTO1, Animations.AXE_AUTO2, Animations.AXE_DASH, Animations.AXE_AIRSLASH)
-			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.THE_GUILLOTINE.get())
-			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD);
+		WeaponCapability.Builder builder = WeaponCapabilityPresetBuilders.AXE.copy();
 		
 		if (item instanceof TieredItem tieredItem) {
 			int tierLevel = vanillaTierToLevel(tieredItem.getTier());

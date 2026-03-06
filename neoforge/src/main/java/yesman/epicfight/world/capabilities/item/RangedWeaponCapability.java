@@ -32,7 +32,7 @@ public class RangedWeaponCapability extends CapabilityItem {
 	}
 
 	@Override
-	public boolean availableOnHorse() {
+	public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
 		return true;
 	}
 	

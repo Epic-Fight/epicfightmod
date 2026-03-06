@@ -124,7 +124,7 @@ public class ComboAttacks extends Skill {
         if (player.isPassenger()) {
 			Entity entity = player.getVehicle();
 
-			if ((entity instanceof PlayerRideableJumping rideable && rideable.canJump()) && cap.availableOnHorse() && cap.getMountAttackMotion(executor) != null) {
+			if ((entity instanceof PlayerRideableJumping rideable && rideable.canJump()) && cap.availableOnHorse(executor) && cap.getMountAttackMotion(executor) != null) {
 				comboCounter %= cap.getMountAttackMotion(executor).size();
 				attackMotion = cap.getMountAttackMotion(executor).get(comboCounter);
 				comboCounter++;

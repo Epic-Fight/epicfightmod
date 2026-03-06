@@ -63,7 +63,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public abstract class GuardSkill extends Skill implements HoldableSkill {
+public class GuardSkill extends Skill implements HoldableSkill {
 	public static class Builder extends SkillBuilder<GuardSkill.Builder> {
 		protected static final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> guardMotions = new HashMap<> ();
 		protected static final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, ?>> advancedGuardMotions = new HashMap<> ();

@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -17,7 +18,6 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
@@ -25,14 +25,21 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.builders.MoveSet;
+import yesman.epicfight.world.capabilities.item.builders.providers.CoreWeaponCapabilityProvider;
+import yesman.epicfight.world.capabilities.item.builders.providers.ProviderConditional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class WeaponCapability extends CapabilityItem {
+    protected final CoreWeaponCapabilityProvider coreProvider;
+    @Deprecated
 	protected final Function<LivingEntityPatch<?>, Style> stylegetter;
+    @Deprecated
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
+    @Deprecated
 	protected final Skill passiveSkill;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
@@ -44,7 +51,6 @@ public class WeaponCapability extends CapabilityItem {
 	protected final Map<Style, Function<ItemStack, Skill>> innateSkill;
     @Deprecated
 	protected final Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
-
 	protected final boolean canBePlacedOffhand;
     @Deprecated
     protected final Function<Style, Boolean> comboCancel;
@@ -54,6 +60,8 @@ public class WeaponCapability extends CapabilityItem {
 	
 	protected WeaponCapability(WeaponCapability.Builder builder) {
 		super(builder);
+        this.coreProvider = builder.provider;
+        this.moveSets = builder.moveSets;
         this.autoAttackMotions = builder.autoAttackMotionMap;
 		this.innateSkill = builder.innateSkillByStyle;
 		this.livingMotionModifiers = builder.livingMotionModifiers;
@@ -70,7 +78,9 @@ public class WeaponCapability extends CapabilityItem {
 		this.reach = builder.reach;
 	}
 
-    private MoveSet getCurrentSet(PlayerPatch<?> patch)
+    
+
+    private MoveSet getCurrentSet(LivingEntityPatch<?> patch)
     {
         Style style = stylegetter.apply(patch);
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
@@ -85,6 +95,10 @@ public class WeaponCapability extends CapabilityItem {
 	@Override
 	public final Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
         MoveSet set = getCurrentSet(playerpatch);
+        if (set == null) {
+            //Fallback Logic
+            return innateSkill.get(getStyle(playerpatch)).apply(itemstack);
+        }
         return set.getWeaponInnateSkill() == null ? null : set.getWeaponInnateSkill().apply(itemstack);
 	}
 	
@@ -102,7 +116,13 @@ public class WeaponCapability extends CapabilityItem {
 	
 	@Override @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {
-		return this.stylegetter.apply(entitypatch);
+        Style style = coreProvider.getStyle(entitypatch);
+        if (style == null)
+        {
+            //Fallback
+            return this.stylegetter.apply(entitypatch);
+        }
+        return style;
 	}
 	
 	@Override
@@ -142,27 +162,40 @@ public class WeaponCapability extends CapabilityItem {
 	
 	@Override
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> player, InteractionHand hand) {
-		if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND) {
-			return super.getLivingMotionModifier(player, hand);
-		}
-		
-		Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> motions = this.livingMotionModifiers.getOrDefault(this.getStyle(player), Maps.newHashMap());
-		this.livingMotionModifiers.getOrDefault(Styles.COMMON, Maps.newHashMap()).forEach(motions::putIfAbsent);
-		
-		return motions;
+		MoveSet set = getCurrentSet(player);
+        if (set == null || set.getLivingMotionModifiers() == null)
+        {
+            //Fallback
+            if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND) {
+                return super.getLivingMotionModifier(player, hand);
+            }
+            Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> motions = this.livingMotionModifiers.getOrDefault(this.getStyle(player), Maps.newHashMap());
+            this.livingMotionModifiers.getOrDefault(Styles.COMMON, Maps.newHashMap()).forEach(motions::putIfAbsent);
+
+            return motions;
+        }
+        return set.getLivingMotionModifiers();
 	}
 	
 	@Override
 	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
-		if (this.livingMotionModifiers != null) {
-			Style style = this.getStyle(entitypatch);
-			
-			if (this.livingMotionModifiers.containsKey(style)) {
-				if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {
-					return UseAnim.BLOCK;
-				}
-			}
-		}
+        MoveSet set = getCurrentSet(entitypatch);
+        if (set == null || set.getLivingMotionModifiers() == null)
+        {
+            //Fallback
+            if (this.livingMotionModifiers != null) {
+                Style style = this.getStyle(entitypatch);
+
+                if (this.livingMotionModifiers.containsKey(style)) {
+                    if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {
+                        return UseAnim.BLOCK;
+                    }
+                }
+            }
+        }
+		else if (set.getLivingMotionModifiers().containsKey(LivingMotions.BLOCK)) {
+            return UseAnim.BLOCK;
+        }
 		
 		return UseAnim.NONE;
 	}
@@ -174,12 +207,21 @@ public class WeaponCapability extends CapabilityItem {
 	
 	@Override
 	public boolean checkOffhandValid(LivingEntityPatch<?> entitypatch) {
-		return super.checkOffhandValid(entitypatch) || this.weaponCombinationPredicator.apply(entitypatch);
+        Boolean valid = coreProvider.checkVisibleOffHand(entitypatch);
+        if (valid == null) {
+            valid = super.checkOffhandValid(entitypatch) || weaponCombinationPredicator.apply(entitypatch);
+        } else {
+            valid = valid || super.checkOffhandValid(entitypatch);
+        }
+        return valid;
 	}
 	
 	@Override
-	public boolean availableOnHorse() {
-		return this.autoAttackMotions.containsKey(Styles.MOUNT);
+	public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
+        MoveSet set = getCurrentSet(entityPatch);
+        if (set == null || set.getMountAttackAnimations() == null || set.getMountAttackAnimations().isEmpty())
+		    return this.autoAttackMotions.containsKey(Styles.MOUNT);
+        return true;
 	}
 	
 	@Override
@@ -192,14 +234,22 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
-		Function<LivingEntityPatch<?>, Style> styleProvider;
+		CoreWeaponCapabilityProvider provider;
+        @Deprecated
+        Function<LivingEntityPatch<?>, Style> styleProvider;
+        @Deprecated
 		Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
+        @Deprecated
 		Skill passiveSkill;
 		SoundEvent swingSound;
 		SoundEvent hitSound;
 		HitParticleType hitParticle;
+        Map<Style, MoveSet> moveSets;
+        @Deprecated
 		Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotionMap;
+        @Deprecated
 		Map<Style, Function<ItemStack, Skill>> innateSkillByStyle;
+        @Deprecated
 		Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
         @Deprecated
 		Function<Style, Boolean> comboCancel;
@@ -207,14 +257,71 @@ public class WeaponCapability extends CapabilityItem {
 		boolean canBePlacedOffhand;
 		ZoomInType zoomInType;
 		float reach;
+
+        public Builder copy() {
+            Builder copy = new Builder();
+
+            copy.provider = this.provider;
+            copy.styleProvider = this.styleProvider;
+            copy.weaponCombinationPredicator = this.weaponCombinationPredicator;
+            copy.passiveSkill = this.passiveSkill;
+
+            copy.swingSound = this.swingSound;
+            copy.hitSound = this.hitSound;
+            copy.hitParticle = this.hitParticle;
+
+            copy.comboCancel = this.comboCancel;
+            copy.comboCounterHandler = this.comboCounterHandler;
+
+            copy.canBePlacedOffhand = this.canBePlacedOffhand;
+            copy.zoomInType = this.zoomInType;
+            copy.reach = this.reach;
+
+            if (this.moveSets != null) {
+                copy.moveSets = Maps.newHashMap();
+                copy.moveSets.putAll(this.moveSets);
+            }
+            if (this.autoAttackMotionMap != null) {
+                copy.autoAttackMotionMap = Maps.newHashMap();
+                for (Map.Entry<Style, List<AnimationAccessor<? extends AttackAnimation>>> entry
+                        : this.autoAttackMotionMap.entrySet()) {
+
+                    copy.autoAttackMotionMap.put(
+                            entry.getKey(),
+                            Lists.newArrayList(entry.getValue())
+                    );
+                }
+            }
+
+            if (this.innateSkillByStyle != null) {
+                copy.innateSkillByStyle = Maps.newHashMap(this.innateSkillByStyle);
+            }
+
+            if (this.livingMotionModifiers != null) {
+                copy.livingMotionModifiers = Maps.newHashMap();
+
+                for (Map.Entry<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> entry
+                        : this.livingMotionModifiers.entrySet()) {
+
+                    copy.livingMotionModifiers.put(
+                            entry.getKey(),
+                            Maps.newHashMap(entry.getValue())
+                    );
+                }
+            }
+
+            return copy;
+        }
 		
 		protected Builder() {
+            this.provider = new CoreWeaponCapabilityProvider();
 			this.constructor = WeaponCapability::new;
 			this.styleProvider = (entitypatch) -> Styles.ONE_HAND;
 			this.weaponCombinationPredicator = (entitypatch) -> false;
 			this.passiveSkill = null;
 			this.swingSound = EpicFightSounds.WHOOSH.get();
 			this.hitSound = EpicFightSounds.BLUNT_HIT.get();
+            this.moveSets = Maps.newHashMap();
 			this.hitParticle = EpicFightParticles.HIT_BLADE.get();
 			this.autoAttackMotionMap = Maps.newHashMap();
 			this.innateSkillByStyle = Maps.newHashMap();
@@ -240,6 +347,12 @@ public class WeaponCapability extends CapabilityItem {
 			this.swingSound = swingSound;
 			return this;
 		}
+
+        public Builder addConditionals(ProviderConditional... conditionals)
+        {
+            Arrays.stream(conditionals).forEach(provider::addConditional);
+            return this;
+        }
 		
 		public Builder hitSound(SoundEvent hitSound) {
 			this.hitSound = hitSound;
@@ -251,8 +364,8 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
-        public Builder addMoveSet(Style style, MoveSet moveSet) {
-
+        public Builder addMoveSet(Style style, MoveSet.MoveSetBuilder moveSet) {
+            moveSets.put(style, moveSet.build());
             return this;
         }
 		
@@ -268,7 +381,7 @@ public class WeaponCapability extends CapabilityItem {
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {
-				EpicFightMod.LOGGER.warn("Unable to put an empty animation to weapon capability builder: " + livingMotion + ", " + animation);
+                EpicFight.LOGGER.warn("Unable to put an empty animation to weapon capability builder: {}, {}", livingMotion, animation);
 				return this;
 			}
 			

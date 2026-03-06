@@ -369,7 +369,7 @@ public class CapabilityItem {
 		return this;
 	}
 	
-	public boolean availableOnHorse() {
+	public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
 		return true;
 	}
 	

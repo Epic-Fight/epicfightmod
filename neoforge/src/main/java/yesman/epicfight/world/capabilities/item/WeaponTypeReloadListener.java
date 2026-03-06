@@ -31,12 +31,15 @@ import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.gameasset.ColliderPreset;
+import yesman.epicfight.gameasset.Movesets;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.builders.WeaponCapabilityPresetBuilders;
+import yesman.epicfight.world.capabilities.item.builders.providers.MainConditionals;
 import yesman.epicfight.world.capabilities.provider.ExtraEntryProvider;
 
 import java.util.ArrayList;
@@ -51,6 +54,8 @@ import java.util.stream.Stream;
 public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
+        WeaponCapabilityPresetBuilders.AXE.addConditionals(MainConditionals.dualSwords);
+        WeaponCapabilityPresetBuilders.AXE.addMoveSet(CapabilityItem.Styles.TWO_HAND, Movesets.sword2HMS);
         typeEntry.put(EpicFight.identifier("axe"), WeaponCapabilityPresets.AXE);
         typeEntry.put(EpicFight.identifier("fist"), WeaponCapabilityPresets.FIST);
         typeEntry.put(EpicFight.identifier("hoe"), WeaponCapabilityPresets.HOE);
@@ -312,6 +317,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void processServerPacket(SPDatapackSync packet) {
         if (packet.packetType() == SPDatapackSync.PacketType.WEAPON_TYPE) {
             PRESETS.clear();
+            //
             registerDefaultWeaponTypes();
 
             for (CompoundTag tag : packet.tags()) {

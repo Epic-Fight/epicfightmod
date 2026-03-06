@@ -5,7 +5,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.Style;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * This class is meant to be as an extendbale
@@ -41,7 +40,7 @@ public class CoreWeaponCapabilityProvider
      * @throws NullPointerException if none of the provided Conditionals return a Style;
      * @return The Function that is used for the StyleProvider
      */
-    public Style exportStyle(LivingEntityPatch<?> entityPatch)
+    public Style getStyle(LivingEntityPatch<?> entityPatch)
     {
         sortByPriority();
         for (ProviderConditional conditional : conditionals)
@@ -58,7 +57,7 @@ public class CoreWeaponCapabilityProvider
      * @throws NullPointerException if none of the provided Conditionals return a Style;
      * @return Boolean
      */
-    public Boolean exportCombination(LivingEntityPatch<?> entityPatch)
+    public Boolean checkVisibleOffHand(LivingEntityPatch<?> entityPatch)
     {
         sortByPriority();
         for (ProviderConditional conditional : conditionals)

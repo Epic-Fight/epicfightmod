@@ -1,5 +1,8 @@
 package net.forixaim.ex_cap.modules.assets;
 
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
@@ -232,6 +235,10 @@ public class Movesets
             .addLivingMotionsRecursive(Animations.BIPED_HOLD_CROSSBOW,
                     LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.RUN,
                     LivingMotions.SWIM, LivingMotions.FALL, LivingMotions.FLOAT, LivingMotions.SNEAK)
+            .setMotionPredicate((entityPatch, interactionHand) -> entityPatch.getEntityState().canUseItem() &&
+                    entityPatch.getOriginal().getMainHandItem().getItem() instanceof ProjectileWeaponItem &&
+                    CrossbowItem.isCharged(entityPatch.getOriginal().getMainHandItem())
+                    ? LivingMotions.AIM : null)
             .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_CROSSBOW_AIM)
             .addLivingMotionModifier(LivingMotions.RELOAD, Animations.BIPED_CROSSBOW_RELOAD)
             .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_CROSSBOW_SHOT);
@@ -244,11 +251,10 @@ public class Movesets
                     Animations.SPEAR_DASH,
                     Animations.SPEAR_ONEHAND_AIR_SLASH
             )
+            .setMotionPredicate((entityPatch, interactionHand) -> entityPatch.getOriginal().isUsingItem() && entityPatch.getOriginal().getUseItem().getUseAnimation() == UseAnim.SPEAR ? LivingMotions.AIM : null)
             .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_JAVELIN_AIM)
             .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_JAVELIN_THROW)
-            .addMountAttacks(
-                    Animations.SPEAR_MOUNT_ATTACK
-            )
+            .addMountAttacks(Animations.SPEAR_MOUNT_ATTACK)
             .addInnateSkill( (itemStack, playerPatch) ->
             {
                 if (itemStack.getEnchantmentLevel(playerPatch.getLevel().holderOrThrow(Enchantments.RIPTIDE)) > 0) {
@@ -258,7 +264,7 @@ public class Movesets
                 } else if (itemStack.getEnchantmentLevel(playerPatch.getLevel().holderOrThrow(Enchantments.LOYALTY)) > 0) {
                     return EpicFightSkills.EVERLASTING_ALLEGIANCE.get();
                 } else {
-                    return null;
+                    return EpicFightSkills.GRASPING_SPIRE.get();
                 }
             });
 }

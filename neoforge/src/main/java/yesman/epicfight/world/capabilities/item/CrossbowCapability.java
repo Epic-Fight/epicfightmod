@@ -13,10 +13,10 @@ public class CrossbowCapability extends RangedWeaponCapability {
 	}
 	
 	@Override
-	public LivingMotion getLivingMotion(LivingEntityPatch<?> entitypatch, InteractionHand hand) {
-		return entitypatch.getEntityState().canUseItem() &&
-				entitypatch.getOriginal().getMainHandItem().getItem() instanceof ProjectileWeaponItem &&
-				CrossbowItem.isCharged(entitypatch.getOriginal().getMainHandItem())
+	public LivingMotion getLivingMotion(LivingEntityPatch<?> entityPatch, InteractionHand interactionHand) {
+		return entityPatch.getEntityState().canUseItem() &&
+				entityPatch.getOriginal().getMainHandItem().getItem() instanceof ProjectileWeaponItem &&
+				CrossbowItem.isCharged(entityPatch.getOriginal().getMainHandItem())
 				? LivingMotions.AIM : null;
 	}
 }

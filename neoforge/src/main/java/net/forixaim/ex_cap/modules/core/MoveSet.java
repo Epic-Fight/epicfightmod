@@ -3,6 +3,7 @@ package net.forixaim.ex_cap.modules.core;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -36,6 +37,7 @@ public class MoveSet
     private final Skill weaponPassiveSkill;
     private final AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
     private final Predicate<LivingEntityPatch<?>> sheathRender;
+    private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
 
     public final ResourceLocation registryIdentifier;
 
@@ -50,6 +52,12 @@ public class MoveSet
         this.weaponInnateSkill = builder.weaponInnateSkill;
         this.weaponPassiveSkill = builder.weaponPassiveSkill;
         this.revelationAnimation = builder.revelationAnimation;
+        this.customMotion = builder.motion;
+    }
+
+    public BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> getCustomMotion()
+    {
+        return customMotion;
     }
 
     public AnimationManager.AnimationAccessor<? extends AttackAnimation> getRevelation()
@@ -106,6 +114,7 @@ public class MoveSet
         protected Skill weaponPassiveSkill;
         protected Predicate<LivingEntityPatch<?>> sheathRender;
         protected AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
+        protected BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> motion;
 
         public MoveSetBuilder()
         {
@@ -114,6 +123,7 @@ public class MoveSet
             comboAttackAnimations = Lists.newArrayList();
             livingMotionModifiers = Maps.newHashMap();
             guardAnimations = Maps.newHashMap();
+            motion = (a, b) -> null;
             weaponInnateSkill = null;
             weaponPassiveSkill = null;
             revelationAnimation = null;
@@ -122,6 +132,12 @@ public class MoveSet
         public MoveSetBuilder identifier(ResourceLocation identifier)
         {
             this.registryIdentifier = identifier;
+            return this;
+        }
+
+        public MoveSetBuilder setMotionPredicate(BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> lambda)
+        {
+            this.motion = lambda;
             return this;
         }
 

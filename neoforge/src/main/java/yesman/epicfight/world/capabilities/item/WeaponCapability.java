@@ -179,8 +179,10 @@ public class WeaponCapability extends CapabilityItem {
 	public ZoomInType getZoomInType() {
 		return this.zoomInType;
 	}
-	
-	@Override
+
+
+
+    @Override
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> player, InteractionHand hand) {
 		MoveSet set = getCurrentSet(player);
         if (set == null || set.getLivingMotionModifiers() == null)
@@ -254,8 +256,16 @@ public class WeaponCapability extends CapabilityItem {
         ExCapManager.addAcceptor(builder);
 		return builder;
 	}
-	
-	public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
+
+    @Override
+    public LivingMotion getLivingMotion(LivingEntityPatch<?> entitypatch, InteractionHand hand) {
+        MoveSet set = getCurrentSet(entitypatch);
+        if (set == null || set.getCustomMotion().apply(entitypatch, hand) == null)
+            return super.getLivingMotion(entitypatch, hand);
+        return set.getCustomMotion().apply(entitypatch, hand);
+    }
+
+    public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
 		CoreWeaponCapabilityProvider provider;
         @Deprecated
         Function<LivingEntityPatch<?>, Style> styleProvider;

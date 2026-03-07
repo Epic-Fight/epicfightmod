@@ -16,6 +16,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherGhostPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherPatch;
@@ -58,8 +59,8 @@ public final class EpicFightAttributes {
 	
 	// Modifier ids for epicfight attribute
 	public static final ResourceLocation ARMOR_NEGATION_MODIFIER = EpicFightMod.identifier("armor_negation");
-	public static final ResourceLocation MAX_STRIKE_MODIFIER = EpicFightMod.identifier("max_strikes");
-	public static final ResourceLocation IMPACT_MODIFIER = EpicFightMod.identifier("impact");
+	public static final ResourceLocation MAX_STRIKE_MODIFIER = EpicFight.identifier("max_strikes");
+	public static final ResourceLocation IMPACT_MODIFIER = EpicFight.identifier("impact");
 	public static final ResourceLocation ATTACK_DAMAGE_MODIFIER = EpicFightMod.identifier("attack_damage");
 	public static final ResourceLocation ATTACK_SPEED_MODIFIER = EpicFightMod.identifier("attack_speed");
     

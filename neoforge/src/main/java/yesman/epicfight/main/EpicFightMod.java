@@ -1,5 +1,7 @@
 package yesman.epicfight.main;
 
+import net.forixaim.ex_cap.modules.assets.Builders;
+import net.forixaim.ex_cap.modules.hooks.ExCapRegistryHooks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -49,6 +51,8 @@ import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillReloadListener;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.client.events.engine.IEventBasedEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.EpicFightSettingScreen;
@@ -87,22 +91,16 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
+import yesman.epicfight.world.capabilities.item.*;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
-import yesman.epicfight.world.capabilities.item.Style;
-import yesman.epicfight.world.capabilities.item.WeaponCategory;
-import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
 import yesman.epicfight.world.capabilities.provider.CommonEntityPatchProvider;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.item.SkillBookItem;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -147,6 +145,8 @@ public class EpicFightMod {
 	public static String format(String s) {
 		return String.format(s, MODID);
 	}
+
+
 
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
 		logAndStacktraceIfDevSide(logFunction, message, exceptionProvider, message);
@@ -214,13 +214,15 @@ public class EpicFightMod {
             WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
             WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
         }
-
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
 
         if (EpicFightSharedConstants.isPhysicalClient()) {
             modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
         }
         loadModCompatibilityModules(modEventBus);
+        //Self hook into our event
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods);
+        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities);
 	}
 
     private List<? extends Class<? extends ICompatModule>> getCompatibilityModules(final boolean isClientSide) {

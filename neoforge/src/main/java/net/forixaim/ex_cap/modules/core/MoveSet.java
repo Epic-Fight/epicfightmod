@@ -1,4 +1,4 @@
-package yesman.epicfight.world.capabilities.item.builders;
+package net.forixaim.ex_cap.modules.core;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -11,10 +11,12 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -29,7 +31,7 @@ public class MoveSet
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
     private final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
-    private final Function<ItemStack, Skill> weaponInnateSkill;
+    private final BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
     private final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> guardAnimations;
     private final Skill weaponPassiveSkill;
     private final AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
@@ -74,7 +76,7 @@ public class MoveSet
         return mountAttackAnimations;
     }
 
-    public Function<ItemStack, Skill> getWeaponInnateSkill() {
+    public BiFunction<ItemStack, PlayerPatch<?>, Skill> getWeaponInnateSkill() {
         return weaponInnateSkill;
     }
 
@@ -99,7 +101,7 @@ public class MoveSet
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
         protected final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
-        protected Function<ItemStack, Skill> weaponInnateSkill;
+        protected BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
         protected final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> guardAnimations;
         protected Skill weaponPassiveSkill;
         protected Predicate<LivingEntityPatch<?>> sheathRender;
@@ -160,7 +162,7 @@ public class MoveSet
             return this;
         }
 
-        public MoveSetBuilder addInnateSkill(Function<ItemStack, Skill> weaponInnateSkill)
+        public MoveSetBuilder addInnateSkill(BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill)
         {
             this.weaponInnateSkill = weaponInnateSkill;
             return this;

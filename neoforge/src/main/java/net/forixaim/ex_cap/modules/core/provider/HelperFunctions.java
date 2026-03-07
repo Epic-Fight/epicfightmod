@@ -1,4 +1,4 @@
-package yesman.epicfight.world.capabilities.item.builders.providers;
+package net.forixaim.ex_cap.modules.core.provider;
 
 import net.minecraft.world.InteractionHand;
 import yesman.epicfight.skill.Skill;

@@ -13,8 +13,8 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class ShieldCapability extends CapabilityItem {
-	protected ShieldCapability(CapabilityItem.Builder<?> builder) {
+public class ShieldCapability extends WeaponCapability {
+	public ShieldCapability(WeaponCapability.Builder builder) {
 		super(builder);
 	}
 	
@@ -25,7 +25,7 @@ public class ShieldCapability extends CapabilityItem {
 	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
 		return UseAnim.NONE;
 	}
-	
+
 	@Override
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> playerdata, InteractionHand hand) {
 		return ImmutableMap.of(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK);

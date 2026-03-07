@@ -1,5 +1,7 @@
-package yesman.epicfight.world.capabilities.item.builders.providers;
+package net.forixaim.ex_cap.modules.assets;
 
+import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
+import net.forixaim.ex_cap.modules.core.provider.ProviderConditionalType;
 import net.minecraft.world.InteractionHand;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.registry.entries.EpicFightSkills;
@@ -26,7 +28,7 @@ public class MainConditionals
             .setWieldStyle(CapabilityItem.Styles.RANGED)
             .build();
 
-    public static ProviderConditional swordShieldLS = ProviderConditional.builder()
+    public static ProviderConditional shieldOffHand = ProviderConditional.builder()
             .setType(ProviderConditionalType.WEAPON_CATEGORY)
             .setHand(InteractionHand.OFF_HAND)
             .setCategory(CapabilityItem.WeaponCategories.SHIELD)

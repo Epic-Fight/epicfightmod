@@ -1,5 +1,6 @@
-package yesman.epicfight.world.capabilities.item.builders.providers;
+package net.forixaim.ex_cap.modules.core.provider;
 
+import com.google.gson.JsonElement;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -370,6 +371,11 @@ public class ProviderConditional
 			this.weapon = weapon;
 			return this;
 		}
+
+        public static ProviderConditional deserialize(JsonElement jsonElement)
+        {
+            return ProviderConditional.builder().build();
+        }
 
 		public ProviderConditionalBuilder setProviderConditionals(ProviderConditional... providerConditionals) {
 			this.providerConditionals = providerConditionals;

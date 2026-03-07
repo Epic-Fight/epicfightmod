@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import net.forixaim.ex_cap.modules.assets.Builders;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -40,14 +41,14 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 	
 	public void registerWeaponTypesByClass() {
 		this.typedCapabilities.put(ArmorItem.class, (item) -> ArmorCapability.builder().byItem(item));
-		this.typedCapabilities.put(ShieldItem.class, WeaponCapabilityPresets.SHIELD);
-		this.typedCapabilities.put(SwordItem.class, WeaponCapabilityPresets.SWORD);
-		this.typedCapabilities.put(PickaxeItem.class, WeaponCapabilityPresets.PICKAXE);
-		this.typedCapabilities.put(AxeItem.class, WeaponCapabilityPresets.AXE);
-		this.typedCapabilities.put(ShovelItem.class, WeaponCapabilityPresets.SHOVEL);
-		this.typedCapabilities.put(HoeItem.class, WeaponCapabilityPresets.HOE);
-		this.typedCapabilities.put(BowItem.class, WeaponCapabilityPresets.BOW);
-		this.typedCapabilities.put(CrossbowItem.class, WeaponCapabilityPresets.CROSSBOW);
+		this.typedCapabilities.put(ShieldItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SHIELD, item));
+        this.typedCapabilities.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SWORD, item));
+        this.typedCapabilities.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.PICKAXE, item));
+        this.typedCapabilities.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.AXE, item));
+        this.typedCapabilities.put(ShovelItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SHOVEL, item));
+        this.typedCapabilities.put(HoeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.HOE, item));
+        this.typedCapabilities.put(BowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.BOW, item));
+        this.typedCapabilities.put(CrossbowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.CROSSBOW, item));
 		this.typedCapabilities.put(MapItem.class, (item) -> MapCapability.builder());
 	}
 	

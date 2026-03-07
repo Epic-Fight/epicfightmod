@@ -3,6 +3,7 @@ package yesman.epicfight.world.capabilities.item;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.forixaim.ex_cap.modules.core.ExCapManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -19,14 +20,15 @@ import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.item.builders.MoveSet;
-import yesman.epicfight.world.capabilities.item.builders.providers.CoreWeaponCapabilityProvider;
-import yesman.epicfight.world.capabilities.item.builders.providers.ProviderConditional;
+import net.forixaim.ex_cap.modules.core.MoveSet;
+import net.forixaim.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
+import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,13 +84,21 @@ public class WeaponCapability extends CapabilityItem {
 
     private MoveSet getCurrentSet(LivingEntityPatch<?> patch)
     {
-        Style style = stylegetter.apply(patch);
+        Style style = getStyle(patch);
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
     }
 
 	@Override
 	public final List<AnimationAccessor<? extends AttackAnimation>> getAutoAttackMotion(PlayerPatch<?> playerpatch) {
         MoveSet set = getCurrentSet(playerpatch);
+        if (set == null) {
+            //Fallback
+            List<AnimationAccessor<? extends AttackAnimation>> attacks = autoAttackMotions.getOrDefault(getStyle(playerpatch), autoAttackMotions.get(Styles.COMMON));
+            if (attacks == null || attacks.isEmpty()) {
+                return super.getAutoAttackMotion(playerpatch);
+            }
+            return attacks;
+        }
 		return set.getComboAttackAnimations();
 	}
 	
@@ -97,20 +107,30 @@ public class WeaponCapability extends CapabilityItem {
         MoveSet set = getCurrentSet(playerpatch);
         if (set == null) {
             //Fallback Logic
+            if (innateSkill.get(getStyle(playerpatch)) == null)
+                return null;
             return innateSkill.get(getStyle(playerpatch)).apply(itemstack);
         }
-        return set.getWeaponInnateSkill() == null ? null : set.getWeaponInnateSkill().apply(itemstack);
+        return set.getWeaponInnateSkill() == null ? null : set.getWeaponInnateSkill().apply(itemstack, playerpatch);
 	}
 	
 	@Override
 	public Skill getPassiveSkill(PlayerPatch<?> playerPatch) {
 		MoveSet set = getCurrentSet(playerPatch);
+        if (set == null) {
+            //Fallback logic
+            return passiveSkill;
+        }
         return set.getWeaponPassiveSkill();
 	}
 
 	@Override
 	public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerpatch) {
         MoveSet set = getCurrentSet(playerpatch);
+        if (set == null) {
+            //Fallback logic
+            return this.autoAttackMotions.get(Styles.MOUNT);
+        }
         return set.getMountAttackAnimations();
     }
 	
@@ -230,7 +250,9 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	public static WeaponCapability.Builder builder() {
-		return new WeaponCapability.Builder();
+        Builder builder = new Builder();
+        ExCapManager.addAcceptor(builder);
+		return builder;
 	}
 	
 	public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
@@ -245,6 +267,10 @@ public class WeaponCapability extends CapabilityItem {
 		SoundEvent hitSound;
 		HitParticleType hitParticle;
         Map<Style, MoveSet> moveSets;
+        double baseAP;
+        double aPScaling;
+        double impactBase;
+        double impactScaling;
         @Deprecated
 		Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotionMap;
         @Deprecated
@@ -261,7 +287,8 @@ public class WeaponCapability extends CapabilityItem {
         public Builder copy() {
             Builder copy = new Builder();
 
-            copy.provider = this.provider;
+            copy.provider = this.provider.copy();
+            copy.category = this.category;
             copy.styleProvider = this.styleProvider;
             copy.weaponCombinationPredicator = this.weaponCombinationPredicator;
             copy.passiveSkill = this.passiveSkill;
@@ -309,7 +336,6 @@ public class WeaponCapability extends CapabilityItem {
                     );
                 }
             }
-
             return copy;
         }
 		
@@ -331,12 +357,35 @@ public class WeaponCapability extends CapabilityItem {
             this.comboCounterHandler = ModifyComboCounter.ComboCounterHandler.DEFAULT_COMBO_HANDLER;
 			this.zoomInType = ZoomInType.NONE;
 			this.reach = 0.2F;
+            this.baseAP = 0;
+            this.aPScaling = 1;
+            this.impactBase = 1;
+            this.impactScaling = 1;
 		}
 		
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
 			return this;
 		}
+
+        public Builder setTierValues(double baseAP, double aPScaling, double impactBase, double impactScaling)
+        {
+            this.baseAP = baseAP;
+            this.aPScaling = aPScaling;
+            this.impactBase = impactBase;
+            this.impactScaling = impactScaling;
+            return this;
+        }
+
+        /**
+         * This is not to be called statically and only called during registration.
+         * @param tier the tier value used by Yesman
+         */
+        public void modifyTierAttributes(int tier)
+        {
+            if (tier != 0) this.addStyleAttibutes(Styles.COMMON, EpicFightAttributes.ARMOR_NEGATION, EpicFightAttributes.getArmorNegationModifier(baseAP + aPScaling * tier));
+            this.addStyleAttibutes(Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(impactBase + impactScaling * tier));
+        }
 		
 		public Builder passiveSkill(Skill passiveSkill) {
 			this.passiveSkill = passiveSkill;
@@ -350,7 +399,7 @@ public class WeaponCapability extends CapabilityItem {
 
         public Builder addConditionals(ProviderConditional... conditionals)
         {
-            Arrays.stream(conditionals).forEach(provider::addConditional);
+            provider.addConditional(conditionals);
             return this;
         }
 		

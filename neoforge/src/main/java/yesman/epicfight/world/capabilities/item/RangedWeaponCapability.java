@@ -4,31 +4,21 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.world.InteractionHand;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class RangedWeaponCapability extends CapabilityItem {
+public class RangedWeaponCapability extends WeaponCapability {
 	protected Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> rangeAnimationModifiers;
 	protected ZoomInType zoomInType;
 	
-	protected RangedWeaponCapability(RangedWeaponCapability.Builder builder) {
+	protected RangedWeaponCapability(WeaponCapability.Builder builder) {
 		super(builder);
 		
 		RangedWeaponCapability.Builder rangedBuilder = (RangedWeaponCapability.Builder)builder;
 		this.rangeAnimationModifiers = rangedBuilder.rangeAnimationModifiers;
 		this.zoomInType = rangedBuilder.zoomInType;
-	}
-	
-	@Override
-	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> playerdata, InteractionHand hand) {
-		if (hand == InteractionHand.MAIN_HAND) {
-			return this.rangeAnimationModifiers;
-		}
-		
-		return super.getLivingMotionModifier(playerdata, hand);
 	}
 
 	@Override
@@ -50,8 +40,8 @@ public class RangedWeaponCapability extends CapabilityItem {
 		return new RangedWeaponCapability.Builder();
 	}
 	
-	public static class Builder extends CapabilityItem.Builder<Builder> {
-		private Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> rangeAnimationModifiers;
+	public static class Builder extends WeaponCapability.Builder {
+		private final Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> rangeAnimationModifiers;
 		private ZoomInType zoomInType = ZoomInType.USE_TICK;
 		
 		protected Builder() {
@@ -59,13 +49,8 @@ public class RangedWeaponCapability extends CapabilityItem {
 			this.constructor = RangedWeaponCapability::new;
 			this.rangeAnimationModifiers = Maps.newHashMap();
 		}
-		
-		public Builder addAnimationsModifier(LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animations) {
-			this.rangeAnimationModifiers.put(livingMotion, animations);
-			return this;
-		}
-		
-		public Builder zoomInType(ZoomInType zoomInType) {
+
+        public Builder zoomInType(ZoomInType zoomInType) {
 			this.zoomInType = zoomInType;
 			return this;
 		}

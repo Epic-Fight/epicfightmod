@@ -7,11 +7,16 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class BowCapability extends RangedWeaponCapability {
-	protected BowCapability(RangedWeaponCapability.Builder builder) {
+	public BowCapability(WeaponCapability.Builder builder) {
 		super(builder);
 	}
-	
-	@Override
+
+    @Override
+    public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
+        return UseAnim.BOW;
+    }
+
+    @Override
 	public LivingMotion getLivingMotion(LivingEntityPatch<?> entitypatch, InteractionHand hand) {
 		return entitypatch.getOriginal().isUsingItem() && entitypatch.getOriginal().getUseItem().getUseAnimation() == UseAnim.BOW ? LivingMotions.AIM : null;
 	}

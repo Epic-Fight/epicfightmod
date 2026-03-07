@@ -1,9 +1,10 @@
-package yesman.epicfight.world.capabilities.item.builders.providers;
+package net.forixaim.ex_cap.modules.core.provider;
 
 import com.google.common.collect.Lists;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.Style;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,9 +18,16 @@ public class CoreWeaponCapabilityProvider
         conditionals = Lists.newArrayList();
     }
 
-    public void addConditional(ProviderConditional conditional)
+    public void addConditional(ProviderConditional... conditional)
     {
-        this.conditionals.add(conditional);
+        this.conditionals.addAll(Arrays.asList(conditional));
+    }
+
+    public CoreWeaponCapabilityProvider copy()
+    {
+        CoreWeaponCapabilityProvider copy = new CoreWeaponCapabilityProvider();
+        conditionals.forEach(s -> copy.addConditional(s.copy()));
+        return copy;
     }
 
     private void sortByPriority()

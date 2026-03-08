@@ -224,12 +224,18 @@ public class Movesets
             .shouldRenderSheath(livingEntityPatch -> true);
 
     public static MoveSet.MoveSetBuilder glove = MoveSet.builder()
+            .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
+            .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
+            .addComboAttacks(Animations.FIST_AUTO1, Animations.FIST_AUTO2, Animations.FIST_AUTO3, Animations.FIST_DASH, Animations.FIST_AIR_SLASH)
+            .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RELENTLESS_COMBO.get());
+
+    public static MoveSet.MoveSetBuilder bow = MoveSet.builder()
             .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_BOW_AIM)
             .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
             .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
             .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_BOW_SHOT)
-            .addComboAttacks(Animations.FIST_AUTO1, Animations.FIST_AUTO2, Animations.FIST_AUTO3, Animations.FIST_DASH, Animations.FIST_AIR_SLASH)
-            .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RELENTLESS_COMBO.get());
+            .setMotionPredicate((entityPatch, interactionHand) -> entityPatch.getOriginal().isUsingItem() && entityPatch.getOriginal().getUseItem().getUseAnimation() == UseAnim.BOW ? LivingMotions.AIM : null)
+            .addComboAttacks(Animations.FIST_AUTO1, Animations.FIST_AUTO2, Animations.FIST_AUTO3, Animations.FIST_DASH, Animations.FIST_AIR_SLASH);
 
     public static MoveSet.MoveSetBuilder crossBow = MoveSet.builder()
             .addLivingMotionsRecursive(Animations.BIPED_HOLD_CROSSBOW,

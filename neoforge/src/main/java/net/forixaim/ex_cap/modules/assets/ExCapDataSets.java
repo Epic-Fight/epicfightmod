@@ -72,7 +72,7 @@ public class ExCapDataSets
 
     public static final ExCapData BOW = ExCapData.builder()
             .addConditional(MainConditionals.default1HWieldStyle)
-            .addMoveset(CapabilityItem.Styles.ONE_HAND, Movesets.glove)
+            .addMoveset(CapabilityItem.Styles.ONE_HAND, Movesets.bow)
             .build();
 
     public static final ExCapData CROSSBOW = ExCapData.builder()

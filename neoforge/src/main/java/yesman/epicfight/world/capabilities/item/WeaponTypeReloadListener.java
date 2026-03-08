@@ -8,8 +8,8 @@ import com.google.gson.JsonElement;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.netty.util.internal.StringUtil;
-import net.forixaim.ex_cap.modules.core.ExCapManager;
-import net.forixaim.ex_cap.modules.core.MovesetManager;
+import net.forixaim.ex_cap.modules.core.managers.ExCapManager;
+import net.forixaim.ex_cap.modules.core.managers.MovesetManager;
 import net.forixaim.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -53,13 +53,9 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
 
-        ExCapMovesetRegistryEvent exCapMovesetRegistryEvent = new ExCapMovesetRegistryEvent();
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.post(exCapMovesetRegistryEvent);
-        MovesetManager.acceptEvent(exCapMovesetRegistryEvent);
 
-        ExCapabilityBuilderPopulationEvent exCapabilityBuilderPopulationEvent = new ExCapabilityBuilderPopulationEvent();
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.post(exCapabilityBuilderPopulationEvent);
-        ExCapManager.acceptEvent(exCapabilityBuilderPopulationEvent);
+
+
 
         WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.post(weaponCapabilityPresetRegistryEvent);

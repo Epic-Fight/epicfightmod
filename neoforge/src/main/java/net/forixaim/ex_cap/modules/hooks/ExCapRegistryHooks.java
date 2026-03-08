@@ -2,7 +2,9 @@ package net.forixaim.ex_cap.modules.hooks;
 
 import net.forixaim.ex_cap.modules.assets.Builders;
 import net.forixaim.ex_cap.modules.assets.ExCapDataSets;
+import net.forixaim.ex_cap.modules.assets.MainConditionals;
 import net.forixaim.ex_cap.modules.assets.Movesets;
+import net.forixaim.ex_cap.modules.core.events.ConditionalRegistryEvent;
 import net.forixaim.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import yesman.epicfight.EpicFight;
 import net.forixaim.ex_cap.modules.core.events.ExCapabilityBuilderPopulationEvent;
@@ -29,6 +31,19 @@ public class ExCapRegistryHooks
         event.registerData(Builders.CROSSBOW, ExCapDataSets.CROSSBOW);
         event.registerData(Builders.TRIDENT, ExCapDataSets.TRIDENT);
         event.registerData(Builders.SHIELD, ExCapDataSets.SHIELD);
+    }
+
+    public static void registerConditionals(ConditionalRegistryEvent event)
+    {
+        event.addConditional(
+                MainConditionals.DEFAULT_1H_WIELD_STYLE,
+                MainConditionals.DEFAULT_2H_WIELD_STYLE,
+                MainConditionals.DEFAULT_RANGED,
+                MainConditionals. SHIELD_OFFHAND,
+                MainConditionals.LIECHTENAUER_CONDITION,
+                MainConditionals.UCHIGATANA_SHEATHED,
+                MainConditionals.DUAL_DAGGERS,
+                MainConditionals. DUAL_SWORDS);
     }
 
     public static void registerExCapMovesets(ExCapMovesetRegistryEvent event)

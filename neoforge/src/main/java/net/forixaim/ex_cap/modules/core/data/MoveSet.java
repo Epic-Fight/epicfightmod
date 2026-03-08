@@ -1,10 +1,11 @@
-package net.forixaim.ex_cap.modules.core;
+package net.forixaim.ex_cap.modules.core.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.forixaim.ex_cap.modules.core.managers.MovesetManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,6 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.item.Style;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -246,7 +246,7 @@ public class MoveSet
         }
 
         @SuppressWarnings("unchecked")
-        public static MoveSetBuilder deserialize(JsonElement jsonObject)
+        public static MoveSetBuilder deserialize(JsonElement jsonObject) throws JsonParseException
         {
             MoveSetBuilder result = new MoveSetBuilder();
             try {

@@ -1,5 +1,6 @@
 package yesman.epicfight.api.event;
 
+import net.forixaim.ex_cap.modules.core.events.ConditionalRegistryEvent;
 import net.forixaim.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import net.forixaim.ex_cap.modules.core.events.ExCapabilityBuilderPopulationEvent;
 import yesman.epicfight.api.event.types.animation.*;
@@ -71,6 +72,7 @@ public final class EpicFightEventHooks {
         public static final EventHook<WeaponCapabilityPresetRegistryEvent> WEAPON_CAPABILITY_PRESET = EventHook.createEventHook();
         public static final EventHook<ExCapabilityBuilderPopulationEvent> EX_CAP_DATA_POPULATION = EventHook.createEventHook();
         public static final EventHook<ExCapMovesetRegistryEvent> EX_CAP_MOVESET_REGISTRY = EventHook.createEventHook();
+        public static final EventHook<ConditionalRegistryEvent> EX_CAP_CONDITIONAL_REGISTRATION = EventHook.createEventHook();
 
         private Registry() {}
     }

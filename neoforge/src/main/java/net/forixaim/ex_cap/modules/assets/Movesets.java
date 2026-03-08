@@ -1,6 +1,6 @@
 package net.forixaim.ex_cap.modules.assets;
 
-import net.forixaim.ex_cap.modules.core.MoveSetEntry;
+import net.forixaim.ex_cap.modules.core.data.MoveSetEntry;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
@@ -9,7 +9,7 @@ import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightSkills;
-import net.forixaim.ex_cap.modules.core.MoveSet;
+import net.forixaim.ex_cap.modules.core.data.MoveSet;
 
 @SuppressWarnings("unchecked")
 public class Movesets 

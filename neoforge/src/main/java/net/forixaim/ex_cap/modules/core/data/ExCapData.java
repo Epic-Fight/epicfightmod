@@ -1,7 +1,9 @@
-package net.forixaim.ex_cap.modules.core;
+package net.forixaim.ex_cap.modules.core.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.forixaim.ex_cap.modules.core.managers.ConditionalManager;
+import net.forixaim.ex_cap.modules.core.managers.MovesetManager;
 import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.world.capabilities.item.Style;
@@ -29,8 +31,10 @@ public record ExCapData(List<ProviderConditional> conditionals, Map<Style, Resou
         private final List<ProviderConditional> conditionals = Lists.newArrayList();
         private final Map<Style, ResourceLocation> moveSets = Maps.newHashMap();
 
-        public Builder addConditional(ProviderConditional... conds) {
-            conditionals.addAll(Arrays.asList(conds));
+        public Builder addConditional(ResourceLocation... conds) {
+            for (ResourceLocation cond : conds) {
+                conditionals.add(ConditionalManager.get(cond).build());
+            }
             return this;
         }
 

@@ -53,9 +53,9 @@ public class CoreWeaponCapabilityProvider
         sortByPriority();
         for (ProviderConditional conditional : conditionals)
         {
-            if (conditional.testConditionalStyle(entityPatch) != null)
+            if (conditional.test(entityPatch))
             {
-                return conditional.testConditionalStyle(entityPatch);
+                return conditional.style;
             }
         }
         return null;
@@ -70,9 +70,9 @@ public class CoreWeaponCapabilityProvider
         sortByPriority();
         for (ProviderConditional conditional : conditionals)
         {
-            if (conditional.testConditionalCombo(entityPatch) != null)
+            if (conditional.test(entityPatch))
             {
-                return conditional.testConditionalCombo(entityPatch);
+                return conditional.combination;
             }
         }
         return null;

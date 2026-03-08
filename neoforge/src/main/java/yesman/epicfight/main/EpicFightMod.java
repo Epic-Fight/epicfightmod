@@ -221,6 +221,7 @@ public class EpicFightMod {
         }
         loadModCompatibilityModules(modEventBus);
         //Self hook into our event
+		EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets);
         EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities);
 	}

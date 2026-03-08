@@ -2,8 +2,10 @@ package net.forixaim.ex_cap.modules.hooks;
 
 import net.forixaim.ex_cap.modules.assets.Builders;
 import net.forixaim.ex_cap.modules.assets.ExCapDataSets;
+import net.forixaim.ex_cap.modules.assets.Movesets;
+import net.forixaim.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import yesman.epicfight.EpicFight;
-import yesman.epicfight.api.event.types.registry.ExCapabilityBuilderPopulationEvent;
+import net.forixaim.ex_cap.modules.core.events.ExCapabilityBuilderPopulationEvent;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
 
@@ -16,22 +18,47 @@ public class ExCapRegistryHooks
         event.registerData(Builders.PICKAXE, ExCapDataSets.PICKAXE);
         event.registerData(Builders.SHOVEL, ExCapDataSets.SHOVEL);
         event.registerData(Builders.HOE, ExCapDataSets.HOE);
-
         event.registerData(Builders.SPEAR, ExCapDataSets.SPEAR);
         event.registerData(Builders.GREATSWORD, ExCapDataSets.GREATSWORD);
         event.registerData(Builders.LONGSWORD, ExCapDataSets.LONGSWORD);
         event.registerData(Builders.TACHI, ExCapDataSets.TACHI);
         event.registerData(Builders.UCHIGATANA, ExCapDataSets.UCHIGATANA);
         event.registerData(Builders.DAGGER, ExCapDataSets.DAGGER);
-
         event.registerData(Builders.FIST, ExCapDataSets.FIST);
-
         event.registerData(Builders.BOW, ExCapDataSets.BOW);
         event.registerData(Builders.CROSSBOW, ExCapDataSets.CROSSBOW);
         event.registerData(Builders.TRIDENT, ExCapDataSets.TRIDENT);
-
         event.registerData(Builders.SHIELD, ExCapDataSets.SHIELD);
     }
+
+    public static void registerExCapMovesets(ExCapMovesetRegistryEvent event)
+    {
+        event.addMoveSet(
+                Movesets.commonShield,
+                Movesets.mountedSwordMS,
+                Movesets.greatsword2HMS,
+                Movesets.axeOneHandMS,
+                Movesets.mountedSpearMS,
+                Movesets.longsword2HMS,
+                Movesets.longsword1HMS,
+                Movesets.liechtenauerMS,
+                Movesets.dagger1HMS,
+                Movesets.dagger2HMS,
+                Movesets.spear2HMS,
+                Movesets.spear1HMS,
+                Movesets.sword1HMS,
+                Movesets.sword2HMS,
+                Movesets.shield,
+                Movesets.tachi2HMS,
+                Movesets.uchigatanaBase,
+                Movesets.uchigatanaSheathed,
+                Movesets.glove,
+                Movesets.bow,
+                Movesets.crossBow,
+                Movesets.tridentMS
+        );
+    }
+
 
     public static void registerWeaponCapabilities(WeaponCapabilityPresetRegistryEvent event) {
         event.getTypeEntry().put(EpicFight.identifier("sword"), item -> WeaponCapabilityPresets.exCapRegistration(Builders.SWORD, item));

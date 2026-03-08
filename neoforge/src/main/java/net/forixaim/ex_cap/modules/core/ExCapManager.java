@@ -3,8 +3,7 @@ package net.forixaim.ex_cap.modules.core;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
-import yesman.epicfight.api.event.types.registry.ExCapabilityBuilderPopulationEvent;
+import net.forixaim.ex_cap.modules.core.events.ExCapabilityBuilderPopulationEvent;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import java.util.Map;

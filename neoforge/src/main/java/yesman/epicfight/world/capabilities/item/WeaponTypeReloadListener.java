@@ -9,6 +9,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.netty.util.internal.StringUtil;
 import net.forixaim.ex_cap.modules.core.ExCapManager;
+import net.forixaim.ex_cap.modules.core.MovesetManager;
+import net.forixaim.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +31,7 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.event.types.registry.ExCapabilityBuilderPopulationEvent;
+import net.forixaim.ex_cap.modules.core.events.ExCapabilityBuilderPopulationEvent;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -51,9 +53,14 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
 
+        ExCapMovesetRegistryEvent exCapMovesetRegistryEvent = new ExCapMovesetRegistryEvent();
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.post(exCapMovesetRegistryEvent);
+        MovesetManager.acceptEvent(exCapMovesetRegistryEvent);
+
         ExCapabilityBuilderPopulationEvent exCapabilityBuilderPopulationEvent = new ExCapabilityBuilderPopulationEvent();
         EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.post(exCapabilityBuilderPopulationEvent);
         ExCapManager.acceptEvent(exCapabilityBuilderPopulationEvent);
+
         WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.post(weaponCapabilityPresetRegistryEvent);
         PRESETS.putAll(weaponCapabilityPresetRegistryEvent.getTypeEntry());

@@ -22,8 +22,11 @@ import yesman.epicfight.api.event.types.player.ModifyComboCounter;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import net.forixaim.ex_cap.modules.core.MoveSet;
@@ -88,7 +91,31 @@ public class WeaponCapability extends CapabilityItem {
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
     }
 
-	@Override
+    @Override
+    public AnimationAccessor<? extends StaticAnimation> getGuardMotion(GuardSkill skill, GuardSkill.BlockType blockType, PlayerPatch<?> playerpatch)
+    {
+        MoveSet currentSet = getCurrentSet(playerpatch);
+        SkillContainer container = playerpatch.getSkill(skill);
+        int counter = container.getDataManager().hasData(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) ? container.getDataManager().getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) : 0;
+        if (currentSet != null) {
+            Map<Skill, Map<GuardSkill.BlockType, List<AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardMotions = currentSet.getSkillSpecificGuardAnimations();
+            Map<GuardSkill.BlockType, List<AnimationAccessor<? extends StaticAnimation>>> defaultGuardMotions = currentSet.getDefaultGuardAnimations();
+            if (skillSpecificGuardMotions != null && skillSpecificGuardMotions.containsKey(skill) && skillSpecificGuardMotions.get(skill).containsKey(blockType)) {
+                List<AnimationAccessor<? extends StaticAnimation>> motions = skillSpecificGuardMotions.get(skill).get(blockType);
+                if (!motions.isEmpty()) {
+                    return motions.get(counter % motions.size());
+                }
+            } else if (defaultGuardMotions != null && defaultGuardMotions.containsKey(blockType)) {
+                List<AnimationAccessor<? extends StaticAnimation>> motions = defaultGuardMotions.get(blockType);
+                if (!motions.isEmpty()) {
+                    return motions.get(counter % motions.size());
+                }
+            }
+        }
+        return super.getGuardMotion(skill, blockType, playerpatch);
+    }
+
+    @Override
 	public final List<AnimationAccessor<? extends AttackAnimation>> getAutoAttackMotion(PlayerPatch<?> playerpatch) {
         MoveSet set = getCurrentSet(playerpatch);
         if (set == null) {

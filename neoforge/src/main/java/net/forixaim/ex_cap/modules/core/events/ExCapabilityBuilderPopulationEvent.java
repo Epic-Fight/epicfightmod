@@ -1,4 +1,4 @@
-package yesman.epicfight.api.event.types.registry;
+package net.forixaim.ex_cap.modules.core.events;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.List;
 
 public class ExCapabilityBuilderPopulationEvent extends Event {
-    Map<WeaponCapability.Builder, List<ExCapData>> builders;
+    private final Map<WeaponCapability.Builder, List<ExCapData>> builders;
 
     public ExCapabilityBuilderPopulationEvent() {
         this.builders = Maps.newHashMap();

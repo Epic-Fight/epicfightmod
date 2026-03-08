@@ -159,6 +159,12 @@ public class WeaponCapability extends CapabilityItem {
         }
         return set.getMountAttackAnimations();
     }
+
+    /// Legacy method used by addons
+    public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
+    {
+        return this.autoAttackMotions.get(Styles.MOUNT);
+    }
 	
 	@Override @NotNull
 	public Style getStyle(LivingEntityPatch<?> entitypatch) {

@@ -138,12 +138,13 @@ public class ComboAttacks extends Skill {
 
             int comboSize = combo.size();
 
+            //Improve array safety by doing a wrap and abs instead.
             if (airAttack) {
-                attackMotion = combo.get(comboSize - 1);
+                attackMotion = combo.get(Math.abs(comboSize - 1) % comboSize);
             } else if (dashAttack) {
-                attackMotion = combo.get(comboSize - 2);
+                attackMotion = combo.get(Math.abs(comboSize - 2) % comboSize);
             } else {
-                attackMotion = combo.get(comboCounter);
+                attackMotion = combo.get(Math.abs(comboCounter) % comboSize);
 
                 // Grows the combo counter when doing combo attacks
                 comboCounter = (comboCounter + 1) % (comboSize - 2);

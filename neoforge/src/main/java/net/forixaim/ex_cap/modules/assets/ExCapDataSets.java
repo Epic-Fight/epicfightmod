@@ -76,7 +76,7 @@ public class ExCapDataSets
             .build();
 
     public static final ExCapData CROSSBOW = ExCapData.builder()
-            .addConditional(MainConditionals.DEFAULT_1H_WIELD_STYLE.id())
+            .addConditional(MainConditionals.DEFAULT_2H_WIELD_STYLE.id())
             .addMoveset(CapabilityItem.Styles.TWO_HAND, Movesets.crossBow.id())
             .build();
 

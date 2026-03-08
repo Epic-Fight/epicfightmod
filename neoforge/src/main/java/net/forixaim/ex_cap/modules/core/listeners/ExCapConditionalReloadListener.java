@@ -20,7 +20,7 @@ public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadList
 
     private static final Gson GSON = (new GsonBuilder()).create();
 
-    public ExCapConditionalReloadListener(Gson gson, String directory)
+    public ExCapConditionalReloadListener()
     {
         super(GSON, DIRECTORY);
     }

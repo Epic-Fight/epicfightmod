@@ -78,28 +78,23 @@ public class Builders
 
     public static final WeaponCapability.Builder FIST = WeaponCapability.builder()
             .category(CapabilityItem.WeaponCategories.FIST)
-            .constructor(GloveCapability::new)
             .setTierValues(0, 0d, 0.0, 0.0);
 
     public static final WeaponCapability.Builder BOW =
             WeaponCapability.builder()
-                    .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
-                    .constructor(BowCapability::new);
+                    .zoomInType(CapabilityItem.ZoomInType.USE_TICK);
 
     public static final WeaponCapability.Builder CROSSBOW =
             WeaponCapability.builder()
-                    .zoomInType(CapabilityItem.ZoomInType.AIMING)
-                    .constructor(CrossbowCapability::new);
+                    .zoomInType(CapabilityItem.ZoomInType.AIMING);
 
     public static final WeaponCapability.Builder TRIDENT =
             WeaponCapability.builder()
                     .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
-                    .constructor(TridentCapability::new)
                     .collider(ColliderPreset.SPEAR)
                     .category(CapabilityItem.WeaponCategories.TRIDENT);
 
     public static final WeaponCapability.Builder SHIELD = WeaponCapability.builder()
-            .constructor(ShieldCapability::new)
             .category(CapabilityItem.WeaponCategories.SHIELD);
 
 }

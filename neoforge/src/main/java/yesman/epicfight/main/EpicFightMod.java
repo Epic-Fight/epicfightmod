@@ -1,6 +1,9 @@
 package yesman.epicfight.main;
 
 import net.forixaim.ex_cap.modules.assets.Builders;
+import net.forixaim.ex_cap.modules.core.listeners.ExCapConditionalReloadListener;
+import net.forixaim.ex_cap.modules.core.listeners.ExCapDataReloadListener;
+import net.forixaim.ex_cap.modules.core.listeners.ExCapMovesetReloadListener;
 import net.forixaim.ex_cap.modules.hooks.ExCapRegistryHooks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -220,10 +223,7 @@ public class EpicFightMod {
             modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
         }
         loadModCompatibilityModules(modEventBus);
-        //Self hook into our event
-		EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods);
-        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities);
+
 	}
 
     private List<? extends Class<? extends ICompatModule>> getCompatibilityModules(final boolean isClientSide) {
@@ -310,6 +310,15 @@ public class EpicFightMod {
 		event.enqueueWork(WeaponTypeReloadListener::registerDefaultWeaponTypes);
 		event.enqueueWork(EpicFightMobEffects::addOffhandModifier);
 		event.enqueueWork(EpicFightExtensibleEnums::initExtensibleEnums);
+        event.enqueueWork(this::addRegistries);
+    }
+
+    private void addRegistries()
+    {
+        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapRegistryHooks::registerConditionals);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods);
+        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities);
     }
 
 	/**
@@ -340,6 +349,9 @@ public class EpicFightMod {
 	private void addReloadListnerEvent(final AddReloadListenerEvent event) {
 		event.addListener(new ColliderPreset());
 		event.addListener(new SkillReloadListener());
+        event.addListener(new ExCapConditionalReloadListener());
+        event.addListener(new ExCapMovesetReloadListener());
+        event.addListener(new ExCapDataReloadListener());
 		event.addListener(new WeaponTypeReloadListener());
 		event.addListener(new ItemKeywordReloadListener());
 		event.addListener(new ItemCapabilityReloadListener());

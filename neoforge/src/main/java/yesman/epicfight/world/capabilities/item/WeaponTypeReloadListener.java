@@ -53,10 +53,6 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
     public static void registerDefaultWeaponTypes() {
         Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> typeEntry = Maps.newHashMap();
 
-
-
-
-
         WeaponCapabilityPresetRegistryEvent weaponCapabilityPresetRegistryEvent = new WeaponCapabilityPresetRegistryEvent(typeEntry);
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.post(weaponCapabilityPresetRegistryEvent);
         PRESETS.putAll(weaponCapabilityPresetRegistryEvent.getTypeEntry());

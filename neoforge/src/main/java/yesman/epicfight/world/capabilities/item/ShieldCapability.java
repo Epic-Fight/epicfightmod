@@ -22,7 +22,7 @@ public class ShieldCapability extends WeaponCapability {
 	 * Avoid duplicated usage with guard skill
 	 */
 	@Override
-	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
+	public UseAnim getUseAnimation(LivingEntityPatch<?> entityPatch) {
 		return UseAnim.NONE;
 	}
 

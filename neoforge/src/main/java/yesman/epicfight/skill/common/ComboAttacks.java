@@ -132,7 +132,7 @@ public class ComboAttacks extends Skill {
 		} else {
             List<AnimationAccessor<? extends AttackAnimation>> combo = cap.getAutoAttackMotion(executor);
 
-            if (combo == null) {
+            if (combo == null || combo.isEmpty()) {
                 return;
             }
 

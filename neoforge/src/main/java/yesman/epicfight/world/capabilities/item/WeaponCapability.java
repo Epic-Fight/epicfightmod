@@ -186,12 +186,12 @@ public class WeaponCapability extends CapabilityItem {
     }
 	
 	@Override @NotNull
-	public Style getStyle(LivingEntityPatch<?> entitypatch) {
-        Style style = coreProvider.getStyle(entitypatch);
+	public Style getStyle(LivingEntityPatch<?> entityPatch) {
+        Style style = coreProvider.getStyle(entityPatch);
         if (style == null)
         {
             //Fallback
-            return this.stylegetter.apply(entitypatch);
+            return this.stylegetter.apply(entityPatch);
         }
         return style;
 	}
@@ -251,13 +251,13 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	@Override
-	public UseAnim getUseAnimation(LivingEntityPatch<?> entitypatch) {
-        MoveSet set = getCurrentSet(entitypatch);
+	public UseAnim getUseAnimation(LivingEntityPatch<?> entityPatch) {
+        MoveSet set = getCurrentSet(entityPatch);
         if (set == null || set.getLivingMotionModifiers() == null)
         {
             //Fallback
             if (this.livingMotionModifiers != null) {
-                Style style = this.getStyle(entitypatch);
+                Style style = this.getStyle(entityPatch);
 
                 if (this.livingMotionModifiers.containsKey(style)) {
                     if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {

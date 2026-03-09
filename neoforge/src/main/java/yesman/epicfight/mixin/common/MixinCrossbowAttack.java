@@ -23,8 +23,6 @@ public abstract class MixinCrossbowAttack {
 	private void epicfight$crossbowAttack(RangedAttackMob self, LivingEntity target, float velocity) {
 		self.performRangedAttack(target, velocity);
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch((Entity)self, LivingEntityPatch.class).ifPresent(entitypatch -> {
-			entitypatch.playShootingAnimation();
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch((Entity)self, LivingEntityPatch.class).ifPresent(LivingEntityPatch::playShootingAnimation);
 	}
 }

@@ -41,6 +41,7 @@
     "common.MixinServerCommonPacketListenerImpl",
     "common.MixinServerEntity",
     "common.MixinThrownTrident",
+    "common.MixinTridentAttack",
     "common.MixinWitherBoss",
     "common.MixinWitherBossAccessor"
   ],

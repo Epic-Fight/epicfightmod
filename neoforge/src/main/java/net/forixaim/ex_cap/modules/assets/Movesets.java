@@ -324,14 +324,7 @@ public class Movesets
                             Animations.SPEAR_ONEHAND_AIR_SLASH
                     )
                     .setMotionPredicate((entityPatch, interactionHand) ->
-                            {
-                                if (entityPatch.getOriginal().isUsingItem() && entityPatch.getOriginal().getUseItem().getItem() instanceof ProjectileWeaponItem) {
-                                    if (entityPatch.getOriginal().getUseItem().getUseAnimation() == UseAnim.SPEAR) {
-                                        return LivingMotions.AIM;
-                                    }
-                                }
-                                return null;
-                            })
+                            entityPatch.getOriginal().isUsingItem() && entityPatch.getOriginal().getUseItem().getUseAnimation() == UseAnim.SPEAR ? LivingMotions.AIM : null)
                     .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_JAVELIN_AIM)
                     .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_JAVELIN_THROW)
                     .addMountAttacks(Animations.SPEAR_MOUNT_ATTACK)

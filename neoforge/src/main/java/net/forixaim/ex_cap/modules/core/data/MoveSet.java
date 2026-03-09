@@ -26,12 +26,6 @@ import java.util.function.Predicate;
 
 public class MoveSet 
 {
-    //TODO: Deal with this later...
-    //private static final HashMultimap<Class<?>, MoveSet> MOVESETS = HashMultimap.create();
-    //private static final ResourceLocation CLASS_TO_MOVESET = ResourceLocation.fromNamespaceAndPath(EpicFightEXCapability.MODID, "class_to_moveset");
-    //private static final ResourceLocation MOVESET_TO_ID = ResourceLocation.fromNamespaceAndPath(EpicFightEXCapability.MODID, "moveset_to_id");
-    //public static final ResourceKey<Registry<MoveSet>> REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(EpicFightEXCapability.MODID, "moveset"));
-
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
     private final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
@@ -42,11 +36,9 @@ public class MoveSet
     private final Predicate<LivingEntityPatch<?>> sheathRender;
     private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
     private final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
-    public final ResourceLocation registryIdentifier;
 
     public MoveSet(MoveSetBuilder builder)
     {
-        registryIdentifier = builder.registryIdentifier;
         this.mountAttackAnimations = builder.mountAttackAnimations;
         this.sheathRender = builder.sheathRender;
         this.comboAttackAnimations = builder.comboAttackAnimations;

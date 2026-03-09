@@ -2,6 +2,7 @@ package net.forixaim.ex_cap.modules.core.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
 import net.forixaim.ex_cap.modules.core.managers.ConditionalManager;
 import net.forixaim.ex_cap.modules.core.managers.MovesetManager;
 import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
@@ -30,6 +31,30 @@ public record ExCapData(List<ProviderConditional> conditionals, Map<Style, Resou
 
         private final List<ProviderConditional> conditionals = Lists.newArrayList();
         private final Map<Style, ResourceLocation> moveSets = Maps.newHashMap();
+
+        public static Builder deserialize(JsonElement jsonElement)
+        {
+            Builder builder = new Builder();
+            JsonElement conditionals = jsonElement.getAsJsonObject().get("conditionals");
+            if (conditionals != null && conditionals.isJsonArray())
+            {
+                conditionals.getAsJsonArray().forEach(el -> builder.addConditional(ResourceLocation.parse(el.getAsJsonObject().get("id").getAsString())));
+            }
+            JsonElement moveSets = jsonElement.getAsJsonObject().get("move_sets");
+            if (moveSets != null && moveSets.isJsonObject())
+            {
+                moveSets.getAsJsonObject().entrySet().forEach(entry ->
+                {
+                    Style style = Style.ENUM_MANAGER.get(entry.getKey());
+                    ResourceLocation moveSet = ResourceLocation.tryParse(entry.getValue().getAsString());
+                    if (style != null && moveSet != null)
+                    {
+                        builder.addMoveset(style, moveSet);
+                    }
+                });
+            }
+            return builder;
+        }
 
         public Builder addConditional(ResourceLocation... conds) {
             for (ResourceLocation cond : conds) {

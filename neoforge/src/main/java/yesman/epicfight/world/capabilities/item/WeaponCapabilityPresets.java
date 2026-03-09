@@ -2,6 +2,7 @@ package yesman.epicfight.world.capabilities.item;
 
 import net.forixaim.ex_cap.modules.core.data.ExCapData;
 import net.forixaim.ex_cap.modules.core.managers.ExCapManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
@@ -9,6 +10,7 @@ import net.minecraft.world.item.Tiers;
 import yesman.epicfight.EpicFight;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class WeaponCapabilityPresets {
 	public static int vanillaTierToLevel(Tier tier) {
@@ -21,17 +23,17 @@ public abstract class WeaponCapabilityPresets {
                 case NETHERITE -> {return 4;}
 			}
 		}
-		
 		double sqrt = Math.sqrt(tier.getUses());
-		
+
 		// Custom tier mapping
 		return sqrt < 10.0D ? 0 : (int)Math.round(sqrt / 10.0D);
 	}
 
-    public static WeaponCapability.Builder exCapRegistration(WeaponCapability.Builder builder, Item item)
+    public static WeaponCapability.Builder exCapRegistration(Map.Entry<ResourceLocation, WeaponCapability.Builder> entry, Item item)
     {
-        List<ExCapData> data = ExCapManager.retrieveExCapData(builder);
-        WeaponCapability.Builder copy = builder.copy();
+        if (entry == null) return new WeaponCapability.Builder();
+        List<ExCapData> data = ExCapManager.retrieveExCapData(entry.getKey());
+        WeaponCapability.Builder copy = entry.getValue().copy();
         handleTieredStats(copy, item);
         data.forEach(exCapData -> exCapData.apply(copy));
         EpicFight.LOGGER.debug(copy.toString());

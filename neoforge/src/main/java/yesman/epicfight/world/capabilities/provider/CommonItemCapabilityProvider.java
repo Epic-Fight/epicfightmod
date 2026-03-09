@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import net.forixaim.ex_cap.modules.assets.Builders;
+import net.forixaim.ex_cap.modules.core.managers.BuilderManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,14 +42,14 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 	
 	public void registerWeaponTypesByClass() {
 		this.typedCapabilities.put(ArmorItem.class, (item) -> ArmorCapability.builder().byItem(item));
-		this.typedCapabilities.put(ShieldItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SHIELD, item));
-        this.typedCapabilities.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SWORD, item));
-        this.typedCapabilities.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.PICKAXE, item));
-        this.typedCapabilities.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.AXE, item));
-        this.typedCapabilities.put(ShovelItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.SHOVEL, item));
-        this.typedCapabilities.put(HoeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.HOE, item));
-        this.typedCapabilities.put(BowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.BOW, item));
-        this.typedCapabilities.put(CrossbowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(Builders.CROSSBOW, item));
+		this.typedCapabilities.put(ShieldItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHIELD.id()), item));
+        this.typedCapabilities.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SWORD.id()), item));
+        this.typedCapabilities.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.PICKAXE.id()), item));
+        this.typedCapabilities.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.AXE.id()), item));
+        this.typedCapabilities.put(ShovelItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHOVEL.id()), item));
+        this.typedCapabilities.put(HoeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.HOE.id()), item));
+        this.typedCapabilities.put(BowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.BOW.id()), item));
+        this.typedCapabilities.put(CrossbowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.CROSSBOW.id()), item));
 		this.typedCapabilities.put(MapItem.class, (item) -> MapCapability.builder());
 	}
 	

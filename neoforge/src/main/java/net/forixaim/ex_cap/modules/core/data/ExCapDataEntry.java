@@ -1,0 +1,5 @@
+package net.forixaim.ex_cap.modules.core.data;
+
+import net.minecraft.resources.ResourceLocation;
+
+public record ExCapDataEntry(ResourceLocation id, ExCapData data) { }

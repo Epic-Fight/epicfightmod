@@ -3,7 +3,21 @@ package yesman.epicfight.world.capabilities.item;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
+import io.netty.util.internal.StringUtil;
+import net.forixaim.ex_cap.modules.core.managers.BuilderManager;
 import net.forixaim.ex_cap.modules.core.managers.ExCapManager;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -19,11 +33,11 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
+import yesman.epicfight.data.conditions.Condition;
+import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
-import yesman.epicfight.registry.entries.EpicFightParticles;
-import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
-import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.guard.GuardSkill;
@@ -32,10 +46,15 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import net.forixaim.ex_cap.modules.core.data.MoveSet;
 import net.forixaim.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
 import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
+import yesman.epicfight.world.capabilities.provider.ExtraEntryProvider;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class WeaponCapability extends CapabilityItem {
     protected final CoreWeaponCapabilityProvider coreProvider;
@@ -284,9 +303,7 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	public static WeaponCapability.Builder builder() {
-        Builder builder = new Builder();
-        ExCapManager.addAcceptor(builder);
-		return builder;
+        return new Builder();
 	}
 
     @Override
@@ -325,6 +342,7 @@ public class WeaponCapability extends CapabilityItem {
 		boolean canBePlacedOffhand;
 		ZoomInType zoomInType;
 		float reach;
+
 
         public Builder copy() {
             Builder copy = new Builder();
@@ -469,6 +487,42 @@ public class WeaponCapability extends CapabilityItem {
 			this.reach = reach;
 			return this;
 		}
+
+        public static WeaponCapability.Builder deserializeBuilder(JsonElement element) throws JsonParseException
+        {
+            WeaponCapability.Builder builder = builder();
+            JsonObject tag = element.getAsJsonObject();
+
+            //Unlike the Legacy WeaponType deserialization method, this is much more simple and strict.
+
+            try {
+                if (!tag.has("category") || StringUtil.isNullOrEmpty(tag.get("category").getAsString())) {
+                    throw new IllegalArgumentException("Define weapon category.");
+                }
+
+                builder.category(WeaponCategory.ENUM_MANAGER.getOrThrow(tag.get("category").getAsString()));
+                builder.collider(ColliderPreset.deserializeSimpleCollider(TagParser.parseTag(tag.get("collider").getAsString())));
+
+                if (tag.has("hit_particle")) {
+                    ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.get("hit_particle").getAsString()));
+                    builder.hitParticle((HitParticleType)particleType);
+
+                }
+
+                if (tag.has("swing_sound")) {
+                    SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.get("swing_sound").getAsString()));
+                    builder.swingSound(sound);
+                }
+
+                if (tag.has("hit_sound")) {
+                    SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.get("hit_sound").getAsString()));
+                    builder.hitSound(sound);
+                }
+            } catch (Exception e) {
+                throw new JsonParseException(e.getMessage());
+            }
+            return builder;
+        }
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {

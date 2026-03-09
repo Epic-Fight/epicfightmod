@@ -11,6 +11,7 @@ import yesman.epicfight.compat.firstperson.FirstPersonCompat;
 import yesman.epicfight.compat.geckolib.GeckolibCompat;
 import yesman.epicfight.compat.iris.IRISCompat;
 import yesman.epicfight.compat.playeranimator.PlayerAnimatorCompat;
+import yesman.epicfight.compat.playerrevive.PlayerReviveCompat;
 import yesman.epicfight.compat.skinlayer3d.SkinLayer3DCompat;
 import yesman.epicfight.compat.vampirism.VampirismCompat;
 import yesman.epicfight.compat.werewolves.WerewolvesCompat;
@@ -31,6 +32,7 @@ public enum MinecraftMod {
     IRIS("iris", true, IRISCompat.class),
     PLAYER_ANIMATOR("playeranimator", true, PlayerAnimatorCompat.class),
     BETTER_THIRD_PERSON("betterthirdperson", true, BetterThirdPersonCompat.class),
+    PLAYER_REVIVE("playerrevive", true, PlayerReviveCompat.class),
     ;
 
     private final @NotNull String modId;

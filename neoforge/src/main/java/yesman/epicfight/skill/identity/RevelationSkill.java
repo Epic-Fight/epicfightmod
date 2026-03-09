@@ -188,7 +188,6 @@ public class RevelationSkill extends Skill {
 			container.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, plusStack);
 		} else {
 			if (!this.isActivated(container)) {
-                System.out.println( "duration start" );
 				this.setDurationSynchronize(container, this.maxDuration);
 			}
 			

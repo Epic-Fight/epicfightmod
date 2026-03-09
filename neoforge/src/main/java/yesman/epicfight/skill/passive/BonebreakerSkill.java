@@ -15,7 +15,6 @@ import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
-import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 
@@ -56,7 +55,6 @@ public class BonebreakerSkill extends PassiveSkill {
                     event.getDamageSource().attachDamageModifier(ValueModifier.multiplier(1.0F + this.damageBonus * stacks));
 
                     if (stacks + 1 == this.maxDamageBonusStacks) {
-                        event.getTarget().playSound(EpicFightSounds.OLD_FALL.get(), 50.0F, 1.0F);
                         EpicFightNetworkManager.sendToPlayer(new SPEntityPairingPacket(event.getTarget().getId(), EntityPairingPacketTypes.BONEBREAKER_MAX_STACK), container.getServerExecutor().getOriginal());
                     }
 

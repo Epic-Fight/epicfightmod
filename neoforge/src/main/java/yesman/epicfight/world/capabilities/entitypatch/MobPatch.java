@@ -23,9 +23,7 @@ import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPSetAttackTarget;
-import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
@@ -134,19 +132,6 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
                 currentCompositeMotion = LivingMotions.AIM;
             else
                 currentCompositeMotion = this.currentLivingMotion;
-        }
-    }
-
-    @Override
-    public void updateArmor(ArmorCapability fromCap, ArmorCapability toCap, EquipmentSlot slotType) {
-        if (this.original.getAttributes().hasAttribute(EpicFightAttributes.STUN_ARMOR)) {
-            if (fromCap != null) {
-                this.original.getAttributes().removeAttributeModifiers(fromCap.getAttributeModifiersForArmor());
-            }
-
-            if (toCap != null) {
-                this.original.getAttributes().addTransientAttributeModifiers(toCap.getAttributeModifiersForArmor());
-            }
         }
     }
 

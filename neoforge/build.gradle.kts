@@ -106,6 +106,9 @@ dependencies {
         // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
         isTransitive = false
     }
+
+    implementation(libs.creativeCore)
+    implementation(libs.playerRevive)
 }
 
 tasks.processResources {

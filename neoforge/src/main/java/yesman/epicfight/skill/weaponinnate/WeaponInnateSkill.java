@@ -140,7 +140,7 @@ public abstract class WeaponInnateSkill extends Skill {
 				.translatable(
 					"damage_source.epicfight.damage",
 					Component
-						.literal(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(fBaseDamage))
+						.literal(ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(weaponBaseDamage))
 						.withStyle(ChatFormatting.RED)
 				)
 				.withStyle(ChatFormatting.DARK_GRAY);

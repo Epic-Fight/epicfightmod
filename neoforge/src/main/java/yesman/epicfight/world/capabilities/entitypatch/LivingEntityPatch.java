@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -57,6 +58,7 @@ import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightExpandedEntityDataAccessors;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.passive.BonebreakerSkill;
 import yesman.epicfight.skill.passive.StaminaPillagerSkill;
 import yesman.epicfight.skill.passive.VengeanceSkill;
@@ -210,6 +212,8 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
                 });
             }
             case BONEBREAKER_MAX_STACK -> {
+                getLevel().playLocalSound(getOriginal(), EpicFightSounds.OLD_FALL.get(), SoundSource.MASTER, 50.0F, 1.0F);
+
                 this.entityDecorations.addDecorationOverlay(BonebreakerSkill.CRACKINESS, new DecorationOverlay() {
                     static final ResourceLocation TEXTURE = EpicFightMod.identifier("textures/entity/overlay/crack_level2.png");
 
@@ -793,7 +797,16 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
     public void updateHeldItem(CapabilityItem fromCap, CapabilityItem toCap, ItemStack from, ItemStack to, InteractionHand hand) {
     }
 
-    public void updateArmor(ArmorCapability fromCap, ArmorCapability toCap, EquipmentSlot slotType) {
+    public void updateArmor(@Nullable ArmorCapability fromCap, @Nullable ArmorCapability toCap, EquipmentSlot slotType) {
+        if (this.original.getAttributes().hasAttribute(EpicFightAttributes.STUN_ARMOR)) {
+            if (fromCap != null) {
+                this.original.getAttributes().removeAttributeModifiers(fromCap.getAttributeModifiersForArmor());
+            }
+
+            if (toCap != null) {
+                this.original.getAttributes().addTransientAttributeModifiers(toCap.getAttributeModifiersForArmor());
+            }
+        }
     }
 
     /**

@@ -63,7 +63,7 @@ public final class NeoForgeEntityEvent {
 
 	@SubscribeEvent
 	public static void epicfight$livingDamagePre(LivingDamageEvent.Pre event) {
-        VanillaEntityEventHooks.onCalculateDamagePre(event.getEntity(), event.getSource(), event.getNewDamage());
+        VanillaEntityEventHooks.onCalculateDamagePre(event.getEntity(), event.getSource(), event.getNewDamage(), event::setNewDamage);
 	}
 
 	@SubscribeEvent

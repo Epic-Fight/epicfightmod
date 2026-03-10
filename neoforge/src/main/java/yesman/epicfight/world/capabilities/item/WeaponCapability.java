@@ -164,10 +164,17 @@ public class WeaponCapability extends CapabilityItem {
 		MoveSet set = getCurrentSet(playerPatch);
         if (set == null) {
             //Fallback logic
-            return passiveSkill;
+            return getPassiveSkill();
         }
         return set.getWeaponPassiveSkill();
 	}
+
+    /// Legacy method
+    @Deprecated
+    public Skill getPassiveSkill()
+    {
+        return passiveSkill;
+    }
 
 	@Override
 	public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerpatch) {
@@ -180,6 +187,7 @@ public class WeaponCapability extends CapabilityItem {
     }
 
     /// Legacy method used by addons
+    @Deprecated
     public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
     {
         return this.autoAttackMotions.get(Styles.MOUNT);
@@ -231,8 +239,6 @@ public class WeaponCapability extends CapabilityItem {
 		return this.zoomInType;
 	}
 
-
-
     @Override
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> player, InteractionHand hand) {
 		MoveSet set = getCurrentSet(player);
@@ -258,7 +264,6 @@ public class WeaponCapability extends CapabilityItem {
             //Fallback
             if (this.livingMotionModifiers != null) {
                 Style style = this.getStyle(entityPatch);
-
                 if (this.livingMotionModifiers.containsKey(style)) {
                     if (this.livingMotionModifiers.get(style).containsKey(LivingMotions.BLOCK)) {
                         return UseAnim.BLOCK;
@@ -269,7 +274,6 @@ public class WeaponCapability extends CapabilityItem {
 		else if (set.getLivingMotionModifiers().containsKey(LivingMotions.BLOCK)) {
             return UseAnim.BLOCK;
         }
-		
 		return UseAnim.NONE;
 	}
 	

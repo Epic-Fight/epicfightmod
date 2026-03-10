@@ -14,6 +14,8 @@
   "attribute.name.epicfight.impact.value": "%s Impact",
   "attribute.name.epicfight.armor_negation.value": "%s%% Armor Negation",
   "attribute.name.epicfight.max_strikes.value": "Hit %s Enemies per Swing",
+  "attribute.name.epicfight.stun_armor.value": "%s Stun Armor",
+  "attribute.name.epicfight.weight.value": "%s Weight",
   "attribute.name.generic.max_health.skillbook_tooltip": "Increases a player's max health",
   "attribute.name.generic.attack_damage.skillbook_tooltip": "Increases a player's attack damage",
   "attribute.name.generic.attack_speed.skillbook_tooltip": "Increases player's attack speed",

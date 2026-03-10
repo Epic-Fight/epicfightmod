@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.15.7] - 2026-03-09
+
+### Fixed
+- Fixed a crash caused by incompatible hit result type. [#2474](https://github.com/Epic-Fight/epicfight/issues/2474)
+- Fixed downed players attacking or casting skills (player revive) [#2464](https://github.com/Epic-Fight/epicfight/issues/2464)
+- Fixed the Stun Armor and Weight attributes from armors not applied for players [#2479](https://github.com/Epic-Fight/epicfight/issues/2479)
+- Fixed the damage modifiers not working [#2488](https://github.com/Epic-Fight/epicfight/issues/2488)
+
 ## [21.15.6] - 2026-02-16
 
 ### Added

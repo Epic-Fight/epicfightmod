@@ -1,7 +1,7 @@
 package yesman.epicfight.world.capabilities.item;
 
-import net.forixaim.ex_cap.modules.core.data.ExCapData;
-import net.forixaim.ex_cap.modules.core.managers.ExCapManager;
+import yesman.epicfight.api.ex_cap.modules.core.data.ExCapData;
+import yesman.epicfight.api.ex_cap.modules.core.managers.ExCapManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;

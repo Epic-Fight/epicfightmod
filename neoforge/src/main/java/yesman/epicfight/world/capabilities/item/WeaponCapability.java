@@ -6,16 +6,9 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Pair;
 import io.netty.util.internal.StringUtil;
-import net.forixaim.ex_cap.modules.core.managers.BuilderManager;
-import net.forixaim.ex_cap.modules.core.managers.ExCapManager;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -33,10 +26,8 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
-import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
@@ -45,18 +36,13 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import net.forixaim.ex_cap.modules.core.data.MoveSet;
-import net.forixaim.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
-import net.forixaim.ex_cap.modules.core.provider.ProviderConditional;
-import yesman.epicfight.world.capabilities.provider.ExtraEntryProvider;
+import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
+import yesman.epicfight.api.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
+import yesman.epicfight.api.ex_cap.modules.core.provider.ProviderConditional;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class WeaponCapability extends CapabilityItem {
     protected final CoreWeaponCapabilityProvider coreProvider;
@@ -66,6 +52,7 @@ public class WeaponCapability extends CapabilityItem {
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
     @Deprecated
 	protected final Skill passiveSkill;
+    protected final boolean offHandAlone;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
 	protected final HitParticleType hitParticle;
@@ -87,6 +74,7 @@ public class WeaponCapability extends CapabilityItem {
 		super(builder);
         this.coreProvider = builder.provider;
         this.moveSets = builder.moveSets;
+        this.offHandAlone = builder.offHandAlone;
         this.autoAttackMotions = builder.autoAttackMotionMap;
 		this.innateSkill = builder.innateSkillByStyle;
 		this.livingMotionModifiers = builder.livingMotionModifiers;
@@ -103,7 +91,7 @@ public class WeaponCapability extends CapabilityItem {
 		this.reach = builder.reach;
 	}
 
-    
+
 
     private MoveSet getCurrentSet(LivingEntityPatch<?> patch)
     {
@@ -268,7 +256,8 @@ public class WeaponCapability extends CapabilityItem {
                 {
                     index = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
                 }
-                result.put(LivingMotions.BLOCK, set.getGuardPoses().get(guard).get(index));
+                if (set.getGuardPoses().containsKey(guard) && !set.getGuardPoses().get(guard).isEmpty())
+                    result.put(LivingMotions.BLOCK, set.getGuardPoses().get(guard).get(index));
             }
         }
         return result;
@@ -297,7 +286,7 @@ public class WeaponCapability extends CapabilityItem {
 	
 	@Override
 	public boolean canHoldInOffhandAlone() {
-		return false;
+		return offHandAlone;
 	}
 	
 	@Override
@@ -369,6 +358,7 @@ public class WeaponCapability extends CapabilityItem {
 		boolean canBePlacedOffhand;
 		ZoomInType zoomInType;
 		float reach;
+        boolean offHandAlone;
 
 
         public Builder copy() {
@@ -379,6 +369,7 @@ public class WeaponCapability extends CapabilityItem {
             copy.styleProvider = this.styleProvider;
             copy.weaponCombinationPredicator = this.weaponCombinationPredicator;
             copy.passiveSkill = this.passiveSkill;
+            copy.offHandAlone = this.offHandAlone;
 
             copy.swingSound = this.swingSound;
             copy.hitSound = this.hitSound;
@@ -428,6 +419,7 @@ public class WeaponCapability extends CapabilityItem {
 		
 		protected Builder() {
             this.provider = new CoreWeaponCapabilityProvider();
+            this.offHandAlone = false;
 			this.constructor = WeaponCapability::new;
 			this.styleProvider = (entitypatch) -> Styles.ONE_HAND;
 			this.weaponCombinationPredicator = (entitypatch) -> false;
@@ -449,6 +441,11 @@ public class WeaponCapability extends CapabilityItem {
             this.impactBase = 1;
             this.impactScaling = 1;
 		}
+
+        public Builder offHandAlone(final boolean offHandAlone) {
+            this.offHandAlone = offHandAlone;
+            return this;
+        }
 		
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
@@ -533,7 +530,6 @@ public class WeaponCapability extends CapabilityItem {
                 if (tag.has("hit_particle")) {
                     ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.get("hit_particle").getAsString()));
                     builder.hitParticle((HitParticleType)particleType);
-
                 }
 
                 if (tag.has("swing_sound")) {

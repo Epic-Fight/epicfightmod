@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import net.forixaim.ex_cap.modules.assets.Builders;
-import net.forixaim.ex_cap.modules.core.managers.BuilderManager;
+import yesman.epicfight.api.ex_cap.modules.assets.Builders;
+import yesman.epicfight.api.ex_cap.modules.core.managers.BuilderManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;

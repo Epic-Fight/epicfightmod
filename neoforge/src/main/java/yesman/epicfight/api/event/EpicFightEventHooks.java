@@ -1,10 +1,10 @@
 package yesman.epicfight.api.event;
 
-import net.forixaim.ex_cap.modules.core.events.*;
 import yesman.epicfight.api.event.types.animation.*;
 import yesman.epicfight.api.event.types.entity.*;
 import yesman.epicfight.api.event.types.player.*;
 import yesman.epicfight.api.event.types.registry.*;
+import yesman.epicfight.api.ex_cap.modules.core.events.*;
 import yesman.epicfight.api.utils.side.LogicalSide;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 

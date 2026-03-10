@@ -2,6 +2,7 @@ package net.forixaim.ex_cap.modules.core.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -30,6 +31,7 @@ public class MoveSet
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
     private final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
     private final BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
+    private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
     private final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
     private final Skill weaponPassiveSkill;
     private final AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
@@ -44,6 +46,7 @@ public class MoveSet
         this.comboAttackAnimations = builder.comboAttackAnimations;
         this.livingMotionModifiers = builder.livingMotionModifiers;
         this.skillSpecificGuardAnimations = builder.skillSpecificGuardAnimations;
+        this.guardPoses = builder.guardPoses;
         this.defaultGuardAnimations = builder.defaultGuardAnimations;
         this.weaponInnateSkill = builder.weaponInnateSkill;
         this.weaponPassiveSkill = builder.weaponPassiveSkill;
@@ -96,9 +99,15 @@ public class MoveSet
         return comboAttackAnimations;
     }
 
+    public Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> getGuardPoses() {
+        return guardPoses;
+    }
+
     public Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifiers() {
         return livingMotionModifiers;
     }
+
+
 
     /**
      * Allows for
@@ -111,6 +120,7 @@ public class MoveSet
         protected final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
         protected BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
         protected final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
+        private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
         protected final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
         protected Skill weaponPassiveSkill;
         protected Predicate<LivingEntityPatch<?>> sheathRender;
@@ -126,6 +136,7 @@ public class MoveSet
             livingMotionModifiers = Maps.newHashMap();
             skillSpecificGuardAnimations = Maps.newHashMap();
             defaultGuardAnimations = Maps.newHashMap();
+            guardPoses = Maps.newHashMap();
             motion = (a, b) -> null;
             weaponInnateSkill = null;
             weaponPassiveSkill = null;
@@ -163,6 +174,16 @@ public class MoveSet
             return this;
         }
 
+        @SafeVarargs
+        public final MoveSetBuilder guardSpecificHold(Skill skill, AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations)
+        {
+            if (skill instanceof GuardSkill)
+            {
+                guardPoses.computeIfAbsent(skill, (k) -> Lists.newArrayList(animations));
+            }
+            return this;
+        }
+
         public MoveSetBuilder setPassiveSkill(Skill newPassiveSkill)
         {
             this.weaponPassiveSkill = newPassiveSkill;
@@ -176,7 +197,8 @@ public class MoveSet
             return this;
         }
 
-        public MoveSetBuilder addComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
+        @SafeVarargs
+        public final MoveSetBuilder addComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
         {
             comboAttackAnimations.addAll(Arrays.asList(attackAnimations));
             return this;
@@ -249,6 +271,31 @@ public class MoveSet
                     {
                         result.addComboAttacks(getAnimationAccessors(json.get("combo_attack").getAsJsonArray()).toArray(AnimationManager.AnimationAccessor[]::new));
                     }
+                    if (json.has("guard_holds"))
+                    {
+                        JsonElement get = json.get("guard_holds");
+                        if (get.isJsonObject())
+                        {
+                            get.getAsJsonObject().entrySet().forEach(entry -> {
+                                Skill guard = EpicFightRegistries.SKILL.get(ResourceLocation.parse(entry.getKey()));
+                                List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> animations = Lists.newArrayList();
+                                if (entry.getValue().isJsonArray())
+                                {
+                                    JsonArray array = entry.getValue().getAsJsonArray();
+                                    array.forEach(element -> {
+                                        if (element.isJsonPrimitive())
+                                        {
+                                            animations.add(AnimationManager.byKey(element.getAsJsonPrimitive().getAsString()));
+                                        }
+                                    });
+                                }
+                                if (guard != null)
+                                {
+                                    result.guardPoses.put(guard, animations);
+                                }
+                            });
+                        }
+                    }
                     if (json.has("mount_attack"))
                     {
                         result.addMountAttacks(getAnimationAccessors(json.get("mount_attack").getAsJsonArray()).toArray(AnimationManager.AnimationAccessor[]::new));
@@ -295,13 +342,11 @@ public class MoveSet
             Deque<MoveSetBuilder> hierarchy = new ArrayDeque<>();
             MoveSetBuilder current = this;
 
-            // Collect parent chain
             while (current != null) {
                 hierarchy.push(current);
                 current = MovesetManager.getBuilder(current.parent);
             }
 
-            // Apply from root → child
             while (!hierarchy.isEmpty()) {
                 MoveSetBuilder builder = hierarchy.pop();
 
@@ -320,8 +365,15 @@ public class MoveSet
                 }
 
                 if (!builder.skillSpecificGuardAnimations.isEmpty()) {
-                    result.skillSpecificGuardAnimations.clear();
                     result.skillSpecificGuardAnimations.putAll(builder.skillSpecificGuardAnimations);
+                }
+
+                if (!builder.defaultGuardAnimations.isEmpty()) {
+                    result.defaultGuardAnimations.putAll(builder.defaultGuardAnimations);
+                }
+
+                if (!builder.guardPoses.isEmpty()) {
+                    result.guardPoses.putAll(builder.guardPoses);
                 }
 
                 if (builder.weaponInnateSkill != null)

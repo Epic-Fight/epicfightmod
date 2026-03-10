@@ -40,6 +40,8 @@ import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -170,7 +172,6 @@ public class WeaponCapability extends CapabilityItem {
 	}
 
     /// Legacy method
-    @Deprecated
     public Skill getPassiveSkill()
     {
         return passiveSkill;
@@ -244,7 +245,7 @@ public class WeaponCapability extends CapabilityItem {
 		MoveSet set = getCurrentSet(player);
         if (set == null || set.getLivingMotionModifiers() == null)
         {
-            //Fallback
+            //Fallback to legacy
             if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND) {
                 return super.getLivingMotionModifier(player, hand);
             }
@@ -253,7 +254,24 @@ public class WeaponCapability extends CapabilityItem {
 
             return motions;
         }
-        return set.getLivingMotionModifiers();
+        Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> result = Maps.newHashMap();
+        result.putAll(set.getLivingMotionModifiers());
+        //Guard modifiers for something really cool.
+        if (player instanceof PlayerPatch<?> patch) {
+            SkillContainer guardContainer = patch.getSkill(SkillSlots.GUARD);
+            Skill guard = guardContainer.getSkill();
+            if (guard instanceof GuardSkill)
+            {
+                SkillDataManager dataManager = guardContainer.getDataManager();
+                int index = 0;
+                if (dataManager.hasData(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER))
+                {
+                    index = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
+                }
+                result.put(LivingMotions.BLOCK, set.getGuardPoses().get(guard).get(index));
+            }
+        }
+        return result;
 	}
 	
 	@Override
@@ -297,11 +315,16 @@ public class WeaponCapability extends CapabilityItem {
 	public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
         MoveSet set = getCurrentSet(entityPatch);
         if (set == null || set.getMountAttackAnimations() == null || set.getMountAttackAnimations().isEmpty())
-		    return this.autoAttackMotions.containsKey(Styles.MOUNT);
+		    return availableOnHorse();
         return true;
 	}
-	
-	@Override
+
+    @Override
+    public boolean availableOnHorse() {
+        return this.autoAttackMotions.containsKey(Styles.MOUNT);
+    }
+
+    @Override
 	public float getReach() {
 		return this.reach;
 	}

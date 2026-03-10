@@ -221,8 +221,14 @@ public class CapabilityItem {
 	}
 
 	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerPatch) {
-		return null;
+		return getMountAttackMotion();
 	}
+
+    @Deprecated()
+    public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
+    {
+        return null;
+    }
 	
 	@Nullable
 	public Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
@@ -231,8 +237,14 @@ public class CapabilityItem {
 	
 	@Nullable
 	public Skill getPassiveSkill(PlayerPatch<?> playerPatch) {
-		return null;
+		return getPassiveSkill();
 	}
+
+    @Deprecated @Nullable
+    public Skill getPassiveSkill()
+    {
+        return null;
+    }
 	
 	public WeaponCategory getWeaponCategory() {
 		return this.weaponCategory;
@@ -370,9 +382,15 @@ public class CapabilityItem {
 	}
 	
 	public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
-		return true;
+		return availableOnHorse();
 	}
-	
+
+    @Deprecated
+    public boolean availableOnHorse()
+    {
+        return true;
+    }
+
 	public boolean checkOffhandValid(LivingEntityPatch<?> entitypatch) {
 		return this.getStyle(entitypatch).canUseOffhand() && EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).canHoldInOffhandAlone();
 	}

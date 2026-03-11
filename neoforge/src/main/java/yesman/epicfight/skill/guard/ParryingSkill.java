@@ -164,7 +164,7 @@ public class ParryingSkill extends GuardSkill {
 			if (motions != null) {
 				SkillDataManager dataManager = container.getDataManager();
 				int motionCounter = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
-				dataManager.setDataF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+				dataManager.setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
 				motionCounter %= motions.size();
 				
 				return motions.get(motionCounter);

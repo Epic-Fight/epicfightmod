@@ -110,18 +110,22 @@ public class WeaponCapability extends CapabilityItem {
             if (skillSpecificGuardMotions != null && skillSpecificGuardMotions.containsKey(skill) && skillSpecificGuardMotions.get(skill).containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = skillSpecificGuardMotions.get(skill).get(blockType);
                 if (!motions.isEmpty()) {
+                    AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
                     if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
-                        container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+                        counter++;
+                        container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
                     }
-                    return motions.get(counter % motions.size());
+                    return result;
                 }
             } else if (defaultGuardMotions != null && defaultGuardMotions.containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = defaultGuardMotions.get(blockType);
                 if (!motions.isEmpty()) {
+                    AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
                     if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
-                        container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+                        counter++;
+                        container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
                     }
-                    return motions.get(counter % motions.size());
+                    return result;
                 }
             }
         }

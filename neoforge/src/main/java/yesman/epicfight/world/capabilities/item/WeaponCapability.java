@@ -93,7 +93,7 @@ public class WeaponCapability extends CapabilityItem {
 
 
 
-    private MoveSet getCurrentSet(LivingEntityPatch<?> patch)
+    public MoveSet getCurrentSet(LivingEntityPatch<?> patch)
     {
         Style style = getStyle(patch);
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));

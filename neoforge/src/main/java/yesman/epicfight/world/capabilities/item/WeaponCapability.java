@@ -98,6 +98,19 @@ public class WeaponCapability extends CapabilityItem {
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
     }
 
+    private AnimationAccessor<? extends StaticAnimation> processGuard(List<AnimationAccessor<? extends StaticAnimation>> motions, GuardSkill.BlockType blockType, PlayerPatch<?> playerpatch, SkillContainer container, int counter)
+    {
+        if (!motions.isEmpty()) {
+            AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
+            if (blockType == GuardSkill.BlockType.ADVANCED_GUARD && !playerpatch.isLogicalClient()) {
+                result = motions.get(container.getDataManager().getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) % motions.size());
+                container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, count -> count + 1);
+            }
+            return result;
+        }
+        return null;
+    }
+
     @Override
     public AnimationAccessor<? extends StaticAnimation> getGuardMotion(GuardSkill skill, GuardSkill.BlockType blockType, PlayerPatch<?> playerpatch)
     {
@@ -109,24 +122,10 @@ public class WeaponCapability extends CapabilityItem {
             Map<GuardSkill.BlockType, List<AnimationAccessor<? extends StaticAnimation>>> defaultGuardMotions = currentSet.getDefaultGuardAnimations();
             if (skillSpecificGuardMotions != null && skillSpecificGuardMotions.containsKey(skill) && skillSpecificGuardMotions.get(skill).containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = skillSpecificGuardMotions.get(skill).get(blockType);
-                if (!motions.isEmpty()) {
-                    AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
-                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD && !playerpatch.isLogicalClient()) {
-                        counter++;
-                        container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
-                    }
-                    return result;
-                }
+                return processGuard(motions, blockType, playerpatch, container, counter);
             } else if (defaultGuardMotions != null && defaultGuardMotions.containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = defaultGuardMotions.get(blockType);
-                if (!motions.isEmpty()) {
-                    AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
-                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD && !playerpatch.isLogicalClient()) {
-                        counter++;
-                        container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
-                    }
-                    return result;
-                }
+                return processGuard(motions, blockType, playerpatch, container, counter);
             }
         }
         return super.getGuardMotion(skill, blockType, playerpatch);

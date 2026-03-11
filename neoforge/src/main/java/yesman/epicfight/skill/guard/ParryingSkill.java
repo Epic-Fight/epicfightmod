@@ -159,7 +159,7 @@ public class ParryingSkill extends GuardSkill {
 		}
 		
 		if (blockType == BlockType.ADVANCED_GUARD) {
-			List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+			List<AnimationAccessor<? extends StaticAnimation>> motions = this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
 			
 			if (motions != null) {
 				SkillDataManager dataManager = container.getDataManager();

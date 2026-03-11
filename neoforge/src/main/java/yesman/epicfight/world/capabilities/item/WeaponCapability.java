@@ -103,8 +103,8 @@ public class WeaponCapability extends CapabilityItem {
     public AnimationAccessor<? extends StaticAnimation> getGuardMotion(GuardSkill skill, GuardSkill.BlockType blockType, PlayerPatch<?> playerpatch)
     {
         MoveSet currentSet = getCurrentSet(playerpatch);
-        SkillContainer container = playerpatch.getSkill(skill);
-        int counter = container.getDataManager().hasData(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) ? container.getDataManager().getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) : 0;
+        SkillContainer container = playerpatch.getSkill(SkillSlots.GUARD);
+        int counter = blockType == GuardSkill.BlockType.ADVANCED_GUARD && container.getDataManager().hasData(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) ? container.getDataManager().getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER) : 0;
         if (currentSet != null) {
             Map<Skill, Map<GuardSkill.BlockType, List<AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardMotions = currentSet.getSkillSpecificGuardAnimations();
             Map<GuardSkill.BlockType, List<AnimationAccessor<? extends StaticAnimation>>> defaultGuardMotions = currentSet.getDefaultGuardAnimations();

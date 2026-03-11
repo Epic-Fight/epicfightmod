@@ -110,11 +110,17 @@ public class WeaponCapability extends CapabilityItem {
             if (skillSpecificGuardMotions != null && skillSpecificGuardMotions.containsKey(skill) && skillSpecificGuardMotions.get(skill).containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = skillSpecificGuardMotions.get(skill).get(blockType);
                 if (!motions.isEmpty()) {
+                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
+                        container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+                    }
                     return motions.get(counter % motions.size());
                 }
             } else if (defaultGuardMotions != null && defaultGuardMotions.containsKey(blockType)) {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = defaultGuardMotions.get(blockType);
                 if (!motions.isEmpty()) {
+                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
+                        container.getDataManager().setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+                    }
                     return motions.get(counter % motions.size());
                 }
             }

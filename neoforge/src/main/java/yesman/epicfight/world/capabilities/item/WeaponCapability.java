@@ -244,22 +244,6 @@ public class WeaponCapability extends CapabilityItem {
         }
         Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> result = Maps.newHashMap();
         result.putAll(set.getLivingMotionModifiers());
-        //Guard modifiers for something really cool.
-        if (player instanceof PlayerPatch<?> patch) {
-            SkillContainer guardContainer = patch.getSkill(SkillSlots.GUARD);
-            Skill guard = guardContainer.getSkill();
-            if (guard instanceof GuardSkill)
-            {
-                SkillDataManager dataManager = guardContainer.getDataManager();
-                int index = 0;
-                if (dataManager.hasData(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER))
-                {
-                    index = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
-                }
-                if (set.getGuardPoses().containsKey(guard) && !set.getGuardPoses().get(guard).isEmpty())
-                    result.put(LivingMotions.BLOCK, set.getGuardPoses().get(guard).get(index));
-            }
-        }
         return result;
 	}
 	

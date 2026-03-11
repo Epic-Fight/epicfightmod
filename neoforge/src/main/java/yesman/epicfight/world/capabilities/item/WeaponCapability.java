@@ -111,7 +111,7 @@ public class WeaponCapability extends CapabilityItem {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = skillSpecificGuardMotions.get(skill).get(blockType);
                 if (!motions.isEmpty()) {
                     AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
-                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
+                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD && !playerpatch.isLogicalClient()) {
                         counter++;
                         container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
                     }
@@ -121,7 +121,7 @@ public class WeaponCapability extends CapabilityItem {
                 List<AnimationAccessor<? extends StaticAnimation>> motions = defaultGuardMotions.get(blockType);
                 if (!motions.isEmpty()) {
                     AnimationAccessor<? extends StaticAnimation> result = motions.get(counter % motions.size());
-                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD) {
+                    if (blockType == GuardSkill.BlockType.ADVANCED_GUARD && !playerpatch.isLogicalClient()) {
                         counter++;
                         container.getDataManager().setDataSync(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, counter);
                     }

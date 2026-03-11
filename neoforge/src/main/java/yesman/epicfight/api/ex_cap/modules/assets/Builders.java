@@ -60,14 +60,14 @@ public class Builders
             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .collider(ColliderPreset.UCHIGATANA)
-            .canBePlacedOffhand(false)
+            .canBePlacedOffhand(true)
             .setTierValues(0, 0d, 0.0, 0.0));
 
     public static final BuilderEntry TACHI = new BuilderEntry(EpicFight.identifier("tachi"), WeaponCapability.builder()
             .category(CapabilityItem.WeaponCategories.TACHI)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .collider(ColliderPreset.TACHI)
-            .canBePlacedOffhand(false)
+            .canBePlacedOffhand(true)
             .setTierValues(0, 0d, 0.0, 0.0));
 
     public static final BuilderEntry DAGGER = new BuilderEntry(EpicFight.identifier("dagger"), WeaponCapability.builder()
@@ -81,7 +81,7 @@ public class Builders
             .category(CapabilityItem.WeaponCategories.LONGSWORD)
             .collider(ColliderPreset.LONGSWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
-            .canBePlacedOffhand(false)
+            .canBePlacedOffhand(true)
             .setTierValues(0, 0d, 0.0, 0.0));
 
     public static final BuilderEntry FIST = new BuilderEntry(EpicFight.identifier("fist"), WeaponCapability.builder()

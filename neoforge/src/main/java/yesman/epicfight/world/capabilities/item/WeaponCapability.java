@@ -330,6 +330,7 @@ public class WeaponCapability extends CapabilityItem {
         return set.getCustomMotion().apply(entitypatch, hand);
     }
 
+    /// All fields marked with {@link Deprecated} have been moved to {@link MoveSet} and exist as legacy fallback options to prevent addons from breaking.
     public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
 		CoreWeaponCapabilityProvider provider;
         @Deprecated

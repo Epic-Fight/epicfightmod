@@ -7,29 +7,28 @@ import yesman.epicfight.api.ex_cap.modules.assets.Movesets;
 import yesman.epicfight.api.ex_cap.modules.core.events.*;
 import yesman.epicfight.api.ex_cap.modules.core.events.*;
 import yesman.epicfight.api.ex_cap.modules.core.managers.BuilderManager;
-import yesman.epicfight.api.ex_cap.modules.core.managers.DatasetManager;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 
 public class ExCapRegistryHooks
 {
     public static void registerExCapMethods(ExCapabilityBuilderPopulationEvent event)
     {
-        event.registerData(Builders.SWORD.id(), DatasetManager.get(ExCapDataSets.SWORD.id()));
-        event.registerData(Builders.AXE.id(), DatasetManager.get(ExCapDataSets.AXE.id()));
-        event.registerData(Builders.PICKAXE.id(), DatasetManager.get(ExCapDataSets.PICKAXE.id()));
-        event.registerData(Builders.SHOVEL.id(), DatasetManager.get(ExCapDataSets.SHOVEL.id()));
-        event.registerData(Builders.HOE.id(), DatasetManager.get(ExCapDataSets.HOE.id()));
-        event.registerData(Builders.SPEAR.id(), DatasetManager.get(ExCapDataSets.SPEAR.id()));
-        event.registerData(Builders.GREATSWORD.id(), DatasetManager.get(ExCapDataSets.GREATSWORD.id()));
-        event.registerData(Builders.LONGSWORD.id(), DatasetManager.get(ExCapDataSets.LONGSWORD.id()));
-        event.registerData(Builders.TACHI.id(), DatasetManager.get(ExCapDataSets.TACHI.id()));
-        event.registerData(Builders.UCHIGATANA.id(), DatasetManager.get(ExCapDataSets.UCHIGATANA.id()));
-        event.registerData(Builders.DAGGER.id(), DatasetManager.get(ExCapDataSets.DAGGER.id()));
-        event.registerData(Builders.FIST.id(), DatasetManager.get(ExCapDataSets.FIST.id()));
-        event.registerData(Builders.BOW.id(), DatasetManager.get(ExCapDataSets.BOW.id()));
-        event.registerData(Builders.CROSSBOW.id(), DatasetManager.get(ExCapDataSets.CROSSBOW.id()));
-        event.registerData(Builders.TRIDENT.id(), DatasetManager.get(ExCapDataSets.TRIDENT.id()));
-        event.registerData(Builders.SHIELD.id(), DatasetManager.get(ExCapDataSets.SHIELD.id()));
+        event.registerData(Builders.SWORD.id(), ExCapDataSets.SWORD.id());
+        event.registerData(Builders.AXE.id(), ExCapDataSets.AXE.id());
+        event.registerData(Builders.PICKAXE.id(), ExCapDataSets.PICKAXE.id());
+        event.registerData(Builders.SHOVEL.id(), ExCapDataSets.SHOVEL.id());
+        event.registerData(Builders.HOE.id(), ExCapDataSets.HOE.id());
+        event.registerData(Builders.SPEAR.id(), ExCapDataSets.SPEAR.id());
+        event.registerData(Builders.GREATSWORD.id(), ExCapDataSets.GREATSWORD.id());
+        event.registerData(Builders.LONGSWORD.id(), ExCapDataSets.LONGSWORD.id());
+        event.registerData(Builders.TACHI.id(), ExCapDataSets.TACHI.id());
+        event.registerData(Builders.UCHIGATANA.id(), ExCapDataSets.UCHIGATANA.id());
+        event.registerData(Builders.DAGGER.id(), ExCapDataSets.DAGGER.id());
+        event.registerData(Builders.FIST.id(), ExCapDataSets.FIST.id());
+        event.registerData(Builders.BOW.id(), ExCapDataSets.BOW.id());
+        event.registerData(Builders.CROSSBOW.id(), ExCapDataSets.CROSSBOW.id());
+        event.registerData(Builders.TRIDENT.id(), ExCapDataSets.TRIDENT.id());
+        event.registerData(Builders.SHIELD.id(), ExCapDataSets.SHIELD.id());
     }
 
     public static void registerData(ExCapDataRegistrationEvent event)

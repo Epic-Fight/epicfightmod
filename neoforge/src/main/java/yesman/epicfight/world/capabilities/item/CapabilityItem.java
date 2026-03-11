@@ -224,6 +224,7 @@ public class CapabilityItem {
 		return getMountAttackMotion();
 	}
 
+    /// Use {@link #getMountAttackMotion(PlayerPatch)} for dynamic assigning, this is used as legacy fallback.
     @Deprecated()
     public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
     {
@@ -240,6 +241,7 @@ public class CapabilityItem {
 		return getPassiveSkill();
 	}
 
+    /// Use {@link #getPassiveSkill(PlayerPatch)} for dynamic allocation, this is primarily a fallback.
     @Deprecated @Nullable
     public Skill getPassiveSkill()
     {
@@ -385,6 +387,7 @@ public class CapabilityItem {
 		return availableOnHorse();
 	}
 
+    /// Use {@link #availableOnHorse(LivingEntityPatch)} instead for allowing living entity patch parameterization.
     @Deprecated
     public boolean availableOnHorse()
     {

@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import yesman.epicfight.api.ex_cap.modules.core.data.ExCapData;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.event.Event;
+import yesman.epicfight.api.ex_cap.modules.core.managers.DatasetManager;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -22,8 +23,12 @@ public class ExCapabilityBuilderPopulationEvent extends Event {
         return ImmutableMap.copyOf(builders);
     }
 
-    public void registerData(ResourceLocation target, ExCapData... dataSet) {
-        builders.computeIfAbsent(target, k -> Lists.newArrayList()).addAll(Arrays.asList(dataSet));
+    public void registerData(ResourceLocation target, ResourceLocation... dataSet) {
+        List<ExCapData> list = Lists.newArrayList();
+        for (ResourceLocation id : dataSet) {
+            list.add(DatasetManager.get(id));
+        }
+        builders.computeIfAbsent(target, k -> Lists.newArrayList()).addAll(list);
     }
 
     public void registerData(ResourceLocation target, List<ExCapData> dataSet)

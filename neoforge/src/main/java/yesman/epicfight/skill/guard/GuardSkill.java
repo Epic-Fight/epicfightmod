@@ -280,13 +280,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	@Override
 	public void startHolding(SkillContainer container) {
 		container.activate();
-        if (container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND) instanceof WeaponCapability weaponCapability)
-        {
-            if (weaponCapability.getCurrentSet(container.getExecutor()).getGuardPoses().containsKey(this))
-            {
-                container.getServerExecutor().modifyLivingMotionByCurrentItem();
-            }
-        }
+        container.getServerExecutor().modifyLivingMotionByCurrentItem();
 		container.runOnServer(serverplayerpatch -> EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(SPSetSkillContainerValue.activate(container.getSlot(), true, serverplayerpatch.getOriginal().getId()), serverplayerpatch.getOriginal()));
 	}
 	

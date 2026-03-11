@@ -487,6 +487,12 @@ public class WeaponCapability extends CapabilityItem {
             provider.addConditional(conditionals);
             return this;
         }
+
+        public Builder addConditionals(List<ProviderConditional> conditionals)
+        {
+            provider.addConditional(conditionals);
+            return this;
+        }
 		
 		public Builder hitSound(SoundEvent hitSound) {
 			this.hitSound = hitSound;

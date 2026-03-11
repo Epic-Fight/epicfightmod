@@ -13,25 +13,25 @@ import java.util.Map;
 import java.util.List;
 
 public class ExCapabilityBuilderPopulationEvent extends Event {
-    private final Map<ResourceLocation, List<ExCapData>> builders;
+    private final Map<ResourceLocation, List<ExCapData.Builder>> builders;
 
     public ExCapabilityBuilderPopulationEvent() {
         this.builders = Maps.newHashMap();
     }
 
-    public Map<ResourceLocation, List<ExCapData>> getBuilders() {
+    public Map<ResourceLocation, List<ExCapData.Builder>> getBuilders() {
         return ImmutableMap.copyOf(builders);
     }
 
     public void registerData(ResourceLocation target, ResourceLocation... dataSet) {
-        List<ExCapData> list = Lists.newArrayList();
+        List<ExCapData.Builder> list = Lists.newArrayList();
         for (ResourceLocation id : dataSet) {
             list.add(DatasetManager.get(id));
         }
         builders.computeIfAbsent(target, k -> Lists.newArrayList()).addAll(list);
     }
 
-    public void registerData(ResourceLocation target, List<ExCapData> dataSet)
+    public void registerData(ResourceLocation target, List<ExCapData.Builder> dataSet)
     {
         builders.computeIfAbsent(target, k -> Lists.newArrayList()).addAll(dataSet);
     }

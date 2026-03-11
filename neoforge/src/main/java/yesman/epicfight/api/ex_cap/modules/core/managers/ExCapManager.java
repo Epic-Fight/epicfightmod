@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ExCapManager
 {
-    private static final Map<ResourceLocation, List<ExCapData>> dataMap = Maps.newHashMap();
+    private static final Map<ResourceLocation, List<ExCapData.Builder>> dataMap = Maps.newHashMap();
 
     /**
      * Registers the preset builder as an acceptor
@@ -24,14 +24,14 @@ public class ExCapManager
         dataMap.putIfAbsent(cap, Lists.newArrayList());
     }
 
-    public static List<ExCapData> retrieveExCapData(ResourceLocation cap)
+    public static List<ExCapData.Builder> retrieveExCapData(ResourceLocation cap)
     {
         return dataMap.get(cap);
     }
 
     public static void addExCapData(ResourceLocation cap, List<ResourceLocation> data)
     {
-        List<ExCapData> list = Lists.newArrayList();
+        List<ExCapData.Builder> list = Lists.newArrayList();
         for (ResourceLocation rl : data)
         {
             list.add(DatasetManager.get(rl));
@@ -39,7 +39,7 @@ public class ExCapManager
         dataMap.computeIfAbsent(cap, k -> Lists.newArrayList()).addAll(list);
     }
 
-    public static Map<ResourceLocation, List<ExCapData>> getDataMap()
+    public static Map<ResourceLocation, List<ExCapData.Builder>> getDataMap()
     {
         return ImmutableMap.copyOf(dataMap);
     }
@@ -56,7 +56,7 @@ public class ExCapManager
         dataMap.forEach(ExCapManager::clearList);
     }
 
-    private static void clearList(ResourceLocation rl, List<ExCapData> list)
+    private static void clearList(ResourceLocation rl, List<ExCapData.Builder> list)
     {
         list.clear();
     }

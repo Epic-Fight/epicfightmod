@@ -11,13 +11,13 @@ import java.util.Map;
 
 public class ExCapDataRegistrationEvent extends Event
 {
-    private final Map<ResourceLocation, ExCapData> dataMap = Maps.newHashMap();
+    private final Map<ResourceLocation, ExCapData.Builder> dataMap = Maps.newHashMap();
 
-    public Map<ResourceLocation, ExCapData> getDataMap() {
+    public Map<ResourceLocation, ExCapData.Builder> getDataMap() {
         return ImmutableMap.copyOf(dataMap);
     }
 
-    public void addData(ResourceLocation key, ExCapData data)
+    public void addData(ResourceLocation key, ExCapData.Builder data)
     {
         dataMap.put(key, data);
     }

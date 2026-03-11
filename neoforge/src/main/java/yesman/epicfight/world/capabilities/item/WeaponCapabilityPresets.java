@@ -1,6 +1,8 @@
 package yesman.epicfight.world.capabilities.item;
 
+import com.google.common.collect.Lists;
 import yesman.epicfight.api.ex_cap.modules.core.data.ExCapData;
+import yesman.epicfight.api.ex_cap.modules.core.managers.DatasetManager;
 import yesman.epicfight.api.ex_cap.modules.core.managers.ExCapManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -32,7 +34,8 @@ public abstract class WeaponCapabilityPresets {
     public static WeaponCapability.Builder exCapRegistration(Map.Entry<ResourceLocation, WeaponCapability.Builder> entry, Item item)
     {
         if (entry == null) return new WeaponCapability.Builder();
-        List<ExCapData> data = ExCapManager.retrieveExCapData(entry.getKey());
+        List<ExCapData> data = Lists.newArrayList();
+        ExCapManager.retrieveExCapData(entry.getKey()).forEach(exCapData -> data.add(exCapData.build()));
         WeaponCapability.Builder copy = entry.getValue().copy();
         handleTieredStats(copy, item);
         data.forEach(exCapData -> exCapData.apply(copy));

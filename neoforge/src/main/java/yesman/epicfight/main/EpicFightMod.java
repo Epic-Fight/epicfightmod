@@ -311,12 +311,12 @@ public class EpicFightMod {
 
     private void addRegistries()
     {
-		EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapRegistryHooks::registerData);
-		EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapRegistryHooks::registerExCapBuilders);
-        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapRegistryHooks::registerConditionals);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods);
-        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities);
+		EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapRegistryHooks::registerData, 1);
+		EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapRegistryHooks::registerExCapBuilders, 1);
+        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapRegistryHooks::registerConditionals, 1);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets, 1);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods, 1);
+        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities, 1);
     }
 
 	/**

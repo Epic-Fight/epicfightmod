@@ -17,7 +17,7 @@ public record ExCapData(List<ProviderConditional> conditionals, Map<Style, Resou
 
     public void apply(WeaponCapability.Builder cap)
     {
-        conditionals.forEach(cap::addConditionals);
+        cap.addConditionals(conditionals);
         sets.forEach( (style, builder) -> cap.addMoveSet(style, MovesetManager.getBuilder(builder)));
     }
 

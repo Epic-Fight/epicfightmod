@@ -23,6 +23,11 @@ public class CoreWeaponCapabilityProvider
         this.conditionals.addAll(Arrays.asList(conditional));
     }
 
+    public void addConditional(List<ProviderConditional> conditionals)
+    {
+        this.conditionals.addAll(conditionals);
+    }
+
     public CoreWeaponCapabilityProvider copy()
     {
         CoreWeaponCapabilityProvider copy = new CoreWeaponCapabilityProvider();

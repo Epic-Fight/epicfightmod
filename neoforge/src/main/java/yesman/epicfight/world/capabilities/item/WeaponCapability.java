@@ -364,13 +364,15 @@ public class WeaponCapability extends CapabilityItem {
 
         public Builder copy() {
             Builder copy = new Builder();
-
+            copy.constructor = this.constructor;
             copy.provider = this.provider.copy();
             copy.category = this.category;
             copy.styleProvider = this.styleProvider;
             copy.weaponCombinationPredicator = this.weaponCombinationPredicator;
             copy.passiveSkill = this.passiveSkill;
             copy.offHandAlone = this.offHandAlone;
+            copy.collider = this.collider;
+            copy.attributeMap.putAll(this.attributeMap);
 
             copy.swingSound = this.swingSound;
             copy.hitSound = this.hitSound;

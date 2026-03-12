@@ -126,9 +126,7 @@ public class RevelationSkill extends Skill {
 
         eventListener.registerEvent(
             EpicFightEventHooks.Player.SET_TARGET,
-            event -> {
-                skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 0);
-            },
+            event -> skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.STACKS, 0),
             this
         );
 

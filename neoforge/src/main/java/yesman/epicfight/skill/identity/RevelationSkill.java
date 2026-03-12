@@ -28,6 +28,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import java.util.Map;
@@ -176,7 +177,10 @@ public class RevelationSkill extends Skill {
 		
 		CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
 		AnimationAccessor<? extends StaticAnimation> animation = this.motions.containsKey(holdingItem.getWeaponCategory()) ? this.motions.get(holdingItem.getWeaponCategory()).apply(holdingItem, container.getExecutor()) : Animations.REVELATION_ONEHAND;
-		
+		if (holdingItem instanceof WeaponCapability weaponCap)
+        {
+            animation = weaponCap.getCurrentSet(container.getServerExecutor()).getRevelation() != null ? weaponCap.getCurrentSet(container.getServerExecutor()).getRevelation() : animation;
+        }
 		container.getExecutor().playAnimationSynchronized(animation, 0.0F);
 	}
 

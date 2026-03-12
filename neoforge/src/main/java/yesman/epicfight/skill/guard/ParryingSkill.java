@@ -83,7 +83,6 @@ public class ParryingSkill extends GuardSkill {
 		
 		skillContainer.runOnServer(serverExecutor -> {
 			 int lastActive = skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.LAST_ACTIVE);
-			 
 			 if (serverExecutor.getOriginal().tickCount - lastActive > this.parryWindow * 2) {
 				 skillContainer.getDataManager().setDataSync(EpicFightSkillDataKeys.LAST_ACTIVE, serverExecutor.getOriginal().tickCount);
 			 }
@@ -168,7 +167,6 @@ public class ParryingSkill extends GuardSkill {
         }
         dataManager.setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
         return result != null ? result : super.getGuardMotion(container, playerpatch, itemCapability, blockType);
-		
 	}
 	
 	@Override

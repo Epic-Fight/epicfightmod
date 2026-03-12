@@ -149,29 +149,26 @@ public class ParryingSkill extends GuardSkill {
 		return (damageSource.is(DamageTypeTags.IS_PROJECTILE) && advanced) || super.isBlockableSource(damageSource, false);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Nullable
 	protected AnimationAccessor<? extends StaticAnimation> getGuardMotion(SkillContainer container, PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
-		AnimationAccessor<? extends StaticAnimation> animation = itemCapability.getGuardMotion(this, blockType, playerpatch);
+		if (blockType != BlockType.ADVANCED_GUARD)
+        {
+            return super.getGuardMotion(container, playerpatch, itemCapability, blockType);
+        }
+        SkillDataManager dataManager = container.getDataManager();
+        AnimationAccessor<? extends StaticAnimation> result = itemCapability.getGuardMotion(this, blockType, playerpatch);
+		if (result == null)
+        {
+            List<AnimationAccessor<? extends StaticAnimation>> motions = this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+            if (motions != null) {
+                int motionCounter = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
+                motionCounter %= motions.size();
+                result = motions.get(motionCounter);
+            }
+        }
+        dataManager.setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
+        return result != null ? result : super.getGuardMotion(container, playerpatch, itemCapability, blockType);
 		
-		if (animation != null) {
-			return animation;
-		}
-		
-		if (blockType == BlockType.ADVANCED_GUARD) {
-			List<AnimationAccessor<? extends StaticAnimation>> motions = this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
-			
-			if (motions != null) {
-				SkillDataManager dataManager = container.getDataManager();
-				int motionCounter = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
-				dataManager.setDataSyncF(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER, (v) -> v + 1);
-				motionCounter %= motions.size();
-				
-				return motions.get(motionCounter);
-			}
-		}
-		
-		return super.getGuardMotion(container, playerpatch, itemCapability, blockType);
 	}
 	
 	@Override

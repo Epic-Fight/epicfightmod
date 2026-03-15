@@ -44,16 +44,6 @@ public final class VanillaPlayerEventHooks {
         });
     }
 
-    public static void onLooseTrident(Player player) {
-        EpicFightCapabilities.getUnparameterizedEntityPatch(player, PlayerPatch.class).ifPresent(playerpatch -> {
-            if (playerpatch.isLogicalClient()) {
-                playerpatch.getAnimator().playShootingAnimation();
-            } else {
-                EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(new SPAnimatorControl(AbstractAnimatorControl.Action.SHOT, Animations.EMPTY_ANIMATION, player.getId(), 0.0F, false), player);
-            }
-        });
-    }
-
     /// Called when a player starts tracking an entity in the world
     ///
     /// @see ServerEntity#addPairing

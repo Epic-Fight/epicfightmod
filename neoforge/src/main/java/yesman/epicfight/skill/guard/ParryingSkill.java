@@ -158,7 +158,9 @@ public class ParryingSkill extends GuardSkill {
         AnimationAccessor<? extends StaticAnimation> result = itemCapability.getGuardMotion(this, blockType, playerpatch);
 		if (result == null)
         {
-            List<AnimationAccessor<? extends StaticAnimation>> motions = this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+            @SuppressWarnings("unchecked")
+            List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+
             if (motions != null) {
                 int motionCounter = dataManager.getDataValue(EpicFightSkillDataKeys.PARRY_MOTION_COUNTER);
                 motionCounter %= motions.size();

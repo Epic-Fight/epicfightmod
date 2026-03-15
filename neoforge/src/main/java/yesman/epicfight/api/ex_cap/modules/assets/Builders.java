@@ -97,7 +97,7 @@ public class Builders
 
     public static final BuilderEntry TRIDENT = new BuilderEntry(EpicFight.identifier("trident"), WeaponCapability.builder()
             .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
-            .hitSound(SoundEvents.TRIDENT_HIT)
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
             .collider(ColliderPreset.SPEAR)
             .category(CapabilityItem.WeaponCategories.TRIDENT));
 

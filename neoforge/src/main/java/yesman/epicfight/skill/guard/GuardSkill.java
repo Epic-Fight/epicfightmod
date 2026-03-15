@@ -51,7 +51,6 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
@@ -344,7 +343,6 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	/**
 	 * Not safe from null pointer exception
 	 * Must call isAvailableState first to check if it's safe
-     * Updated to add a null safety check. (Forixaim)
      *
 	 * @return AnimationAccessor
 	 */
@@ -356,7 +354,9 @@ public class GuardSkill extends Skill implements HoldableSkill {
 			return animation;
 		}
 
-        List<AnimationAccessor<? extends StaticAnimation>> motionMap = this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+        //TODO: Improve safety on the guard motions for later and deferring it to another PR.
+        @SuppressWarnings("unchecked")
+        List<AnimationAccessor<? extends StaticAnimation>> motionMap = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
 		
 		return motionMap != null && !motionMap.isEmpty() ? motionMap.getFirst() : null;
 	}

@@ -91,20 +91,19 @@ public class GuardSkill extends Skill implements HoldableSkill {
 
 	public static GuardSkill.Builder createGuardBuilder(Function<GuardSkill.Builder, GuardSkill> constructor) {
 		return new GuardSkill.Builder(constructor)
-				.addGuardMotion(WeaponCategories.AXE, (item, player) -> List.of(Animations.SWORD_GUARD_HIT))
-				.addGuardMotion(WeaponCategories.GREATSWORD, (item, player) -> List.of(Animations.GREATSWORD_GUARD_HIT))
-				.addGuardMotion(WeaponCategories.UCHIGATANA, (item, player) -> List.of(Animations.UCHIGATANA_GUARD_HIT))
-				.addGuardMotion(WeaponCategories.LONGSWORD, (item, player) -> List.of(Animations.LONGSWORD_GUARD_HIT))
-				.addGuardMotion(WeaponCategories.SPEAR, (item, player) -> item.getStyle(player) == Styles.TWO_HAND ? List.of(Animations.SPEAR_GUARD_HIT) : null)
-				.addGuardMotion(WeaponCategories.SWORD, (item, player) -> item.getStyle(player) == Styles.ONE_HAND ? List.of(Animations.SWORD_GUARD_HIT) : List.of(Animations.SWORD_DUAL_GUARD_HIT))
-				.addGuardMotion(WeaponCategories.TACHI, (item, player) -> List.of(Animations.LONGSWORD_GUARD_HIT))
-				.addGuardBreakMotion(WeaponCategories.AXE, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
-				.addGuardBreakMotion(WeaponCategories.GREATSWORD, (item, player) -> List.of(Animations.GREATSWORD_GUARD_BREAK))
-				.addGuardBreakMotion(WeaponCategories.UCHIGATANA, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
-				.addGuardBreakMotion(WeaponCategories.LONGSWORD, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
-				.addGuardBreakMotion(WeaponCategories.SPEAR, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
-				.addGuardBreakMotion(WeaponCategories.SWORD, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
-				.addGuardBreakMotion(WeaponCategories.TACHI, (item, player) -> List.of(Animations.BIPED_COMMON_NEUTRALIZED))
+				.addGuardMotion(WeaponCategories.AXE, (item, player) -> Animations.SWORD_GUARD_HIT)
+				.addGuardMotion(WeaponCategories.GREATSWORD, (item, player) -> Animations.GREATSWORD_GUARD_HIT)
+				.addGuardMotion(WeaponCategories.UCHIGATANA, (item, player) -> Animations.UCHIGATANA_GUARD_HIT)
+				.addGuardMotion(WeaponCategories.LONGSWORD, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
+				.addGuardMotion(WeaponCategories.SWORD, (item, player) -> item.getStyle(player) == Styles.ONE_HAND ? Animations.SWORD_GUARD_HIT : Animations.SWORD_DUAL_GUARD_HIT)
+				.addGuardMotion(WeaponCategories.TACHI, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
+				.addGuardBreakMotion(WeaponCategories.AXE, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
+				.addGuardBreakMotion(WeaponCategories.GREATSWORD, (item, player) -> Animations.GREATSWORD_GUARD_BREAK)
+				.addGuardBreakMotion(WeaponCategories.UCHIGATANA, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
+				.addGuardBreakMotion(WeaponCategories.LONGSWORD, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
+				.addGuardBreakMotion(WeaponCategories.SPEAR, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
+				.addGuardBreakMotion(WeaponCategories.SWORD, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
+				.addGuardBreakMotion(WeaponCategories.TACHI, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
 				.setCategory(SkillCategories.GUARD)
 				.setActivateType(ActivateType.HELD)
 				.setResource(Resource.STAMINA);
@@ -346,7 +345,8 @@ public class GuardSkill extends Skill implements HoldableSkill {
      *
 	 * @return AnimationAccessor
 	 */
-	@Nullable
+    @SuppressWarnings("unchecked")
+    @Nullable
 	protected AnimationAccessor<? extends StaticAnimation> getGuardMotion(SkillContainer container, PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
 		AnimationAccessor<? extends StaticAnimation> animation = itemCapability.getGuardMotion(this, blockType, playerpatch);
 		
@@ -355,11 +355,8 @@ public class GuardSkill extends Skill implements HoldableSkill {
 		}
 
         //TODO: Improve safety on the guard motions for later and deferring it to another PR.
-        @SuppressWarnings("unchecked")
-        List<AnimationAccessor<? extends StaticAnimation>> motionMap = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
-		
-		return motionMap != null && !motionMap.isEmpty() ? motionMap.getFirst() : null;
-	}
+        return (AnimationAccessor<? extends StaticAnimation>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+    }
 	
 	@Override
 	public void updateContainer(SkillContainer container) {

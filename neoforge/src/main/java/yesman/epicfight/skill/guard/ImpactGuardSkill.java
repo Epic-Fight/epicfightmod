@@ -34,10 +34,10 @@ import java.util.Set;
 public class ImpactGuardSkill extends GuardSkill {
 	public static GuardSkill.Builder createImpactGuardBuilder() {
 		return GuardSkill.createGuardBuilder(ImpactGuardSkill::new)
-				.addAdvancedGuardMotion(WeaponCategories.LONGSWORD, (item, player) -> List.of(Animations.LONGSWORD_GUARD_HIT))
-				.addAdvancedGuardMotion(WeaponCategories.SPEAR, (item, player) -> item.getStyle(player) == Styles.TWO_HAND ? List.of(Animations.SPEAR_GUARD_HIT) : null)
-				.addAdvancedGuardMotion(WeaponCategories.TACHI, (item, player) -> List.of(Animations.LONGSWORD_GUARD_HIT))
-				.addAdvancedGuardMotion(WeaponCategories.GREATSWORD, (item, player) -> List.of(Animations.GREATSWORD_GUARD_HIT));
+				.addAdvancedGuardMotion(WeaponCategories.LONGSWORD, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
+				.addAdvancedGuardMotion(WeaponCategories.SPEAR, (item, player) -> item.getStyle(player) == Styles.TWO_HAND ? Animations.SPEAR_GUARD_HIT : null)
+				.addAdvancedGuardMotion(WeaponCategories.TACHI, (item, player) -> Animations.LONGSWORD_GUARD_HIT)
+				.addAdvancedGuardMotion(WeaponCategories.GREATSWORD, (item, player) -> Animations.GREATSWORD_GUARD_HIT);
 	}
 	
 	protected float superiorPenalizer;

@@ -38,6 +38,7 @@ public class MoveSet
     private final Predicate<LivingEntityPatch<?>> sheathRender;
     private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
     private final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
+    private final RenderModifier modifier;
 
     public MoveSet(MoveSetBuilder builder)
     {
@@ -47,11 +48,16 @@ public class MoveSet
         this.livingMotionModifiers = builder.livingMotionModifiers;
         this.skillSpecificGuardAnimations = builder.skillSpecificGuardAnimations;
         this.guardPoses = builder.guardPoses;
+        this.modifier = builder.modifier;
         this.defaultGuardAnimations = builder.defaultGuardAnimations;
         this.weaponInnateSkill = builder.weaponInnateSkill;
         this.weaponPassiveSkill = builder.weaponPassiveSkill;
         this.revelationAnimation = builder.revelationAnimation;
         this.customMotion = builder.motion;
+    }
+
+    public RenderModifier getRenderModifier() {
+        return modifier;
     }
 
     public BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> getCustomMotion()
@@ -127,6 +133,7 @@ public class MoveSet
         protected AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
         protected BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> motion;
         protected ResourceLocation parent;
+        protected RenderModifier modifier;
 
         public MoveSetBuilder()
         {
@@ -137,6 +144,7 @@ public class MoveSet
             skillSpecificGuardAnimations = Maps.newHashMap();
             defaultGuardAnimations = Maps.newHashMap();
             guardPoses = Maps.newHashMap();
+            modifier = null;
             motion = (a, b) -> null;
             weaponInnateSkill = null;
             weaponPassiveSkill = null;
@@ -146,6 +154,12 @@ public class MoveSet
         public MoveSetBuilder parent(ResourceLocation parent)
         {
             this.parent = parent;
+            return this;
+        }
+
+        public MoveSetBuilder renderModifier(RenderModifier modifier)
+        {
+            this.modifier = modifier;
             return this;
         }
 

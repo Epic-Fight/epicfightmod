@@ -20,7 +20,9 @@ public class RenderShield extends RenderItemBase {
 	
 	@Override
 	public void renderItemInHand(ItemStack itemstack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-		OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
+
+
+        OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
 		ItemDisplayContext transformType = (hand == InteractionHand.MAIN_HAND) ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.THIRD_PERSON_LEFT_HAND;

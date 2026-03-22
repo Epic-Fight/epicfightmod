@@ -12,13 +12,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.registry.entries.EpicFightItems;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class RenderKatana extends RenderItemBase {
 	private final ItemStack sheathStack;
+
+    public ItemStack getSheathStack() {
+        return sheathStack.copy();
+    }
 	
 	public RenderKatana(JsonElement jsonElement) {
 		super(jsonElement);
@@ -32,14 +38,23 @@ public class RenderKatana extends RenderItemBase {
 	
 	@Override
 	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-		OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);
+        //Currently isn't used in Base Epic Fight, less compatible with datapacks more for addon authors with ExCap.
+        if (entitypatch.getHoldingItemCapability(hand) instanceof WeaponCapability weaponCapability)
+        {
+            MoveSet currentSet = weaponCapability.getCurrentSet(entitypatch);
+            if (currentSet != null && currentSet.getRenderModifier() != null)
+            {
+                super.renderItemInHand(stack, entitypatch,  hand, poses, buffer, poseStack, packedLight, partialTicks);
+            }
+        }
+
+        OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
         itemRenderer.renderStatic(stack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
         poseStack.popPose();
-        
+
 		modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.OFF_HAND, poses);
-		
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
 		itemRenderer.renderStatic(this.sheathStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);

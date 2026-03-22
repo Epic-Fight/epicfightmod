@@ -18,11 +18,15 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
+import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
+import yesman.epicfight.api.ex_cap.modules.core.data.RenderModifier;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class RenderItemBase {
 	protected static final Map<String, OpenMatrix4f> GLOBAL_MAINHAND_ITEM_TRANSFORMS = ImmutableMap.<String, OpenMatrix4f>builder()
@@ -152,9 +156,29 @@ public class RenderItemBase {
 			}
 		}
 	}
+
+    protected boolean hasCustomRenderer(LivingEntityPatch<?> entityPatch)
+    {
+        return entityPatch.getHoldingItemCapability(InteractionHand.MAIN_HAND) instanceof WeaponCapability wCap && wCap.getCurrentSet(entityPatch) != null && wCap.getCurrentSet(entityPatch).getRenderModifier() != null;
+    }
 	
 	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-		OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
+        //For use with ExCap custom renderer
+        CapabilityItem cap = entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        if (cap instanceof WeaponCapability wCap) {
+            MoveSet set = wCap.getCurrentSet(entitypatch);
+            if (set != null) {
+                RenderModifier modifier = set.getRenderModifier();
+                if (modifier != null && modifier.modify(
+                        this, stack, entitypatch, hand, poses, buffer,
+                        poseStack, packedLight, partialTicks,
+                        itemRenderer, itemInHandRenderer)) {
+                    return;
+                }
+            }
+        }
+
+        OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, hand, poses);
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);
 		ItemDisplayContext transformType = (hand == InteractionHand.MAIN_HAND) ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
@@ -180,12 +204,8 @@ public class RenderItemBase {
 		}
 		
 		switch (hand) {
-		case MAIN_HAND -> {
-			this.transformHolder.load(this.mainhandCorrectionTransforms.getOrDefault(parentJoint.getName(), GLOBAL_MAINHAND_ITEM_TRANSFORMS.get(parentJoint.getName())));
-		}
-		case OFF_HAND -> {
-			this.transformHolder.load(this.offhandCorrectionTransforms.getOrDefault(parentJoint.getName(), GLOBAL_OFFHAND_ITEM_TRANSFORMS.get(parentJoint.getName())));
-		}
+		case MAIN_HAND -> this.transformHolder.load(this.mainhandCorrectionTransforms.getOrDefault(parentJoint.getName(), GLOBAL_MAINHAND_ITEM_TRANSFORMS.get(parentJoint.getName())));
+		case OFF_HAND -> this.transformHolder.load(this.offhandCorrectionTransforms.getOrDefault(parentJoint.getName(), GLOBAL_OFFHAND_ITEM_TRANSFORMS.get(parentJoint.getName())));
 		}
 		
 		this.transformHolder.mulFront(poses[parentJoint.getId()]);

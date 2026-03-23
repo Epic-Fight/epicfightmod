@@ -1,7 +1,5 @@
 package yesman.epicfight.data.tags;
 
-import java.util.concurrent.CompletableFuture;
-
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
@@ -11,6 +9,8 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.Block;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightItems;
+
+import java.util.concurrent.CompletableFuture;
 
 public class EpicFightItemTagsProvider extends ItemTagsProvider {
 	public EpicFightItemTagsProvider(
@@ -43,6 +43,11 @@ public class EpicFightItemTagsProvider extends ItemTagsProvider {
 				EpicFightItems.IRON_LONGSWORD.get(),
 				EpicFightItems.IRON_SPEAR.get(),
 				EpicFightItems.IRON_TACHI.get(),
+                EpicFightItems.NETHERITE_DAGGER.get(),
+                EpicFightItems.NETHERITE_GREATSWORD.get(),
+                EpicFightItems.NETHERITE_LONGSWORD.get(),
+                EpicFightItems.NETHERITE_SPEAR.get(),
+                EpicFightItems.NETHERITE_TACHI.get(),
 				EpicFightItems.STONE_DAGGER.get(),
 				EpicFightItems.STONE_GREATSWORD.get(),
 				EpicFightItems.STONE_LONGSWORD.get(),

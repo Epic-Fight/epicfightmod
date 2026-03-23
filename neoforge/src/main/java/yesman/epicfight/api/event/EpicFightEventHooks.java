@@ -41,6 +41,7 @@ public final class EpicFightEventHooks {
         public static final EventHook<ModifyBaseDamageEvent> MODIFY_ATTACK_DAMAGE = EventHook.createEventHook();
         public static final EventHook<EntityRemovedEvent> ON_REMOVED = EventHook.createSidedEventHook(LogicalSide.SERVER);
         public static final EventHook<StunnedEvent> ON_STUNNED = EventHook.createSidedEventHook(LogicalSide.SERVER);
+        public static final EventHook<ApplyStunEvent> APPLY_STUN = EventHook.createSidedEventHook(LogicalSide.SERVER);
         public static final CancelableEventHook<TakeDamageEvent.Income> TAKE_DAMAGE_INCOME = CancelableEventHook.createSidedCancelableEventHook(LogicalSide.SERVER);
         public static final EventHook<TakeDamageEvent.Pre> TAKE_DAMAGE_PRE = EventHook.createSidedEventHook(LogicalSide.SERVER);
         public static final EventHook<TakeDamageEvent.Post> TAKE_DAMAGE_POST = EventHook.createSidedEventHook(LogicalSide.SERVER);

@@ -784,7 +784,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
         AssetAccessor<? extends StaticAnimation> hitAnimation = this.getHitAnimation(stunType);
 
         if (hitAnimation != null) {
-            this.playAnimationSynchronized(hitAnimation, stunType.hasFixedStunTime() ? 0.0F : stunTime);
+            ApplyStunEvent applyStunEvent = new ApplyStunEvent(this, stunType, hitAnimation, stunType.hasFixedStunTime() ? 0.0F : stunTime);
+            EpicFightEventHooks.Entity.APPLY_STUN.postWithListener(applyStunEvent, this.getEventListener());
+
+            this.playAnimationSynchronized(applyStunEvent.getStunAnimation(), applyStunEvent.getStunTime());
             return true;
         }
 

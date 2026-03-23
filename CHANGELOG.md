@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.15.8] - 2026-03-21
+
+### Fixed
+- Fixed the players can't interact with non attackable entities in TPS mode [#2504](https://github.com/Epic-Fight/epicfight/issues/2504)
+- Fixed a crash when datapack item capability has no combo animation [#2496](https://github.com/Epic-Fight/epicfight/issues/2496)
+- Fixed the Netherite weapons not enchantable [#2501](https://github.com/Epic-Fight/epicfight/issues/2501)
+
+### Changed
+- Changed the default key of **Lock-on Free Shift** to mouse middle button
+
 ## [21.15.7] - 2026-03-09
 
 ### Fixed

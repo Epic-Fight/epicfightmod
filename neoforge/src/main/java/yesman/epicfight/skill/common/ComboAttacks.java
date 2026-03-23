@@ -53,8 +53,11 @@ public class ComboAttacks extends Skill {
         ModifyComboCounter modifyComboCounterEvent = new ModifyComboCounter(reason, playerpatch, causalAnimation, prevValue, modifiedCombo);
         EpicFightEventHooks.Player.MODIFY_COMBO_COUNTER.postWithListener(modifyComboCounterEvent, playerpatch.getEventListener());
 
+        List<AnimationAccessor<? extends AttackAnimation>> comboMotions = itemCapability.getAutoAttackMotion(playerpatch);
+
         // Clamped combo counter value from 0 to last combo index
-        int comboCounterSafe = Mth.clamp(modifyComboCounterEvent.getNextValue(), 0, itemCapability.getAutoAttackMotion(playerpatch).size() - 3);
+        int comboCounterSafe = Mth.clamp(modifyComboCounterEvent.getNextValue(), 0, comboMotions == null ? 0 : comboMotions.size() - 3);
+
         container.getDataManager().setData(EpicFightSkillDataKeys.COMBO_COUNTER, comboCounterSafe);
     }
 

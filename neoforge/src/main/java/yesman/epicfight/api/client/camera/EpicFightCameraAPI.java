@@ -28,6 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.client.event.types.camera.*;
@@ -93,12 +94,16 @@ public final class EpicFightCameraAPI {
     private int maxFpvLerpTick;
 
     /// Temporary storage for crosshair destination in TPS mode
-    /// This replaces [Minecraft#hitResult] in each frame when TPS mode is activated
+    ///
+    /// This field directly injects to [Minecraft#hitResult] in each frame when TPS mode is activated
     @Nullable
     private HitResult crosshairHitResult;
 
     /// An entity targeted by the crosshair
+    ///
     /// This doesn't replace [Minecraft#crosshairPickEntity] since their usages are disparate
+    ///
+    /// Entities picked by [#crosshairHitResult] filtered by [#predicateFocusableEntity]
     @Nullable
     private LivingEntity focusingEntity;
 
@@ -279,7 +284,7 @@ public final class EpicFightCameraAPI {
                 eventCanceled = lockOnEvent.isCanceled();
 
                 if (eventCanceled && newlyFoundFocusingEntity) {
-                    this.focusingEntity = null;
+                    this.setFocusingEntity(null);
                 }
             } else {
                 LockOnEvent.Release lockOnEvent = new LockOnEvent.Release(this, this.focusingEntity);
@@ -368,7 +373,7 @@ public final class EpicFightCameraAPI {
             ;
 
         next.ifPresent(pair -> {
-            this.focusingEntity = pair.getFirst();
+            this.setFocusingEntity(pair.getFirst());
         });
 
         return next.isPresent();
@@ -599,7 +604,7 @@ public final class EpicFightCameraAPI {
         int focusingRange = this.getFocusingEntityPickRange();
         double entityPickRange = Math.min(this.crosshairHitResult.getLocation().distanceToSqr(cameraPos), focusingRange * focusingRange);
         AABB aabb = localPlayer.getBoundingBox().move(cameraPos.subtract(localPlayer.getEyePosition(1.0F))).expandTowards(lookVec.scale(entityPickRange)).inflate(1.0D, 1.0D, 1.0D);
-        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(localPlayer, cameraPos, rayEed, aabb, this::predicateFocusableEntity, entityPickRange);
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(localPlayer, cameraPos, rayEed, aabb, entity -> !entity.isSpectator() && entity.isPickable(), entityPickRange);
 
         if (entityHitResult != null) {
             this.crosshairHitResult = entityHitResult;
@@ -607,17 +612,17 @@ public final class EpicFightCameraAPI {
             if (!entityHitResult.getEntity().is(this.focusingEntity)) {
                 if (entityHitResult.getEntity() instanceof LivingEntity livingentity) {
                     if (!(entityHitResult.getEntity() instanceof ArmorStand) && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY))) {
-                        this.focusingEntity = livingentity;
+                        this.setFocusingEntity(livingentity);
                     }
                 } else if (entityHitResult.getEntity() instanceof PartEntity<?> partEntity) {
                     Entity parent = partEntity.getParent();
 
                     if (parent instanceof LivingEntity parentLivingEntity && (!this.lockingOnTarget || InputManager.isActionActive(EpicFightInputAction.LOCK_ON_SHIFT_FREELY))) {
-                        this.focusingEntity = parentLivingEntity;
+                        this.setFocusingEntity(parentLivingEntity);
                     }
                 } else {
                     this.setLockOn(false);
-                    this.focusingEntity = null;
+                    this.setFocusingEntity(null);
                 }
 
                 if (this.focusingEntity != null) {
@@ -636,7 +641,7 @@ public final class EpicFightCameraAPI {
                 this.crosshairHitResult = BlockHitResult.miss(cameraPos.add(lookVec.x * 50.0D, lookVec.y * 50.0D, lookVec.z * 50.0D), Direction.UP, BlockPos.ZERO);
 
                 if (!this.lockingOnTarget && this.focusingEntity != null) {
-                    this.focusingEntity = null;
+                    this.setFocusingEntity(null);
                     this.sendTargeting(null);
                 }
             }
@@ -647,7 +652,7 @@ public final class EpicFightCameraAPI {
 
                 if (dot < -0.1D) {
                     if (!this.lockingOnTarget) {
-                        this.focusingEntity = null;
+                        this.setFocusingEntity(null);
                         this.sendTargeting(null);
                     }
                 }
@@ -683,7 +688,7 @@ public final class EpicFightCameraAPI {
                         this.setLockOn(false);
                     }
 
-                    this.focusingEntity = null;
+                    this.setFocusingEntity(null);
                     this.sendTargeting(null);
                 }
             }
@@ -963,6 +968,19 @@ public final class EpicFightCameraAPI {
     @ApiStatus.Internal
     public void onItemUseEvent(Player player, PlayerPatch<?> playerpatch, ItemStack itemstack, InteractionHand hand) {
         if (this.isTPSMode()) EpicFightClientEventHooks.Camera.ITEM_USED_WHEN_DECOUPLED.post(new ItemUsedInDecoupledCamera(this, player, playerpatch, itemstack, hand));
+    }
+
+    /// Sets the currently focuing entity picked by crosshair
+    ///
+    /// A focused entity has outline and twists [MoveCoordFunctions] based on the distance
+    ///
+    /// Focused entity must be a hurable target
+    private void setFocusingEntity(LivingEntity entity) {
+        if (this.predicateFocusableEntity(entity)) {
+            this.focusingEntity = entity;
+        } else {
+            this.focusingEntity = null;
+        }
     }
 
     private boolean predicateFocusableEntity(Entity entity) {

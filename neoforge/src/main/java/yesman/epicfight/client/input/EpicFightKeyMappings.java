@@ -129,7 +129,7 @@ public class EpicFightKeyMappings {
                     LangKeys.KEY_LOCK_ON_SHIFT_FREELY,
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.MOUSE,
-                    InputConstants.MOUSE_BUTTON_RIGHT,
+                    InputConstants.MOUSE_BUTTON_MIDDLE,
                     EpicFightInputCategories.CAMERA
             ));
 

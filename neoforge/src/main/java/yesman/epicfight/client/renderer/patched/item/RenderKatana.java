@@ -38,16 +38,6 @@ public class RenderKatana extends RenderItemBase {
 	
 	@Override
 	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-        //Currently isn't used in Base Epic Fight, less compatible with datapacks more for addon authors with ExCap.
-        if (entitypatch.getHoldingItemCapability(hand) instanceof WeaponCapability weaponCapability)
-        {
-            MoveSet currentSet = weaponCapability.getCurrentSet(entitypatch);
-            if (currentSet != null && currentSet.getRenderModifier() != null)
-            {
-                super.renderItemInHand(stack, entitypatch,  hand, poses, buffer, poseStack, packedLight, partialTicks);
-            }
-        }
-
         OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);
 		poseStack.pushPose();
 		MathUtils.mulStack(poseStack, modelMatrix);

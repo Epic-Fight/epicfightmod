@@ -157,13 +157,7 @@ public class RenderItemBase {
 		}
 	}
 
-    protected boolean hasCustomRenderer(LivingEntityPatch<?> entityPatch)
-    {
-        return entityPatch.getHoldingItemCapability(InteractionHand.MAIN_HAND) instanceof WeaponCapability wCap && wCap.getCurrentSet(entityPatch) != null && wCap.getCurrentSet(entityPatch).getRenderModifier() != null;
-    }
-	
 	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-        //For use with ExCap custom renderer
         CapabilityItem cap = entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND);
         if (cap instanceof WeaponCapability wCap) {
             MoveSet set = wCap.getCurrentSet(entitypatch);

@@ -43,11 +43,14 @@ public class RenderKatana extends RenderItemBase {
 		MathUtils.mulStack(poseStack, modelMatrix);
         itemRenderer.renderStatic(stack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
         poseStack.popPose();
+        if (entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND) instanceof WeaponCapability wCap && wCap.getCurrentSet(entitypatch) instanceof MoveSet set && set.shouldRenderSheath().test(entitypatch))
+        {
+            modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.OFF_HAND, poses);
+            poseStack.pushPose();
+            MathUtils.mulStack(poseStack, modelMatrix);
+            itemRenderer.renderStatic(this.sheathStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
+            poseStack.popPose();
+        }
 
-		modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.OFF_HAND, poses);
-		poseStack.pushPose();
-		MathUtils.mulStack(poseStack, modelMatrix);
-		itemRenderer.renderStatic(this.sheathStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
-        poseStack.popPose();
     }
 }

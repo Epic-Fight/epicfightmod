@@ -8,6 +8,8 @@ import yesman.epicfight.api.utils.side.LogicalSide;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 /// An event bus that is dedicated to one [Event] type
@@ -20,7 +22,7 @@ import java.util.stream.Stream;
 /// and [EpicFightClientEventHooks] for client-side only events
 public class EventHook<T extends Event> {
 	/// Treemap to order subscribers in descending order
-	final TreeMap<Integer, List<EventListener<T>>> subscribers = new TreeMap<> ((i1, i2) -> Integer.compare(i2, i1));
+	final ConcurrentMap<Integer, List<EventListener<T>>> subscribers = new ConcurrentHashMap<>();
 
     /// Determines if the event is only called in logical side
     protected final LogicalSide logicalSide;
@@ -31,14 +33,13 @@ public class EventHook<T extends Event> {
 
     /// Post the event to subscribers and execute tasks by their priority in descending order
     public T post(T event) {
-
-        for (var subscriberList : this.subscribers.values()) {
-            for (var subscriber : subscriberList) {
-                if (subscriber.subscriptionType() instanceof DefaultEventSubscription<T> passiveSubscription) {
-                    passiveSubscription.fire(event);
-                }
+        List<EventListener<T>> buffer = Lists.newArrayList();
+        this.subscribers.values().forEach(buffer::addAll);
+        buffer.stream().sorted(Comparator.comparing(EventListener::priority)).forEach(listener -> {
+            if (listener.subscriptionType() instanceof DefaultEventSubscription<T> passiveSubscription) {
+                passiveSubscription.fire(event);
             }
-        }
+        });
         return event;
     }
 

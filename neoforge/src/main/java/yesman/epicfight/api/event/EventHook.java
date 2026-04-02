@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 /// and [EpicFightClientEventHooks] for client-side only events
 public class EventHook<T extends Event> {
 	/// Treemap to order subscribers in descending order
-	final ConcurrentMap<Integer, List<EventListener<T>>> subscribers = new ConcurrentHashMap<>();
+	final ConcurrentMap<Integer, List<EventListener<T>>> subscribers = new ConcurrentSkipListMap<>(Comparator.reverseOrder())
 
     /// Determines if the event is only called in logical side
     protected final LogicalSide logicalSide;

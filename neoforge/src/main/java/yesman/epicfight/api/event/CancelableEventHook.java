@@ -1,9 +1,12 @@
 package yesman.epicfight.api.event;
 
+import com.google.common.collect.Lists;
 import yesman.epicfight.api.event.subscription.ContextAwareEventSubscription;
 import yesman.epicfight.api.event.subscription.DefaultEventSubscription;
 import yesman.epicfight.api.utils.side.LogicalSide;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /// EventHook definition for [CancelableEvent]
@@ -19,23 +22,26 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
     public T post(T event) {
         EventContext eventContext = event.getEventContext();
 
-        for (EventListener<T> subscriber : this.subscribers.values()) {
-            eventContext.subscriptionStart(subscriber.identifier());
-
-            if (subscriber.subscriptionType() instanceof DefaultEventSubscription<T> defaultSubscription) {
-                if (!event.isCanceled()) {
-                    defaultSubscription.fire(event);
-                    eventContext.onCalled();
-                }
-            } else if (subscriber.subscriptionType() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
-                contextAwareSubscription.fire(event, eventContext);
-                eventContext.onCalled();
-            }
+        for (var subscriber : subscribers.values()) {
+            subscriber.forEach(subs -> processSub(event, subs, eventContext));
         }
-
         eventContext.subscriptionEnd();
 
         return event;
+    }
+
+    private void processSub(T event, EventListener<T> subscriber, EventContext eventContext)
+    {
+        eventContext.subscriptionStart(subscriber.identifier());
+        if (subscriber.subscriptionType() instanceof DefaultEventSubscription<T> defaultSubscription) {
+            if (!event.isCanceled()) {
+                defaultSubscription.fire(event);
+                eventContext.onCalled();
+            }
+        } else if (subscriber.subscriptionType() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
+            contextAwareSubscription.fire(event, eventContext);
+            eventContext.onCalled();
+        }
     }
 
     /// Post the event to subscribers including from [EntityEventListener], and execute tasks by their priority in descending order
@@ -47,21 +53,11 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 
         EventContext eventContext = event.getEventContext();
 
-        Stream.concat(this.subscribers.values().stream(), eventListener.getListenersFor(this))
-            .sorted((o1, o2) -> Integer.compare(o2.priority(), o1.priority()))
-            .forEach(subscriber -> {
-                eventContext.subscriptionStart(subscriber.identifier());
-
-                if (subscriber.subscriptionType() instanceof DefaultEventSubscription<T> defaultSubscription) {
-                    if (!event.isCanceled()) {
-                        defaultSubscription.fire(event);
-                        eventContext.onCalled();
-                    }
-                } else if (subscriber.subscriptionType() instanceof ContextAwareEventSubscription<T> contextAwareSubscription) {
-                    contextAwareSubscription.fire(event, eventContext);
-                    eventContext.onCalled();
-                }
-            });
+        List<EventListener<T>> buffer = Lists.newArrayList();
+        this.subscribers.values().forEach(buffer::addAll);
+        Stream.concat(buffer.stream(), eventListener.getListenersFor(this))
+                .sorted(Comparator.comparingInt(EventListener::priority))
+                .forEach(subs -> processSub(event, subs, eventContext));
 
         eventContext.subscriptionEnd();
 
@@ -87,7 +83,7 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 
     /// Registers an event with full parameters
     public void registerContextAwareEvent(ContextAwareEventSubscription<T> subscription, String name, int priority) {
-        this.subscribers.put(priority, new EventListener<> (name, priority, subscription));
+        this.subscribers.computeIfAbsent(priority, sub -> Lists.newArrayList()).add(new EventListener<>(name, priority, subscription));
     }
 
     /// Defines a cancelable event hook

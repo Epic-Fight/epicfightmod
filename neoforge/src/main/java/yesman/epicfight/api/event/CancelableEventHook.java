@@ -5,8 +5,8 @@ import yesman.epicfight.api.event.subscription.ContextAwareEventSubscription;
 import yesman.epicfight.api.event.subscription.DefaultEventSubscription;
 import yesman.epicfight.api.utils.side.LogicalSide;
 
-import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 /// EventHook definition for [CancelableEvent]
@@ -56,7 +56,7 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
         List<EventListener<T>> buffer = Lists.newArrayList();
         this.subscribers.values().forEach(buffer::addAll);
         Stream.concat(buffer.stream(), eventListener.getListenersFor(this))
-                .sorted(Comparator.comparingInt(EventListener::priority))
+                .sorted(EventHook::reverseOrder)
                 .forEach(subs -> processSub(event, subs, eventContext));
 
         eventContext.subscriptionEnd();
@@ -83,7 +83,7 @@ public class CancelableEventHook<T extends Event & CancelableEvent> extends Even
 
     /// Registers an event with full parameters
     public void registerContextAwareEvent(ContextAwareEventSubscription<T> subscription, String name, int priority) {
-        this.subscribers.computeIfAbsent(priority, sub -> Lists.newArrayList()).add(new EventListener<>(name, priority, subscription));
+        this.subscribers.computeIfAbsent(priority, sub -> new CopyOnWriteArrayList<>()).add(new EventListener<>(name, priority, subscription));
     }
 
     /// Defines a cancelable event hook

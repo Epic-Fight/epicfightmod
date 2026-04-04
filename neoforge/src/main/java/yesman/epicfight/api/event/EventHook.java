@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 /// An event bus that is dedicated to one [Event] type
@@ -51,13 +52,18 @@ public class EventHook<T extends Event> {
         List<EventListener<T>> buffer = Lists.newArrayList();
         this.subscribers.values().forEach(buffer::addAll);
         Stream.concat(buffer.stream(), eventListener.getListenersFor(this))
-                .sorted(Comparator.comparingInt(EventListener::priority))
+                .sorted(EventHook::reverseOrder)
                 .forEach(subs -> {
                     if (subs.subscriptionType() instanceof DefaultEventSubscription<T> passiveSubscription) {
                         passiveSubscription.fire(event);
                     }
                 });
         return event;
+    }
+
+    public static int reverseOrder(EventListener<? extends Event> A, EventListener<? extends Event> B)
+    {
+        return Integer.compare(B.priority(), A.priority());
     }
 
 	/// Registers an event with default identifier and priority
@@ -79,7 +85,7 @@ public class EventHook<T extends Event> {
 	
 	/// Registers an event with full parameters
 	public void registerEvent(DefaultEventSubscription<T> subscription, String name, int priority) {
-		this.subscribers.computeIfAbsent(priority, sub -> Lists.newArrayList()).add(new EventListener<>(name,priority,subscription));
+		this.subscribers.computeIfAbsent(priority, sub -> new CopyOnWriteArrayList<>()).add(new EventListener<>(name,priority,subscription));
 	}
 
     public final LogicalSide logicalSide() {

@@ -29,6 +29,7 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.EntityState.StateFactor;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
+import yesman.epicfight.api.collider.WeaponReachHitboxUtil;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.animation.AttackPhaseEndEvent;
 import yesman.epicfight.api.model.Armature;
@@ -424,6 +425,7 @@ public class AttackAnimation extends ActionAnimation {
 				collider = entitypatch.getColliderMatching(phase.hand);
 			}
 			
+			collider = WeaponReachHitboxUtil.copyColliderWithWeaponReach(entitypatch, phase.hand, collider);
 			collider.draw(poseStack, buffer, entitypatch, this, colliderInfo.getFirst(), prevElapsedTime, elapsedTime, partialTicks, this.getPlaySpeed(entitypatch, this));
 		}
 	}
@@ -529,6 +531,7 @@ public class AttackAnimation extends ActionAnimation {
 					collider = entitypatch.getColliderMatching(this.hand);
 				}
 				
+				collider = WeaponReachHitboxUtil.copyColliderWithWeaponReach(entitypatch, this.hand, collider);
 				entities.addAll(collider.updateAndSelectCollideEntity(entitypatch, animation, prevElapsedTime, elapsedTime, colliderInfo.getFirst(), attackSpeed));
 			}
 			

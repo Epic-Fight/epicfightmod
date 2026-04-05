@@ -37,7 +37,27 @@ public class MultiOBBCollider extends MultiCollider<OBBCollider> {
 	public MultiOBBCollider(OBBCollider... colliders) {
 		super(colliders);
 	}
-	
+
+	@Override
+	public MultiOBBCollider deepCopy() {
+		OBBCollider[] copies = new OBBCollider[this.colliders.size()];
+		for (int i = 0; i < copies.length; i++) {
+			copies[i] = this.colliders.get(i).deepCopy();
+		}
+		return new MultiOBBCollider(copies);
+	}
+
+	public MultiOBBCollider withSymmetricLocalZExtension(double deltaLength) {
+		if (deltaLength <= 0.0D) {
+			return this.deepCopy();
+		}
+		OBBCollider[] resized = new OBBCollider[this.colliders.size()];
+		for (int i = 0; i < resized.length; i++) {
+			resized[i] = this.colliders.get(i).withSymmetricLocalZExtension(deltaLength);
+		}
+		return new MultiOBBCollider(resized);
+	}
+
 	@Override @ClientOnly
 	public void draw(PoseStack poseStack, MultiBufferSource buffer, LivingEntityPatch<?> entitypatch, AttackAnimation animation, Joint joint, float prevElapsedTime, float elapsedTime, float partialTicks, float attackSpeed) {
 		int colliderCount = Math.max(Math.round((this.numberOfColliders + animation.getProperty(AttackAnimationProperty.EXTRA_COLLIDERS).orElse(0)) * attackSpeed), this.numberOfColliders);

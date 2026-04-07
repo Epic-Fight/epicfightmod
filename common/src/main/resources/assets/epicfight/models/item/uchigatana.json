@@ -10,12 +10,12 @@
 			"thirdperson_righthand": {
 				"rotation": [0, -90, 55],
 				"translation": [0, 13, -1.5],
-				"scale": [1.7, 1.7, 0.85]
+				"scale": [2, 2, 0.85]
 			},
 			"thirdperson_lefthand": {
 				"rotation": [0, 90, -55],
 				"translation": [0, 13.25, -1.75],
-				"scale": [1.7, 1.7, 0.85]
+				"scale": [2, 2, 0.85]
 			},
 			"firstperson_righthand": {
 				"rotation": [0, -90, 25],

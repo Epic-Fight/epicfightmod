@@ -1,16 +1,16 @@
 {
-	"credit": "End_Rage waz here",
+	"credit": "End_Rage waz here, adjusted by Forixaim",
 	"parent": "item/generated",
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [0, -90, 45],
 			"translation": [0, 11.25, 0],
-			"scale": [2.25, 2.25, 1]
+			"scale": [2, 2, 1]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [0, 90, -45],
 			"translation": [0, 11.25, 0],
-			"scale": [2.25, 2.25, 1]
+			"scale": [2, 2, 1]
 		},
 		"firstperson_righthand": {
 			"rotation": [0, -90, 25],

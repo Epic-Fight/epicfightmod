@@ -65,13 +65,13 @@ public class ColliderPreset implements PreparableReloadListener {
             new OBBCollider(1.5D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D)
     ));
 	public static final Collider FIST = registerCollider(EpicFight.identifier("fist"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.4D, 0D, 0D, 0D));
-	public static final Collider GREATSWORD = registerCollider(EpicFight.identifier("greatsword"), new MultiOBBCollider(3, 0.5D, 0.8D, 1.2D, 0D, 0D, -1.2D));
+	public static final Collider GREATSWORD = registerCollider(EpicFight.identifier("greatsword"), new MultiOBBCollider(3, 0.3D, 0.5D, 1.0D, 0D, 0D, -1.2D));
 	public static final Collider HEAD = registerCollider(EpicFight.identifier("head"), new OBBCollider(0.4D, 0.4D, 0.4D, 0D, 0D, -0.3D));
 	public static final Collider HEADBUTT_RAVAGER = registerCollider(EpicFight.identifier("headbutt_ravager"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.3D));
 	public static final Collider UCHIGATANA = registerCollider(EpicFight.identifier("uchigatana"), new MultiOBBCollider(5, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.7D));
-	public static final Collider TACHI = registerCollider(EpicFight.identifier("tachi"), new MultiOBBCollider(3, 0.4D, 0.4D, 1.05D, 0D, 0D, -1.05D));
+	public static final Collider TACHI = registerCollider(EpicFight.identifier("tachi"), new MultiOBBCollider(3, 0.2D, 0.4D, 1.05D, 0D, 0D, -1.05D));
 	public static final Collider SWORD = registerCollider(EpicFight.identifier("sword"), new MultiOBBCollider(3, 0.4D, 0.4D, 0.7D, 0D, 0D, -0.35D));
-	public static final Collider LONGSWORD = registerCollider(EpicFight.identifier("longsword"), new MultiOBBCollider(3, 0.4D, 0.4D, 1D, 0D, 0D, -1D));
+	public static final Collider LONGSWORD = registerCollider(EpicFight.identifier("longsword"), new MultiOBBCollider(3, 0.2D, 0.4D, 0.85D, 0D, 0D, -0.85D));
 	public static final Collider SPEAR = registerCollider(EpicFight.identifier("spear"), new MultiOBBCollider(3, 0.6D, 0.6D, 1.0D, 0D, 0D, -1.0D));
 	public static final Collider SPIDER = registerCollider(EpicFight.identifier("spider"), new OBBCollider(0.8D, 0.8D, 0.8D, 0D, 0D, -0.4D));
 	

@@ -39,7 +39,7 @@ public class BuilderManager {
     public static void add(ResourceLocation id, JsonElement json)
     {
         try {
-            weaponCapabilityBuilders.put(id, WeaponCapability.Builder.deserializeBuilder(json));
+            weaponCapabilityBuilders.put(id, WeaponCapability.Builder.deserializeBuilder(id, json));
         } catch (JsonParseException e)
         {
             // Log the error and skip this entry

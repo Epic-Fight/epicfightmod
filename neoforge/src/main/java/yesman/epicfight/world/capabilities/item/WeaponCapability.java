@@ -26,21 +26,23 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
+import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
+import yesman.epicfight.api.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
+import yesman.epicfight.api.ex_cap.modules.core.provider.ProviderConditional;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.registry.entries.*;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
-import yesman.epicfight.api.ex_cap.modules.core.provider.CoreWeaponCapabilityProvider;
-import yesman.epicfight.api.ex_cap.modules.core.provider.ProviderConditional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class WeaponCapability extends CapabilityItem {
@@ -68,7 +70,12 @@ public class WeaponCapability extends CapabilityItem {
     protected final ModifyComboCounter.ComboCounterHandler comboCounterHandler;
 	protected final ZoomInType zoomInType;
 	protected final float reach;
-	
+
+    /// A custom capability tag that ease identifying categories
+    ///
+    /// Weapon capabilities have registry name of their weapon type builder
+    protected Set<ResourceLocation> customTags;
+
 	protected WeaponCapability(WeaponCapability.Builder builder) {
 		super(builder);
         this.coreProvider = builder.provider;
@@ -88,6 +95,7 @@ public class WeaponCapability extends CapabilityItem {
         this.comboCounterHandler = builder.comboCounterHandler;
 		this.zoomInType = builder.zoomInType;
 		this.reach = builder.reach;
+        this.customTags = Collections.unmodifiableSet(builder.customTags);
 	}
 
 
@@ -322,6 +330,14 @@ public class WeaponCapability extends CapabilityItem {
         return set.getCustomMotion().apply(entitypatch, hand);
     }
 
+    public boolean hasMatchingTag(ResourceLocation rl) {
+        return customTags.contains(rl);
+    }
+
+    public Set<ResourceLocation> getTags() {
+        return customTags;
+    }
+
     /// All fields marked with {@link Deprecated} have been moved to {@link MoveSet} and exist as legacy fallback options to prevent addons from breaking.
     public static class Builder extends CapabilityItem.Builder<WeaponCapability.Builder> {
 		CoreWeaponCapabilityProvider provider;
@@ -353,6 +369,7 @@ public class WeaponCapability extends CapabilityItem {
 		float reach;
         boolean offHandAlone;
 
+        Set<ResourceLocation> customTags = new HashSet<> ();
 
         public Builder copy() {
             Builder copy = new Builder();
@@ -409,6 +426,9 @@ public class WeaponCapability extends CapabilityItem {
                     );
                 }
             }
+
+            copy.customTags.addAll(this.customTags);
+
             return copy;
         }
 		
@@ -513,7 +533,12 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
-        public static WeaponCapability.Builder deserializeBuilder(JsonElement element) throws JsonParseException
+        public Builder addTag(ResourceLocation customTag) {
+            this.customTags.add(customTag);
+            return this;
+        }
+
+        public static WeaponCapability.Builder deserializeBuilder(ResourceLocation id, JsonElement element) throws JsonParseException
         {
             WeaponCapability.Builder builder = builder();
             JsonObject tag = element.getAsJsonObject();
@@ -542,9 +567,18 @@ public class WeaponCapability extends CapabilityItem {
                     SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.get("hit_sound").getAsString()));
                     builder.hitSound(sound);
                 }
+
+                if (tag.has("custom_tags")) {
+                    for (JsonElement customTagElement : tag.get("custom_tags").getAsJsonArray()) {
+                        builder.addTag(ResourceLocation.parse(customTagElement.getAsString()));
+                    }
+                }
             } catch (Exception e) {
                 throw new JsonParseException(e.getMessage());
             }
+
+            builder.addTag(id);
+
             return builder;
         }
 		

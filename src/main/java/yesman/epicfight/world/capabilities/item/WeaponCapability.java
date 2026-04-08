@@ -1,7 +1,10 @@
 package yesman.epicfight.world.capabilities.item;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -11,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -52,6 +56,11 @@ public class WeaponCapability extends CapabilityItem {
 	protected final ZoomInType zoomInType;
 	protected final float reach;
 	
+	/// A custom capability tag that ease identifying categories
+    ///
+    /// Weapon capabilities have registry name of their weapon type builder
+    protected Set<ResourceLocation> customTags;
+	
 	protected WeaponCapability(CapabilityItem.Builder builder) {
 		super(builder);
 		
@@ -71,6 +80,7 @@ public class WeaponCapability extends CapabilityItem {
 		this.comboCounterHandler = weaponBuilder.comboCounterHandler;
 		this.zoomInType = weaponBuilder.zoomInType;
 		this.reach = weaponBuilder.reach;
+		this.customTags = Collections.unmodifiableSet(weaponBuilder.customTags);
 	}
 	
 	@Override
@@ -181,6 +191,14 @@ public class WeaponCapability extends CapabilityItem {
 		return this.reach;
 	}
 	
+	public boolean hasMatchingTag(ResourceLocation rl) {
+        return customTags.contains(rl);
+    }
+
+    public Set<ResourceLocation> getTags() {
+        return customTags;
+    }
+	
 	public static WeaponCapability.Builder builder() {
 		return new WeaponCapability.Builder();
 	}
@@ -200,6 +218,7 @@ public class WeaponCapability extends CapabilityItem {
 		boolean canBePlacedOffhand;
 		ZoomInType zoomInType;
 		float reach;
+		Set<ResourceLocation> customTags = new HashSet<> ();
 		
 		protected Builder() {
 			this.constructor = WeaponCapability::new;
@@ -264,6 +283,11 @@ public class WeaponCapability extends CapabilityItem {
 			this.reach = reach;
 			return this;
 		}
+		
+		public Builder addTag(ResourceLocation customTag) {
+            this.customTags.add(customTag);
+            return this;
+        }
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {

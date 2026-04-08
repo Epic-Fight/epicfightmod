@@ -54,6 +54,7 @@ import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
@@ -272,6 +273,8 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		this.xo = this.original.getX();
 		this.yo = this.original.getY();
 		this.zo = this.original.getZ();
+		
+		if (this.getHoldingItemCapability(InteractionHand.MAIN_HAND) instanceof WeaponCapability weaponCapability) System.out.println(weaponCapability.getTags());
 	}
 	
 	/**

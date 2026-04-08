@@ -13,6 +13,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.skill.SkillSlots;
@@ -33,7 +34,8 @@ public class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.AXE_AUTO1, Animations.AXE_AUTO2, Animations.AXE_DASH, Animations.AXE_AIRSLASH)
 			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
 			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.GUILLOTINE_AXE)
-			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD);
+			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
+			.addTag(EpicFightMod.identifier("axe"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			int harvestLevel = tieredItem.getTier().getLevel();
@@ -53,7 +55,8 @@ public class WeaponCapabilityPresets {
 			.category(WeaponCategories.HOE)
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
 			.collider(ColliderPreset.TOOLS).newStyleCombo(Styles.ONE_HAND, Animations.TOOL_AUTO1, Animations.TOOL_AUTO2, Animations.TOOL_DASH, Animations.SWORD_AIR_SLASH)
-			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
+			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
+			.addTag(EpicFightMod.identifier("hoe"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			int harvestLevel = tieredItem.getTier().getLevel();
@@ -69,7 +72,8 @@ public class WeaponCapabilityPresets {
 			.hitSound(EpicFightSounds.BLADE_HIT.get())
 			.collider(ColliderPreset.TOOLS)
 			.newStyleCombo(Styles.ONE_HAND, Animations.AXE_AUTO1, Animations.AXE_AUTO2, Animations.AXE_DASH, Animations.AXE_AIRSLASH)
-			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
+			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
+			.addTag(EpicFightMod.identifier("pickaxe"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			int harvestLevel = tieredItem.getTier().getLevel();
@@ -89,7 +93,8 @@ public class WeaponCapabilityPresets {
 			.category(WeaponCategories.SHOVEL)
 			.collider(ColliderPreset.TOOLS)
 			.newStyleCombo(Styles.ONE_HAND, Animations.AXE_AUTO1, Animations.AXE_AUTO2, Animations.AXE_DASH, Animations.AXE_AIRSLASH)
-			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK);
+			.newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
+			.addTag(EpicFightMod.identifier("shovel"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			int harvestLevel = tieredItem.getTier().getLevel();
@@ -120,7 +125,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_DUAL_WEAPON)
-			.weaponCombinationPredicator((entitypatch) -> EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).getWeaponCategory() == WeaponCategories.SWORD);
+			.weaponCombinationPredicator((entitypatch) -> EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).getWeaponCategory() == WeaponCategories.SWORD)
+			.addTag(EpicFightMod.identifier("sword"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -148,7 +154,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_WALK_SPEAR)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_RUN_SPEAR)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_HOLD_SPEAR)
-			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SPEAR_GUARD);
+			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SPEAR_GUARD)
+			.addTag(EpicFightMod.identifier("spear"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -179,7 +186,8 @@ public class WeaponCapabilityPresets {
 	    	.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLY, Animations.BIPED_HOLD_GREATSWORD)
 	    	.livingMotionModifier(Styles.TWO_HAND, LivingMotions.CREATIVE_FLY, Animations.BIPED_HOLD_GREATSWORD)
 	    	.livingMotionModifier(Styles.TWO_HAND, LivingMotions.CREATIVE_IDLE, Animations.BIPED_HOLD_GREATSWORD)
-	    	.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.GREATSWORD_GUARD);
+	    	.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
+	    	.addTag(EpicFightMod.identifier("greatsword"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -226,7 +234,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.SHEATH, LivingMotions.SWIM, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
 			.livingMotionModifier(Styles.SHEATH, LivingMotions.FLOAT, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
 			.livingMotionModifier(Styles.SHEATH, LivingMotions.FALL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
+			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD)
+			.addTag(EpicFightMod.identifier("uchigatana"));
 
 	public static final Function<Item, CapabilityItem.Builder> TACHI = (item) -> {
 		WeaponCapability.Builder builder = WeaponCapability.builder()
@@ -246,7 +255,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_HOLD_TACHI)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, Animations.BIPED_HOLD_TACHI)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_TACHI)
-			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+			.addTag(EpicFightMod.identifier("tachi"));
 	
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -295,7 +305,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.OCHS, LivingMotions.SWIM, Animations.BIPED_HOLD_LIECHTENAUER)
 			.livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
-			.livingMotionModifier(Styles.OCHS, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+			.livingMotionModifier(Styles.OCHS, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+			.addTag(EpicFightMod.identifier("longsword"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -325,7 +336,8 @@ public class WeaponCapabilityPresets {
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_HOLD_DUAL_WEAPON)
 			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, Animations.BIPED_HOLD_DUAL_WEAPON)
-			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_DUAL_WEAPON);
+			.livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_DUAL_WEAPON)
+			.addTag(EpicFightMod.identifier("dagger"));
 		
 		if (item instanceof TieredItem tieredItem) {
 			builder.hitSound(tieredItem.getTier() == Tiers.WOOD ? EpicFightSounds.BLUNT_HIT.get() : EpicFightSounds.BLADE_HIT.get());
@@ -339,6 +351,7 @@ public class WeaponCapabilityPresets {
 			.newStyleCombo(Styles.ONE_HAND, Animations.FIST_AUTO1, Animations.FIST_AUTO2, Animations.FIST_AUTO3, Animations.FIST_DASH, Animations.FIST_AIR_SLASH)
 			.innateSkill(Styles.ONE_HAND, (itemstack) -> EpicFightSkills.RELENTLESS_COMBO)
 			.category(WeaponCategories.FIST)
+			.addTag(EpicFightMod.identifier("fist"))
 			.constructor(GloveCapability::new);
 	
 	public static final Function<Item, CapabilityItem.Builder> BOW =  (item) -> RangedWeaponCapability.builder()

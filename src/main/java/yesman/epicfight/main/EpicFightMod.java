@@ -51,6 +51,7 @@ import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.api.ex_cap.core.listeners.*;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.IngameConfigurationScreen;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
@@ -174,8 +175,9 @@ public class EpicFightMod {
 		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(EpicFightCreativeTabs.ITEMS));
     	
 		final IEventBus bus = context.getModEventBus();
-		
-		bus.addListener(this::constructMod);
+        MinecraftForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
+
+        bus.addListener(this::constructMod);
     	bus.addListener(this::doCommonStuff);
     	bus.addListener(this::addPackFindersEvent);
     	bus.addListener(this::buildCreativeTabWithSkillBooks);
@@ -189,8 +191,7 @@ public class EpicFightMod {
 		}
     	
     	MinecraftForge.EVENT_BUS.addListener(this::command);
-        MinecraftForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
-    	
+
     	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, LivingMotions.class);
     	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, SkillCategories.class);
     	SkillSlot.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, SkillSlots.class);
@@ -343,6 +344,13 @@ public class EpicFightMod {
 	private void addReloadListnerEvent(final AddReloadListenerEvent event) {
 		event.addListener(new ColliderPreset());
 		event.addListener(new SkillManager());
+        //ExCap
+        event.addListener(new ExCapBuilderReloadListener());
+        event.addListener(new ExCapConditionalReloadListener());
+        event.addListener(new ExCapMovesetReloadListener());
+        event.addListener(new ExCapDataCreationReloadListener());
+        event.addListener(new ExCapDataReloadListener());
+        //
 		event.addListener(new WeaponTypeReloadListener());
 		event.addListener(new ItemKeywordReloadListener());
 		event.addListener(new ItemCapabilityReloadListener());

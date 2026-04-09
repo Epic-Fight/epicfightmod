@@ -25,6 +25,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
+import yesman.epicfight.gameasset.ex_cap.Builders;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -40,14 +42,13 @@ public class ItemCapabilityProvider implements ICapabilityProvider, NonNullSuppl
 	
 	public static void registerWeaponTypesByClass() {
 		CAPABILITY_BY_CLASS.put(ArmorItem.class, (item) -> ArmorCapability.builder().item(item));
-		CAPABILITY_BY_CLASS.put(ShieldItem.class, WeaponCapabilityPresets.SHIELD);
-		CAPABILITY_BY_CLASS.put(SwordItem.class, WeaponCapabilityPresets.SWORD);
-		CAPABILITY_BY_CLASS.put(PickaxeItem.class, WeaponCapabilityPresets.PICKAXE);
-		CAPABILITY_BY_CLASS.put(AxeItem.class, WeaponCapabilityPresets.AXE);
-		CAPABILITY_BY_CLASS.put(ShovelItem.class, WeaponCapabilityPresets.SHOVEL);
-		CAPABILITY_BY_CLASS.put(HoeItem.class, WeaponCapabilityPresets.HOE);
-		CAPABILITY_BY_CLASS.put(BowItem.class, WeaponCapabilityPresets.BOW);
-		CAPABILITY_BY_CLASS.put(CrossbowItem.class, WeaponCapabilityPresets.CROSSBOW);
+        CAPABILITY_BY_CLASS.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SWORD.id()), item));
+        CAPABILITY_BY_CLASS.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.PICKAXE.id()), item));
+        CAPABILITY_BY_CLASS.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.AXE.id()), item));
+        CAPABILITY_BY_CLASS.put(ShovelItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHOVEL.id()), item));
+        CAPABILITY_BY_CLASS.put(HoeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.HOE.id()), item));
+        CAPABILITY_BY_CLASS.put(BowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.BOW.id()), item));
+        CAPABILITY_BY_CLASS.put(CrossbowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.CROSSBOW.id()), item));
 		CAPABILITY_BY_CLASS.put(MapItem.class, (item) -> MapCapability.builder());
 	}
 	

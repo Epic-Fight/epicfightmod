@@ -42,6 +42,7 @@ import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.TagBasedSeparativeCapability;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
 import yesman.epicfight.world.capabilities.provider.ExtraEntryProvider;
 import yesman.epicfight.world.capabilities.provider.ItemCapabilityProvider;
@@ -191,6 +192,12 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					EpicFightMod.LOGGER.warn("Can't deserialize collider of " + item + ": " + e.getMessage());
 				}
 			}
+			
+			if (builder instanceof WeaponCapability.Builder weaponBuilder && tag.contains("custom_tags")) {
+                for (Tag customTag : tag.getList("custom_tags", Tag.TAG_STRING)) {
+                    weaponBuilder.addTag(ResourceLocation.parse(customTag.getAsString()));
+                }
+            }
 			
 			capability = builder.build();
 		}

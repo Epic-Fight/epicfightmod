@@ -55,7 +55,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
@@ -66,10 +65,8 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -825,30 +822,6 @@ public class RenderEngine {
 			} else {
 				EpicFightCameraAPI.getInstance().postClientTick();
 			}
-		}
-		
-		@SubscribeEvent
-		public static void rightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
-			if (event.getSide() != LogicalSide.CLIENT) {
-				return;
-			}
-
-			EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
-
-			if (!cameraApi.isTPSMode()) {
-				return;
-			}
-
-			EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
-				Vec3 toHit = event.getHitVec().getLocation().subtract(playerpatch.getOriginal().getEyePosition());
-
-				float xRot = (float)MathUtils.getXRotOfVector(toHit);
-				float yRot = (float)MathUtils.getYRotOfVector(toHit);
-
-				playerpatch.getOriginal().setXRot(xRot);
-				playerpatch.getOriginal().setYRot(yRot);
-				playerpatch.getOriginal().setYHeadRot(yRot);
-			});
 		}
 		
 		@SubscribeEvent

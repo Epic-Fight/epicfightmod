@@ -103,6 +103,21 @@ public abstract class MixinMinecraft {
 		}
 	}
 	
+	@Inject(
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"
+		),
+		method = "startUseItem"
+	)
+	private void startUseItem(CallbackInfo ci) {
+		EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
+
+        if (cameraApi.isTPSMode()) {
+            cameraApi.alignPlayerLookToCrosshair(false, true, false);
+        }
+	}
+	
 	/**
 	 * Code copy from {@link GameRenderer#pick(float)}
 	 */

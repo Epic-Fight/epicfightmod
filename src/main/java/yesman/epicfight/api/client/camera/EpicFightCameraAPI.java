@@ -461,7 +461,7 @@ public final class EpicFightCameraAPI {
      * <p>
      * @param noInterpolation	resets old rotation values to new rotations
      * @param syncBodyRot       whether tosync body rotation too. if you want natural movement give it false
-     * @param syncToServer      whether to send a packet to synchronize rotations right away, consider not sending
+     * @param syncToServer      whether to send a packet to synchronize rotations right away, consider not to send
      *                          packets if you call this method in each tick for optimized networking
      */
     public void alignPlayerLookToCrosshair(boolean noInterpolation, boolean syncBodyRot, boolean syncToServer) {

@@ -1083,10 +1083,6 @@ public class ControlEngine {
 					}
 				}
 			}
-			
-			if (EpicFightCameraAPI.getInstance().isTPSMode() && !event.isCanceled() && event.shouldSwingHand()) {
-				EpicFightCameraAPI.getInstance().alignPlayerLookToCrosshair(false, true, false);
-			}
 		}
 	}
 }

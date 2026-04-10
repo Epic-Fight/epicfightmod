@@ -31,6 +31,9 @@ config = "${modId}-compat.vampirism.mixins.json"
 [[mixins]]
 config = "${modId}-compat.werewolves.mixins.json"
 
+[[mixins]]
+config = "${modId}-compat.fgm.mixins.json"
+
 [[accessTransformers]]
 file = "META-INF/accesstransformer.cfg"
 

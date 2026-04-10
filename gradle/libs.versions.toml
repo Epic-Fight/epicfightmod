@@ -43,6 +43,7 @@ firstPersonModel = "L1VcMGVt" # 2.6.1
 shoulderSurfing = "1.21.1-4.18.1+neoforge"
 creativecore = "2.13.35"
 playerrevive = "2.1.0"
+fgm = "3.2.2"
 
 # Helper Gradle-plugins
 mcSafeResources = "0.0.2"
@@ -88,6 +89,8 @@ controlify = { module = "dev.isxander:controlify", version.ref = "controlify" }
 
 creativeCore = { module = "maven.modrinth:creativecore", version.ref = "creativecore" }
 playerRevive = { module = "maven.modrinth:playerrevive", version.ref = "playerrevive" }
+
+fgm = {module = "maven.modrinth:female-gender", version.ref = "fgm"}
 
 # Declared only in libraries[], not plugins[], as it's used only by Gradle convention plugins.
 modPublish-gradle-plugin = { module = "me.modmuss50.mod-publish-plugin:me.modmuss50.mod-publish-plugin.gradle.plugin", version.ref = "modPublish" }

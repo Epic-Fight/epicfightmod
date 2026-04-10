@@ -106,7 +106,6 @@ import java.util.function.Supplier;
 
 /**
  *  --- Future list ---
- *
  *  Update language files (always)
  *  AddEntity an alert function when an entity targeting the player tries grappling or execution attack
  *  AddEntity UI for execution resistance
@@ -131,7 +130,7 @@ public class EpicFightMod {
 	public static final String EPICSKINS_MODID = EpicFight.EPICSKINS_MODID;
 
 	/// @deprecated Use [yesman.epicfight.EpicFight#LOGGER] instead
-	@Deprecated(forRemoval = true)
+	@Deprecated(forRemoval = true, since = "26.1")
 	public static final Logger LOGGER = EpicFight.LOGGER;
 
 	public static String prefix(String s) {

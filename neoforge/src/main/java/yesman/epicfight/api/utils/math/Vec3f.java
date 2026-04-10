@@ -7,7 +7,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.EpicFight;
 
 public class Vec3f extends Vec2f {
 	public static final Vec3f X_AXIS = new Vec3f(1.0F, 0.0F, 0.0F);
@@ -232,7 +232,7 @@ public class Vec3f extends Vec2f {
 		float dotDivLength = Vec3f.dot(a, b) / (a.length() * b.length());
 		
 		if (!Float.isFinite(dotDivLength)) {
-			EpicFightMod.LOGGER.info("Warning : given vector's length is zero");
+			EpicFight.LOGGER.info("Warning : given vector's length is zero");
 			(new IllegalArgumentException()).printStackTrace();
 			dotDivLength = 1.0F;
 		}

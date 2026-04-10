@@ -107,6 +107,8 @@ dependencies {
         isTransitive = false
     }
 
+    implementation(libs.fgm)
+
     implementation(libs.creativeCore)
     implementation(libs.playerRevive)
 }

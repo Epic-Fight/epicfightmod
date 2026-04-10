@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
+  "package": "yesman.epicfight.compat.fgm.mixin",
+  "plugin": "yesman.epicfight.compat.fgm.FGMMixinPlugin",
+  "client": [
+    "FemaleLayerAccessor",
+    "MixinGenderLayer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

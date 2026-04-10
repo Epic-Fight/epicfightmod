@@ -3,10 +3,12 @@ package yesman.epicfight.compat;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.compat.azurelib.AzureLibArmorCompat;
 import yesman.epicfight.compat.azurelib.AzureLibCompat;
 import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
 import yesman.epicfight.compat.curiosapi.CuriosCompat;
+import yesman.epicfight.compat.fgm.WildfireFGMCompat;
 import yesman.epicfight.compat.firstperson.FirstPersonCompat;
 import yesman.epicfight.compat.geckolib.GeckolibCompat;
 import yesman.epicfight.compat.iris.IRISCompat;
@@ -15,7 +17,6 @@ import yesman.epicfight.compat.playerrevive.PlayerReviveCompat;
 import yesman.epicfight.compat.skinlayer3d.SkinLayer3DCompat;
 import yesman.epicfight.compat.vampirism.VampirismCompat;
 import yesman.epicfight.compat.werewolves.WerewolvesCompat;
-import yesman.epicfight.main.EpicFightMod;
 
 // List of mods with custom compatibility modules.
 // Only includes mods requiring manual registration via ICompatModule.
@@ -33,7 +34,7 @@ public enum MinecraftMod {
     PLAYER_ANIMATOR("playeranimator", true, PlayerAnimatorCompat.class),
     BETTER_THIRD_PERSON("betterthirdperson", true, BetterThirdPersonCompat.class),
     PLAYER_REVIVE("playerrevive", true, PlayerReviveCompat.class),
-    ;
+    WILDFIRES_GENDER_MOD("wildfire_gender", true, WildfireFGMCompat.class);
 
     private final @NotNull String modId;
     private final boolean isClientOnly;
@@ -92,7 +93,7 @@ public enum MinecraftMod {
             final String[] parts = version.split("\\.");
             return Integer.parseInt(parts[component.index]);
         } catch (Exception e) {
-            EpicFightMod.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
+            EpicFight.LOGGER.error("Failed to parse the '{}' mod version '{}': {}", name(), version, e.toString());
             return null;
         }
     }

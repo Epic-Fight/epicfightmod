@@ -18,6 +18,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -92,9 +94,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	public Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> getAnimations(Predicate<AssetAccessor<? extends StaticAnimation>> filter) {
 		Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> filteredItems =
 			this.animationByName.entrySet().stream()
-				.filter(entry -> {
-					return filter.test(entry.getValue());
-				})
+				.filter(entry -> filter.test(entry.getValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		
 		return ImmutableMap.copyOf(filteredItems);
@@ -107,9 +107,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			}
 
 			JsonAssetLoader modelLoader = new JsonAssetLoader(getAnimationResourceManager(), animation.getLocation());
-			AnimationClip loadedClip = clipLoader.apply(modelLoader, animation);
 
-			return loadedClip;
+            return clipLoader.apply(modelLoader, animation);
 		} catch (AssetLoadingException e) {
 			throw new AssetLoadingException("Failed to load animation clip from: " + animation, e);
 		}
@@ -129,7 +128,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	}
 
 	@Override
-	protected List<ResourceLocation> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
+	protected @NotNull List<ResourceLocation> prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerIn) {
 		if (!EpicFightSharedConstants.isPhysicalClient() && serverResourceManager == null) {
 			serverResourceManager = resourceManager;
 		}
@@ -151,7 +150,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
     }
 
 	@Override
-	protected void apply(List<ResourceLocation> objects, ResourceManager resourceManager, ProfilerFiller profilerIn) {
+	protected void apply(List<ResourceLocation> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerIn) {
 		Armatures.reload(resourceManager);
 
 		Set<ResourceLocation> registeredAnimation =
@@ -185,9 +184,9 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
                     JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                     this.readResourcepackAnimation(animId, jsonelement.getAsJsonObject());
                 } catch (IOException | JsonParseException | IllegalArgumentException resourceReadException) {
-                    EpicFightMod.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
+                    EpicFight.LOGGER.error("Couldn't parse animation data from {}", animId, resourceReadException);
                 } catch (Exception e) {
-                    EpicFightMod.LOGGER.error("Failed at constructing {}", animId, e);
+                    EpicFight.LOGGER.error("Failed at constructing {}", animId, e);
                 }
             });
 
@@ -292,7 +291,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 					try {
 						return InstantiateInvoker.invoke(invocationCommand, StaticAnimation.class).getResult();
 					} catch (Exception e) {
-						EpicFightMod.LOGGER.warn("Failed at creating animation from server resource pack", e);
+						EpicFight.LOGGER.warn("Failed at creating animation from server resource pack", e);
 						return Animations.EMPTY_ANIMATION;
 					}
 				});
@@ -431,7 +430,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		}
 
         @Override
-		public String toString() {
+		public @NotNull String toString() {
 			return this.registryName.toString();
 		}
 

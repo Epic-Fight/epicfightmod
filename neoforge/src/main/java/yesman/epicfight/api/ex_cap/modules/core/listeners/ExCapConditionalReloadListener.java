@@ -11,10 +11,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
-public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadListener
+public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadListener implements NetSyncListener
 {
     public static final String DIRECTORY = "capabilities/weapons/conditionals";
 
@@ -32,5 +33,11 @@ public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadList
         EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.post(conditionalRegistryEvent);
         ConditionalManager.acceptEvent(conditionalRegistryEvent);
         elementMap.forEach(ConditionalManager::add);
+    }
+
+    public static void processServerPacket(SPDatapackSync packet) {
+        if (packet.packetType() == SPDatapackSync.PacketType.EX_CAP_CONDITIONAL) {
+            ConditionalManager.acceptEvent(EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.post(new ConditionalRegistryEvent()));
+        }
     }
 }

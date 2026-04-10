@@ -43,29 +43,18 @@ public class PlayerSkillCommand {
 				addCommandBuilder
 					.then(Commands.literal(skillSlot.toString().toLowerCase(Locale.ROOT))
 					.then(Commands.argument("skill", SkillArgument.skill())
-					.executes((commandContext) -> {
-						return addSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, commandContext.getArgument("skill", Holder.class));
-					})));
-				
+					.executes((commandContext) -> addSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, commandContext.getArgument("skill", Holder.class)))));
 				removeCommandBuilder
 					.then(Commands.literal(skillSlot.toString().toLowerCase(Locale.ROOT))
-					.executes((commandContext) -> {
-						return removeSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, null);
-					})
+					.executes((commandContext) -> removeSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, null))
 					.then(Commands.argument("skill", SkillArgument.skill())
-					.executes((commandContext) -> {
-						return removeSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, commandContext.getArgument("skill", Holder.class));
-					})));
+					.executes((commandContext) -> removeSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"), skillSlot, commandContext.getArgument("skill", Holder.class)))));
 			}
 		}
 		
 		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("skill").requires((commandSourceStack) -> commandSourceStack.hasPermission(2))
-			.then(Commands.literal("clear").executes((commandContext) -> {
-				return clearSkill(commandContext.getSource(), ImmutableList.of(commandContext.getSource().getPlayerOrException()));
-			})
-			.then(Commands.argument("targets", EntityArgument.players()).executes((commandContext) -> {
-				return clearSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets"));
-			})))
+			.then(Commands.literal("clear").executes((commandContext) -> clearSkill(commandContext.getSource(), ImmutableList.of(commandContext.getSource().getPlayerOrException())))
+			.then(Commands.argument("targets", EntityArgument.players()).executes((commandContext) -> clearSkill(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "targets")))))
 			.then(Commands.literal("add")
 			.then(addCommandBuilder))
 			.then(Commands.literal("remove")

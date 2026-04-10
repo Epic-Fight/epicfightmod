@@ -9,6 +9,7 @@ import com.google.gson.JsonParseException;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -581,6 +582,7 @@ public class WeaponCapability extends CapabilityItem {
 
             return builder;
         }
+
 		
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {

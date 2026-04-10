@@ -11,10 +11,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
-public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadListener
+public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadListener implements NetSyncListener
 {
 
     public static final String DIRECTORY = "capabilities/weapons/ex_cap_data/definitions";
@@ -33,5 +34,11 @@ public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadLis
         DatasetManager.acceptEvent(exCapDataRegistrationEvent);
 
 
+    }
+
+    public static void processServerPacket(SPDatapackSync packet) {
+        if (packet.packetType() == SPDatapackSync.PacketType.EX_CAP_DATA){
+            DatasetManager.acceptEvent(EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.post(new ExCapDataRegistrationEvent()));
+        }
     }
 }

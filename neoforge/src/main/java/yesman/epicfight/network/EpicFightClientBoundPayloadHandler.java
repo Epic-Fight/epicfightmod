@@ -14,6 +14,8 @@ import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillReloadListener;
+import yesman.epicfight.api.ex_cap.modules.core.listeners.*;
+import yesman.epicfight.api.ex_cap.modules.core.managers.ConditionalManager;
 import yesman.epicfight.api.exception.DatapackException;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.client.ClientEngine;
@@ -151,13 +153,18 @@ public interface EpicFightClientBoundPayloadHandler {
 	static void handleDataPack(final SPDatapackSync data, final IPayloadContext context) {
 		try {
 			switch (data.packetType()) {
-			case MOB -> MobPatchReloadListener.processServerPacket(data);
-			case SKILL_PARAMS -> SkillReloadListener.processServerPacket(data);
-			case WEAPON -> ItemCapabilityReloadListener.processServerPacket(data);
-			case ARMOR -> ItemCapabilityReloadListener.processServerPacket(data);
-			case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(data);
-			case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(data);
-			case MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION -> AnimationManager.getInstance().processServerPacket(data, data.packetType() == SPDatapackSync.PacketType.MANDATORY_RESOURCE_PACK_ANIMATION);
+                case MOB -> MobPatchReloadListener.processServerPacket(data);
+                case SKILL_PARAMS -> SkillReloadListener.processServerPacket(data);
+                case WEAPON -> ItemCapabilityReloadListener.processServerPacket(data);
+                case EX_CAP_DATA -> ExCapDataCreationReloadListener.processServerPacket(data);
+                case EX_CAP_BUILDER ->  ExCapBuilderReloadListener.processServerPacket(data);
+                case EX_CAP_CONDITIONAL -> ExCapConditionalReloadListener.processServerPacket(data);
+                case EX_CAP_MOVESET -> ExCapMovesetReloadListener.processServerPacket(data);
+                case EX_CAP_INJECTION -> ExCapDataReloadListener.processServerPacket(data);
+                case ARMOR -> ItemCapabilityReloadListener.processServerPacket(data);
+                case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(data);
+                case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(data);
+                case MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION -> AnimationManager.getInstance().processServerPacket(data, data.packetType() == SPDatapackSync.PacketType.MANDATORY_RESOURCE_PACK_ANIMATION);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

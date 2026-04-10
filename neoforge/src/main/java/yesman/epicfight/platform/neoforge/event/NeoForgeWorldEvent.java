@@ -78,6 +78,11 @@ public final class NeoForgeWorldEvent {
 		SPDatapackSync armorPacket = new SPDatapackSync(SPDatapackSync.PacketType.ARMOR);
 		SPDatapackSync weaponPacket = new SPDatapackSync(SPDatapackSync.PacketType.WEAPON);
 		SPDatapackSync mobCapabilityPacket = new SPDatapackSync(SPDatapackSync.PacketType.MOB);
+        SPDatapackSync exCapBuilderPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_BUILDER);
+        SPDatapackSync exCapConditionalPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_CONDITIONAL);
+        SPDatapackSync exCapMovesetPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_MOVESET);
+        SPDatapackSync exCapDataCreation = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_DATA);
+        SPDatapackSync exCapDataReload = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_INJECTION);
 		SPDatapackSync weaponTypePacket = new SPDatapackSync(SPDatapackSync.PacketType.WEAPON_TYPE);
 		SPDatapackSync itemKeywordPacket = new SPDatapackSync(SPDatapackSync.PacketType.ITEM_KEYWORD);
 		
@@ -90,6 +95,11 @@ public final class NeoForgeWorldEvent {
 		
 		EpicFightNetworkManager.PayloadBundleBuilder
 			.beginWith(animationPacket)
+            .and(exCapBuilderPacket)
+            .and(exCapConditionalPacket)
+            .and(exCapMovesetPacket)
+            .and(exCapDataCreation)
+            .and(exCapDataReload)
 			.and(weaponTypePacket)
 			.and(armorPacket)
 			.and(weaponPacket)

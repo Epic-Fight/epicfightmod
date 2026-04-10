@@ -19,11 +19,11 @@ neoForge {
         create("client") {
             client()
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
+            devLogin = true
         }
 
         create("server") {
             server()
-            programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
         }
 

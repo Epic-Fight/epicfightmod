@@ -11,10 +11,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
-public class ExCapMovesetReloadListener extends SimpleJsonResourceReloadListener
+public class ExCapMovesetReloadListener extends SimpleJsonResourceReloadListener implements NetSyncListener
 {
     public static final String DIRECTORY = "capabilities/weapons/movesets";
 
@@ -32,5 +33,11 @@ public class ExCapMovesetReloadListener extends SimpleJsonResourceReloadListener
         EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.post(exCapMovesetRegistryEvent);
         MovesetManager.acceptEvent(exCapMovesetRegistryEvent);
         elementMap.forEach(MovesetManager::add);
+    }
+
+    public static void processServerPacket(SPDatapackSync packet) {
+        if (packet.packetType() == SPDatapackSync.PacketType.EX_CAP_MOVESET) {
+            MovesetManager.acceptEvent(EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.post(new ExCapMovesetRegistryEvent()));
+        }
     }
 }

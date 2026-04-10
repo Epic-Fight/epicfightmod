@@ -270,6 +270,15 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
             });
         }
 
+        if (tag.contains("custom_tags")) {
+            for (Tag customTag : tag.getList("custom_tags", Tag.TAG_STRING)) {
+                builder.addTag(ResourceLocation.parse(customTag.getAsString()));
+            }
+        }
+
+        // Add data pack path as default tag
+        builder.addTag(rl);
+
         return builder;
     }
 

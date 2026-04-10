@@ -210,6 +210,12 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
                         EpicFightMod.LOGGER.warn("Hit Particle Type not found: {}", hitParticleLocation);
                     }
                 }
+
+                if (tag.contains("custom_tags")) {
+                    for (Tag customTag : tag.getList("custom_tags", Tag.TAG_STRING)) {
+                        weaponBuilder.addTag(ResourceLocation.parse(customTag.getAsString()));
+                    }
+                }
             }
 
 			if (tag.contains("collider")) {
@@ -222,7 +228,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
                     EpicFightMod.LOGGER.warn("Can't deserialize collider of {}: {}", item, e.getMessage());
 				}
 			}
-			
+
 			capability = builder.build();
 		}
 		

@@ -53,7 +53,6 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', mod_id
             //jvmArgs '-Dorg.lwjgl.opengl.libname=\'C:\\Program Files\\RenderDoc\\renderdoc.dll\''
             //args '-Dorg.lwjgl.opengl.libname=renderdoc.dll'
-
         }
 
         server {
@@ -89,6 +88,9 @@ repositories {
             includeGroup 'net.minecraftforge'
         }
     }
+
+    maven { url 'https://maven.covers1624.net/' }
+
 
     exclusiveContent {
         forRepository { maven { url "https://cursemaven.com" } }
@@ -136,12 +138,14 @@ mixin {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-	
-	// Copy and paste dependencies you need at the below
+    runtimeOnly 'net.covers1624:DevLogin:0.1.0.5'
+
+    // Copy and paste dependencies you need at the below
 	// JEI compatibility (optional)
   	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
  	compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
   	runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+    implementation fg.deobf("curse.maven:female-gender-neoforge-481655:4896743")
 	
 	// Azurelib, Azurelib armor, Geckolib compatibility (optional)
     compileOnly fg.deobf("curse.maven:azurelib-817423:5500355")

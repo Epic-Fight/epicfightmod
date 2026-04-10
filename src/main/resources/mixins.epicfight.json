@@ -29,7 +29,8 @@
 		"skinlayers.MixinCustomModelPart",
 		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube",
 		"teamlapen.MixinVampirePlayerHeadLayer",
-		"teamlapen.MixinHumanWerewolfLayer"
+		"teamlapen.MixinHumanWerewolfLayer",
+        "fgm.MixinGenderLayer",
 	],
 	"mixins": [
 		"common.MixinCrossbowAttack",

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.opengl.GL33C;
+import org.lwjgl.opengl.GL43C;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
@@ -220,7 +221,9 @@ public abstract class ComputeShaderSetup {
 
         this.applyComputeShader(poseStack, r, g, b, a, overlay, packedLight, joints);
         // draw call
-        GL33C.glFinish();
+
+        //GL43C.glMemoryBarrier(GL43C.GL_ALL_BARRIER_BITS);
+        //GlStateManager._glBindVertexArray(this.arrayObjectId);
         glUseProgram(RenderSystem.getShader().getId());
         glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, this.vcount);
         //GL33C.glFinish();

@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL33C;
 import org.lwjgl.opengl.GL43C;
 import org.lwjgl.opengl.GL46C;
 import org.lwjgl.system.MemoryUtil;
@@ -184,7 +185,7 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 			curr_POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
 			curr_hiddenFlagsBO.updateFromTo(0, (skinnedMesh.getAllParts().size() + 31) / 32);
 		}
-
+		if(!usePersist) GL33C.glFinish();
 		// state trace
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
 		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);

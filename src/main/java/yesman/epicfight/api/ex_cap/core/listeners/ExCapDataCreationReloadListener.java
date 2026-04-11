@@ -11,6 +11,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
@@ -31,7 +32,13 @@ public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadLis
         ExCapDataRegistrationEvent exCapDataRegistrationEvent = new ExCapDataRegistrationEvent();
         ModLoader.get().postEvent(exCapDataRegistrationEvent);
         DatasetManager.acceptEvent(exCapDataRegistrationEvent);
+    }
 
-
+    public static void sync(SPDatapackSync packet) {
+        if (packet.getType() == SPDatapackSync.Type.EX_CAP_DATA){
+            ExCapDataRegistrationEvent exCapDataRegistrationEvent = new ExCapDataRegistrationEvent();
+            ModLoader.get().postEvent(exCapDataRegistrationEvent);
+            DatasetManager.acceptEvent(exCapDataRegistrationEvent);
+        }
     }
 }

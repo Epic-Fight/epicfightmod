@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
@@ -32,5 +33,13 @@ public class ExCapBuilderReloadListener extends SimpleJsonResourceReloadListener
         ModLoader.get().postEvent(exCapBuilderCreationEvent);
         BuilderManager.acceptEvent(exCapBuilderCreationEvent);
         elementMap.forEach(BuilderManager::add);
+    }
+
+    public static void sync(SPDatapackSync packet) {
+        if (packet.getType() == SPDatapackSync.Type.EX_CAP_DATA){
+            ExCapBuilderCreationEvent exCapBuilderCreationEvent = new ExCapBuilderCreationEvent();
+            ModLoader.get().postEvent(exCapBuilderCreationEvent);
+            BuilderManager.acceptEvent(exCapBuilderCreationEvent);
+        }
     }
 }

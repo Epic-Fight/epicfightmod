@@ -11,6 +11,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
@@ -32,5 +33,13 @@ public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadList
         ModLoader.get().postEvent(conditionalRegistryEvent);
         ConditionalManager.acceptEvent(conditionalRegistryEvent);
         elementMap.forEach(ConditionalManager::add);
+    }
+
+    public static void sync(SPDatapackSync packet) {
+        if (packet.getType() == SPDatapackSync.Type.EX_CAP_CONDITIONAL) {
+            ConditionalRegistryEvent conditionalRegistryEvent = new ConditionalRegistryEvent();
+            ModLoader.get().postEvent(conditionalRegistryEvent);
+            ConditionalManager.acceptEvent(conditionalRegistryEvent);
+        }
     }
 }

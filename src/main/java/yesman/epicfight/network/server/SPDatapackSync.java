@@ -9,6 +9,7 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.api.ex_cap.core.listeners.*;
 import yesman.epicfight.api.exception.DatapackException;
 import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
@@ -68,9 +69,13 @@ public class SPDatapackSync {
 				switch (msg.getType()) {
 				case MOB -> MobPatchReloadListener.processServerPacket(msg);
 				case SKILL_PARAMS -> SkillManager.processServerPacket(msg);
-				case WEAPON -> ItemCapabilityReloadListener.processServerPacket(msg);
-				case ARMOR -> ItemCapabilityReloadListener.processServerPacket(msg);
-				case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(msg);
+				case WEAPON, ARMOR -> ItemCapabilityReloadListener.processServerPacket(msg);
+                case EX_CAP_DATA -> ExCapDataCreationReloadListener.sync(msg);
+                case EX_CAP_BUILDER ->  ExCapBuilderReloadListener.sync(msg);
+                case EX_CAP_CONDITIONAL -> ExCapConditionalReloadListener.sync(msg);
+                case EX_CAP_MOVESET -> ExCapMovesetReloadListener.sync(msg);
+                case EX_CAP_INJECTION -> ExCapDataReloadListener.sync(msg);
+                case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(msg);
 				case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(msg);
 				case MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION -> AnimationManager.getInstance().processServerPacket(msg, msg.getType() == Type.MANDATORY_RESOURCE_PACK_ANIMATION);
 				}
@@ -84,6 +89,7 @@ public class SPDatapackSync {
 	}
 	
 	public enum Type {
-		ARMOR, WEAPON, MOB, SKILL_PARAMS, WEAPON_TYPE, ITEM_KEYWORD, MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION
+		ARMOR, WEAPON, MOB, SKILL_PARAMS, WEAPON_TYPE, ITEM_KEYWORD, MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION,
+        EX_CAP_BUILDER, EX_CAP_MOVESET, EX_CAP_DATA, EX_CAP_CONDITIONAL, EX_CAP_INJECTION,
 	}
 }

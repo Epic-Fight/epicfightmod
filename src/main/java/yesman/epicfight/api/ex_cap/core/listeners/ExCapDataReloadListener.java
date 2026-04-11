@@ -11,6 +11,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,14 @@ public class ExCapDataReloadListener extends SimpleJsonResourceReloadListener
                 });
                 ExCapManager.addExCapData(target, exCapDataList);
             }
+        }
+    }
+
+    public static void sync(SPDatapackSync packet) {
+        if (packet.getType() == SPDatapackSync.Type.EX_CAP_INJECTION) {
+            ExCapabilityBuilderPopulationEvent exCapabilityBuilderPopulationEvent = new ExCapabilityBuilderPopulationEvent();
+            ModLoader.get().postEvent(exCapabilityBuilderPopulationEvent);
+            ExCapManager.acceptEvent(exCapabilityBuilderPopulationEvent);
         }
     }
 }

@@ -15,7 +15,7 @@ import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
-public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadListener implements NetSyncListener
+public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadListener
 {
     public static final String DIRECTORY = "capabilities/weapons/conditionals";
 

@@ -15,7 +15,7 @@ import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
-public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadListener implements NetSyncListener
+public class ExCapDataCreationReloadListener extends SimpleJsonResourceReloadListener
 {
 
     public static final String DIRECTORY = "capabilities/weapons/ex_cap_data/definitions";

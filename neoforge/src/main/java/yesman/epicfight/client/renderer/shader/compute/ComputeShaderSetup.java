@@ -11,15 +11,13 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.lwjgl.opengl.GL33C;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.GLConstants;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.DynamicSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.IArrayBufferProxy;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.OutputSSBO;
-import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.StaticSSBO;
+import yesman.epicfight.client.renderer.shader.compute.backend.ssbo.*;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
@@ -38,14 +36,28 @@ public abstract class ComputeShaderSetup {
 
     public static final OpenMatrix4f[] TOTAL_POSES = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
     public static final OpenMatrix4f[] TOTAL_NORMALS = OpenMatrix4f.allocateMatrixArray(EpicFightSharedConstants.MAX_JOINTS);
-    protected static final IArrayBufferProxy POSE_BO = ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, OpenMatrix4f::store); // PoseBuffer
+
+
+    protected static final int unmappedBufferPoolSize = 32;
+    protected static final ArrayProxyPool POSE_BO_POOL = new ArrayProxyPool(() ->
+            ComputeShaderProvider.createDynamicBuffer(TOTAL_POSES, 16, OpenMatrix4f::store)
+            , unmappedBufferPoolSize); // PoseBuffersPool
+
+
+    protected static final Integer[] HF = new Integer[8];
+    protected static final ArrayProxyPool HF_BO_POOL = new ArrayProxyPool(() ->
+            ComputeShaderProvider.createDynamicBuffer(HF, 1, (v, b) -> b.put(Float.intBitsToFloat(v)))
+            , unmappedBufferPoolSize); // PoseBuffersPool
+
+    protected IArrayBufferProxy curr_POSE_BO;
+    protected IArrayBufferProxy curr_hiddenFlagsBO;
 
     protected final StaticSSBO<VertexObj> vObjBO; // VertexBuffer
     protected final StaticSSBO<WeightInfo> jointBO;
     protected final StaticSSBO<ElemInfo> elementsBO; // ElementsPool
     protected OutputSSBO outVertexAttrBO;
 
-    protected final IArrayBufferProxy hiddenFlagsBO;
+    //protected final IArrayBufferProxy hiddenFlagsBO;
     protected final Integer[] hiddenFlags;
 
     protected final int arrayObjectId;
@@ -62,7 +74,7 @@ public abstract class ComputeShaderSetup {
 
         List<Float> uvList = Lists.newArrayList();
         this.hiddenFlags = new Integer[(skinnedMesh.getAllParts().size() + 31) / 32];
-        this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
+        //this.hiddenFlagsBO = ComputeShaderProvider.createDynamicBuffer(this.hiddenFlags, 1, (v, b) -> b.put(Float.intBitsToFloat(v)));
 
         MutableInt partIdx = new MutableInt(0);
 
@@ -190,7 +202,7 @@ public abstract class ComputeShaderSetup {
         this.vObjBO.close();
         this.jointBO.close();
         this.elementsBO.close();
-        this.hiddenFlagsBO.close();
+        //this.hiddenFlagsBO.close();
         RenderSystem.glDeleteVertexArrays(this.arrayObjectId);
     }
 
@@ -207,15 +219,17 @@ public abstract class ComputeShaderSetup {
         shader.apply();
 
         this.applyComputeShader(poseStack, r, g, b, a, overlay, packedLight, joints);
-
         // draw call
+        GL33C.glFinish();
         glUseProgram(RenderSystem.getShader().getId());
         glDrawArrays(VertexFormat.Mode.TRIANGLES.asGLMode, 0, this.vcount);
+        //GL33C.glFinish();
 
         // state restore
         RenderSystem.getShader().clear();
         renderType.clearRenderState();
         format.clearBufferState();
+
     }
 
     public interface BufferUploadable {

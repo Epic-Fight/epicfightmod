@@ -127,10 +127,8 @@ public class SkinnedMesh extends StaticMesh<SkinnedMeshPart> {
 			if (EpicFightSharedConstants.IS_DEV_ENV) {
 				EpicFightMod.LOGGER.debug("Cannot find the mesh part named " + name + " in " + this.getClass().getCanonicalName());
 			}
-			
 			return null;
 		}
-		
 		return parts.get(name);
 	}
 	

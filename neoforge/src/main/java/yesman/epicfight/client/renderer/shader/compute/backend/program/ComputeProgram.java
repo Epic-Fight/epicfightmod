@@ -38,7 +38,7 @@ public class ComputeProgram {
     	GL46.glAttachShader(this.programHandle, computeShader.shaderId);
     }
 
-    public void waitBarriers() {
+    public void memBarriers() {
     	GL46.glMemoryBarrier(this.barrierFlags);
     }
 

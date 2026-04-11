@@ -250,7 +250,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
                 for (TrailInfo trailInfo : trailInfos) {
                     double eid = Double.longBitsToDouble((long)entitypatch.getOriginal().getId());
                     double animid = Double.longBitsToDouble((long)this.getId());
-                    double jointId = Double.longBitsToDouble((long)this.armature.get().searchJointByName(trailInfo.joint()).getId());
+                    double jointId = Double.longBitsToDouble((long)entitypatch.getArmature().searchJointByName(trailInfo.joint()).getId());
                     double index = Double.longBitsToDouble((long)idx++);
 
                     if (trailInfo.hand() != null) {

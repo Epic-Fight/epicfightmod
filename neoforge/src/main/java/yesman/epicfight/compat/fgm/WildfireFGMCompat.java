@@ -217,10 +217,10 @@ public class WildfireFGMCompat implements ICompatModule {
                     Vector3f translationVector = transform.getTranslation(new Vector3f());
                     matrixStack.translate(translationVector.x, translationVector.y, translationVector.z);
                     matrixStack.mulPose(transform.getNormalizedRotation(new Quaternionf()).rotateXYZ(Mth.PI, Mth.PI, 0));
-                    matrixStack.translate(0, -0.35, 0);
+                    matrixStack.translate(0, -0.35, 0.00125);
 
                     Vector3f scaleVector = transform.getScale(new Vector3f());
-                    matrixStack.scale(scaleVector.x, scaleVector.y, scaleVector.z);
+                    matrixStack.scale(scaleVector.x, scaleVector.y, scaleVector.z - 0.0125f);
 
                     if (bounceEnabled) {
                         matrixStack.translate(physPositionX / 32.0F, 0.0F, 0.0F);

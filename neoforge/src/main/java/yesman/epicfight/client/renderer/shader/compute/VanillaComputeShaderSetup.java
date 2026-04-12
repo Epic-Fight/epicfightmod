@@ -82,7 +82,7 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
 		if (this.usePersist) {
 			this.poseBuffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0, this.posesOff, this.poseSize);
-            this.hfBuffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4, this.hiddenFlagOff, this.HF.length * 4L);
+            this.hfBuffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4, this.hiddenFlagOff, this.hiddenFlags.length * 4L);
 		} else {
 			curr_POSE_BO.bindBufferBase(0);
 			curr_hiddenFlagsBO.bindBufferBase(4);
@@ -185,7 +185,7 @@ public class VanillaComputeShaderSetup extends ComputeShaderSetup {
 			curr_POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
 			curr_hiddenFlagsBO.updateFromTo(0, (skinnedMesh.getAllParts().size() + 31) / 32);
 		}
-		if(!usePersist) GL33C.glFinish();
+		//if(!usePersist) GL33C.glFinish();
 		// state trace
 		int currentBoundVao = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BINDING);
 		int currentBoundVbo = GlStateManager._getInteger(GLConstants.GL_VERTEX_ARRAY_BUFFER_BINDING);

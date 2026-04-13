@@ -129,7 +129,7 @@ public class EpicFightGameRules {
 			.build();
 	
 	public static void registerGameRules() {
-		GAME_RULES.values().forEach((gamerule) -> gamerule.registerGameRule());
+		GAME_RULES.values().forEach(ConfigurableGameRule::registerGameRule);
 	}
 	
 	public static <Type, Config extends ForgeConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> ConfigurableGameRule<Type, Config, RuleValue> create(
@@ -222,7 +222,7 @@ public class EpicFightGameRules {
 		}
 	}
 	
-	public static record RuleType<Type, RuleValue extends GameRules.Value<RuleValue>> (
+	public record RuleType<Type, RuleValue extends GameRules.Value<RuleValue>> (
 		  BiFunction<Type, BiConsumer<MinecraftServer, RuleValue>, GameRules.Type<RuleValue>> valueCreator
 		, Function<Type, GameRules.Type<RuleValue>> valueCreatorUnsynchronized
 		, Function<RuleValue, Type> getRule

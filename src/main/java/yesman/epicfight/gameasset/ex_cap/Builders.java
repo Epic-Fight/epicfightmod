@@ -115,11 +115,13 @@ public class Builders
 
     public static final BuilderEntry BOW = new BuilderEntry(EpicFightMod.identifier("bow"), WeaponCapability.builder()
             .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
+            .category(CapabilityItem.WeaponCategories.BOW)
             .addTag(EpicFightMod.identifier("bow"))
     );
 
     public static final BuilderEntry CROSSBOW = new BuilderEntry(EpicFightMod.identifier("crossbow"), WeaponCapability.builder()
             .zoomInType(CapabilityItem.ZoomInType.AIMING)
+            .category(CapabilityItem.WeaponCategories.CROSSBOW)
             .addTag(EpicFightMod.identifier("crossbow"))
     );
 
@@ -133,6 +135,7 @@ public class Builders
 
     public static final BuilderEntry SHIELD = new BuilderEntry(EpicFightMod.identifier("shield"), WeaponCapability.builder()
             .category(CapabilityItem.WeaponCategories.SHIELD)
+            .offHandAlone(true)
             .addTag(EpicFightMod.identifier("shield"))
     );
 }

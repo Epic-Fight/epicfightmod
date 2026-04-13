@@ -42,6 +42,7 @@ public class ItemCapabilityProvider implements ICapabilityProvider, NonNullSuppl
 	
 	public static void registerWeaponTypesByClass() {
 		CAPABILITY_BY_CLASS.put(ArmorItem.class, (item) -> ArmorCapability.builder().item(item));
+		CAPABILITY_BY_CLASS.put(ShieldItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHIELD.id()), item));
         CAPABILITY_BY_CLASS.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SWORD.id()), item));
         CAPABILITY_BY_CLASS.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.PICKAXE.id()), item));
         CAPABILITY_BY_CLASS.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.AXE.id()), item));

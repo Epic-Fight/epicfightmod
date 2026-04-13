@@ -90,7 +90,7 @@ public class ExCapRegistryHooks
                 MainConditionals.DEFAULT_1H_WIELD_STYLE,
                 MainConditionals.DEFAULT_2H_WIELD_STYLE,
                 MainConditionals.DEFAULT_RANGED,
-                MainConditionals. SHIELD_OFFHAND,
+                MainConditionals.SHIELD_OFFHAND,
                 MainConditionals.LIECHTENAUER_CONDITION,
                 MainConditionals.UCHIGATANA_SHEATHED,
                 MainConditionals.DUAL_DAGGERS,

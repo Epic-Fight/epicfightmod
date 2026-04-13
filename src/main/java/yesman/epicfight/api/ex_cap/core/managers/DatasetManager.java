@@ -5,6 +5,7 @@ import yesman.epicfight.api.ex_cap.core.data.ExCapData;
 import yesman.epicfight.api.ex_cap.core.events.ExCapDataRegistrationEvent;
 import net.minecraft.resources.ResourceLocation;
 import com.google.gson.JsonElement;
+import yesman.epicfight.main.EpicFightMod;
 
 import java.util.Map;
 
@@ -14,6 +15,14 @@ public class DatasetManager {
     public static void acceptEvent(ExCapDataRegistrationEvent event) {
         dataMap.clear();
         dataMap.putAll(event.getDataMap());
+    }
+
+    public static void debug()
+    {
+        dataMap.forEach((resourceLocation, builder) ->
+        {
+            EpicFightMod.LOGGER.debug("Moveset {} loaded.", resourceLocation);
+        });
     }
 
     public static ExCapData.Builder get(ResourceLocation resourceLocation)

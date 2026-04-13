@@ -271,7 +271,7 @@ public class CapabilityItem {
 		weaponInnateSkillContainer.setDisabled(weaponInnateSkill == null);
 		toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_INNATE, weaponInnateSkill));
 		
-		Skill passiveSkill = this.getPassiveSkill();
+		Skill passiveSkill = this.getPassiveSkill(playerpatch);
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
 		
 		if (passiveSkill != null) {
@@ -435,7 +435,7 @@ public class CapabilityItem {
 	}
 	
 	public enum WeaponCategories implements WeaponCategory {
-		NOT_WEAPON, AXE, FIST, GREATSWORD, HOE, PICKAXE, SHOVEL, SWORD, UCHIGATANA, SPEAR, TACHI, TRIDENT, LONGSWORD, DAGGER, SHIELD, RANGED;
+		NOT_WEAPON, AXE, FIST, GREATSWORD, HOE, PICKAXE, SHOVEL, SWORD, UCHIGATANA, SPEAR, TACHI, TRIDENT, LONGSWORD, DAGGER, SHIELD, CROSSBOW, BOW;
 		
 		final int id;
 		

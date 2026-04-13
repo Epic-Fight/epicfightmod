@@ -1,7 +1,6 @@
 package yesman.epicfight.api.ex_cap.modules.assets;
 
 import yesman.epicfight.api.ex_cap.modules.core.data.BuilderEntry;
-import net.minecraft.sounds.SoundEvents;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.registry.entries.EpicFightSounds;
@@ -102,5 +101,6 @@ public class Builders
             .category(CapabilityItem.WeaponCategories.TRIDENT));
 
     public static final BuilderEntry SHIELD = new BuilderEntry(EpicFight.identifier("shield"), WeaponCapability.builder()
+            .offHandAlone(true)
             .category(CapabilityItem.WeaponCategories.SHIELD));
 }

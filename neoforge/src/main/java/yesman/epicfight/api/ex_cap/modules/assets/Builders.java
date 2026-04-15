@@ -133,6 +133,7 @@ public class Builders
 
     public static final BuilderEntry SHIELD = new BuilderEntry(EpicFight.identifier("shield"), WeaponCapability.builder()
             .category(CapabilityItem.WeaponCategories.SHIELD)
+            .offHandAlone(true)
             .addTag(EpicFight.identifier("shield"))
     );
 }

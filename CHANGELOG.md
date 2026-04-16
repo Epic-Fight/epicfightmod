@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [20.14.16.1] - 2026-04-16
+### Added
+- Revelation for ExCap making it complete with 1.21.1.
+### Fixed
+- Shields not rendering offhand alone.
+- Weapon Passive Skill still using the legacy method.
+- Mount Attacks still using the legacy method.
+
 ## [20.14.16] - 2026-04-13
 
 ### Added

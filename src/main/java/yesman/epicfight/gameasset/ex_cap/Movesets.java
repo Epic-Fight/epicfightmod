@@ -11,8 +11,7 @@ import yesman.epicfight.api.ex_cap.core.data.MoveSet;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.main.EpicFightMod;
 
-@SuppressWarnings("unchecked")
-public class Movesets 
+public class Movesets
 {
     public static MoveSetEntry commonShield = new MoveSetEntry(
             EpicFightMod.identifier("common_shield"),

@@ -1,0 +1,80 @@
+[versions]
+
+moddevgradle = "2.0.141"
+
+embeddium = "0.3.31+mc1.20.1"
+jei = "15.2.0.27"
+kubejs = "2001.6.5-build.16"
+rhino = "2001.2.3-build.10"
+architectury = "9.2.14"
+controlify = "2.1.7-mc1.20.1-forge"
+yacl = "3.6.6+1.20.1-forge"
+female-gender = "4896743"
+azurelib = "2.0.29"
+geckolib = "5675221"
+oculus = "1.20.1-1.8.0"
+vampirism = "1.10.12"
+curios = "5.12.0+1.20.1"
+citadel = "2.4.9"
+iceandfire = "2.1.13-1.20.1-beta-5"
+playeranimator = "1.0.2-rc1+1.20-forge"
+skinlayer3d = "BBnR3V86"
+firstperson = "2.3.0"
+shouldersurfing = "1.20.1-4.22.5+forge"
+creativecore = "2.11.24"
+
+
+mcSafeResources = "0.0.2"
+modPublish = "1.1.0"
+
+
+[libraries]
+
+embeddium = { module = "maven.modrinth:embeddium", version.ref = "embeddium" }
+
+jei-common-api = { group = "mezz.jei", name = "jei-1.20.1-common-api", version.ref = "jei" }
+jei-forge-api = { group = "mezz.jei", name = "jei-1.20.1-forge-api", version.ref = "jei" }
+jei-forge-runtime = { group = "mezz.jei", name = "jei-1.20.1-forge", version.ref = "jei" }
+
+kubejs = { group = "dev.latvian.mods", name = "kubejs-forge", version.ref = "kubejs" }
+rhino = { group = "dev.latvian.mods", name = "rhino-forge", version.ref = "rhino" }
+architectury = { group = "dev.architectury", name = "architectury-forge", version.ref = "architectury" }
+
+controlify = { group = "dev.echoellet", name = "controlify-forgified", version.ref = "controlify" }
+yacl = { group = "maven.modrinth", name = "yacl", version.ref = "yacl" }
+
+# Modrinth Maven Migrations (Fixed Slugs/Versions)
+# Note: Modrinth Maven uses the "Version ID" or "Version String"
+female-gender = { group = "curse.maven", name = "female-gender-neoforge-481655", version.ref = "female-gender" }
+azurelib = { group = "maven.modrinth", name = "azurelib", version.ref = "azurelib" }
+geckolib = { group = "curse.maven", name = "geckolib-388172", version.ref = "geckolib" }
+oculus = { group = "maven.modrinth", name = "oculus", version.ref = "oculus" }
+vampirism = { group = "maven.modrinth", name = "vampirism", version.ref = "vampirism" }
+curios = { group = "maven.modrinth", name = "curios", version.ref = "curios" }
+citadel = { group = "maven.modrinth", name = "citadel", version.ref = "citadel" }
+iceandfire = { group = "maven.modrinth", name = "ice-and-fire-dragons", version.ref = "iceandfire" }
+playeranimator = { group = "maven.modrinth", name = "playeranimator", version.ref = "playeranimator" }
+skinlayer3d = { group = "maven.modrinth", name = "3dskinlayers", version.ref = "skinlayer3d" }
+firstperson = { group = "maven.modrinth", name = "first-person-model", version.ref = "firstperson" }
+shouldersurfing = { group = "maven.modrinth", name = "shoulder-surfing-reloaded", version.ref = "shouldersurfing" }
+creativecore = { group = "maven.modrinth", name = "creativecore", version.ref = "creativecore" }
+
+azurelib-armor = { group = "curse.maven", name = "azurelib-armor-912767", version = "5500370" }
+werewolves = { group = "curse.maven", name = "werewolves-become-a-beast-417851", version = "5406832" }
+playerrevive = { group = "curse.maven", name = "playerrevive-266890", version = "6048921" }
+transition = { group = "libs", name = "TRansition", version = "1.0.5" }
+trender = { group = "libs", name = "TRender", version = "1.0.7" }
+
+
+[plugins]
+eclipse = { id = "eclipse"}
+idea = { id = "idea"}
+
+#Core Gradle Stuff
+moddevgradle = { id = "net.neoforged.moddev.legacyforge", version.ref = "moddevgradle" }
+publisher = { id = "me.modmuss50.mod-publish-plugin", version.ref = "modPublish"}
+mcSafeResources = { id = "dev.echoellet.mc-safe-resources", version.ref = "mcSafeResources" }
+
+[bundles]
+
+kubejs-stack = ["kubejs", "rhino", "architectury"]

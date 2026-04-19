@@ -1,8 +1,10 @@
 package yesman.epicfight.mixin.common;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,15 +15,15 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @Mixin(value = RangedCrossbowAttackGoal.class)
 public class MixinRangedCrossbowAttackGoal {
-	@Redirect(
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/monster/RangedAttackMob;performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V"
 		),
 		method = "tick()V"
 	)
-	private void epicfight$tick(RangedAttackMob self, LivingEntity target, float velocity) {
-		self.performRangedAttack(target, velocity);
+	private void epicfight$tick(RangedAttackMob self, LivingEntity target, float velocity, Operation<Void> original) {
+		original.call(self, target, velocity);
 		
 		EpicFightCapabilities.getUnparameterizedEntityPatch((Entity)self, LivingEntityPatch.class).ifPresent(entitypatch -> {
 			entitypatch.playShootingAnimation();

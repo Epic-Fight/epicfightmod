@@ -1,11 +1,11 @@
 package yesman.epicfight.mixin.common;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -22,21 +22,21 @@ public abstract class MixinThrownTrident extends AbstractArrow {
 		super(p_36721_, p_36722_);
 	}
 	
-	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/ThrownTrident;setPosRaw(DDD)V"), method = "tick()V")
-	private void epicfight_setPosRawInTick(ThrownTrident entity, double x, double y, double z) {
+	@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/ThrownTrident;setPosRaw(DDD)V"), method = "tick()V")
+	private void epicfight_setPosRawInTick(ThrownTrident entity, double x, double y, double z, Operation<Void> original) {
 		ThrownTridentPatch tridentPatch = EpicFightCapabilities.getEntityPatch(entity, ThrownTridentPatch.class);
 		
 		if (tridentPatch == null || !tridentPatch.isInnateActivated()) {
-			entity.setPosRaw(x, y, z);
+			original.call(entity, x, y, z);
 		}
 	}
 	
-	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/ThrownTrident;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"), method = "tick()V")
-	private void epicfight_setDeltaMovementInTick(ThrownTrident entity, Vec3 vec3) {
+	@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/ThrownTrident;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"), method = "tick()V")
+	private void epicfight_setDeltaMovementInTick(ThrownTrident entity, Vec3 vec3, Operation<Void> original) {
 		ThrownTridentPatch tridentPatch = EpicFightCapabilities.getEntityPatch(entity, ThrownTridentPatch.class);
 		
 		if (tridentPatch == null || !tridentPatch.isInnateActivated()) {
-			entity.setDeltaMovement(vec3);
+			original.call(entity, vec3);
 		}
 	}
 	
@@ -49,9 +49,9 @@ public abstract class MixinThrownTrident extends AbstractArrow {
 		}
 	}
 	
-	@Redirect(     at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;playerTouch(Lnet/minecraft/world/entity/player/Player;)V")
+	@WrapOperation(     at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;playerTouch(Lnet/minecraft/world/entity/player/Player;)V")
 	         , method = "playerTouch(Lnet/minecraft/world/entity/player/Player;)V")
-	private void epicfight_playerTouch(AbstractArrow entity, Player player) {
+	private void epicfight_playerTouch(ThrownTrident entity, Player player, Operation<Void> original) {
 		ThrownTridentPatch tridentPatch = EpicFightCapabilities.getEntityPatch(entity, ThrownTridentPatch.class);
 		
 		if (tridentPatch != null && tridentPatch.isInnateActivated()) {
@@ -62,6 +62,6 @@ public abstract class MixinThrownTrident extends AbstractArrow {
 			}
 		}
 		
-		super.playerTouch(player);
+		original.call(entity, player);
 	}
 }

@@ -1,5 +1,7 @@
 package yesman.epicfight.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
@@ -15,7 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.client.events.engine.RenderEngine;
@@ -43,14 +44,14 @@ public abstract class MixinGui {
 	private void renderCrosshairINJECT(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo callback) {
 		// Draw crosshair in TPS mode, since vanilla crosshair aren't rendered in third person.
 		if (EpicFightCameraAPI.getInstance().isTPSMode()) {
-			this.epicfight$renderCrosshair(guiGraphics, true);
+			this.epicfight$renderCrosshair(guiGraphics, true, () -> guiGraphics.blitSprite(Gui.CROSSHAIR_SPRITE, (guiGraphics.guiWidth() - 15) / 2, (guiGraphics.guiHeight() - 15) / 2, 15, 15));
 		}
 	}
 	
 	/**
 	 * Replace the crosshair into mining indicator
 	 */
-	@Redirect(
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V",
@@ -58,12 +59,12 @@ public abstract class MixinGui {
 		),
 		method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"
 	)
-	private void renderCrosshairREDIRECT(GuiGraphics guiGraphics, ResourceLocation sprite, int x, int y, int width, int height) {
-		this.epicfight$renderCrosshair(guiGraphics, false);
+	private void renderCrosshairREDIRECT(GuiGraphics guiGraphics, ResourceLocation sprite, int x, int y, int width, int height, Operation<Void> original) {
+		this.epicfight$renderCrosshair(guiGraphics, false, () -> original.call(guiGraphics, sprite, x, y, width, height));
 	}
 	
 	@Unique
-	private void epicfight$renderCrosshair(GuiGraphics guiGraphics, boolean setupBlend) {
+	private void epicfight$renderCrosshair(GuiGraphics guiGraphics, boolean setupBlend, Runnable vanillaCrosshairRenderer) {
 		if (setupBlend) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -82,7 +83,7 @@ public abstract class MixinGui {
 		}
 		
 		if (drawVanillaCrosshair.booleanValue()) {
-            guiGraphics.blitSprite(Gui.CROSSHAIR_SPRITE, (guiGraphics.guiWidth() - 15) / 2, (guiGraphics.guiHeight() - 15) / 2, 15, 15);
+            vanillaCrosshairRenderer.run();
 		} else {
             guiGraphics.blit(EntityUI.BATTLE_ICON, (guiGraphics.guiWidth() - 15) / 2, (guiGraphics.guiHeight() - 15) / 2, 0, 240, 15, 15);
 		}

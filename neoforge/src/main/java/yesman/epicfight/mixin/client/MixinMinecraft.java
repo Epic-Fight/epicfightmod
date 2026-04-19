@@ -1,5 +1,7 @@
 package yesman.epicfight.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -18,7 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
@@ -81,18 +82,18 @@ public class MixinMinecraft {
         }
     }
 
-    @Redirect(
+    @WrapOperation(
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"
         ),
         method = "tick()V"
     )
-    private void epicfight$tick(GameRenderer gameRenderer, float partialTick) {
+    private void epicfight$tick(GameRenderer instance, float partialTicks, Operation<Void> original) {
         if (EpicFightCameraAPI.getInstance().isTPSMode()) {
             this.pickInTPSPerspectiveMode();
         } else {
-            this.gameRenderer.pick(partialTick);
+            original.call(instance, partialTicks);
         }
     }
 

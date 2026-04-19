@@ -1,5 +1,7 @@
 package yesman.epicfight.mixin.common;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -11,7 +13,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -104,30 +105,30 @@ public abstract class MixinEntity {
         }
     }
 	
-	@Redirect(
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
 		),
 		method = "saveWithoutId(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;"
 	)
-	private void epicfight$saveWithoutId(Entity self, CompoundTag compoundTag) {
-		this.addAdditionalSaveData(compoundTag);
+	private void epicfight$saveWithoutId(Entity self, CompoundTag compoundTag, Operation<Void> original) {
+		original.call(self, compoundTag);
 		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(self, EntityPatch.class).ifPresent(entitypatch -> {
 			entitypatch.writeData(compoundTag);
 		});
 	}
 	
-	@Redirect(
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
 		),
 		method = "load(Lnet/minecraft/nbt/CompoundTag;)V"
 	)
-	private void epicfight$load(Entity self, CompoundTag compoundTag) {
-		this.readAdditionalSaveData(compoundTag);
+	private void epicfight$load(Entity self, CompoundTag compoundTag, Operation<Void> original) {
+		original.call(self, compoundTag);
 		
 		EpicFightCapabilities.getUnparameterizedEntityPatch(self, EntityPatch.class).ifPresent(entitypatch -> {
 			entitypatch.readData(compoundTag);

@@ -1,5 +1,7 @@
 package yesman.epicfight.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -13,7 +15,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.config.ClientConfig;
 
@@ -23,21 +24,19 @@ public abstract class MixinGameRenderer {
     private Camera mainCamera;
     @Shadow @Final
     Minecraft minecraft;
-    @Shadow
-    public abstract void pick(float partialTick);
 
-    @Redirect(
+    @WrapOperation(
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"
         ),
         method = "renderLevel(Lnet/minecraft/client/DeltaTracker;)V"
     )
-    private void epicfight$renderLevel(GameRenderer gameRenderer, float partialTick) {
+    private void epicfight$renderLevel(GameRenderer instance, float partialTicks, Operation<Void> original) {
         if (EpicFightCameraAPI.getInstance().isTPSMode()) {
             this.pickInTPSPerspective();
         } else {
-            this.pick(partialTick);
+            original.call(instance, partialTicks);
         }
     }
 

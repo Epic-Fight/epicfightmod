@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +25,8 @@ import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class DodgeSkill extends Skill {
 	public static class Builder extends SkillBuilder<DodgeSkill> {
@@ -82,8 +85,20 @@ public class DodgeSkill extends Skill {
 		ServerPlayerPatch executor = skillContainer.getServerExecutor();
 		int i = args.readInt();
 		float yRot = args.readFloat();
-		
-		executor.playAnimationSynchronized(this.animations[i], 0);
+
+		CapabilityItem item = executor.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+
+
+		AnimationAccessor<? extends StaticAnimation> animation = animations[i];
+		if (item instanceof WeaponCapability weapon)
+		{
+			if (weapon.getCurrentSet(executor).getDodgeOverrides().apply(skillContainer, args) != null)
+			{
+				animation = weapon.getCurrentSet(executor).getDodgeOverrides().apply(skillContainer, args);
+			}
+		}
+
+		executor.playAnimationSynchronized(animation, 0);
 		executor.setModelYRot(yRot, true);
 	}
 	

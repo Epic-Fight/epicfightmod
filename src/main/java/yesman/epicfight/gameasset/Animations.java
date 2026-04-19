@@ -2378,7 +2378,7 @@ public class Animations {
 		};
 		
 		public static final AnimationEvent.E0 SET_TOOLS_BACK_WHEN_MOUNT = (entitypatch, animation, params) -> {
-			if (!entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).availableOnHorse() && entitypatch.getArmature() instanceof ToolHolderArmature toolArmature) {
+			if (!entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).availableOnHorse(entitypatch) && entitypatch.getArmature() instanceof ToolHolderArmature toolArmature) {
 				moveToolBonesToBack(entitypatch, animation, toolArmature);
 			}
 		};
@@ -2481,7 +2481,7 @@ public class Animations {
 		
 		public static final AnimationEvent.E2<CapabilityItem, CapabilityItem> SET_TOOLS_BACK_WHEN_MOUNT_AND_ITEM_CHANGED = (entitypatch, animation, params) -> {
 			if (entitypatch.getArmature() instanceof ToolHolderArmature humanoidArmature) {
-				if (!params.first().availableOnHorse()) {
+				if (!params.first().availableOnHorse(entitypatch)) {
 					moveToolBonesToBack(entitypatch, animation, humanoidArmature);
 				} else {
 					moveToolBonesToHands(entitypatch, animation, humanoidArmature);

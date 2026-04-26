@@ -199,6 +199,15 @@ public class OBBCollider extends Collider {
 		Vec3 xyzVec = this.modelVertices[1];
 		return new OBBCollider(xyzVec.x, xyzVec.y, xyzVec.z, this.modelCenter.x, this.modelCenter.y, this.modelCenter.z);
 	}
+
+	public OBBCollider withSymmetricLocalZExtension(double deltaLength) {
+		if (deltaLength <= 0.0D || this.modelVertices == null || this.modelVertices.length != 4) {
+			return this.deepCopy();
+		}
+		double halfDelta = deltaLength * 0.5D;
+		Vec3 v = this.modelVertices[1];
+		return new OBBCollider(v.x, v.y, v.z + halfDelta, this.modelCenter.x, this.modelCenter.y, this.modelCenter.z);
+	}
 	
 	private static boolean checkSeparateAxisOverlap(Vec3 seperateAxis, Vec3 toOpponent, OBBCollider box1, OBBCollider box2) {
 		Vec3 maxProj1 = null, maxProj2 = null;//, distance;

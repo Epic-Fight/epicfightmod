@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -505,12 +506,19 @@ public class CapabilityItem {
 		Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
 		WeaponCategory category;
 		Collider collider;
+		ResourceLocation identifier;
 		
 		protected Builder() {
 			this.constructor = CapabilityItem::new;
 			this.attributeMap = Maps.newHashMap();
 			this.category = WeaponCategories.FIST;
 			this.collider = ColliderPreset.FIST;
+		}
+
+		public T identifier(ResourceLocation id)
+		{
+			this.identifier = id;
+			return (T) this;
 		}
 		
 		public T constructor(Function<T, CapabilityItem> constructor) {

@@ -4,7 +4,6 @@ import yesman.epicfight.api.event.types.animation.*;
 import yesman.epicfight.api.event.types.entity.*;
 import yesman.epicfight.api.event.types.player.*;
 import yesman.epicfight.api.event.types.registry.*;
-import yesman.epicfight.api.ex_cap.modules.core.events.*;
 import yesman.epicfight.api.utils.side.LogicalSide;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -69,11 +68,6 @@ public final class EpicFightEventHooks {
         public static final EventHook<SkillBuilderModificationEvent> MODIFY_SKILL_BUILDER = EventHook.createEventHook();
         public static final EventHook<RegisterMobSkillBookLootTableEvent> SKILLBOOK_LOOT_TABLE = EventHook.createEventHook();
         public static final EventHook<WeaponCapabilityPresetRegistryEvent> WEAPON_CAPABILITY_PRESET = EventHook.createEventHook();
-        public static final EventHook<ExCapabilityBuilderPopulationEvent> EX_CAP_DATA_POPULATION = EventHook.createEventHook();
-        public static final EventHook<ExCapBuilderCreationEvent> EX_CAP_BUILDER_CREATION = EventHook.createEventHook();
-        public static final EventHook<ExCapDataRegistrationEvent> EX_CAP_DATA_CREATION = EventHook.createEventHook();
-        public static final EventHook<ExCapMovesetRegistryEvent> EX_CAP_MOVESET_REGISTRY = EventHook.createEventHook();
-        public static final EventHook<ConditionalRegistryEvent> EX_CAP_CONDITIONAL_REGISTRATION = EventHook.createEventHook();
 
         private Registry() {}
     }

@@ -2,10 +2,12 @@ package yesman.epicfight.world.capabilities.provider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
-import yesman.epicfight.api.ex_cap.modules.assets.Builders;
-import yesman.epicfight.api.ex_cap.modules.core.managers.BuilderManager;
+import yesman.epicfight.api.ex_cap.assets.Builders;
+import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
+import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,33 +26,27 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
-import yesman.epicfight.world.capabilities.item.ArmorCapability;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
-import yesman.epicfight.world.capabilities.item.MapCapability;
-import yesman.epicfight.world.capabilities.item.RuntimeCapability;
-import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
-import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
+import yesman.epicfight.world.capabilities.item.*;
 
 public final class CommonItemCapabilityProvider implements ICapabilityProvider<ItemStack, Void, CapabilityItem> {
 	public static final CommonItemCapabilityProvider INSTANCE = new CommonItemCapabilityProvider();
 	
 	private CommonItemCapabilityProvider() {}
 	
-	private final Map<Class<? extends Item>, Function<Item, ? extends CapabilityItem.Builder<?>>> typedCapabilities = new HashMap<> ();
+	private final Map<Class<? extends Item>, BuilderEntry> typedCapabilities = new HashMap<> ();
 	private final Map<Item, CapabilityItem> capabilities = new HashMap<> ();
 	
 	public void registerWeaponTypesByClass() {
-		this.typedCapabilities.put(ArmorItem.class, (item) -> ArmorCapability.builder().byItem(item));
-		this.typedCapabilities.put(ShieldItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHIELD.id()), item));
-        this.typedCapabilities.put(SwordItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SWORD.id()), item));
-        this.typedCapabilities.put(PickaxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.PICKAXE.id()), item));
-        this.typedCapabilities.put(AxeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.AXE.id()), item));
-        this.typedCapabilities.put(ShovelItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.SHOVEL.id()), item));
-        this.typedCapabilities.put(HoeItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.HOE.id()), item));
-        this.typedCapabilities.put(BowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.BOW.id()), item));
-        this.typedCapabilities.put(CrossbowItem.class, item -> WeaponCapabilityPresets.exCapRegistration(BuilderManager.getEntry(Builders.CROSSBOW.id()), item));
-		this.typedCapabilities.put(MapItem.class, (item) -> MapCapability.builder());
+		this.typedCapabilities.put(ArmorItem.class, Builders.ARMOR);
+		this.typedCapabilities.put(ShieldItem.class, Builders.SHIELD);
+        this.typedCapabilities.put(SwordItem.class, Builders.SWORD);
+        this.typedCapabilities.put(PickaxeItem.class, Builders.PICKAXE);
+        this.typedCapabilities.put(AxeItem.class, Builders.AXE);
+        this.typedCapabilities.put(ShovelItem.class, Builders.SHOVEL);
+        this.typedCapabilities.put(HoeItem.class, Builders.HOE);
+        this.typedCapabilities.put(BowItem.class, Builders.BOW);
+        this.typedCapabilities.put(CrossbowItem.class, Builders.CROSSBOW);
+		this.typedCapabilities.put(MapItem.class, Builders.MAP);
 	}
 	
 	public void put(Item item, CapabilityItem cap) {
@@ -58,7 +54,30 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 	}
 	
 	public CapabilityItem get(Item item) {
-		return capabilities.getOrDefault(item, this.typedCapabilities.containsKey(item.getClass()) ? this.typedCapabilities.get(item.getClass()).apply(item).build() : null);
+		return capabilities.getOrDefault(item, getDefault(item));
+	}
+
+	private CapabilityItem getDefault(Item item)
+	{
+		BuilderEntry builderEntry = this.typedCapabilities.getOrDefault(item.getClass(), null);
+		CapabilityItem.Builder<?> result = null;
+		if (builderEntry != null)
+		{
+			if (builderEntry.template() instanceof WeaponCapability.Builder)
+			{
+				result = WeaponCapabilityPresets.exCapRegistration(builderEntry.template(), item);
+			}
+			else if (builderEntry.template() instanceof ArmorCapability.Builder builder)
+			{
+				result = builder.byItem(item);
+			}
+			else
+			{
+				result = builderEntry.template();
+			}
+		}
+
+		return result != null ? result.build() : null;
 	}
 	
 	public void clear() {
@@ -91,7 +110,7 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 				
 				for (; clazz != null && capability == null; clazz = clazz.getSuperclass()) {
 					if (this.typedCapabilities.containsKey(clazz)) {
-						capability = this.typedCapabilities.get(clazz).apply(item).build();
+						capability = getDefault(item);
 					}
 				}
 				

@@ -1,7 +1,6 @@
 package yesman.epicfight.main;
 
-import yesman.epicfight.api.ex_cap.modules.core.listeners.*;
-import yesman.epicfight.api.ex_cap.modules.hooks.ExCapRegistryHooks;
+import yesman.epicfight.api.ex_cap.core.listeners.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -311,12 +310,6 @@ public class EpicFightMod {
 
     private void addRegistries()
     {
-		EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapRegistryHooks::registerData, 1);
-		EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapRegistryHooks::registerExCapBuilders, 1);
-        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapRegistryHooks::registerConditionals, 1);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapRegistryHooks::registerExCapMovesets, 1);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapRegistryHooks::registerExCapMethods, 1);
-        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(ExCapRegistryHooks::registerWeaponCapabilities, 1);
         EpicFightEventHooks.Registry.SKILLBOOK_LOOT_TABLE.registerEvent(EpicFightLootTables::createSkillLootTable);
     }
 
@@ -352,8 +345,6 @@ public class EpicFightMod {
 		event.addListener(new ExCapBuilderReloadListener());
         event.addListener(new ExCapConditionalReloadListener());
         event.addListener(new ExCapMovesetReloadListener());
-		event.addListener(new ExCapDataCreationReloadListener());
-		event.addListener(new ExCapDataReloadListener());
 		// -----------------------------------------
 		event.addListener(new WeaponTypeReloadListener());
 		event.addListener(new ItemKeywordReloadListener());

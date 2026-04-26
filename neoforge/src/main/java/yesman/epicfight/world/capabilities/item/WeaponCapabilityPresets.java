@@ -1,17 +1,11 @@
 package yesman.epicfight.world.capabilities.item;
 
-import com.google.common.collect.Lists;
-import yesman.epicfight.api.ex_cap.modules.core.data.ExCapData;
-import yesman.epicfight.api.ex_cap.modules.core.managers.DatasetManager;
-import yesman.epicfight.api.ex_cap.modules.core.managers.ExCapManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
-import yesman.epicfight.EpicFight;
 
-import java.util.List;
 import java.util.Map;
 
 public abstract class WeaponCapabilityPresets {
@@ -31,16 +25,15 @@ public abstract class WeaponCapabilityPresets {
 		return sqrt < 10.0D ? 0 : (int)Math.round(sqrt / 10.0D);
 	}
 
-    public static WeaponCapability.Builder exCapRegistration(Map.Entry<ResourceLocation, WeaponCapability.Builder> entry, Item item)
+    public static CapabilityItem.Builder<?> exCapRegistration(CapabilityItem.Builder<?> builder, Item item)
     {
-        if (entry == null) return new WeaponCapability.Builder();
-        List<ExCapData> data = Lists.newArrayList();
-        ExCapManager.retrieveExCapData(entry.getKey()).forEach(exCapData -> data.add(exCapData.build()));
-        WeaponCapability.Builder copy = entry.getValue().copy();
-        handleTieredStats(copy, item);
-        data.forEach(exCapData -> exCapData.apply(copy));
-        EpicFight.LOGGER.debug(copy.toString());
-        return copy;
+        if (builder instanceof WeaponCapability.Builder weaponBuilder)
+        {
+            WeaponCapability.Builder copy = weaponBuilder.copy();
+            handleTieredStats(copy, item);
+            return copy;
+        }
+        return CapabilityItem.builder();
     }
 
     private static void handleTieredStats(WeaponCapability.Builder builder, Item item)

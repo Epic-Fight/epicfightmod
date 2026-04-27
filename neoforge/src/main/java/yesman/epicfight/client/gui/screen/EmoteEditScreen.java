@@ -12,6 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.Vec4f;
 import yesman.epicfight.client.gui.datapack.screen.MessageScreen;
@@ -212,6 +213,11 @@ public class EmoteEditScreen extends Screen {
         }
 
         public void addEntry(Holder.Reference<Emote> emote) {
+            if (emote.value().animation().get() == null) {
+                EpicFight.LOGGER.error("Emote animation not found: {}", emote.value().animation().registryName());
+                return;
+            }
+
             this.children().add(new Entry(emote));
         }
 

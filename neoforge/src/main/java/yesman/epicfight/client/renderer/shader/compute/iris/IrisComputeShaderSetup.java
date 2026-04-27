@@ -128,7 +128,7 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	
+
 	@Override
 	public void applyComputeShader(PoseStack poseStack, float r, float g, float b, float a, int overlay, int light, int jointCount) {
 		// shader setup
@@ -142,16 +142,16 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		shader.getUniform("entity_id_1").uploadUnsignedInt(getItem() << 16);
 		shader.getUniform("model_view_matrix").uploadMatrix4f(poseStack.last().pose());
 		shader.getUniform("normal_matrix").uploadMatrix3f(poseStack.last().normal());
-
 		if(use_persist){
 			pose_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 0,
 					poses_off, pose_size);
 			hf_buffer.bindRange(GL43C.GL_SHADER_STORAGE_BUFFER, 4,
-					hidden_flag_off, hiddenFlags.length * 4L);
+					hidden_flag_off, HF.length * 4L);
 		}
 		else {
-			ComputeShaderSetup.POSE_BO.bindBufferBase(0);
-			this.hiddenFlagsBO.bindBufferBase(4);
+			//ComputeShaderSetup.POSE_BO.bindBufferBase(0);
+			curr_POSE_BO.bindBufferBase(0);
+			curr_hiddenFlagsBO.bindBufferBase(4);
 		}
 
 		this.elementsBO.bindBufferBase(1);
@@ -162,15 +162,15 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		int workGroupCount = ((this.vcount / 3) + WORK_GROUP_SIZE - 1) / WORK_GROUP_SIZE;
 		if (use_persist) GL46C.glMemoryBarrier(GL46C.GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 		shader.dispatch(workGroupCount, 1, 1);
-		shader.waitBarriers();
+		shader.memBarriers();
 
 		if(use_persist){
 			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, 0);
 			GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 4, 0);
 		}
 		else {
-			ComputeShaderSetup.POSE_BO.unbind();
-			this.hiddenFlagsBO.unbind();
+			curr_POSE_BO.unbind();
+			curr_hiddenFlagsBO.unbind();
 		}
 
 		this.elementsBO.unbind();
@@ -189,6 +189,7 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 	@Override
 	public void drawWithShader(SkinnedMesh skinnedMesh, PoseStack poseStack, MultiBufferSource buffers, RenderType renderType, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses) {
 		// pose setup and upload
+		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
 		for (int i = 0; i < poses.length; i++) {
 			TOTAL_POSES[i].load(poses[i]);
 			
@@ -196,8 +197,11 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 				TOTAL_POSES[i].mulBack(armature.searchJointById(i).getToOrigin());
 			}
 		}
-		
-        Arrays.fill(this.hiddenFlags, 0);
+
+		if(use_persist)
+			Arrays.fill(this.hiddenFlags, 0);
+		else
+			Arrays.fill(HF, 0);
         
 		for (SkinnedMeshPart part : skinnedMesh.getAllParts()) {
 			OpenMatrix4f mat = part.getVanillaPartTransform();
@@ -208,11 +212,16 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 			
 			int flagPos = part.getPartVBO().partIdx() / 32;
 			int flagOffset = part.getPartVBO().partIdx() % 32;
-			int flag = this.hiddenFlags[flagPos];
-			this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
+			if(use_persist){
+				int flag = this.hiddenFlags[flagPos];
+				this.hiddenFlags[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
+			}
+			else {
+				int flag = HF[flagPos];
+				HF[flagPos] = flag | ((part.isHidden() ? 1:0) << flagOffset);
+			}
 		}
 
-		use_persist = ClientConfig.activatePersistentBuffer && ComputeShaderProvider.supportPersistentMapping();
 		if(use_persist){
 			// pose
 			int pose_len = poses.length + skinnedMesh.getAllParts().size();
@@ -249,8 +258,10 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 			}
 		}
 		else {
-			this.hiddenFlagsBO.updateAll();
-			POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+			curr_POSE_BO = POSE_BO_POOL.getOrWait();
+			curr_hiddenFlagsBO = HF_BO_POOL.getOrWait();
+			curr_POSE_BO.updateFromTo(0, poses.length + skinnedMesh.getAllParts().size());
+			curr_hiddenFlagsBO.updateFromTo(0, (skinnedMesh.getAllParts().size() + 31) / 32);
 		}
 		
 		// state trace
@@ -264,12 +275,16 @@ public class IrisComputeShaderSetup extends ComputeShaderSetup {
 		if (buffers instanceof BufferSourceWrapper bufferwrapper) {
 			if (bufferwrapper.getOriginal() instanceof OutlineBufferSource outlineBufferSource) {
 				renderType.outline().ifPresent(outlineRendertype -> {
-					this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+					this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F,
+							outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F,
+							outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 				});
 			}
 		} else if (buffers instanceof OutlineBufferSource outlineBufferSource) {
 			renderType.outline().ifPresent(outlineRendertype -> {
-				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F, outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F, outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
+				this.draw(poseStack, outlineRendertype, outlineBufferSource.teamR / 255.0F,
+						outlineBufferSource.teamG / 255.0F, outlineBufferSource.teamB / 255.0F,
+						outlineBufferSource.teamA / 255.0F, overlay, packedLight, poses.length);
 			});
 		}
 		

@@ -230,7 +230,7 @@
   "gui.epicfight.tooltip.settings.ui.mine_block_guide": "Sets the UI to indicate when the player's next action will allow them to mine a block.\n\n● Disable: turns off the whole functionality\n\n● Crosshair: switches the crosshair\n\n● Block Highlight: highlights a block by a white overlay\n\n● All: activates both of Crosshair and Block Highlight",
   "gui.epicfight.tooltip.settings.ui.show_epicfight_attributes": "Toggles showing the Epic Fight attribute tooltips in the item description",
   "gui.epicfight.tooltip.settings.ui.hud_locations": "Opens the UI setup screen where you can determine the location of each Epic Fight UI component",
-  "gui.epicfight.tooltip.settings.graphics.compute_shader": "Activates compute shader to boost frame rates. Deactivate this option when you see a trouble in rendering entities",
+  "gui.epicfight.tooltip.settings.graphics.compute_shader": "Activates compute shader to boost frame rates. Deactivate this option when you see a trouble in rendering entities. \n\nIt is recommended to update to a graphics card driver that supports OpenGL 4.6 and enable persistent mapping to achieve a fully optimized experience.",
   "gui.epicfight.tooltip.settings.graphics.blood_particles": "Toggles blood-related particle effects",
   "gui.epicfight.tooltip.settings.graphics.persistent_buffer": "Toggles persistent mapped buffer. Enhances the frame rate by reducing matrix uploading cost to shader",
   "gui.epicfight.tooltip.settings.graphics.ground_slams": "Toggles the visibility of ground slam effects",

@@ -2,6 +2,7 @@ package yesman.epicfight.client.renderer.shader.compute.loader;
 
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.lwjgl.opengl.GL33C;
+import org.lwjgl.opengl.GL43;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.shader.compute.ComputeShaderSetup;
@@ -69,11 +70,13 @@ public class ComputeShaderProvider {
         clear();
         
         try {
-            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFight.identifier("shaders/compute/vanilla_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
-            batchedMeshComputeVanilla =
+            meshComputeVanilla = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(),
+                    EpicFight.identifier("shaders/compute/vanilla_mesh_transformer.comp"),
+                    BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+            /*batchedMeshComputeVanilla =
                     ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(),
                             EpicFight.identifier("shaders/compute/batched/vanilla_batched_mesh_transformer.comp"),
-                            BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);
+                            BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);*/
             if (irisLoaded)
             {
                 meshComputeIris = ComputeShaderLoader.loadComputeShaderProgram(event.getResourceProvider(), EpicFight.identifier("shaders/compute/iris_mesh_transformer.comp"), BarrierFlags.SHADER_STORAGE, BarrierFlags.VERTEX_ATTRIB_ARRAY);

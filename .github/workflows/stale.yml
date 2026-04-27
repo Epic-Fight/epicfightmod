@@ -1,0 +1,38 @@
+name: "Issue Manager"
+
+on:   
+  workflow_dispatch: 
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions: 
+      issues: write
+    steps:
+      - name: "Stale Cleanup"
+        uses: actions/stale@v9
+        with:
+          days-before-stale: 60
+          days-before-close: 7
+          stale-issue-message: "This issue has been automatically marked as stale because it has not had recent activity. It would close in 7 days."
+          close-issue-message: "This issue has been closed due to inactivity."
+          
+          stale-issue-label: "stale"
+          
+          exempt-issue-labels: "confirmed,pinned,security,planned,core-contributor"
+        
+          days-before-pr-stale: -1
+      - name: "Information Requested"
+        uses: actions/stale@v9
+        with:
+          days-before-stale: 0
+          days-before-close: 7
+          only-issue-labels: "low information"
+          stale-issue-message: >
+            This issue has been labeled 'low-information'. Please provide 
+            a minimal reproducible example or more logs within 7 days, 
+            otherwise this will be closed.
+          close-issue-message: "Closing due to lack of requested information."
+          stale-issue-label: "waiting for response"
+          
+        

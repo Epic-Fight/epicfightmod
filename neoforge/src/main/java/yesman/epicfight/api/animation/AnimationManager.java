@@ -90,7 +90,12 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	public static <T extends StaticAnimation> AnimationAccessor<T> byId(int animationId) {
 		return (AnimationAccessor<T>)getInstance().animationById.get(animationId);
 	}
-	
+
+    /// Use the transient accessor when you need to get accessors before animations are loaded, especailly a data pack loading stage
+    public static <T extends StaticAnimation> AnimationAccessor<T> trasientAccessor(ResourceLocation registryName) {
+        return new TransientAnimationAccessor<> (registryName);
+    }
+
 	public Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> getAnimations(Predicate<AssetAccessor<? extends StaticAnimation>> filter) {
 		Map<ResourceLocation, AnimationAccessor<? extends StaticAnimation>> filteredItems =
 			this.animationByName.entrySet().stream()
@@ -414,7 +419,24 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			return a1.id() <= this.id() && a2.id() >= this.id();
 		}
 	}
-	
+
+    public record TransientAnimationAccessor<A extends StaticAnimation> (ResourceLocation registryName) implements AnimationAccessor<A> {
+        @Override
+        public A get() {
+            return (A)INSTANCE.animationByName.get(registryName).get();
+        }
+
+        @Override
+        public int id() {
+            return INSTANCE.animationByName.get(registryName).id();
+        }
+
+        @Override
+        public boolean inRegistry() {
+            return false;
+        }
+    }
+
 	public record AnimationAccessorImpl<A extends StaticAnimation> (ResourceLocation registryName, int id, boolean inRegistry, Function<AnimationAccessor<A>, A> onLoad) implements AnimationAccessor<A> {
 		private static <A extends StaticAnimation> AnimationAccessor<A> create(ResourceLocation registryName, int id, boolean inRegistry, Function<AnimationAccessor<A>, A> onLoad) {
 			return new AnimationAccessorImpl<A> (registryName, id, inRegistry, onLoad);

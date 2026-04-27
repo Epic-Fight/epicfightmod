@@ -1,8 +1,12 @@
 package yesman.epicfight.client.renderer.shader.compute.backend.buffers;
 
+import yesman.epicfight.client.renderer.shader.compute.backend.Sync;
+
 import static org.lwjgl.opengl.GL46.*;
 
 public class MappedBuffer extends MutableBuffer implements IClientBuffer {
+
+	private final Sync sync = new Sync();
 	protected long address;
 	protected long position;
 	protected long current;
@@ -66,5 +70,35 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
 	public long map() {
 		return this.map(GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	}
+
+	public boolean isSyncd() {
+		if (!sync.isSyncSet()) {
+			return true;
+		}
+
+		if (!sync.isSyncSignaled()) {
+			return false;
+		}
+		sync.deleteSync	();
+		sync.resetSync	();
+		return true;
+	}
+
+	public void waitSync() {
+		if (!sync.isSyncSet()) {
+			return;
+		}
+
+		if (!sync.isSyncSignaled()) {
+			sync.waitSync();
+		}
+
+		sync.deleteSync	();
+		sync.resetSync	();
+	}
+
+	public void setSync(){
+		sync.setSync();;
 	}
 }

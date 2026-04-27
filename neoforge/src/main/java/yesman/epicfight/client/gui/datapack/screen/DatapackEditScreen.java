@@ -250,7 +250,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 		super(Component.translatable(LangKeys.GUI_TITLE_DATAPACK_EDITOR));
 
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
+		this.minecraft = parentScreen == null ? Minecraft.getInstance() : parentScreen.getMinecraft();
 		this.font = this.minecraft.font;
 		
 		this.weaponTypeTab = new DatapackEditScreen.WeaponTypeTab();

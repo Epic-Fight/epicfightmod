@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.16.4] - 2026-04-21
+
+### Fixed
+- Fixed Emote data pack crashes with custom animations in dedicated server [#2534](https://github.com/Antikythera-Studios/epicfight/issues/2534)
+- Fixed a crash when opening datapack editor [#2546](https://github.com/Antikythera-Studios/epicfight/issues/2546)
+
 ## [21.16.3] - 2026-04-13
 
 ### Added

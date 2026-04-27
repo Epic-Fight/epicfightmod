@@ -7,29 +7,34 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey;
+import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.data.conditions.Condition;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.callbacks.SkillCallbacks;
 import yesman.epicfight.registry.callbacks.SkillDataKeyCallbacks;
 import yesman.epicfight.registry.callbacks.SynchedAnimationVariableKeyCallbacks;
 import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillDataKey;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.entity.data.ExpandedEntityDataAccessor;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public abstract class EpicFightRegistries {
     public static final Registry<Supplier<Condition<?>>> CONDITION = new RegistryBuilder<> (Keys.CONDITION).create();
     public static final Registry<ExpandedEntityDataAccessor<?>> EXPANDED_ENTITY_DATA_ACCESSOR = new RegistryBuilder<> (Keys.EXPANDED_ENTITY_DATA_ACCESSOR).sync(true).create();
     public static final Registry<Skill> SKILL = new RegistryBuilder<> (Keys.SKILL).callback(SkillCallbacks.getSkillCallback()).sync(true).create();
     public static final Registry<SkillDataKey<?>> SKILL_DATA_KEY = new RegistryBuilder<> (Keys.SKILL_DATA_KEY).callback(SkillDataKeyCallbacks.getRegistryCallback()).sync(true).create();
     public static final Registry<SynchedAnimationVariableKey<?>> SYNCHED_ANIMATION_VARIABLE = new RegistryBuilder<> (Keys.SYNCHED_ANIMATION_VARIABLE_KEY).callback(SynchedAnimationVariableKeyCallbacks.getRegistryCallback()).sync(true).create();
-
+    public static final Registry<CapabilityItem.Builder<?>> BUILDERS = new RegistryBuilder<>(Keys.BUILDERS).create();
+    public static final Registry<Moveset.Builder> MOVESETS = new RegistryBuilder<>(Keys.MOVESETS).sync(true).create();
+    public static final Registry<ProviderConditional.Builder> PROVIDER_CONDITIONALS = new RegistryBuilder<>(Keys.PROVIDER_CONDITIONALS).sync(true).create();
     // Deferred Registries
     public static final List<DeferredRegister<?>> DEFERRED_REGISTRIES = List.of(
         EpicFightArmorMaterials.REGISTRY,
@@ -52,10 +57,17 @@ public abstract class EpicFightRegistries {
         EpicFightSkillDataKeys.REGISTRY,
         EpicFightSkills.REGISTRY,
         EpicFightSounds.REGISTRY,
-        EpicFightSynchedAnimationVariableKeys.REGISTRY
+        EpicFightSynchedAnimationVariableKeys.REGISTRY,
+            EpicFightMovesets.REGISTRY,
+            EpicFightProviderConditionals.REGISTRY,
+            EpicFightItemCapabilityPresets.REGISTRY
     );
 
     public interface Keys {
+        ResourceKey<Registry<CapabilityItem.Builder<?>>> BUILDERS = key("item_capability_builder");
+        ResourceKey<Registry<Moveset.Builder>> MOVESETS = key("moveset");
+        ResourceKey<Registry<ProviderConditional.Builder>> PROVIDER_CONDITIONALS = key("provider_conditional");
+
         ResourceKey<Registry<Supplier<Condition<?>>>> CONDITION = key("condition");
         ResourceKey<Registry<ExpandedEntityDataAccessor<?>>> EXPANDED_ENTITY_DATA_ACCESSOR = key("expanded_entity_data_accessor");
         ResourceKey<Registry<SynchedAnimationVariableKey<?>>> SYNCHED_ANIMATION_VARIABLE_KEY = key("synched_animation_variable_key");
@@ -66,13 +78,16 @@ public abstract class EpicFightRegistries {
         ResourceKey<Registry<Emote>> EMOTE = key("emote");
 
         private static <T> ResourceKey<Registry<T>> key(String name) {
-            return ResourceKey.createRegistryKey(EpicFightMod.identifier(name));
+            return ResourceKey.createRegistryKey(EpicFight.identifier(name));
         }
     }
 
     @SubscribeEvent
     public static void addNewRegistries(NewRegistryEvent event) {
         event.register(CONDITION);
+        event.register(BUILDERS);
+        event.register(MOVESETS);
+        event.register(PROVIDER_CONDITIONALS);
         event.register(EXPANDED_ENTITY_DATA_ACCESSOR);
         event.register(SKILL);
         event.register(SKILL_DATA_KEY);

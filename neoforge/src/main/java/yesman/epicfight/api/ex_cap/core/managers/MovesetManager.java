@@ -3,35 +3,34 @@ package yesman.epicfight.api.ex_cap.core.managers;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import yesman.epicfight.api.ex_cap.core.data.MoveSet;
+import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.EpicFight;
-import yesman.epicfight.api.ex_cap.core.data.MoveSetEntry;
+import yesman.epicfight.registry.EpicFightRegistries;
 
 import java.util.Map;
 
 public class MovesetManager
 {
-    private static final Map<ResourceLocation, MoveSet.MoveSetBuilder> MOVESETS = Maps.newHashMap();
-    private static final Map<ResourceLocation, MoveSet.MoveSetBuilder> REGISTERED_MOVESETS = Maps.newHashMap();
-
+    private static final Map<ResourceLocation, Moveset.Builder> MOVESETS = Maps.newHashMap();
+    private static final Map<ResourceLocation, Moveset.Builder> BUILDER_DECLARED_MOVESETS = Maps.newHashMap();
 
     public static void acceptEvent()
     {
         MOVESETS.clear();
-        MOVESETS.putAll(REGISTERED_MOVESETS);
+        EpicFightRegistries.MOVESETS.entrySet().forEach(entry -> MOVESETS.put(entry.getKey().location(), entry.getValue()));
+        MOVESETS.putAll(BUILDER_DECLARED_MOVESETS);
     }
 
-    public static MoveSetEntry register(ResourceLocation id, MoveSet.MoveSetBuilder builder)
+    public static void addMoveset(ResourceLocation rl, Moveset.Builder builder)
     {
-        REGISTERED_MOVESETS.put(id, builder);
-        return new MoveSetEntry(id, builder);
+        BUILDER_DECLARED_MOVESETS.put(rl, builder);
     }
 
     public static void add(ResourceLocation id, JsonElement jsonElement)
     {
         try {
-            MoveSet.MoveSetBuilder builder = MoveSet.MoveSetBuilder.deserialize(jsonElement);
+            Moveset.Builder builder = Moveset.Builder.deserialize(jsonElement);
             MOVESETS.put(id, builder);
         } catch (JsonParseException e) {
             //Skip invalid JSON
@@ -39,7 +38,7 @@ public class MovesetManager
         }
     }
 
-    public static MoveSet.MoveSetBuilder getBuilder(ResourceLocation id)
+    public static Moveset.Builder getBuilder(ResourceLocation id)
     {
         return MOVESETS.get(id);
     }

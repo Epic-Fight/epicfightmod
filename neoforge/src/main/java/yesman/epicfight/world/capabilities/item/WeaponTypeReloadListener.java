@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.netty.util.internal.StringUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -83,7 +84,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
                 PRESETS.put(key, (itemstack) -> deserializeWeaponCapabilityBuilder(key, comptagFinal));
                 CAPABILITY_COMPOUNDS.put(key, compTag);
             } catch (Exception e) {
-                EpicFight.LOGGER.warn("Error while deserializing weapon type datapack: " + key);
+                EpicFight.LOGGER.warn("Error while deserializing weapon type datapack: {}", key);
                 e.printStackTrace();
             }
         });
@@ -128,38 +129,30 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 
         builder.category(WeaponCategory.ENUM_MANAGER.getOrThrow(tag.getString("category")));
         builder.collider(ColliderPreset.deserializeSimpleCollider(tag.getCompound("collider")));
-        builder.canBePlacedOffhand(tag.contains("usable_in_offhand") ? tag.getBoolean("usable_in_offhand") : true);
+        builder.canBePlacedOffhand(!tag.contains("usable_in_offhand") || tag.getBoolean("usable_in_offhand"));
 
         if (tag.contains("hit_particle")) {
-            ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.parse(tag.getString("hit_particle")));
+            Optional<Holder.Reference<ParticleType<?>>> particleType = BuiltInRegistries.PARTICLE_TYPE.getHolder(ResourceLocation.parse(tag.getString("hit_particle")));
+            particleType.ifPresent( particleHolder -> {
+                if (!(particleHolder.value() instanceof HitParticleType)) {
+                    EpicFight.LOGGER.warn("{} is not a hit particle type in {}", tag.getString("hit_particle"), rl);
+                } else {
+                    builder.hitParticle(particleHolder);
+                }
+            });
 
-            if (particleType == null) {
-                EpicFight.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
-            } else if (!(particleType instanceof HitParticleType)) {
-                EpicFight.LOGGER.warn(tag.getString("hit_particle") + " is not a hit particle type in " + rl);
-            } else {
-                builder.hitParticle((HitParticleType)particleType);
-            }
         }
 
         if (tag.contains("swing_sound")) {
-            SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("swing_sound")));
+            Holder<SoundEvent> sound = BuiltInRegistries.SOUND_EVENT.getHolder(ResourceLocation.parse(tag.getString("swing_sound"))).get();
 
-            if (sound == null) {
-                EpicFight.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
-            } else {
-                builder.swingSound(sound);
-            }
+            builder.swingSound(sound);
         }
 
         if (tag.contains("hit_sound")) {
-            SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(tag.getString("hit_sound")));
+            Holder<SoundEvent> sound = BuiltInRegistries.SOUND_EVENT.getHolder(ResourceLocation.parse(tag.getString("hit_sound"))).get();
 
-            if (sound == null) {
-                EpicFight.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
-            } else {
-                builder.hitSound(sound);
-            }
+            builder.hitSound(sound);
         }
 
         CompoundTag combosTag = tag.getCompound("combos");

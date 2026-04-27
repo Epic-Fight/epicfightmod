@@ -6,7 +6,9 @@ import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
 
 import java.util.Map;
@@ -44,6 +46,15 @@ public class BuilderManager {
         builder.identifier(id);
         REGISTERED_BUILDERS.put(id, builder);
         return new BuilderEntry(id, builder);
+    }
+
+    public static void modify(WeaponModifier modifier)
+    {
+        CapabilityItem.Builder<?> builder = BUILDERS.get(modifier.target());
+        if (builder instanceof WeaponCapability.Builder weaponBuilder)
+        {
+
+        }
     }
 
     @ApiStatus.Internal

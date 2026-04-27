@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.ex_cap.core.data.MoveSet;
-import yesman.epicfight.api.ex_cap.core.data.RenderModifier;
+import yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;

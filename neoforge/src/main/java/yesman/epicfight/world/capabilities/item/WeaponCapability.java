@@ -467,6 +467,20 @@ public class WeaponCapability extends CapabilityItem {
             this.offHandAlone = offHandAlone;
             return this;
         }
+
+        @ApiStatus.Internal
+        public void removeConditional(ResourceLocation rl)
+        {
+            this.provider.remove(rl);
+        }
+
+        @ApiStatus.Internal
+        public void removeMoveset(Style style)
+        {
+            this.moveSets.remove(style);
+        }
+
+        public void modifyMoveset
 		
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;

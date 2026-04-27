@@ -13,7 +13,7 @@
  * specific configuration builder.</li>
  * <li><b>Templates:</b> The {@link yesman.epicfight.api.ex_cap.core.data.MoveSet} class, which represents a fully
  * baked set of animations and skills ready for runtime execution.</li>
- * <li><b>Rendering:</b> Interfaces like {@link yesman.epicfight.api.ex_cap.core.data.RenderModifier} that define how
+ * <li><b>Rendering:</b> Interfaces like {@link yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier} that define how
  * weapons should be visually handled during specific combat states.</li>
  * </ul>
  *

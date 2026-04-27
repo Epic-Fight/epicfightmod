@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import org.jetbrains.annotations.ApiStatus;
+import yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -259,6 +260,19 @@ public class MoveSet
         public final MoveSetBuilder addComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
         {
             comboAttackAnimations.addAll(Arrays.asList(attackAnimations));
+            return this;
+        }
+
+        /**
+         * Clears any existing combo animations and replaces them with the provided sequence.
+         * Useful for modifiers that want to completely overhaul a moveset rather than append to it.
+         * @param attackAnimations The new sequence of animations.
+         * @return This builder for chaining.
+         */
+        @SafeVarargs
+        public final MoveSetBuilder replaceComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations) {
+            this.comboAttackAnimations.clear(); // The magic line
+            this.comboAttackAnimations.addAll(Arrays.asList(attackAnimations));
             return this;
         }
 

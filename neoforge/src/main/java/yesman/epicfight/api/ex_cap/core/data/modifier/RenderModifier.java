@@ -1,4 +1,4 @@
-package yesman.epicfight.api.ex_cap.core.data;
+package yesman.epicfight.api.ex_cap.core.data.modifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.ItemInHandRenderer;

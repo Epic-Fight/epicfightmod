@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.core.data.MoveSet;
 import yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -160,7 +160,7 @@ public class RenderItemBase {
 	public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
         CapabilityItem cap = entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND);
         if (cap instanceof WeaponCapability wCap) {
-            Moveset set = wCap.getCurrentSet(entitypatch);
+            MoveSet set = wCap.getCurrentSet(entitypatch);
             if (set != null) {
                 RenderModifier modifier = set.getRenderModifier();
                 if (modifier != null && modifier.modify(

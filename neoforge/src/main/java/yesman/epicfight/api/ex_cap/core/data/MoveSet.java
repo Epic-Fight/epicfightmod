@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.core.Holder;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
@@ -27,9 +26,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
-public class Moveset
+public class MoveSet 
 {
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
     private final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
@@ -37,14 +35,14 @@ public class Moveset
     private final BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
     private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
     private final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
-    private final Holder<Skill> weaponPassiveSkill;
+    private final Skill weaponPassiveSkill;
     private final AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
     private final Predicate<LivingEntityPatch<?>> sheathRender;
     private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
     private final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
     private final RenderModifier modifier;
 
-    public Moveset(Builder builder)
+    public MoveSet(MoveSetBuilder builder)
     {
         this.mountAttackAnimations = builder.mountAttackAnimations;
         this.sheathRender = builder.sheathRender;
@@ -83,12 +81,12 @@ public class Moveset
         return sheathRender;
     }
 
-    public static Builder builder()
+    public static MoveSetBuilder builder()
     {
-        return new Builder();
+        return new MoveSetBuilder();
     }
 
-    public Holder<Skill> getWeaponPassiveSkill() {
+    public Skill getWeaponPassiveSkill() {
         return weaponPassiveSkill;
     }
 
@@ -120,7 +118,7 @@ public class Moveset
 
 
     /**
-     * A fluent builder for creating {@link Moveset} instances.
+     * A fluent builder for creating {@link MoveSet} instances.
      * <p>
      * This builder defines the animations, skills, and behavioral logic associated with a specific
      * weapon style. It supports a hierarchical inheritance system via {@link #parent(ResourceLocation)},
@@ -133,8 +131,9 @@ public class Moveset
      * <li><b>Dynamic Predicates:</b> Use {@link #setMotionPredicate} to swap motions based on entity state.</li>
      * </ul>
      */
-    public static class Builder
+    public static class MoveSetBuilder
     {
+        protected ResourceLocation registryIdentifier;
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
         protected final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
@@ -142,14 +141,14 @@ public class Moveset
         protected final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
         private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
         protected final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
-        protected Holder<Skill> weaponPassiveSkill;
+        protected Skill weaponPassiveSkill;
         protected Predicate<LivingEntityPatch<?>> sheathRender;
         protected AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
         protected BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> motion;
         protected ResourceLocation parent;
         protected RenderModifier modifier;
 
-        public Builder()
+        public MoveSetBuilder()
         {
             mountAttackAnimations = Lists.newArrayList();
             sheathRender = livingEntityPatch -> false;
@@ -174,25 +173,25 @@ public class Moveset
          * @param parent The {@link ResourceLocation} of the parent moveset.
          * @return This builder for chaining.
          */
-        public Builder parent(ResourceLocation parent)
+        public MoveSetBuilder parent(ResourceLocation parent)
         {
             this.parent = parent;
             return this;
         }
 
-        public Builder renderModifier(RenderModifier modifier)
+        public MoveSetBuilder renderModifier(RenderModifier modifier)
         {
             this.modifier = modifier;
             return this;
         }
 
-        public Builder setMotionPredicate(BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> lambda)
+        public MoveSetBuilder setMotionPredicate(BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> lambda)
         {
             this.motion = lambda;
             return this;
         }
 
-        public Builder revelationAttack(AnimationManager.AnimationAccessor<? extends AttackAnimation> attack)
+        public MoveSetBuilder revelationAttack(AnimationManager.AnimationAccessor<? extends AttackAnimation> attack)
         {
             revelationAnimation = attack;
             return this;
@@ -203,14 +202,14 @@ public class Moveset
          * @param sheathRender A predicate returning true if the sheath should be visible.
          * @return This builder for chaining.
          */
-        public Builder shouldRenderSheath(Predicate<LivingEntityPatch<?>> sheathRender)
+        public MoveSetBuilder shouldRenderSheath(Predicate<LivingEntityPatch<?>> sheathRender)
         {
             this.sheathRender = sheathRender;
             return this;
         }
 
         @SafeVarargs
-        public final Builder guardSpecificHold(Skill skill, AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations)
+        public final MoveSetBuilder guardSpecificHold(Skill skill, AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations)
         {
             if (skill instanceof GuardSkill)
             {
@@ -229,7 +228,7 @@ public class Moveset
          * @param newPassiveSkill The {@link Skill} to be applied as a passive effect.
          * @return This builder for chaining.
          */
-        public Builder setPassiveSkill(Holder<Skill> newPassiveSkill)
+        public MoveSetBuilder setPassiveSkill(Skill newPassiveSkill)
         {
             this.weaponPassiveSkill = newPassiveSkill;
             return this;
@@ -246,7 +245,7 @@ public class Moveset
          * @return This builder for chaining.
          */
         @SafeVarargs
-        public final Builder addMountAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
+        public final MoveSetBuilder addMountAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
         {
             mountAttackAnimations.addAll(Arrays.asList(attackAnimations));
             return this;
@@ -258,7 +257,7 @@ public class Moveset
          * @return This builder for chaining.
          */
         @SafeVarargs
-        public final Builder addComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
+        public final MoveSetBuilder addComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations)
         {
             comboAttackAnimations.addAll(Arrays.asList(attackAnimations));
             return this;
@@ -271,7 +270,7 @@ public class Moveset
          * @return This builder for chaining.
          */
         @SafeVarargs
-        public final Builder replaceComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations) {
+        public final MoveSetBuilder replaceComboAttacks(AnimationManager.AnimationAccessor<? extends AttackAnimation>... attackAnimations) {
             this.comboAttackAnimations.clear(); // The magic line
             this.comboAttackAnimations.addAll(Arrays.asList(attackAnimations));
             return this;
@@ -283,7 +282,7 @@ public class Moveset
          * @param animation The animation to play during this state.
          * @return This builder for chaining.
          */
-        public Builder addLivingMotionModifier(LivingMotion livingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation> animation)
+        public MoveSetBuilder addLivingMotionModifier(LivingMotion livingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation> animation)
         {
             livingMotionModifiers.put(livingMotion, animation);
             return this;
@@ -294,7 +293,7 @@ public class Moveset
          * @param weaponInnateSkill A function providing the skill based on the current {@link ItemStack} and {@link PlayerPatch}.
          * @return This builder for chaining.
          */
-        public Builder addInnateSkill(BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill)
+        public MoveSetBuilder addInnateSkill(BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill)
         {
             this.weaponInnateSkill = weaponInnateSkill;
             return this;
@@ -312,7 +311,7 @@ public class Moveset
          * trigger this animation.
          * @return This builder for chaining.
          */
-        public Builder addLivingMotionsRecursive(AnimationManager.AnimationAccessor<? extends StaticAnimation> animation, LivingMotion... motions)
+        public MoveSetBuilder addLivingMotionsRecursive(AnimationManager.AnimationAccessor<? extends StaticAnimation> animation, LivingMotion... motions)
         {
             for (LivingMotion livingMotion : motions)
             {
@@ -333,7 +332,7 @@ public class Moveset
          * @return This builder for chaining.
          */
         @SafeVarargs
-        public final Builder addGuardAnimations(GuardSkill.BlockType blockType, AnimationManager.AnimationAccessor<? extends StaticAnimation>... animation)
+        public final MoveSetBuilder addGuardAnimations(GuardSkill.BlockType blockType, AnimationManager.AnimationAccessor<? extends StaticAnimation>... animation)
         {
             defaultGuardAnimations.computeIfAbsent(blockType, (key) -> Lists.newArrayList()).addAll(Arrays.asList(animation));
             return this;
@@ -350,7 +349,7 @@ public class Moveset
          * @param animations  A map linking {@link GuardSkill.BlockType}s to their respective animation lists.
          * @return This builder for chaining.
          */
-        public final Builder addSkillSpecificGuardAnimations(Skill guardSkill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> animations)
+        public final MoveSetBuilder addSkillSpecificGuardAnimations(Skill guardSkill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> animations)
         {
             if (guardSkill instanceof GuardSkill)
             {
@@ -380,9 +379,9 @@ public class Moveset
 
         @ApiStatus.Internal
         @SuppressWarnings("unchecked")
-        public static Builder deserialize(JsonElement jsonObject) throws JsonParseException
+        public static MoveSetBuilder deserialize(JsonElement jsonObject) throws JsonParseException
         {
-            Builder result = new Builder();
+            MoveSetBuilder result = new MoveSetBuilder();
             try {
                 if (jsonObject.isJsonObject())
                 {
@@ -430,7 +429,7 @@ public class Moveset
                     }
                     if (json.has("weapon_passive"))
                     {
-                        result.setPassiveSkill(EpicFightRegistries.SKILL.getHolder(ResourceLocation.parse(json.get("weapon_passive").getAsString())).get());
+                        result.setPassiveSkill(EpicFightRegistries.SKILL.get(ResourceLocation.parse(json.get("weapon_passive").getAsString())));
                     }
                     if (json.has("guard_motions"))
                     {
@@ -457,11 +456,11 @@ public class Moveset
 
 
         @ApiStatus.Internal
-        private Builder merge() {
-            Builder result = new Builder();
+        private MoveSetBuilder merge() {
+            MoveSetBuilder result = new MoveSetBuilder();
 
-            Deque<Builder> hierarchy = new ArrayDeque<>();
-            Builder current = this;
+            Deque<MoveSetBuilder> hierarchy = new ArrayDeque<>();
+            MoveSetBuilder current = this;
 
             while (current != null) {
                 hierarchy.push(current);
@@ -469,7 +468,7 @@ public class Moveset
             }
 
             while (!hierarchy.isEmpty()) {
-                Builder builder = hierarchy.pop();
+                MoveSetBuilder builder = hierarchy.pop();
 
                 if (!builder.comboAttackAnimations.isEmpty()) {
                     result.comboAttackAnimations.clear();
@@ -516,9 +515,9 @@ public class Moveset
             return result;
         }
 
-        public Moveset build()
+        public MoveSet build()
         {
-            return new Moveset(merge());
+            return new MoveSet(merge());
         }
     }
 }

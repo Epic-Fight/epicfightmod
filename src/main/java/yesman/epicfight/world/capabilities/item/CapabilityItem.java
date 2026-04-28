@@ -257,7 +257,7 @@ public class CapabilityItem {
 		weaponInnateSkillContainer.setDisabled(weaponInnateSkill == null);
 		toRemote.and(new SPSetRemotePlayerSkill(playerpatch.getOriginal().getId(), SkillSlots.WEAPON_INNATE, weaponInnateSkill));
 		
-		Skill passiveSkill = this.getPassiveSkill(playerpatch);
+		Skill passiveSkill = this.getPassiveSkill();
 		SkillContainer passiveSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE);
 		
 		if (passiveSkill != null) {

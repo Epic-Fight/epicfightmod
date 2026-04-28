@@ -35,8 +35,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#DEFAULT}.
 	 */
-	public static Builder createDefault(Style style, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createDefault(Style style, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(ProviderConditionalType.DEFAULT)
 				.setWieldStyle(style)
 				.isVisibleOffHand(offHandVisible);
@@ -50,8 +50,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#WEAPON_CATEGORY}.
 	 */
-	public static Builder createWeaponCategory(Style style, WeaponCategory category, InteractionHand hand, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createWeaponCategory(Style style, WeaponCategory category, InteractionHand hand, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(ProviderConditionalType.WEAPON_CATEGORY)
 				.setWieldStyle(style)
 				.setCategory(category)
@@ -68,8 +68,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#SPECIFIC_WEAPON}.
 	 */
-	public static Builder createSpecificWeapon(Style style, Item item, InteractionHand hand, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createSpecificWeapon(Style style, Item item, InteractionHand hand, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(ProviderConditionalType.SPECIFIC_WEAPON)
 				.setWieldStyle(style)
 				.setWeapon(item)
@@ -86,8 +86,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#SKILL_ACTIVATION} or {@code SKILL_EXISTENCE}.
 	 */
-	public static Builder createSkillCondition(Style style, Holder<Skill> skill, SkillSlot slot, boolean activation, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createSkillCondition(Style style, Skill skill, SkillSlot slot, boolean activation, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(activation ? ProviderConditionalType.SKILL_ACTIVATION : ProviderConditionalType.SKILL_EXISTENCE)
 				.setWieldStyle(style)
 				.setSkillToCheck(skill)
@@ -104,8 +104,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#DATA_KEY}.
 	 */
-	public static Builder createSkillDataKey(Style style, Holder<Skill> skill, SkillSlot slot, Holder<SkillDataKey<?>> key, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createSkillDataKey(Style style, Skill skill, SkillSlot slot, Holder<SkillDataKey<?>> key, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(ProviderConditionalType.DATA_KEY)
 				.setWieldStyle(style)
 				.setSkillToCheck(skill)
@@ -121,8 +121,8 @@ public class ProviderConditional
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#CUSTOM}.
 	 */
-	public static Builder createCustom(Style style, Predicate<LivingEntityPatch<?>> predicate, boolean offHandVisible) {
-		return new Builder()
+	public static ProviderConditionalBuilder createCustom(Style style, Predicate<LivingEntityPatch<?>> predicate, boolean offHandVisible) {
+		return new ProviderConditionalBuilder()
 				.setType(ProviderConditionalType.CUSTOM)
 				.setWieldStyle(style)
 				.setCustomFunction(predicate)
@@ -136,7 +136,7 @@ public class ProviderConditional
 	protected final Style style;
 	protected final Boolean combination;
 	//Input
-	protected final Holder<Skill> skillToCheck;
+	protected final Skill skillToCheck;
 	protected final WeaponCategory category;
 	protected final Item weapon;
 	protected final List<ProviderConditional> providerConditionals;
@@ -146,7 +146,7 @@ public class ProviderConditional
 	protected final Predicate<LivingEntityPatch<?>> customFunction;
 
 	@ApiStatus.Internal
-	private ProviderConditional(ProviderConditionalType type, Style style, Holder<Skill> skillToCheck, WeaponCategory category, Item weapon, InteractionHand hand, SkillSlot slot, Holder<SkillDataKey<?>> key, Boolean combination, Predicate<LivingEntityPatch<?>> customFunction, List<ProviderConditional> providerConditionals) {
+	private ProviderConditional(ProviderConditionalType type, Style style, Skill skillToCheck, WeaponCategory category, Item weapon, InteractionHand hand, SkillSlot slot, Holder<SkillDataKey<?>> key, Boolean combination, Predicate<LivingEntityPatch<?>> customFunction, List<ProviderConditional> providerConditionals) {
 		this.type = type;
 		this.style = style;
 		this.skillToCheck = skillToCheck;
@@ -160,12 +160,12 @@ public class ProviderConditional
 		this.providerConditionals = Lists.newArrayList(providerConditionals);
 	}
 
-	public static Builder builder()
+	public static ProviderConditionalBuilder builder()
 	{
-		return new Builder();
+		return new ProviderConditionalBuilder();
 	}
 
-	public ProviderConditional(Builder builder)
+	public ProviderConditional(ProviderConditionalBuilder builder)
 	{
 		this.type = builder.type;
 		this.style = builder.wieldStyle;
@@ -201,7 +201,7 @@ public class ProviderConditional
 		}
 		if (type.equals(ProviderConditionalType.SKILL_EXISTENCE))
 		{
-			if (HelperFunctions.skillCheck(entityPatch, skillToCheck.value(), slot))
+			if (HelperFunctions.skillCheck(entityPatch, skillToCheck, slot))
 			{
 				return true;
 			}
@@ -272,15 +272,15 @@ public class ProviderConditional
 	 * * <p>Use this builder directly only when creating <b>COMPOSITE</b> or <b>CUSTOM</b>
 	 * logic that requires specific field tuning not covered by the static factories.</p>
 	 */
-	public static class Builder
+	public static class ProviderConditionalBuilder
 	{
 		private ProviderConditionalType type;
 		private Style wieldStyle;
 		private Boolean visibleOffHand;
-		private Holder<Skill> skillToCheck;
+		private Skill skillToCheck;
 		private WeaponCategory category;
 		private Item weapon;
-		private final List<Builder> providerConditionals;
+		private final List<ProviderConditionalBuilder> providerConditionals;
 		private SkillSlot slot;
 		private Holder<SkillDataKey<?>> key;
 		private InteractionHand hand;
@@ -293,7 +293,7 @@ public class ProviderConditional
 		}
 
 
-		public Builder()
+		public ProviderConditionalBuilder()
 		{
 			type = ProviderConditionalType.DEFAULT;
 			skillToCheck = null;
@@ -308,16 +308,16 @@ public class ProviderConditional
 			visibleOffHand = false;
 		}
 
-		public Builder setParent(ResourceLocation parent)
+		public ProviderConditionalBuilder setParent(ResourceLocation parent)
 		{
 			this.parent = parent;
 			return this;
 		}
 
 		@ApiStatus.Internal
-		public static Builder deserialize(JsonElement jsonElement) throws JsonParseException
+		public static ProviderConditionalBuilder deserialize(JsonElement jsonElement) throws JsonParseException
 		{
-			Builder builder = new Builder();
+			ProviderConditionalBuilder builder = new ProviderConditionalBuilder();
 			try {
 				JsonObject gsonObject = jsonElement.getAsJsonObject();
 				ProviderConditionalType type = ProviderConditionalType.valueOf(gsonObject.get("provider_type").getAsString().toUpperCase());
@@ -335,11 +335,11 @@ public class ProviderConditional
 							.setHand(InteractionHand.valueOf(gsonObject.get("hand").getAsString().toUpperCase()));
 					case SKILL_EXISTENCE, SKILL_ACTIVATION -> builder
 							.setType(type).setWieldStyle(wieldStyle).isVisibleOffHand(visibleOffHand)
-							.setSkillToCheck(EpicFightRegistries.SKILL.getHolder(ResourceLocation.parse(gsonObject.get("skill").getAsString())).get())
+							.setSkillToCheck(EpicFightRegistries.SKILL.get(ResourceLocation.parse(gsonObject.get("skill").getAsString())))
 							.setSlot(SkillSlot.ENUM_MANAGER.get(gsonObject.get("slot").getAsString().toUpperCase()));
 					case DATA_KEY -> builder
 							.setType(type).setWieldStyle(wieldStyle).isVisibleOffHand(visibleOffHand)
-							.setSkillToCheck(EpicFightRegistries.SKILL.getHolder(ResourceLocation.parse(gsonObject.get("skill").getAsString())).get())
+							.setSkillToCheck(EpicFightRegistries.SKILL.get(ResourceLocation.parse(gsonObject.get("skill").getAsString())))
 							.setKey(EpicFightRegistries.SKILL_DATA_KEY.getHolder(ResourceLocation.parse(gsonObject.get("boolean_key").getAsString())).get())
 							.setSlot(SkillSlot.ENUM_MANAGER.get(gsonObject.get("slot").getAsString().toUpperCase()));
 				}
@@ -352,11 +352,11 @@ public class ProviderConditional
 		}
 
 		@ApiStatus.Internal
-		private Builder merge()
+		private ProviderConditionalBuilder merge()
 		{
-			Builder result = new Builder();
-			Deque<Builder> hierarchy = new ArrayDeque<>();
-			Builder current = this;
+			ProviderConditionalBuilder result = new ProviderConditionalBuilder();
+			Deque<ProviderConditionalBuilder> hierarchy = new ArrayDeque<>();
+			ProviderConditionalBuilder current = this;
 
 			// Collect parent chain
 			while (current != null) {
@@ -365,7 +365,7 @@ public class ProviderConditional
 			}
 
 			while (!hierarchy.isEmpty()) {
-				Builder builder = hierarchy.pop();
+				ProviderConditionalBuilder builder = hierarchy.pop();
 				if (builder.type != ProviderConditionalType.DEFAULT)
 					result.setType(builder.type);
 				if (builder.wieldStyle != null)
@@ -406,7 +406,7 @@ public class ProviderConditional
 		 * @param visibleOffHand True to render in off-hand, false to hide.
 		 * @return This builder for chaining.
 		 */
-		public Builder isVisibleOffHand(boolean visibleOffHand) {
+		public ProviderConditionalBuilder isVisibleOffHand(boolean visibleOffHand) {
 			this.visibleOffHand = visibleOffHand;
 			return this;
 		}
@@ -416,7 +416,7 @@ public class ProviderConditional
 		 * @param wieldStyle The combat style (e.g., ONE_HAND, TWO_HAND).
 		 * @return This builder for chaining.
 		 */
-		public Builder setWieldStyle(Style wieldStyle) {
+		public ProviderConditionalBuilder setWieldStyle(Style wieldStyle) {
 			this.wieldStyle = wieldStyle;
 			return this;
 		}
@@ -427,7 +427,7 @@ public class ProviderConditional
 		 * @param type The type of condition to evaluate.
 		 * @return This builder for chaining.
 		 */
-		public Builder setType(@NotNull ProviderConditionalType type)
+		public ProviderConditionalBuilder setType(@NotNull ProviderConditionalType type)
 		{
 			this.type = type;
 			return this;
@@ -439,7 +439,7 @@ public class ProviderConditional
 		 * @param skillToCheck The skill to monitor.
 		 * @return This builder for chaining.
 		 */
-		public Builder setSkillToCheck(Holder<Skill> skillToCheck) {
+		public ProviderConditionalBuilder setSkillToCheck(Skill skillToCheck) {
 			this.skillToCheck = skillToCheck;
 			return this;
 		}
@@ -451,7 +451,7 @@ public class ProviderConditional
 		 * @param category The category to match against.
 		 * @return This builder for chaining.
 		 */
-		public Builder setCategory(WeaponCategory category) {
+		public ProviderConditionalBuilder setCategory(WeaponCategory category) {
 			this.category = category;
 			return this;
 		}
@@ -463,7 +463,7 @@ public class ProviderConditional
 		 * @param weapon The specific item instance to match.
 		 * @return This builder for chaining.
 		 */
-		public Builder setWeapon(Item weapon) {
+		public ProviderConditionalBuilder setWeapon(Item weapon) {
 			this.weapon = weapon;
 			return this;
 		}
@@ -474,8 +474,8 @@ public class ProviderConditional
 		 * @throws IllegalArgumentException If a sub-conditional is itself a COMPOSITE type.
 		 * @return This builder for chaining.
 		 */
-		public Builder setProviderConditionals(Builder... providerConditionals) {
-			for (Builder conditional : providerConditionals)
+		public ProviderConditionalBuilder setProviderConditionals(ProviderConditionalBuilder... providerConditionals) {
+			for (ProviderConditionalBuilder conditional : providerConditionals)
 			{
 				if (conditional.type == ProviderConditionalType.COMPOSITE)
 				{
@@ -493,7 +493,7 @@ public class ProviderConditional
 		 * @param slot The skill slot to inspect.
 		 * @return This builder for chaining.
 		 */
-		public Builder setSlot(SkillSlot slot) {
+		public ProviderConditionalBuilder setSlot(SkillSlot slot) {
 			this.slot = slot;
 			return this;
 		}
@@ -504,7 +504,7 @@ public class ProviderConditional
 		 * @param key The holder for the {@link SkillDataKey}.
 		 * @return This builder for chaining.
 		 */
-		public Builder setKey(Holder<SkillDataKey<?>> key) {
+		public ProviderConditionalBuilder setKey(Holder<SkillDataKey<?>> key) {
 			this.key = key;
 			return this;
 		}
@@ -516,7 +516,7 @@ public class ProviderConditional
 		 * @param hand The hand to check (Main or Offhand).
 		 * @return This builder for chaining.
 		 */
-		public Builder setHand(InteractionHand hand) {
+		public ProviderConditionalBuilder setHand(InteractionHand hand) {
 			this.hand = hand;
 			return this;
 		}
@@ -529,7 +529,7 @@ public class ProviderConditional
 		 * @param customFunction A predicate that takes a {@link LivingEntityPatch} and returns true if the condition is met.
 		 * @return This builder for chaining.
 		 */
-		public Builder setCustomFunction(Predicate<LivingEntityPatch<?>> customFunction) {
+		public ProviderConditionalBuilder setCustomFunction(Predicate<LivingEntityPatch<?>> customFunction) {
 			this.customFunction = customFunction;
 			return this;
 		}

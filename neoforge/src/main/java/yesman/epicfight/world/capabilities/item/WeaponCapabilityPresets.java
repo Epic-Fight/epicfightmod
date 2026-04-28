@@ -33,7 +33,6 @@ public abstract class WeaponCapabilityPresets {
             handleTieredStats(copy, item);
             return copy;
         }
-
         return CapabilityItem.builder();
     }
 

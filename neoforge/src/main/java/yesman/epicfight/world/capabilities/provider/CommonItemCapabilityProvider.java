@@ -2,8 +2,12 @@ package yesman.epicfight.world.capabilities.provider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
+import yesman.epicfight.api.ex_cap.assets.Builders;
+import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
+import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,8 +26,6 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
-import yesman.epicfight.registry.deferred.holders.DeferredPreset;
-import yesman.epicfight.registry.entries.EpicFightItemCapabilityPresets;
 import yesman.epicfight.world.capabilities.item.*;
 
 public final class CommonItemCapabilityProvider implements ICapabilityProvider<ItemStack, Void, CapabilityItem> {
@@ -31,20 +33,20 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 	
 	private CommonItemCapabilityProvider() {}
 	
-	private final Map<Class<? extends Item>, DeferredPreset<? extends CapabilityItem.Builder<?>>> typedCapabilities = new HashMap<> ();
+	private final Map<Class<? extends Item>, BuilderEntry> typedCapabilities = new HashMap<> ();
 	private final Map<Item, CapabilityItem> capabilities = new HashMap<> ();
 	
 	public void registerWeaponTypesByClass() {
-		this.typedCapabilities.put(ArmorItem.class, EpicFightItemCapabilityPresets.ARMOR);
-		this.typedCapabilities.put(ShieldItem.class, EpicFightItemCapabilityPresets.SHIELD);
-        this.typedCapabilities.put(SwordItem.class, EpicFightItemCapabilityPresets.SWORD);
-        this.typedCapabilities.put(PickaxeItem.class, EpicFightItemCapabilityPresets.PICKAXE);
-        this.typedCapabilities.put(AxeItem.class, EpicFightItemCapabilityPresets.AXE);
-        this.typedCapabilities.put(ShovelItem.class, EpicFightItemCapabilityPresets.SHOVEL);
-        this.typedCapabilities.put(HoeItem.class, EpicFightItemCapabilityPresets.HOE);
-        this.typedCapabilities.put(BowItem.class, EpicFightItemCapabilityPresets.BOW);
-        this.typedCapabilities.put(CrossbowItem.class, EpicFightItemCapabilityPresets.CROSSBOW);
-		this.typedCapabilities.put(MapItem.class, EpicFightItemCapabilityPresets.MAP);
+		this.typedCapabilities.put(ArmorItem.class, Builders.ARMOR);
+		this.typedCapabilities.put(ShieldItem.class, Builders.SHIELD);
+        this.typedCapabilities.put(SwordItem.class, Builders.SWORD);
+        this.typedCapabilities.put(PickaxeItem.class, Builders.PICKAXE);
+        this.typedCapabilities.put(AxeItem.class, Builders.AXE);
+        this.typedCapabilities.put(ShovelItem.class, Builders.SHOVEL);
+        this.typedCapabilities.put(HoeItem.class, Builders.HOE);
+        this.typedCapabilities.put(BowItem.class, Builders.BOW);
+        this.typedCapabilities.put(CrossbowItem.class, Builders.CROSSBOW);
+		this.typedCapabilities.put(MapItem.class, Builders.MAP);
 	}
 	
 	public void put(Item item, CapabilityItem cap) {
@@ -57,21 +59,21 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 
 	private CapabilityItem getDefault(Item item)
 	{
-		DeferredPreset<? extends CapabilityItem.Builder<?>> builderEntry = this.typedCapabilities.getOrDefault(item.getClass(), null);
+		BuilderEntry builderEntry = this.typedCapabilities.getOrDefault(item.getClass(), null);
 		CapabilityItem.Builder<?> result = null;
 		if (builderEntry != null)
 		{
-			if (builderEntry.value() instanceof WeaponCapability.Builder)
+			if (builderEntry.template() instanceof WeaponCapability.Builder)
 			{
-				result = WeaponCapabilityPresets.exCapRegistration(builderEntry.value(), item);
+				result = WeaponCapabilityPresets.exCapRegistration(builderEntry.template(), item);
 			}
-			else if (builderEntry.value() instanceof ArmorCapability.Builder builder)
+			else if (builderEntry.template() instanceof ArmorCapability.Builder builder)
 			{
 				result = builder.byItem(item);
 			}
 			else
 			{
-				result = builderEntry.value();
+				result = builderEntry.template();
 			}
 		}
 

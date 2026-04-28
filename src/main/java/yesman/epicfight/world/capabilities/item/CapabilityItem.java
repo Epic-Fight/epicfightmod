@@ -225,7 +225,7 @@ public class CapabilityItem {
     }
 
     /// Use {@link #getMountAttackMotion(PlayerPatch)} for dynamic assigning, this is used as legacy fallback.
-	@Deprecated(since = "1.21.1", forRemoval = true)
+    @Deprecated()
     public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
     {
         return null;
@@ -242,8 +242,7 @@ public class CapabilityItem {
     }
 
     /// Use {@link #getPassiveSkill(PlayerPatch)} for dynamic allocation, this is primarily a fallback.
-	@Deprecated(since = "1.21.1", forRemoval = true)
-	@Nullable
+    @Deprecated @Nullable
     public Skill getPassiveSkill()
     {
         return null;
@@ -366,7 +365,7 @@ public class CapabilityItem {
 	/**
 	 * Use {@link #handleComboCounter(PlayerPatch, AnimationAccessor)} with animation sensitive version
 	 */
-	@Deprecated(since = "1.21.1", forRemoval = true)
+	@Deprecated(forRemoval = true)
 	public boolean shouldCancelCombo(LivingEntityPatch<?> entitypatch) {
 		return true;
 	}
@@ -391,7 +390,7 @@ public class CapabilityItem {
     }
 
     /// Use {@link #availableOnHorse(LivingEntityPatch)} instead for allowing living entity patch parameterization.
-	@Deprecated(since = "1.21.1", forRemoval = true)
+    @Deprecated
     public boolean availableOnHorse()
     {
         return true;

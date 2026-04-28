@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,6 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -41,14 +39,12 @@ public class MoveSet
     private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
     private final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
     private final RenderModifier modifier;
-    private final BiFunction<SkillContainer, FriendlyByteBuf, AnimationManager.AnimationAccessor<? extends StaticAnimation>> dodgeOverrides;
 
     public MoveSet(MoveSetBuilder builder)
     {
         this.mountAttackAnimations = builder.mountAttackAnimations;
         this.sheathRender = builder.sheathRender;
         this.comboAttackAnimations = builder.comboAttackAnimations;
-        this.dodgeOverrides = builder.dodgeOverrides;
         this.livingMotionModifiers = builder.livingMotionModifiers;
         this.skillSpecificGuardAnimations = builder.skillSpecificGuardAnimations;
         this.guardPoses = builder.guardPoses;
@@ -117,9 +113,7 @@ public class MoveSet
         return livingMotionModifiers;
     }
 
-    public BiFunction<SkillContainer, FriendlyByteBuf, AnimationManager.AnimationAccessor<? extends StaticAnimation>> getDodgeOverrides() {
-        return dodgeOverrides;
-    }
+
 
     /**
      * Allows for
@@ -138,7 +132,6 @@ public class MoveSet
         protected Predicate<LivingEntityPatch<?>> sheathRender;
         protected AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
         protected BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> motion;
-        protected BiFunction<SkillContainer, FriendlyByteBuf, AnimationManager.AnimationAccessor<? extends StaticAnimation>> dodgeOverrides;
         protected ResourceLocation parent;
         protected RenderModifier modifier;
 
@@ -149,7 +142,6 @@ public class MoveSet
             comboAttackAnimations = Lists.newArrayList();
             livingMotionModifiers = Maps.newHashMap();
             skillSpecificGuardAnimations = Maps.newHashMap();
-            dodgeOverrides = (a, b) -> null;
             defaultGuardAnimations = Maps.newHashMap();
             guardPoses = Maps.newHashMap();
             modifier = null;
@@ -235,12 +227,6 @@ public class MoveSet
         public MoveSetBuilder addInnateSkill(BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill)
         {
             this.weaponInnateSkill = weaponInnateSkill;
-            return this;
-        }
-
-        public MoveSetBuilder setDodgeOverrides(BiFunction<SkillContainer, FriendlyByteBuf, AnimationManager.AnimationAccessor<? extends StaticAnimation>> override)
-        {
-            this.dodgeOverrides = override;
             return this;
         }
 

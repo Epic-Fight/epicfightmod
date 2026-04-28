@@ -15,7 +15,6 @@
  * for standard combat behaviors.</li>
  * </ul>
  * <p><b>Usage Note:</b> Assets in this package are intended to be passed directly
- * into {@link yesman.epicfight.api.ex_cap.core.data.BuilderEntry} instances during
  * weapon definition.</p>
  */
 package yesman.epicfight.api.ex_cap.assets;

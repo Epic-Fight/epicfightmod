@@ -15,7 +15,6 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
 import yesman.epicfight.client.world.util.FakeLevel;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.data.loot.SkillBookLootModifier;
@@ -89,12 +88,7 @@ public class WorldEvents {
 		SPDatapackSync animationPacket = new SPDatapackSync(AnimationManager.getInstance().getResourcepackAnimationCount(), player.getServer().isResourcePackRequired() ? SPDatapackSync.Type.MANDATORY_RESOURCE_PACK_ANIMATION : SPDatapackSync.Type.RESOURCE_PACK_ANIMATION);
 		SPDatapackSync armorPacket = new SPDatapackSync(ItemCapabilityReloadListener.armorCount(), SPDatapackSync.Type.ARMOR);
 		SPDatapackSync weaponPacket = new SPDatapackSync(ItemCapabilityReloadListener.weaponCount(), SPDatapackSync.Type.WEAPON);
-        SPDatapackSync exCapBuilderPacket = new SPDatapackSync(0, SPDatapackSync.Type.EX_CAP_BUILDER);
-        SPDatapackSync exCapConditionalPacket = new SPDatapackSync(0, SPDatapackSync.Type.EX_CAP_CONDITIONAL);
-        SPDatapackSync exCapMovesetPacket = new SPDatapackSync(0, SPDatapackSync.Type.EX_CAP_MOVESET);
-        SPDatapackSync exCapDataCreation = new SPDatapackSync(0, SPDatapackSync.Type.EX_CAP_DATA);
-        SPDatapackSync exCapDataReload = new SPDatapackSync(0, SPDatapackSync.Type.EX_CAP_INJECTION);
-        SPDatapackSync mobCapabilityPacket = new SPDatapackSync(MobPatchReloadListener.getTagCount(), SPDatapackSync.Type.MOB);
+		SPDatapackSync mobCapabilityPacket = new SPDatapackSync(MobPatchReloadListener.getTagCount(), SPDatapackSync.Type.MOB);
 		SPDatapackSync weaponTypePacket = new SPDatapackSync(WeaponTypeReloadListener.getTagCount(), SPDatapackSync.Type.WEAPON_TYPE);
 		SPDatapackSync itemKeywordPacket = new SPDatapackSync(ItemKeywordReloadListener.getRegexes().size(), SPDatapackSync.Type.ITEM_KEYWORD);
 		
@@ -106,11 +100,6 @@ public class WorldEvents {
 		ItemKeywordReloadListener.getCompounds().forEach(itemKeywordPacket::write);
 		
 		EpicFightNetworkManager.sendToPlayer(animationPacket, player);
-        EpicFightNetworkManager.sendToPlayer(exCapBuilderPacket, player);
-        EpicFightNetworkManager.sendToPlayer(exCapConditionalPacket, player);
-        EpicFightNetworkManager.sendToPlayer(exCapMovesetPacket, player);
-        EpicFightNetworkManager.sendToPlayer(exCapDataCreation, player);
-        EpicFightNetworkManager.sendToPlayer(exCapDataReload, player);
 		EpicFightNetworkManager.sendToPlayer(weaponTypePacket, player);
 		EpicFightNetworkManager.sendToPlayer(armorPacket, player);
 		EpicFightNetworkManager.sendToPlayer(weaponPacket, player);

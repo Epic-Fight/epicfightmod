@@ -125,29 +125,31 @@ public class ParryingSkill extends GuardSkill {
 	protected boolean isBlockableSource(DamageSource damageSource, boolean advanced) {
 		return (damageSource.is(DamageTypeTags.IS_PROJECTILE) && advanced) || super.isBlockableSource(damageSource, false);
 	}
-
-    @Nullable
-    protected AnimationAccessor<? extends StaticAnimation> getGuardMotion(SkillContainer container, PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
-        if (blockType != BlockType.ADVANCED_GUARD)
-        {
-            return super.getGuardMotion(container, playerpatch, itemCapability, blockType);
-        }
-        SkillDataManager dataManager = container.getDataManager();
-        AnimationAccessor<? extends StaticAnimation> result = itemCapability.getGuardMotion(this, blockType, playerpatch);
-        if (result == null)
-        {
-            @SuppressWarnings("unchecked")
-            List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
-
-            if (motions != null) {
-                int motionCounter = dataManager.getDataValue(SkillDataKeys.PARRY_MOTION_COUNTER.get());
-                motionCounter %= motions.size();
-                result = motions.get(motionCounter);
-            }
-        }
-        dataManager.setDataSyncF(SkillDataKeys.PARRY_MOTION_COUNTER.get(), (v) -> v + 1);
-        return result != null ? result : super.getGuardMotion(container, playerpatch, itemCapability, blockType);
-    }
+	
+	@SuppressWarnings("unchecked")
+	@Nullable
+	protected AnimationAccessor<? extends StaticAnimation> getGuardMotion(SkillContainer container, PlayerPatch<?> playerpatch, CapabilityItem itemCapability, BlockType blockType) {
+		AnimationAccessor<? extends StaticAnimation> animation = itemCapability.getGuardMotion(this, blockType, playerpatch);
+		
+		if (animation != null) {
+			return animation;
+		}
+		
+		if (blockType == BlockType.ADVANCED_GUARD) {
+			List<AnimationAccessor<? extends StaticAnimation>> motions = (List<AnimationAccessor<? extends StaticAnimation>>)this.getGuardMotionMap(blockType).getOrDefault(itemCapability.getWeaponCategory(), (a, b) -> null).apply(itemCapability, playerpatch);
+			
+			if (motions != null) {
+				SkillDataManager dataManager = container.getDataManager();
+				int motionCounter = dataManager.getDataValue(SkillDataKeys.PARRY_MOTION_COUNTER.get());
+				dataManager.setDataF(SkillDataKeys.PARRY_MOTION_COUNTER.get(), (v) -> v + 1);
+				motionCounter %= motions.size();
+				
+				return motions.get(motionCounter);
+			}
+		}
+		
+		return super.getGuardMotion(container, playerpatch, itemCapability, blockType);
+	}
 
 	@Override
 	public void setParams(CompoundTag parameters)

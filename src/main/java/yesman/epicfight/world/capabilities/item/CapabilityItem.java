@@ -220,33 +220,19 @@ public class CapabilityItem {
 		return getBasicAutoAttackMotion();
 	}
 
-    public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion(PlayerPatch<?> playerPatch) {
-        return getMountAttackMotion();
-    }
-
-    /// Use {@link #getMountAttackMotion(PlayerPatch)} for dynamic assigning, this is used as legacy fallback.
-    @Deprecated()
-    public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
-    {
-        return null;
-    }
+	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
+		return null;
+	}
 	
 	@Nullable
 	public Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
 		return null;
 	}
-
-    @Nullable
-    public Skill getPassiveSkill(PlayerPatch<?> playerPatch) {
-        return getPassiveSkill();
-    }
-
-    /// Use {@link #getPassiveSkill(PlayerPatch)} for dynamic allocation, this is primarily a fallback.
-    @Deprecated @Nullable
-    public Skill getPassiveSkill()
-    {
-        return null;
-    }
+	
+	@Nullable
+	public Skill getPassiveSkill() {
+		return null;
+	}
 	
 	public WeaponCategory getWeaponCategory() {
 		return this.weaponCategory;
@@ -384,17 +370,10 @@ public class CapabilityItem {
 	public CapabilityItem getResult(ItemStack item) {
 		return this;
 	}
-
-    public boolean availableOnHorse(LivingEntityPatch<?> entityPatch) {
-        return availableOnHorse();
-    }
-
-    /// Use {@link #availableOnHorse(LivingEntityPatch)} instead for allowing living entity patch parameterization.
-    @Deprecated
-    public boolean availableOnHorse()
-    {
-        return true;
-    }
+	
+	public boolean availableOnHorse() {
+		return true;
+	}
 	
 	public boolean checkOffhandValid(LivingEntityPatch<?> entitypatch) {
 		return this.getStyle(entitypatch).canUseOffhand() && EpicFightCapabilities.getItemStackCapability(entitypatch.getOriginal().getOffhandItem()).canHoldInOffhandAlone();

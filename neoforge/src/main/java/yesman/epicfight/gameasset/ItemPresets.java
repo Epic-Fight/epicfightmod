@@ -36,8 +36,27 @@ public class ItemPresets
             .collider(ColliderPreset.SWORD)
             .setTierValues(0, 0, 0.0, 0.0)
             .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.sword1HMS)
-            .addMoveSet(CapabilityItem.Styles.TWO_HAND,  Movesets.sword2HMS)
+            .addMoveSet(CapabilityItem.Styles.TWO_HAND, Movesets.sword2HMS)
+                    .addMoveSet(CapabilityItem.Styles.OCHS, Moveset.builder()
+                            .addLivingMotionsRecursive(Animations.BIPED_HOLD_GREATSWORD,
+                                    LivingMotions.IDLE, LivingMotions.JUMP, LivingMotions.KNEEL, LivingMotions.SNEAK,
+                                    LivingMotions.SWIM, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE)
+                            .addLivingMotionsRecursive(Animations.BIPED_WALK_GREATSWORD,
+                                    LivingMotions.WALK,
+                                    LivingMotions.CHASE)
+                            .addLivingMotionModifier(LivingMotions.RUN, Animations.BIPED_RUN_GREATSWORD)
+                            .addLivingMotionModifier(LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
+                            .addComboAttacks(
+                                    Animations.GREATSWORD_AUTO1,
+                                    Animations.GREATSWORD_AUTO2,
+                                    Animations.GREATSWORD_DASH,
+                                    Animations.GREATSWORD_AIR_SLASH
+                            )
+                            .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.STEEL_WHIRLWIND.get()))
             .addConditionals(ProviderConditionals.DUAL_SWORDS, ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
+            .addConditional(
+                    ProviderConditional.createSkillCondition(CapabilityItem.Styles.OCHS, EpicFightSkills.BERSERKER.value(),
+                            SkillSlots.PASSIVE1, false, false))
             .addTag(EpicFight.identifier("sword"))
     );
 
@@ -133,7 +152,7 @@ public class ItemPresets
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .collider(ColliderPreset.TOOLS)
             .setTierValues(0, 0d, -0.4, 0.1)
-            .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.sword1HMS)
+            .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.axeOneHandMS)
             .addConditionals(ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
             .addTag(EpicFight.identifier("hoe"))
     );
@@ -171,34 +190,6 @@ public class ItemPresets
             .addConditionals(ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
             .addTag(EpicFight.identifier("fist"))
     );
-
-    public static final ItemPreset BOKKEN = ItemPresetManager.register(EpicFight.identifier("bokken"), WeaponCapability.builder()
-            .category(CapabilityItem.WeaponCategories.SWORD)
-            .hitSound(EpicFightSounds.BLADE_HIT.get())
-            .collider(ColliderPreset.SWORD)
-            .setTierValues(0, 0, 0.0, 0.0)
-            .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.sword1HMS)
-            .addMoveSet(CapabilityItem.Styles.OCHS, Moveset.builder()
-                    .addLivingMotionsRecursive(Animations.BIPED_HOLD_GREATSWORD,
-                            LivingMotions.IDLE, LivingMotions.JUMP, LivingMotions.KNEEL, LivingMotions.SNEAK,
-                            LivingMotions.SWIM, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE)
-                    .addLivingMotionsRecursive(Animations.BIPED_WALK_GREATSWORD,
-                            LivingMotions.WALK,
-                            LivingMotions.CHASE)
-                    .addLivingMotionModifier(LivingMotions.RUN, Animations.BIPED_RUN_GREATSWORD)
-                    .addLivingMotionModifier(LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
-                    .addComboAttacks(
-                            Animations.GREATSWORD_AUTO1,
-                            Animations.GREATSWORD_AUTO2,
-                            Animations.GREATSWORD_DASH,
-                            Animations.GREATSWORD_AIR_SLASH
-                    )
-                    .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.STEEL_WHIRLWIND.get()))
-            .addConditionals(ProviderConditionals.DUAL_SWORDS, ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
-            .addConditional(
-                    ProviderConditional.createSkillCondition(CapabilityItem.Styles.OCHS, EpicFightSkills.BERSERKER.value(),
-                            SkillSlots.PASSIVE1, false, false))
-            .addTag(EpicFight.identifier("sword")));
 
     public static final ItemPreset BOW = ItemPresetManager.register(EpicFight.identifier("bow"), WeaponCapability.builder()
             .zoomInType(CapabilityItem.ZoomInType.USE_TICK)

@@ -178,22 +178,21 @@ public class ItemPresets
             .collider(ColliderPreset.SWORD)
             .setTierValues(0, 0, 0.0, 0.0)
             .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.sword1HMS)
-            .addMoveSet(CapabilityItem.Styles.OCHS, Moveset.builder()
-                    .addLivingMotionsRecursive(Animations.BIPED_HOLD_GREATSWORD,
-                            LivingMotions.IDLE, LivingMotions.JUMP, LivingMotions.KNEEL, LivingMotions.SNEAK,
-                            LivingMotions.SWIM, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE)
-                    .addLivingMotionsRecursive(Animations.BIPED_WALK_GREATSWORD,
-                            LivingMotions.WALK,
-                            LivingMotions.CHASE)
-                    .addLivingMotionModifier(LivingMotions.RUN, Animations.BIPED_RUN_GREATSWORD)
-                    .addLivingMotionModifier(LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
-                    .addComboAttacks(
-                            Animations.GREATSWORD_AUTO1,
-                            Animations.GREATSWORD_AUTO2,
-                            Animations.GREATSWORD_DASH,
-                            Animations.GREATSWORD_AIR_SLASH
-                    )
-                    .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.STEEL_WHIRLWIND.get()))
+            .addMoveSet(CapabilityItem.Styles.OCHS,
+                    Moveset.builder()
+                            .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
+                                    LivingMotions.IDLE,
+                                    LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
+                                    LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
+                            .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+                            .addComboAttacks(
+                                    Animations.TACHI_AUTO1,
+                                    Animations.TACHI_AUTO2,
+                                    Animations.TACHI_AUTO3,
+                                    Animations.TACHI_DASH,
+                                    Animations.LONGSWORD_AIR_SLASH
+                            ).addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
+                            .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get()))
             .addConditionals(ProviderConditionals.DUAL_SWORDS, ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
             .addConditional(
                     ProviderConditional.createSkillCondition(CapabilityItem.Styles.OCHS, EpicFightSkills.BERSERKER.value(),

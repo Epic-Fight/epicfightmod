@@ -17,7 +17,7 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
-import yesman.epicfight.world.capabilities.item.RangedWeaponCapability;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public abstract class ProjectilePatch<T extends Projectile> extends EntityPatch<
 			ItemStack heldItem = livingshooter.getMainHandItem();
 			CapabilityItem itemCap = EpicFightCapabilities.getItemStackCapability(heldItem);
 			
-			if (itemCap instanceof RangedWeaponCapability) {
+			if (itemCap instanceof WeaponCapability) {
 				Map<Holder<Attribute>, AttributeModifier> modifierMap = itemCap.getDamageAttributesInCondition(Styles.RANGED);
 				
 				if (modifierMap != null) {

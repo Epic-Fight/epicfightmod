@@ -160,7 +160,6 @@ public interface EpicFightClientBoundPayloadHandler {
                 case EX_CAP_MOVESET -> ExCapMovesetReloadListener.processServerPacket(data);
                 case ARMOR -> ItemCapabilityReloadListener.processServerPacket(data);
                 case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(data);
-				case WEAPON_MODIFIER -> WeaponModifierReloadListener.onSync(data);
                 case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(data);
                 case MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION -> AnimationManager.getInstance().processServerPacket(data, data.packetType() == SPDatapackSync.PacketType.MANDATORY_RESOURCE_PACK_ANIMATION);
 			}

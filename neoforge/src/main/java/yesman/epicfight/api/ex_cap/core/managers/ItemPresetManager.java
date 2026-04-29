@@ -67,16 +67,7 @@ public class ItemPresetManager {
         CapabilityItem.Builder<?> builder = BUILDERS.get(modifier.target());
         if (builder instanceof WeaponCapability.Builder weaponBuilder)
         {
-            modifier.conditionals().forEach( (conditional, operation) -> {
-                if (operation == WeaponModifier.Operation.APPEND)
-                {
-                    weaponBuilder.addConditionals(conditional);
-                }
-                if (operation == WeaponModifier.Operation.REMOVE)
-                {
-                    weaponBuilder.removeConditional(conditional);
-                }
-            });
+
         }
     }
 

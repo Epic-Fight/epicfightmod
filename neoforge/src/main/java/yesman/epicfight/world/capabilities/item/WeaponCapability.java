@@ -545,25 +545,13 @@ public class WeaponCapability extends CapabilityItem {
 		}
 
         /**
-         * Links external conditional providers to this weapon instance.
-         * <p><b>Note:</b> This is an internal utility designed for <b>advanced users</b> and
-         * <b>datapack-driven logic</b>. Direct usage is discouraged unless you are manually
-         * constructing complex weapon behaviors that mirror datapack structures.</p>
-         * @param conditionals A varargs array of {@link ResourceLocation} identifiers representing
-         * the conditional providers to be registered.
-         * @return This {@code Builder} instance for method chaining.
+         * Links an external conditional provider to this weapon.
+         * @param conditionals ResourceLocations of the conditionals.
+         * @return This builder for chaining.
          */
         public Builder addConditionals(ResourceLocation... conditionals)
         {
-            for (ResourceLocation rl : conditionals)
-            {
-                if (this.provider.contains(rl))
-                {
-                    EpicFight.LOGGER.warn("Skipping conditional since it is already registered for {}", rl);
-                    continue;
-                }
-                this.provider.add(rl);
-            }
+            provider.addAll(Arrays.asList(conditionals));
             return this;
         }
 

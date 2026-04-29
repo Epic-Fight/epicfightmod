@@ -356,7 +356,6 @@ public class EpicFightMod {
 		event.addListener(new ExCapBuilderReloadListener());
         event.addListener(new ExCapConditionalReloadListener());
         event.addListener(new ExCapMovesetReloadListener());
-		event.addListener(new WeaponModifierReloadListener());
 		// -----------------------------------------
 		event.addListener(new WeaponTypeReloadListener());
 		event.addListener(new ItemKeywordReloadListener());

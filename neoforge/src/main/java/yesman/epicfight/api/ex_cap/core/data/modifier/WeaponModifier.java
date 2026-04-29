@@ -13,11 +13,12 @@ import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.deferred.holders.DeferredWeapon;
 import yesman.epicfight.world.capabilities.item.Style;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public record WeaponModifier(ResourceLocation target, Map<ResourceLocation, Operation> conditionalModifier, Map<Style, ResourceLocation> movesetModifier) {
+public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocation, Operation> conditionalModifier, Map<Style, ResourceLocation> movesetModifier) {
     public enum Operation {
         APPEND,
         REMOVE
@@ -27,53 +28,60 @@ public record WeaponModifier(ResourceLocation target, Map<ResourceLocation, Oper
         return new Builder();
     }
     public static class Builder {
-        private ResourceLocation target;
+        private final List<ResourceLocation> target;
         private final Map<ResourceLocation, Operation> conditionalModifier;
         private final Map<Style, ResourceLocation> movesetModifier;
         private final List<ProviderConditional.Builder> conditionalBuilders;
         private final Map<Style, Moveset.Builder> movesetBuilders;
         private Builder() {
+            this.target = Lists.newArrayList();
             this.conditionalModifier = Maps.newHashMap();
             this.movesetModifier = Maps.newHashMap();
             this.conditionalBuilders = Lists.newArrayList();
             this.movesetBuilders = Maps.newHashMap();
         }
 
-        public void assemble()
+        public void assemble(ResourceLocation builderId)
         {
             conditionalBuilders.forEach(builder -> {
-                ResourceLocation generatedLocation = ResourceLocation.fromNamespaceAndPath(target.getNamespace(),
-                        target.getPath() + "/generated/modifier/" + builder.getWieldStyle().toString().toLowerCase(Locale.ROOT));
+                ResourceLocation generatedLocation = ResourceLocation.fromNamespaceAndPath(builderId.getNamespace(),
+                        builderId.getPath() + "/generated/modifier/" + builder.getWieldStyle().toString().toLowerCase(Locale.ROOT));
                 EpicFight.LOGGER.info("Generated conditional modifier: {}", generatedLocation);
                 ConditionalManager.addConditional(generatedLocation, builder);
                 addConditionalModifier(generatedLocation);
             });
             movesetBuilders.forEach((style, builder) -> {
-                ResourceLocation generatedLocation = ResourceLocation.fromNamespaceAndPath(target.getNamespace(),
-                        target.getPath() + "/generated/modifier/" + style.toString().toLowerCase(Locale.ROOT));
+                ResourceLocation generatedLocation = ResourceLocation.fromNamespaceAndPath(builderId.getNamespace(),
+                        builderId.getPath() + "/generated/modifier/" + style.toString().toLowerCase(Locale.ROOT));
                 EpicFight.LOGGER.info("Generated moveset modifier: {}", generatedLocation);
                 MovesetManager.addMoveset(generatedLocation, builder);
                 addMovesetModifier(style, generatedLocation);
             });
         }
 
-        public Builder target(ResourceLocation target) {
-            this.target = target;
+        public Builder target(ResourceLocation... targets) {
+            this.target.addAll(Arrays.asList(targets));
             return this;
         }
 
-        public Builder target(DeferredWeapon weapon)
+        public Builder target(DeferredWeapon... weapon)
         {
-            return this.target(weapon.getId());
-        }
-
-        public Builder addConditionalModifier(ResourceLocation key) {
-            this.conditionalModifier.put(key, Operation.APPEND);
+            for (var ids : weapon)
+            {
+                this.target.add(ids.getId());
+            }
             return this;
         }
 
-        public Builder addConditionalModifier(DeferredConditional conditional) {
-            return this.addConditionalModifier(conditional.getId());
+        public void addConditionalModifier(ResourceLocation key) {
+            this.conditionalModifier.put(key, Operation.APPEND);
+        }
+
+        public Builder addConditionalModifier(DeferredConditional... conditionals) {
+            for (DeferredConditional conditional : conditionals) {
+                this.conditionalModifier.put(conditional.getId(), Operation.APPEND);
+            }
+            return this;
         }
 
         public Builder addConditionalModifier(ProviderConditional.Builder builder) {
@@ -104,8 +112,8 @@ public record WeaponModifier(ResourceLocation target, Map<ResourceLocation, Oper
             return this;
         }
 
-        public WeaponModifier build() {
-            assemble();
+        public WeaponModifier build(ResourceLocation builderId) {
+            assemble(builderId);
             return new WeaponModifier(target, conditionalModifier, movesetModifier);
         }
     }

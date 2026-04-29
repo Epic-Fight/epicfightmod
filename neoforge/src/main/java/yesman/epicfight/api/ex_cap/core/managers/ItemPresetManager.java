@@ -57,21 +57,25 @@ public class ItemPresetManager {
 
     public static void modify(WeaponModifier modifier)
     {
-        CapabilityItem.Builder<?> builder = BUILDERS.get(modifier.target());
-        if (builder instanceof WeaponCapability.Builder weaponBuilder)
+        for (var target : modifier.targets())
         {
-            modifier.conditionalModifier().forEach((resourceLocation, operation) ->
+            CapabilityItem.Builder<?> builder = BUILDERS.get(target);
+            if (builder instanceof WeaponCapability.Builder weaponBuilder)
             {
-                if (operation == WeaponModifier.Operation.APPEND)
+                modifier.conditionalModifier().forEach((resourceLocation, operation) ->
                 {
-                    weaponBuilder.addConditionals(resourceLocation);
-                }
-                if (operation == WeaponModifier.Operation.REMOVE)
-                {
-                    weaponBuilder.removeConditional(resourceLocation);
-                }
-            });
-            weaponBuilder.addMovesets(modifier.movesetModifier());
+                    if (operation == WeaponModifier.Operation.APPEND)
+                    {
+                        weaponBuilder.addConditionals(resourceLocation);
+                    }
+                    if (operation == WeaponModifier.Operation.REMOVE)
+                    {
+                        weaponBuilder.removeConditional(resourceLocation);
+                    }
+                });
+                weaponBuilder.addMovesets(modifier.movesetModifier());
+            }
         }
+
     }
 }

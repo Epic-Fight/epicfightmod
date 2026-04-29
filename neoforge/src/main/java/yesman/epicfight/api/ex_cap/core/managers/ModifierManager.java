@@ -15,7 +15,7 @@ public class ModifierManager {
     {
         BUILDERS.clear();
         EpicFightRegistries.MODIFIERS.entrySet().forEach(
-                entry -> BUILDERS.put(entry.getKey().location(), entry.getValue().build()));
+                entry -> BUILDERS.put(entry.getKey().location(), entry.getValue().build(entry.getKey().location())));
     }
 
     public static void add(ResourceLocation rl, CompoundTag tag)

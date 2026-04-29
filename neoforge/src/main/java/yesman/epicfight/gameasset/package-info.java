@@ -18,4 +18,4 @@
  * into {@link yesman.epicfight.api.ex_cap.core.data.BuilderEntry} instances during
  * weapon definition.</p>
  */
-package yesman.epicfight.api.ex_cap.assets;
+package yesman.epicfight.gameasset;

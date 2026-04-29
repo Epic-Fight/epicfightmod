@@ -2,12 +2,10 @@ package yesman.epicfight.world.capabilities.provider;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
-import yesman.epicfight.api.ex_cap.assets.Builders;
+import yesman.epicfight.gameasset.Builders;
 import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
-import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;

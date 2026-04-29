@@ -1,9 +1,8 @@
-package yesman.epicfight.api.ex_cap.assets;
+package yesman.epicfight.gameasset;
 
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
 import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
-import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.item.ArmorCapability;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;

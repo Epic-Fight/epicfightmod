@@ -1,16 +1,14 @@
-package yesman.epicfight.api.ex_cap.assets;
+package yesman.epicfight.gameasset;
 
 import yesman.epicfight.api.ex_cap.core.data.ConditionalEntry;
 import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditionalType;
 import net.minecraft.world.InteractionHand;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.item.Style;
 
 public class MainConditionals
 {

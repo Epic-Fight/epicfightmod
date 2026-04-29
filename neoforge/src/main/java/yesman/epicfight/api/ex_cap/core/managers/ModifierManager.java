@@ -19,6 +19,7 @@ public class ModifierManager
     }
 
 
+
     private static WeaponModifier build(ResourceLocation id, WeaponModifier.ModifierBuilder builder)
     {
         return new WeaponModifier(id, builder.target, builder.conditionals, builder.moveSetModifier, builder.type);

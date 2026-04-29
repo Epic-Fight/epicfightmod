@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
+import yesman.epicfight.EpicFight;
+import yesman.epicfight.api.ex_cap.core.data.ItemPreset;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @ApiStatus.Experimental
-public class BuilderManager {
+public class ItemPresetManager {
     private static final Map<ResourceLocation, CapabilityItem.Builder<?>> BUILDERS = Maps.newHashMap();
     private static final Map<ResourceLocation, CapabilityItem.Builder<?>> REGISTERED_BUILDERS = Maps.newHashMap();
     private static boolean FROZEN = false;
@@ -24,7 +25,7 @@ public class BuilderManager {
         return BUILDERS.get(id);
     }
 
-    public static CapabilityItem.Builder<?> get(BuilderEntry entry)
+    public static CapabilityItem.Builder<?> get(ItemPreset entry)
     {
         return get(entry.id());
     }
@@ -37,15 +38,28 @@ public class BuilderManager {
      * </p>
      * @param id      The unique {@link ResourceLocation} for the builder (e.g., "modid:weapon_type")
      * @param builder The {@link CapabilityItem.Builder} instance defining the weapon's properties
-     * @return A {@link BuilderEntry} containing the ID and the builder, used for referencing
+     * @return A {@link ItemPreset} containing the ID and the builder, used for referencing
      * the capability in other registries or inheritance.
      */
-    public static BuilderEntry register(ResourceLocation id, CapabilityItem.Builder<?> builder) {
+    public static ItemPreset register(ResourceLocation id, CapabilityItem.Builder<?> builder) {
         if (FROZEN)
             throw new UnsupportedOperationException("Registry is frozen, cannot register " + id.toString());
+        if (REGISTERED_BUILDERS.containsKey(id)) {
+            throw new IllegalArgumentException("Builder with ID " + id + " already exists!");
+        }
         builder.identifier(id);
+        if (builder instanceof WeaponCapability.Builder weapon)
+        {
+            weapon.assemble();
+        }
         REGISTERED_BUILDERS.put(id, builder);
-        return new BuilderEntry(id, builder);
+        return new ItemPreset(id, builder);
+    }
+
+    public static void freeze()
+    {
+        EpicFight.LOGGER.info("Freezing Item Preset registry");
+        FROZEN = true;
     }
 
     public static void modify(WeaponModifier modifier)
@@ -58,7 +72,7 @@ public class BuilderManager {
     }
 
     @ApiStatus.Internal
-    public static void acceptEvent()
+    public static void refresh()
     {
         BUILDERS.clear();
         BUILDERS.putAll(REGISTERED_BUILDERS);

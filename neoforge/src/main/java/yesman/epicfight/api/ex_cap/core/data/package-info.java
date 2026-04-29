@@ -8,10 +8,10 @@
  *
  * <h3>Core Components:</h3>
  * <ul>
- * <li><b>Entries:</b> Records like {@link yesman.epicfight.api.ex_cap.core.data.BuilderEntry}, {@link yesman.epicfight.api.ex_cap.core.data.MoveSetEntry}, and
+ * <li><b>Entries:</b> Records like {@link yesman.epicfight.api.ex_cap.core.data.ItemPreset}, {@link yesman.epicfight.api.ex_cap.core.data.MovesetEntry}, and
  * {@link yesman.epicfight.api.ex_cap.core.data.ConditionalEntry} that pair a unique {@code ResourceLocation} with a
  * specific configuration builder.</li>
- * <li><b>Templates:</b> The {@link yesman.epicfight.api.ex_cap.core.data.MoveSet} class, which represents a fully
+ * <li><b>Templates:</b> The {@link yesman.epicfight.api.ex_cap.core.data.Moveset} class, which represents a fully
  * baked set of animations and skills ready for runtime execution.</li>
  * <li><b>Rendering:</b> Interfaces like {@link yesman.epicfight.api.ex_cap.core.data.modifier.RenderModifier} that define how
  * weapons should be visually handled during specific combat states.</li>
@@ -21,8 +21,8 @@
  * registered. To modify an existing entry, developers should use the
  * {@code ModifyWeaponPresetEvent} rather than attempting to mutate these objects directly.</p>
  *
- * @see yesman.epicfight.api.ex_cap.core.data.BuilderEntry
- * @see yesman.epicfight.api.ex_cap.core.data.MoveSetEntry
+ * @see yesman.epicfight.api.ex_cap.core.data.ItemPreset
+ * @see yesman.epicfight.api.ex_cap.core.data.MovesetEntry
  * @see yesman.epicfight.api.ex_cap.core.data.ConditionalEntry
  */
 package yesman.epicfight.api.ex_cap.core.data;

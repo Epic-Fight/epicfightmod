@@ -14,4 +14,4 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
  * @param template The {@link CapabilityItem.Builder} containing the weapon's
  * properties and behavioral definitions.
  */
-public record BuilderEntry(ResourceLocation id, CapabilityItem.Builder<?> template) { }
+public record ItemPreset(ResourceLocation id, CapabilityItem.Builder<?> template) { }

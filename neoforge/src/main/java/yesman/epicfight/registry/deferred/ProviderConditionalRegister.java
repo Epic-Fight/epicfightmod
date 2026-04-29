@@ -8,8 +8,10 @@ import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
 
-public class ProviderConditionalRegister extends DeferredRegister<ProviderConditional.Builder> {
-    protected ProviderConditionalRegister(ResourceKey<? extends Registry<ProviderConditional.Builder>> registryKey, String namespace) {
+import java.util.function.Supplier;
+
+public final class ProviderConditionalRegister extends DeferredRegister<ProviderConditional.Builder> {
+    private ProviderConditionalRegister(ResourceKey<? extends Registry<ProviderConditional.Builder>> registryKey, String namespace) {
         super(registryKey, namespace);
     }
 
@@ -22,9 +24,9 @@ public class ProviderConditionalRegister extends DeferredRegister<ProviderCondit
      * Registers a provider conditional and returns a specialized holder.
      * This handle is used to define logic gates for moveset assignments and style switching.
      */
-    public DeferredConditional register(String name, ProviderConditional.Builder builder) {
+    public DeferredConditional registerConditional(String name, Supplier<ProviderConditional.Builder> builder) {
         // 1. Register the builder to the NeoForge system via the internal supplier
-        this.register(name, () -> builder);
+        this.register(name, builder);
 
         // 2. Create the ResourceKey that matches the registry entry
         // This uses the registry's namespace (modid) and the path (name)

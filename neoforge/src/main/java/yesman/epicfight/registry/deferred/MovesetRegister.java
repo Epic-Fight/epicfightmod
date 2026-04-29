@@ -8,8 +8,10 @@ import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 
-public class MovesetRegister extends DeferredRegister<Moveset.Builder> {
-    protected MovesetRegister(ResourceKey<? extends Registry<Moveset.Builder>> registryKey, String namespace) {
+import java.util.function.Supplier;
+
+public final class MovesetRegister extends DeferredRegister<Moveset.Builder> {
+    private MovesetRegister(ResourceKey<? extends Registry<Moveset.Builder>> registryKey, String namespace) {
         super(registryKey, namespace);
     }
 
@@ -20,8 +22,8 @@ public class MovesetRegister extends DeferredRegister<Moveset.Builder> {
     }
 
 
-    public DeferredMoveset register(String name, Moveset.Builder builder) {
-        this.register(name, key -> builder);
+    public DeferredMoveset registerMoveset(String name, Supplier<Moveset.Builder> builder) {
+        this.register(name, builder);
 
         ResourceKey<Moveset.Builder> key = ResourceKey.create(
                 this.getRegistryKey(),

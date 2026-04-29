@@ -63,7 +63,7 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 		{
 			if (builderEntry.value() instanceof WeaponCapability.Builder)
 			{
-				result = WeaponCapabilityPresets.exCapRegistration(builderEntry.value(), item);
+				result = WeaponCapabilityPresets.registerPreset(builderEntry.value(), item);
 			}
 			else if (builderEntry.value() instanceof ArmorCapability.Builder builder)
 			{

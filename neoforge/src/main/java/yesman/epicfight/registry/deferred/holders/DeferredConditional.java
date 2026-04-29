@@ -5,7 +5,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 
-public class DeferredConditional extends DeferredHolder<ProviderConditional.Builder, ProviderConditional.Builder> {
+public final class DeferredConditional extends DeferredHolder<ProviderConditional.Builder, ProviderConditional.Builder> {
     @ApiStatus.Internal
     public DeferredConditional(ResourceKey<ProviderConditional.Builder> key) {
         super(key);

@@ -342,9 +342,10 @@ public class EpicFightMod {
 		event.addListener(new ColliderPreset());
 		event.addListener(new SkillReloadListener());
 		//ExCap ------------------------------------
-		event.addListener(new ExCapBuilderReloadListener());
-        event.addListener(new ExCapConditionalReloadListener());
-        event.addListener(new ExCapMovesetReloadListener());
+		event.addListener(new ItemPresetReloadListener());
+		event.addListener(new WeaponModifierReloadListener());
+		event.addListener(new ConditionalReloadListener());
+        event.addListener(new MovesetReloadListener());
 		// -----------------------------------------
 		event.addListener(new WeaponTypeReloadListener());
 		event.addListener(new ItemKeywordReloadListener());

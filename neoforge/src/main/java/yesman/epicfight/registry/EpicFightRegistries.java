@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey;
 import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.data.conditions.Condition;
@@ -32,9 +33,10 @@ public abstract class EpicFightRegistries {
     public static final Registry<Skill> SKILL = new RegistryBuilder<> (Keys.SKILL).callback(SkillCallbacks.getSkillCallback()).sync(true).create();
     public static final Registry<SkillDataKey<?>> SKILL_DATA_KEY = new RegistryBuilder<> (Keys.SKILL_DATA_KEY).callback(SkillDataKeyCallbacks.getRegistryCallback()).sync(true).create();
     public static final Registry<SynchedAnimationVariableKey<?>> SYNCHED_ANIMATION_VARIABLE = new RegistryBuilder<> (Keys.SYNCHED_ANIMATION_VARIABLE_KEY).callback(SynchedAnimationVariableKeyCallbacks.getRegistryCallback()).sync(true).create();
-    public static final Registry<CapabilityItem.Builder<?>> BUILDERS = new RegistryBuilder<>(Keys.BUILDERS).create();
+    public static final Registry<CapabilityItem.Builder<?>> BUILDERS = new RegistryBuilder<>(Keys.BUILDERS).sync(true).create();
     public static final Registry<Moveset.Builder> MOVESETS = new RegistryBuilder<>(Keys.MOVESETS).sync(true).create();
     public static final Registry<ProviderConditional.Builder> PROVIDER_CONDITIONALS = new RegistryBuilder<>(Keys.PROVIDER_CONDITIONALS).sync(true).create();
+    public static final Registry<WeaponModifier.Builder> MODIFIERS = new RegistryBuilder<>(Keys.MODIFIERS).sync(true).create();
     // Deferred Registries
     public static final List<DeferredRegister<?>> DEFERRED_REGISTRIES = List.of(
         EpicFightArmorMaterials.REGISTRY,
@@ -58,15 +60,17 @@ public abstract class EpicFightRegistries {
         EpicFightSkills.REGISTRY,
         EpicFightSounds.REGISTRY,
         EpicFightSynchedAnimationVariableKeys.REGISTRY,
-            EpicFightMovesets.REGISTRY,
-            EpicFightProviderConditionals.REGISTRY,
-            EpicFightItemCapabilityPresets.REGISTRY
+        EpicFightMovesets.REGISTRY,
+        EpicFightProviderConditionals.REGISTRY,
+        EpicFightItemCapabilityPresets.REGISTRY,
+        EpicFightModifiers.REGISTRY
     );
 
     public interface Keys {
         ResourceKey<Registry<CapabilityItem.Builder<?>>> BUILDERS = key("item_capability_builder");
         ResourceKey<Registry<Moveset.Builder>> MOVESETS = key("moveset");
         ResourceKey<Registry<ProviderConditional.Builder>> PROVIDER_CONDITIONALS = key("provider_conditional");
+        ResourceKey<Registry<WeaponModifier.Builder>> MODIFIERS = key("modifiers");
 
         ResourceKey<Registry<Supplier<Condition<?>>>> CONDITION = key("condition");
         ResourceKey<Registry<ExpandedEntityDataAccessor<?>>> EXPANDED_ENTITY_DATA_ACCESSOR = key("expanded_entity_data_accessor");
@@ -87,6 +91,7 @@ public abstract class EpicFightRegistries {
         event.register(CONDITION);
         event.register(BUILDERS);
         event.register(MOVESETS);
+        event.register(MODIFIERS);
         event.register(PROVIDER_CONDITIONALS);
         event.register(EXPANDED_ENTITY_DATA_ACCESSOR);
         event.register(SKILL);

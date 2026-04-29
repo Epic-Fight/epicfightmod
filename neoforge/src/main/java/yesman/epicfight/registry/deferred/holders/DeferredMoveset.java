@@ -5,7 +5,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.Moveset;
 
-public class DeferredMoveset extends DeferredHolder<Moveset.Builder, Moveset.Builder> {
+public final class DeferredMoveset extends DeferredHolder<Moveset.Builder, Moveset.Builder> {
     @ApiStatus.Internal
     public DeferredMoveset(ResourceKey<Moveset.Builder> key) {
         super(key);

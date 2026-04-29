@@ -7,6 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
@@ -24,7 +25,7 @@ import yesman.epicfight.world.capabilities.skill.PlayerSkills;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 
-@EventBusSubscriber(modid = EpicFightMod.MODID)
+@EventBusSubscriber(modid = EpicFight.MODID)
 public final class NeoForgeWorldEvent {
 	private NeoForgeWorldEvent() {}
 	
@@ -78,9 +79,10 @@ public final class NeoForgeWorldEvent {
 		SPDatapackSync armorPacket = new SPDatapackSync(SPDatapackSync.PacketType.ARMOR);
 		SPDatapackSync weaponPacket = new SPDatapackSync(SPDatapackSync.PacketType.WEAPON);
 		SPDatapackSync mobCapabilityPacket = new SPDatapackSync(SPDatapackSync.PacketType.MOB);
-        SPDatapackSync exCapBuilderPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_BUILDER);
-        SPDatapackSync exCapConditionalPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_CONDITIONAL);
-        SPDatapackSync exCapMovesetPacket = new SPDatapackSync(SPDatapackSync.PacketType.EX_CAP_MOVESET);
+        SPDatapackSync itemPresetPacket = new SPDatapackSync(SPDatapackSync.PacketType.ITEM_PRESET);
+        SPDatapackSync conditionalPacket = new SPDatapackSync(SPDatapackSync.PacketType.PROVIDER_CONDITIONAL);
+        SPDatapackSync movesetPacket = new SPDatapackSync(SPDatapackSync.PacketType.MOVESET);
+		SPDatapackSync weaponModifierPacket = new SPDatapackSync(SPDatapackSync.PacketType.MODIFIER);
 		SPDatapackSync weaponTypePacket = new SPDatapackSync(SPDatapackSync.PacketType.WEAPON_TYPE);
 		SPDatapackSync itemKeywordPacket = new SPDatapackSync(SPDatapackSync.PacketType.ITEM_KEYWORD);
 		
@@ -93,9 +95,10 @@ public final class NeoForgeWorldEvent {
 		
 		EpicFightNetworkManager.PayloadBundleBuilder
 			.beginWith(animationPacket)
-            .and(exCapBuilderPacket)
-            .and(exCapConditionalPacket)
-            .and(exCapMovesetPacket)
+            .and(itemPresetPacket)
+			.and(weaponModifierPacket)
+			.and(conditionalPacket)
+            .and(movesetPacket)
 			.and(weaponTypePacket)
 			.and(armorPacket)
 			.and(weaponPacket)
@@ -104,7 +107,7 @@ public final class NeoForgeWorldEvent {
 			.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, player, others));
 	}
 	
-	@EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = EpicFight.MODID, value = Dist.CLIENT)
 	public static class WorldEventsClient {
 		@SubscribeEvent
 		public static void loadLevel(LevelEvent.Load event) {

@@ -17,8 +17,8 @@ public class EpicFightMovesets
 
     public static final MovesetRegister REGISTRY = MovesetRegister.create(EpicFight.MODID);
 
-    public static final DeferredMoveset GREATSWORD_2H = REGISTRY.register("greatsword_2h",
-            Moveset.builder()
+    public static final DeferredMoveset GREATSWORD_2H = REGISTRY.registerMoveset("greatsword_2h",
+            () -> Moveset.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_GREATSWORD,
                             LivingMotions.IDLE, LivingMotions.JUMP, LivingMotions.KNEEL, LivingMotions.SNEAK,
                             LivingMotions.SWIM, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE)
@@ -33,8 +33,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.STEEL_WHIRLWIND.get())
     );
 
-    public static final DeferredMoveset AXE_1H = REGISTRY.register("axe_1h",
-            Moveset.builder()
+    public static final DeferredMoveset AXE_1H = REGISTRY.registerMoveset("axe_1h",
+            () -> Moveset.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .addComboAttacks(
                             Animations.AXE_AUTO1, Animations.AXE_AUTO2,
@@ -44,8 +44,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.THE_GUILLOTINE.get())
     );
 
-    public static final DeferredMoveset LONGSWORD_2H = REGISTRY.register("longsword_2h",
-            Moveset.builder()
+    public static final DeferredMoveset LONGSWORD_2H = REGISTRY.registerMoveset("longsword_2h",
+            () -> Moveset.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_LONGSWORD,
                             LivingMotions.IDLE, LivingMotions.SNEAK, LivingMotions.KNEEL,
                             LivingMotions.JUMP, LivingMotions.SWIM)
@@ -62,16 +62,16 @@ public class EpicFightMovesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static final DeferredMoveset LONGSWORD_1H = REGISTRY.register("longsword_1h",
-            Moveset.builder()
+    public static final DeferredMoveset LONGSWORD_1H = REGISTRY.registerMoveset("longsword_1h",
+            () -> Moveset.builder()
                     .parent(LONGSWORD_2H.getId())
                     .addLivingMotionModifier(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK)
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.BIPED_BLOCK)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.SHARP_STAB.get())
     );
 
-    public static final DeferredMoveset LIECHTENAUER = REGISTRY.register("liechtenauer",
-            Moveset.builder()
+    public static final DeferredMoveset LIECHTENAUER = REGISTRY.registerMoveset("liechtenauer",
+            () -> Moveset.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_LIECHTENAUER,
                             LivingMotions.IDLE, LivingMotions.SNEAK, LivingMotions.KNEEL,
                             LivingMotions.JUMP, LivingMotions.SWIM)
@@ -87,8 +87,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.LIECHTENAUER.get())
     );
 
-    public static final DeferredMoveset DAGGER_1H = REGISTRY.register("dagger_1h",
-            Moveset.builder()
+    public static final DeferredMoveset DAGGER_1H = REGISTRY.registerMoveset("dagger_1h",
+            () -> Moveset.builder()
                     .addComboAttacks(
                             Animations.DAGGER_AUTO1, Animations.DAGGER_AUTO2, Animations.DAGGER_AUTO3,
                             Animations.DAGGER_DASH, Animations.DAGGER_AIR_SLASH
@@ -97,8 +97,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.EVISCERATE.get())
     );
 
-    public static final DeferredMoveset DAGGER_DUAL = REGISTRY.register("dagger_2h",
-            Moveset.builder()
+    public static final DeferredMoveset DAGGER_DUAL = REGISTRY.registerMoveset("dagger_2h",
+            () -> Moveset.builder()
                     .addComboAttacks(
                             Animations.DAGGER_DUAL_AUTO1, Animations.DAGGER_DUAL_AUTO2, Animations.DAGGER_DUAL_AUTO3,
                             Animations.DAGGER_DUAL_AUTO4, Animations.DAGGER_DUAL_DASH, Animations.DAGGER_DUAL_AIR_SLASH
@@ -111,8 +111,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.BLADE_RUSH.get())
     );
 
-    public static final DeferredMoveset SPEAR_2H = REGISTRY.register("spear_2h",
-            Moveset.builder()
+    public static final DeferredMoveset SPEAR_2H = REGISTRY.registerMoveset("spear_2h",
+            () -> Moveset.builder()
                     .addMountAttacks(Animations.SPEAR_MOUNT_ATTACK)
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_SPEAR, LivingMotions.IDLE, LivingMotions.SWIM)
                     .addLivingMotionsRecursive(Animations.BIPED_WALK_SPEAR, LivingMotions.WALK, LivingMotions.CHASE)
@@ -125,15 +125,15 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.GRASPING_SPIRE.get())
     );
 
-    public static final DeferredMoveset SPEAR_1H = REGISTRY.register("spear_1h",
-            Moveset.builder()
-                    .parent(SPEAR_2H.getId())
+    public static final DeferredMoveset SPEAR_1H = REGISTRY.registerMoveset("spear_1h",
+            () -> Moveset.builder()
+                    .parent(SPEAR_2H)
                     .addComboAttacks(Animations.SPEAR_ONEHAND_AUTO, Animations.SPEAR_DASH, Animations.SPEAR_ONEHAND_AIR_SLASH)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.HEARTPIERCER.get())
     );
 
-    public static final DeferredMoveset SWORD_1H = REGISTRY.register("sword_1h",
-            Moveset.builder()
+    public static final DeferredMoveset SWORD_1H = REGISTRY.registerMoveset("sword_1h",
+            () -> Moveset.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .addComboAttacks(
                             Animations.SWORD_AUTO1, Animations.SWORD_AUTO2, Animations.SWORD_AUTO3,
@@ -143,9 +143,9 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.SWEEPING_EDGE.get())
     );
 
-    public static final DeferredMoveset SWORD_DUAL = REGISTRY.register("sword_dual",
-            Moveset.builder()
-                    .parent(DAGGER_DUAL.getId())
+    public static final DeferredMoveset SWORD_DUAL = REGISTRY.registerMoveset("sword_dual",
+            () -> Moveset.builder()
+                    .parent(DAGGER_DUAL)
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD)
                     .addComboAttacks(
                             Animations.SWORD_DUAL_AUTO1, Animations.SWORD_DUAL_AUTO2, Animations.SWORD_DUAL_AUTO3,
@@ -154,14 +154,14 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.DANCING_EDGE.get())
     );
 
-    public static final DeferredMoveset SHIELD = REGISTRY.register("shield",
-            Moveset.builder()
+    public static final DeferredMoveset SHIELD = REGISTRY.registerMoveset("shield",
+            () -> Moveset.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.BIPED_BLOCK)
                     .addLivingMotionModifier(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK)
     );
 
-    public static final DeferredMoveset TACHI_2H = REGISTRY.register("tachi_2h",
-            Moveset.builder()
+    public static final DeferredMoveset TACHI_2H = REGISTRY.registerMoveset("tachi_2h",
+            () -> Moveset.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
                             LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
                             LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
@@ -174,8 +174,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
     );
 
-    public static final DeferredMoveset UCHIGATANA_BASE = REGISTRY.register("uchigatana_base",
-            Moveset.builder()
+    public static final DeferredMoveset UCHIGATANA_BASE = REGISTRY.registerMoveset("uchigatana_base",
+            () -> Moveset.builder()
                     .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
                     .addComboAttacks(
                             Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2,
@@ -192,9 +192,9 @@ public class EpicFightMovesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static final DeferredMoveset UCHIGATANA_SHEATHED = REGISTRY.register("uchigatana_sheathed",
-            Moveset.builder()
-                    .parent(UCHIGATANA_BASE.getId())
+    public static final DeferredMoveset UCHIGATANA_SHEATHED = REGISTRY.registerMoveset("uchigatana_sheathed",
+            () -> Moveset.builder()
+                    .parent(UCHIGATANA_BASE)
                     .addComboAttacks(
                             Animations.UCHIGATANA_SHEATHING_AUTO, Animations.UCHIGATANA_SHEATHING_DASH,
                             Animations.UCHIGATANA_SHEATH_AIR_SLASH)
@@ -206,8 +206,8 @@ public class EpicFightMovesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static final DeferredMoveset GLOVE = REGISTRY.register("glove",
-            Moveset.builder()
+    public static final DeferredMoveset GLOVE = REGISTRY.registerMoveset("glove",
+            () -> Moveset.builder()
                     .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
                     .addComboAttacks(
@@ -216,8 +216,8 @@ public class EpicFightMovesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RELENTLESS_COMBO.get())
     );
 
-    public static final DeferredMoveset BOW = REGISTRY.register("bow",
-            Moveset.builder()
+    public static final DeferredMoveset BOW = REGISTRY.registerMoveset("bow",
+            () -> Moveset.builder()
                     .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_BOW_AIM)
                     .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
@@ -231,8 +231,8 @@ public class EpicFightMovesets
                             Animations.FIST_DASH, Animations.FIST_AIR_SLASH)
     );
 
-    public static final DeferredMoveset CROSSBOW = REGISTRY.register("crossbow",
-            Moveset.builder()
+    public static final DeferredMoveset CROSSBOW = REGISTRY.registerMoveset("crossbow",
+            () -> Moveset.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_CROSSBOW,
                             LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.RUN,
                             LivingMotions.SWIM, LivingMotions.FALL, LivingMotions.FLOAT, LivingMotions.SNEAK)
@@ -246,8 +246,8 @@ public class EpicFightMovesets
                     .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_CROSSBOW_SHOT)
     );
 
-    public static final DeferredMoveset TRIDENT = REGISTRY.register("trident",
-            Moveset.builder()
+    public static final DeferredMoveset TRIDENT = REGISTRY.registerMoveset("trident",
+            () -> Moveset.builder()
                     .addComboAttacks(
                             Animations.TRIDENT_AUTO1, Animations.TRIDENT_AUTO2, Animations.TRIDENT_AUTO3,
                             Animations.SPEAR_DASH, Animations.SPEAR_ONEHAND_AIR_SLASH

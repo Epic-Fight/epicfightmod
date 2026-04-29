@@ -1,12 +1,10 @@
 package yesman.epicfight.world.capabilities.item;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
-
-import java.util.Map;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 
 public abstract class WeaponCapabilityPresets {
 	public static int vanillaTierToLevel(Tier tier) {
@@ -25,7 +23,7 @@ public abstract class WeaponCapabilityPresets {
 		return sqrt < 10.0D ? 0 : (int)Math.round(sqrt / 10.0D);
 	}
 
-    public static CapabilityItem.Builder<?> exCapRegistration(CapabilityItem.Builder<?> builder, Item item)
+    public static CapabilityItem.Builder<?> registerPreset(CapabilityItem.Builder<?> builder, Item item)
     {
         if (builder instanceof WeaponCapability.Builder weaponBuilder)
         {
@@ -42,6 +40,14 @@ public abstract class WeaponCapabilityPresets {
         if (item instanceof TieredItem tieredItem) {
             int tierLevel = vanillaTierToLevel(tieredItem.getTier());
             builder.modifyTierAttributes(tierLevel);
+            if (tieredItem.getTier() == Tiers.WOOD)
+            {
+                builder.hitSound(EpicFightSounds.BLUNT_HIT);
+            }
+            if (tieredItem.getTier() == Tiers.STONE)
+            {
+                builder.hitSound(EpicFightSounds.BLUNT_HIT_HARD);
+            }
         }
     }
 }

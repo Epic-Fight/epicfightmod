@@ -6,7 +6,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 
-public class DeferredWeapon extends DeferredPreset<WeaponCapability.Builder> {
+public final class DeferredWeapon extends DeferredPreset<WeaponCapability.Builder> {
     @ApiStatus.Internal
     public DeferredWeapon(ResourceKey<CapabilityItem.Builder<?>> key) {
         super(key);

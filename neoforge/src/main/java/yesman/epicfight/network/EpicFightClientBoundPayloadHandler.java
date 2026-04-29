@@ -67,9 +67,7 @@ public interface EpicFightClientBoundPayloadHandler {
 				dataManager.registerData(data.skillDataKey());
 				dataManager.setDataRawtype(data.skillDataKey(), value);
 			}
-			case REMOVE -> {
-				dataManager.removeData(data.skillDataKey());
-			}
+			case REMOVE -> dataManager.removeData(data.skillDataKey());
 			case MODIFY -> {
 				Object value = data.skillDataKey().value().decode(data.buffer());
 				dataManager.setDataRawtype(data.skillDataKey(), value);
@@ -155,9 +153,10 @@ public interface EpicFightClientBoundPayloadHandler {
                 case MOB -> MobPatchReloadListener.processServerPacket(data);
                 case SKILL_PARAMS -> SkillReloadListener.processServerPacket(data);
                 case WEAPON -> ItemCapabilityReloadListener.processServerPacket(data);
-                case EX_CAP_BUILDER ->  ExCapBuilderReloadListener.processServerPacket(data);
-                case EX_CAP_CONDITIONAL -> ExCapConditionalReloadListener.processServerPacket(data);
-                case EX_CAP_MOVESET -> ExCapMovesetReloadListener.processServerPacket(data);
+                case ITEM_PRESET ->  ItemPresetReloadListener.processServerPacket(data);
+                case PROVIDER_CONDITIONAL -> ConditionalReloadListener.processServerPacket(data);
+                case MOVESET -> MovesetReloadListener.processServerPacket(data);
+				case MODIFIER -> WeaponModifierReloadListener.processServerPacket(data);
                 case ARMOR -> ItemCapabilityReloadListener.processServerPacket(data);
                 case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(data);
                 case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(data);
@@ -172,9 +171,7 @@ public interface EpicFightClientBoundPayloadHandler {
 	static void handleEntityPairing(final SPEntityPairingPacket data, final IPayloadContext context) {
 		Entity entity = context.player().level().getEntity(data.entityId());
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, EntityPatch.class).ifPresent(entitypatch -> {
-			entitypatch.fireEntityPairingEvent(data);
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, EntityPatch.class).ifPresent(entitypatch -> entitypatch.fireEntityPairingEvent(data));
 	}
 	
 	static void handleFracture(final SPCreateTerrainFracture data, final IPayloadContext context) {
@@ -184,33 +181,25 @@ public interface EpicFightClientBoundPayloadHandler {
 	static void handleModelYRot(final SPModifyPlayerData.SetPlayerYRot data, final IPayloadContext context) {
 		Entity entity = context.player().level().getEntity(data.entityId());
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.setModelYRot(data.yRot(), false);
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> playerpatch.setModelYRot(data.yRot(), false));
 	}
 	
 	static void handleDisableModelYRot(final SPModifyPlayerData.DisablePlayerYRot data, final IPayloadContext context) {
 		Entity entity = context.player().level().getEntity(data.entityId());
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.disableModelYRot(false);
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> playerpatch.disableModelYRot(false));
 	}
 	
 	static void handleSetLastAttackResult(final SPModifyPlayerData.SetLastAttackResult data, final IPayloadContext context) {
 		Entity entity = context.player().level().getEntity(data.entityId());
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.setLastAttackSuccess(data.lastAttackSuccess());
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> playerpatch.setLastAttackSuccess(data.lastAttackSuccess()));
 	}
 	
 	static void handleSetPlayerMode(final SPModifyPlayerData.SetPlayerMode data, final IPayloadContext context) {
 		Entity entity = context.player().level().getEntity(data.entityId());
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.toMode(data.mode(), false);
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(entity, PlayerPatch.class).ifPresent(playerpatch -> playerpatch.toMode(data.mode(), false));
 	}
 	
 	static void handleSetGrapplingTarget(final SPModifyPlayerData.SetGrapplingTarget data, final IPayloadContext context) {
@@ -232,12 +221,8 @@ public interface EpicFightClientBoundPayloadHandler {
 		
 		if (entity != null && entity instanceof LivingEntity livingEntity) {
 			switch (data.action()) {
-			case ACTIVATE -> {
-				livingEntity.addEffect(new MobEffectInstance(data.mobEffect()));
-			}
-			case REMOVE -> {
-				livingEntity.removeEffect(data.mobEffect());
-			}
+			case ACTIVATE -> livingEntity.addEffect(new MobEffectInstance(data.mobEffect()));
+			case REMOVE -> livingEntity.removeEffect(data.mobEffect());
 			}
 		}
 	}
@@ -348,14 +333,10 @@ public interface EpicFightClientBoundPayloadHandler {
 	}
 	
 	static void handleInitSkills(final SPInitSkills data, final IPayloadContext context) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(context.player(), PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.getPlayerSkills().read(data.serializedSkill());
-		});
+		EpicFightCapabilities.getUnparameterizedEntityPatch(context.player(), PlayerPatch.class).ifPresent(playerpatch -> playerpatch.getPlayerSkills().read(data.serializedSkill()));
 	}
 
     static void handleSyncEmoteSlot(final BiDirectionalSyncEmoteSlots data, final IPayloadContext context) {
-        EpicFightCapabilities.getLocalPlayerPatchAsOptional(context.player().level().getEntity(data.playerId())).ifPresent(playerpatch -> {
-            playerpatch.getEmoteSlots().deserialize(data.compoundTag(), playerpatch.getOriginal().registryAccess());
-        });
+        EpicFightCapabilities.getLocalPlayerPatchAsOptional(context.player().level().getEntity(data.playerId())).ifPresent(playerpatch -> playerpatch.getEmoteSlots().deserialize(data.compoundTag(), playerpatch.getOriginal().registryAccess()));
     }
 }

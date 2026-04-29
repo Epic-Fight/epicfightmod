@@ -19,6 +19,7 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -27,7 +28,6 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class Moveset
 {
@@ -178,6 +178,11 @@ public class Moveset
         {
             this.parent = parent;
             return this;
+        }
+
+        public Builder parent(DeferredMoveset moveset)
+        {
+            return this.parent(moveset.getId());
         }
 
         public Builder renderModifier(RenderModifier modifier)
@@ -365,9 +370,7 @@ public class Moveset
             List<JsonElement> attacks = jsonElement.getAsJsonArray().asList();
             List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> autocomboAnims = Lists.newArrayList();
 
-            attacks.forEach(attacksElement -> {
-                autocomboAnims.add(AnimationManager.byKey(attacksElement.getAsString()));
-            });
+            attacks.forEach(attacksElement -> autocomboAnims.add(AnimationManager.byKey(attacksElement.getAsString())));
             return autocomboAnims;
         }
 

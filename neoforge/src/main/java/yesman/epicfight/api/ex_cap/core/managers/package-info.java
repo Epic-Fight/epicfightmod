@@ -7,7 +7,7 @@
  * </p>
  * * <h3>Registry Roles:</h3>
  * <ul>
- * <li><b>{@link yesman.epicfight.api.ex_cap.core.managers.BuilderManager}:</b> Manages weapon capability templates and
+ * <li><b>{@link yesman.epicfight.api.ex_cap.core.managers.ItemPresetManager}:</b> Manages weapon capability templates and
  * handles the surgical modification of weapon presets.</li>
  * <li><b>{@link yesman.epicfight.api.ex_cap.core.managers.MovesetManager}:</b> Indexes combat animation sets and handles
  * the inheritance hierarchy/merging logic.</li>
@@ -18,7 +18,7 @@
  * an entry is registered, it is automatically available to the engine, listeners,
  * and other mods via the {@link yesman.epicfight.api.ex_cap.core.data} entries.</p>
  *
- * @see yesman.epicfight.api.ex_cap.core.managers.BuilderManager
+ * @see yesman.epicfight.api.ex_cap.core.managers.ItemPresetManager
  * @see yesman.epicfight.api.ex_cap.core.managers.MovesetManager
  * @see yesman.epicfight.api.ex_cap.core.managers.ConditionalManager
  */

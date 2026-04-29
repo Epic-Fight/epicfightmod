@@ -14,8 +14,8 @@ import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import java.util.function.Supplier;
 
-public class ItemPresetRegister extends DeferredRegister<CapabilityItem.Builder<?>> {
-    protected ItemPresetRegister(ResourceKey<? extends Registry<CapabilityItem.Builder<?>>> registryKey, String namespace) {
+public final class ItemPresetRegister extends DeferredRegister<CapabilityItem.Builder<?>> {
+    private ItemPresetRegister(ResourceKey<? extends Registry<CapabilityItem.Builder<?>>> registryKey, String namespace) {
         super(registryKey, namespace);
     }
 
@@ -23,16 +23,13 @@ public class ItemPresetRegister extends DeferredRegister<CapabilityItem.Builder<
         return new ItemPresetRegister(EpicFightRegistries.Keys.BUILDERS, namespace);
     }
 
-    public DeferredWeapon registerWeapon(String name, WeaponCapability.Builder builder) {
-        ResourceLocation weaponId = ResourceLocation.fromNamespaceAndPath(this.getNamespace(), name);
-        builder.identifier(weaponId);
-        builder.exportBuiltMovesets();
-        builder.exportBuiltConditionals();
+    public DeferredWeapon registerWeapon(String name, Supplier<WeaponCapability.Builder> builder) {
+
         ResourceKey<CapabilityItem.Builder<?>> key = ResourceKey.create(
                 EpicFightRegistries.Keys.BUILDERS,
                 ResourceLocation.fromNamespaceAndPath(this.getNamespace(), name)
         );
-        this.register(name, () -> builder);
+        this.register(name, builder);
 
         return new DeferredWeapon(key);
     }
@@ -46,13 +43,13 @@ public class ItemPresetRegister extends DeferredRegister<CapabilityItem.Builder<
      * Registers a generic preset and returns a specialized holder.
      * Used for advanced builders that don't fall under the standard 'Weapon' category.
      */
-    public <T extends CapabilityItem.Builder<?>> DeferredPreset<T> registerPreset(String name, T builder) {
+    public <T extends CapabilityItem.Builder<?>> DeferredPreset<T> registerPreset(String name, Supplier<T> builder) {
         ResourceKey<CapabilityItem.Builder<?>> key = ResourceKey.create(
                 this.getRegistryKey(),
                 ResourceLocation.fromNamespaceAndPath(this.getNamespace(), name)
         );
 
-        this.register(name, () -> builder);
+        this.register(name, builder);
 
         return new DeferredPreset<>(key);
     }

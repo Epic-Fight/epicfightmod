@@ -46,25 +46,25 @@ import java.util.function.Function;
 
 public class WeaponCapability extends CapabilityItem {
     protected final CoreWeaponCapabilityProvider coreProvider;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Function<LivingEntityPatch<?>, Style> stylegetter;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Skill passiveSkill;
     protected final boolean offHandAlone;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
 	protected final HitParticleType hitParticle;
     protected final Map<Style, Moveset> moveSets;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotions;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Map<Style, Function<ItemStack, Skill>> innateSkill;
-    @Deprecated
+    @Deprecated(since = "26.1")
 	protected final Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
 	protected final boolean canBePlacedOffhand;
-    @Deprecated
+    @Deprecated(since = "26.1")
     protected final Function<Style, Boolean> comboCancel;
     protected final ModifyComboCounter.ComboCounterHandler comboCounterHandler;
 	protected final ZoomInType zoomInType;
@@ -483,7 +483,7 @@ public class WeaponCapability extends CapabilityItem {
                                 identifier.getPath() + "/generated/" + style.toString().toLowerCase(Locale.ROOT)
                         );
                         MovesetManager.addMoveset(id, builder);
-                        this.addMoveSet(style, id);
+                        this.addMoveset(style, id);
                     })
             );
         }
@@ -592,10 +592,15 @@ public class WeaponCapability extends CapabilityItem {
          * @return This builder instance for method chaining (Fluent API).
          * @throws NullPointerException if style or builder is null.
          */
-        public Builder addMoveSet(@NotNull Style style, @NotNull Moveset.Builder builder)
+        public Builder addMoveset(@NotNull Style style, @NotNull Moveset.Builder builder)
         {
             this.pendingBuilders.put(style, builder);
             return this;
+        }
+
+        @ApiStatus.Internal
+        public void addMovesets(Map<Style, ResourceLocation> moveSets) {
+            this.moveSets.putAll(moveSets);
         }
 
         @ApiStatus.Internal
@@ -623,13 +628,13 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
-        public Builder addMoveSet(Style style, ResourceLocation moveSet) {
+        public Builder addMoveset(Style style, ResourceLocation moveSet) {
             moveSets.put(style, moveSet);
             return this;
         }
 
-        public Builder addMoveSet(Style style, DeferredMoveset moveSet) {
-            this.addMoveSet(style, moveSet.getId());
+        public Builder addMoveset(Style style, DeferredMoveset moveSet) {
+            this.addMoveset(style, moveSet.getId());
             return this;
         }
 		

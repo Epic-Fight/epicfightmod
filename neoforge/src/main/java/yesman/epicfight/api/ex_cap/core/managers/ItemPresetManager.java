@@ -5,16 +5,18 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredPreset;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
 
 import java.util.Map;
 import java.util.function.Function;
 
 @ApiStatus.Experimental
-public class BuilderManager {
+public class ItemPresetManager {
     private static final Map<ResourceLocation, CapabilityItem.Builder<?>> BUILDERS = Maps.newHashMap();
 
     public static CapabilityItem.Builder<?> get(ResourceLocation id) {
@@ -31,6 +33,12 @@ public class BuilderManager {
     public static void acceptEvent() {
         BUILDERS.clear();
         for (var entry : EpicFightRegistries.BUILDERS.entrySet()) {
+            entry.getValue().identifier(entry.getKey().location());
+            if (entry.getValue() instanceof WeaponCapability.Builder builder)
+            {
+                builder.exportBuiltMovesets();
+                builder.exportBuiltConditionals();
+            }
             BUILDERS.put(entry.getKey().location(), entry.getValue());
         }
 
@@ -39,11 +47,31 @@ public class BuilderManager {
     @ApiStatus.Internal
     public static void export(Map<ResourceLocation, Function<Item, ? extends CapabilityItem.Builder<?>>> event)
     {
-        BUILDERS.forEach((entry, builder) -> event.put(entry, item -> WeaponCapabilityPresets.exCapRegistration(builder, item)));
+        BUILDERS.forEach((entry, builder) -> event.put(entry, item -> WeaponCapabilityPresets.registerPreset(builder, item)));
     }
 
     public static void add(ResourceLocation id, CompoundTag cTag)
     {
 
+    }
+
+    public static void modify(WeaponModifier modifier)
+    {
+        CapabilityItem.Builder<?> builder = BUILDERS.get(modifier.target());
+        if (builder instanceof WeaponCapability.Builder weaponBuilder)
+        {
+            modifier.conditionalModifier().forEach((resourceLocation, operation) ->
+            {
+                if (operation == WeaponModifier.Operation.APPEND)
+                {
+                    weaponBuilder.addConditionals(resourceLocation);
+                }
+                if (operation == WeaponModifier.Operation.REMOVE)
+                {
+                    weaponBuilder.removeConditional(resourceLocation);
+                }
+            });
+            weaponBuilder.addMovesets(modifier.movesetModifier());
+        }
     }
 }

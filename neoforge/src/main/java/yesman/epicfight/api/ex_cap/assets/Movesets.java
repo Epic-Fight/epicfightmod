@@ -1,4 +1,4 @@
-package yesman.epicfight.gameasset;
+package yesman.epicfight.api.ex_cap.assets;
 
 import yesman.epicfight.api.ex_cap.core.data.MoveSetEntry;
 import net.minecraft.world.item.CrossbowItem;
@@ -8,6 +8,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.api.ex_cap.core.data.MoveSet;
 

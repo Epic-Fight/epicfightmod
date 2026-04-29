@@ -220,6 +220,7 @@ public class CapabilityItem {
 		return getBasicAutoAttackMotion();
 	}
 
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
 		return null;
 	}
@@ -228,8 +229,8 @@ public class CapabilityItem {
 	public Skill getInnateSkill(PlayerPatch<?> playerpatch, ItemStack itemstack) {
 		return null;
 	}
-	
-	@Nullable
+
+	@Nullable @Deprecated(since = "1.21.1", forRemoval = true)
 	public Skill getPassiveSkill() {
 		return null;
 	}
@@ -351,7 +352,7 @@ public class CapabilityItem {
 	/**
 	 * Use {@link #handleComboCounter(PlayerPatch, AnimationAccessor)} with animation sensitive version
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	public boolean shouldCancelCombo(LivingEntityPatch<?> entitypatch) {
 		return true;
 	}
@@ -370,7 +371,8 @@ public class CapabilityItem {
 	public CapabilityItem getResult(ItemStack item) {
 		return this;
 	}
-	
+
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	public boolean availableOnHorse() {
 		return true;
 	}

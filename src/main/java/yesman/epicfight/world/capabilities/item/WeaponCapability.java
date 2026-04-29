@@ -40,14 +40,20 @@ import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent.ComboCounterHandler;
 
 public class WeaponCapability extends CapabilityItem {
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Function<LivingEntityPatch<?>, Style> stylegetter;
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Skill passiveSkill;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
 	protected final HitParticleType hitParticle;
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotions;
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Map<Style, Function<ItemStack, Skill>> innateSkill;
+	@Deprecated(since = "1.21.1", forRemoval = true)
 	protected final Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
 	protected final boolean canBePlacedOffhand;
 	@Deprecated
@@ -93,13 +99,14 @@ public class WeaponCapability extends CapabilityItem {
 		Function<ItemStack, Skill> innateProvider = this.innateSkill.getOrDefault(this.getStyle(playerpatch), this.innateSkill.get(Styles.COMMON));
 		return innateProvider == null ? null : innateProvider.apply(itemstack);
 	}
-	
-	@Override
+
+
+	@Override @Deprecated(since = "1.21.1", forRemoval = true)
 	public Skill getPassiveSkill() {
 		return this.passiveSkill;
 	}
 	
-	@Override
+	@Override @Deprecated(since = "1.21.1", forRemoval = true)
 	public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion() {
 		return this.autoAttackMotions.get(Styles.MOUNT);
 	}
@@ -181,7 +188,7 @@ public class WeaponCapability extends CapabilityItem {
 		return super.checkOffhandValid(entitypatch) || this.weaponCombinationPredicator.apply(entitypatch);
 	}
 	
-	@Override
+	@Override @Deprecated(since = "1.21.1", forRemoval = true)
 	public boolean availableOnHorse() {
 		return this.autoAttackMotions.containsKey(Styles.MOUNT);
 	}
@@ -204,14 +211,20 @@ public class WeaponCapability extends CapabilityItem {
 	}
 	
 	public static class Builder extends CapabilityItem.Builder {
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Function<LivingEntityPatch<?>, Style> styleProvider;
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Skill passiveSkill;
 		SoundEvent swingSound;
 		SoundEvent hitSound;
 		HitParticleType hitParticle;
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotionMap;
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Map<Style, Function<ItemStack, Skill>> innateSkillByStyle;
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
 		Function<Style, Boolean> comboCancel;
 		ComboCounterHandler comboCounterHandler;
@@ -243,12 +256,12 @@ public class WeaponCapability extends CapabilityItem {
 			super.category(category);
 			return this;
 		}
-		
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
 			return this;
 		}
-		
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		public Builder passiveSkill(Skill passiveSkill) {
 			this.passiveSkill = passiveSkill;
 			return this;
@@ -288,7 +301,7 @@ public class WeaponCapability extends CapabilityItem {
             this.customTags.add(customTag);
             return this;
         }
-		
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {
 				EpicFightMod.LOGGER.warn("Unable to put an empty animation to weapon capability builder: " + livingMotion + ", " + animation);
@@ -313,17 +326,17 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 		
-		@SafeVarargs
+		@SafeVarargs @Deprecated(since = "1.21.1", forRemoval = true)
 		public final Builder newStyleCombo(Style style, AnimationAccessor<? extends AttackAnimation>... animation) {
 			this.autoAttackMotionMap.put(style, Lists.newArrayList(animation));
 			return this;
 		}
-		
+		@Deprecated(since = "1.21.1", forRemoval = true)
 		public Builder weaponCombinationPredicator(Function<LivingEntityPatch<?>, Boolean> predicator) {
 			this.weaponCombinationPredicator = predicator;
 			return this;
 		}
-		
+		@Deprecated(since = "1.21.1")
 		public Builder innateSkill(Style style, Function<ItemStack, Skill> innateSkill) {
 			this.innateSkillByStyle.put(style, innateSkill);
 			return this;

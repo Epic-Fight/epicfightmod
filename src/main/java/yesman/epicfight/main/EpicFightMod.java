@@ -69,6 +69,7 @@ import yesman.epicfight.compat.SkinLayer3DCompat;
 import yesman.epicfight.compat.VampirismCompat;
 import yesman.epicfight.compat.WerewolvesCompat;
 import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
+import yesman.epicfight.compat.fgm.WildfireFGMCompat;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
@@ -279,6 +280,11 @@ public class EpicFightMod {
         if (ModList.get().isLoaded("playerrevive")) {
         	ICompatModule.loadCompatModule(context, PlayerReviveCompat.class);
         }
+
+		if (ModList.get().isLoaded("wildfire_gender"))
+		{
+			ICompatModule.loadCompatModule(context, WildfireFGMCompat.class);
+		}
 	}
     
     /**

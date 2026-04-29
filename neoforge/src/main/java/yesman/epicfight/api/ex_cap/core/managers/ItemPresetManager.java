@@ -77,6 +77,8 @@ public class ItemPresetManager {
                     weaponBuilder.removeConditional(conditional);
                 }
             });
+
+            modifier.moveSetModifier().forEach(weaponBuilder::addMoveSet);
         }
     }
 

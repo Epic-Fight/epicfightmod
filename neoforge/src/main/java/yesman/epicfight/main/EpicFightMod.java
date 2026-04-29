@@ -75,6 +75,7 @@ import yesman.epicfight.config.ServerConfig;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
+import yesman.epicfight.gameasset.Modifiers;
 import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.network.EntityPairingPacketType;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -316,6 +317,7 @@ public class EpicFightMod {
 		event.enqueueWork(WeaponTypeReloadListener::registerDefaultWeaponTypes);
 		event.enqueueWork(EpicFightMobEffects::addOffhandModifier);
 		event.enqueueWork(EpicFightExtensibleEnums::initExtensibleEnums);
+		event.enqueueWork(Modifiers::registerModifiers);
 		event.enqueueWork(this::addRegistries);
 	}
 

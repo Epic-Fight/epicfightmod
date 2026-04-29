@@ -10,8 +10,14 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class Modifiers
 {
-    public static WeaponModifier BOKKEN_MODIFIER = ModifierManager.register(EpicFight.identifier("bokken_mod"), WeaponModifier.builder()
-            .setTarget(ItemPresets.BOKKEN).modifyMoveset(CapabilityItem.Styles.SHEATH, Movesets.greatsword2HMS)
-            .addConditional(ProviderConditional.createSkillCondition(CapabilityItem.Styles.SHEATH, EpicFightSkills.SWORD_MASTER .value(),
-                    SkillSlots.PASSIVE1, false, false)));
+
+    public static WeaponModifier BOKKEN_MODIFIER;
+
+    public static void registerModifiers()
+    {
+        BOKKEN_MODIFIER = ModifierManager.register(EpicFight.identifier("bokken_mod"), WeaponModifier.builder()
+                .setTarget(ItemPresets.BOKKEN).modifyMoveset(CapabilityItem.Styles.SHEATH, Movesets.greatsword2HMS)
+                .addConditional(ProviderConditional.createSkillCondition(CapabilityItem.Styles.SHEATH, EpicFightSkills.SWORD_MASTER .value(),
+                        SkillSlots.PASSIVE1, false, false)));
+    }
 }

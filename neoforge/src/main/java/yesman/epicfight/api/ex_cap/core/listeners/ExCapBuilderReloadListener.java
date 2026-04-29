@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.ex_cap.core.managers.ItemPresetManager;
+import yesman.epicfight.api.ex_cap.core.managers.BuilderManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -28,14 +28,14 @@ public class ExCapBuilderReloadListener extends SimpleJsonResourceReloadListener
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> elementMap, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller)
     {
-        ItemPresetManager.refresh();
+        BuilderManager.acceptEvent();
     }
 
     public static void processServerPacket(SPDatapackSync packet)
     {
         if (packet.packetType() == SPDatapackSync.PacketType.EX_CAP_BUILDER)
         {
-            ItemPresetManager.refresh();
+            BuilderManager.acceptEvent();
             packet.tags().forEach(tag -> {
                 ResourceLocation rl = ResourceLocation.parse(tag.getString("registry_name"));
             });

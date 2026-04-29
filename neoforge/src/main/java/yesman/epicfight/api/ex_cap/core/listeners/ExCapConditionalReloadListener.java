@@ -27,13 +27,13 @@ public class ExCapConditionalReloadListener extends SimpleJsonResourceReloadList
     @Override
     protected void apply(@NotNull Map<ResourceLocation, JsonElement> elementMap, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller)
     {
-        ConditionalManager.refresh();
+        ConditionalManager.acceptEvent();
         elementMap.forEach(ConditionalManager::add);
     }
 
     public static void processServerPacket(SPDatapackSync packet) {
         if (packet.packetType() == SPDatapackSync.PacketType.EX_CAP_CONDITIONAL) {
-            ConditionalManager.refresh();
+            ConditionalManager.acceptEvent();
         }
     }
 }

@@ -1,6 +1,6 @@
 package yesman.epicfight.gameasset;
 
-import yesman.epicfight.api.ex_cap.core.data.MovesetEntry;
+import yesman.epicfight.api.ex_cap.core.data.MoveSetEntry;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
@@ -9,14 +9,14 @@ import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import yesman.epicfight.registry.entries.EpicFightSkills;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.core.data.MoveSet;
 
 public class Movesets
 {
 
-    public static MovesetEntry greatsword2HMS = MovesetManager.register(
+    public static MoveSetEntry greatsword2HMS = MovesetManager.register(
             EpicFight.identifier("greatsword_2h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_GREATSWORD,
                             LivingMotions.IDLE, LivingMotions.JUMP, LivingMotions.KNEEL, LivingMotions.SNEAK,
                             LivingMotions.SWIM, LivingMotions.FLY, LivingMotions.CREATIVE_FLY, LivingMotions.CREATIVE_IDLE)
@@ -34,9 +34,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.STEEL_WHIRLWIND.get())
     );
 
-    public static MovesetEntry axeOneHandMS = MovesetManager.register(
+    public static MoveSetEntry axeOneHandMS = MovesetManager.register(
             EpicFight.identifier("axe_1h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .addComboAttacks(
                             Animations.AXE_AUTO1,
@@ -47,9 +47,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.THE_GUILLOTINE.get())
     );
 
-    public static MovesetEntry longsword2HMS = MovesetManager.register(
+    public static MoveSetEntry longsword2HMS = MovesetManager.register(
             EpicFight.identifier("longsword_2h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_LONGSWORD,
                             LivingMotions.IDLE, LivingMotions.SNEAK, LivingMotions.KNEEL,
                             LivingMotions.JUMP, LivingMotions.SWIM)
@@ -68,18 +68,18 @@ public class Movesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static MovesetEntry longsword1HMS = MovesetManager.register(
+    public static MoveSetEntry longsword1HMS = MovesetManager.register(
             EpicFight.identifier("longsword_1h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .parent(longsword2HMS.id())
                     .addLivingMotionModifier(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK)
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.BIPED_BLOCK)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.SHARP_STAB.get())
     );
 
-    public static MovesetEntry liechtenauerMS = MovesetManager.register(
+    public static MoveSetEntry liechtenauerMS = MovesetManager.register(
             EpicFight.identifier("liechtenauer"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_LIECHTENAUER,
                             LivingMotions.IDLE, LivingMotions.SNEAK, LivingMotions.KNEEL,
                             LivingMotions.JUMP, LivingMotions.SWIM)
@@ -97,9 +97,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.LIECHTENAUER.get())
     );
 
-    public static MovesetEntry dagger1HMS = MovesetManager.register(
+    public static MoveSetEntry dagger1HMS = MovesetManager.register(
             EpicFight.identifier("dagger_1h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addComboAttacks(
                             Animations.DAGGER_AUTO1,
                             Animations.DAGGER_AUTO2,
@@ -110,9 +110,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.EVISCERATE.get())
     );
 
-    public static MovesetEntry dagger2HMS = MovesetManager.register(
+    public static MoveSetEntry dagger2HMS = MovesetManager.register(
             EpicFight.identifier("dagger_2h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addComboAttacks(
                             Animations.DAGGER_DUAL_AUTO1,
                             Animations.DAGGER_DUAL_AUTO2,
@@ -128,9 +128,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.BLADE_RUSH.get())
     );
 
-    public static MovesetEntry spear2HMS = MovesetManager.register(
+    public static MoveSetEntry spear2HMS = MovesetManager.register(
             EpicFight.identifier("spear_2h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addMountAttacks(Animations.SPEAR_MOUNT_ATTACK)
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_SPEAR,
                             LivingMotions.IDLE, LivingMotions.SWIM)
@@ -146,9 +146,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.GRASPING_SPIRE.get())
     );
 
-    public static MovesetEntry spear1HMS = MovesetManager.register(
+    public static MoveSetEntry spear1HMS = MovesetManager.register(
             EpicFight.identifier("spear_1h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .parent(EpicFight.identifier("spear_2h"))
                     .addComboAttacks(
                             Animations.SPEAR_ONEHAND_AUTO,
@@ -158,9 +158,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.HEARTPIERCER.get())
     );
 
-    public static MovesetEntry sword1HMS = MovesetManager.register(
+    public static MoveSetEntry sword1HMS = MovesetManager.register(
             EpicFight.identifier("sword_1h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .addComboAttacks(
                             Animations.SWORD_AUTO1,
@@ -170,9 +170,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.SWEEPING_EDGE.get())
     );
 
-    public static MovesetEntry sword2HMS = MovesetManager.register(
+    public static MoveSetEntry sword2HMS = MovesetManager.register(
             EpicFight.identifier("sword_dual"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD)
                     .parent(dagger2HMS.id())
                     .addComboAttacks(
@@ -183,16 +183,16 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.DANCING_EDGE.get())
     );
 
-    public static MovesetEntry shield = MovesetManager.register(
+    public static MoveSetEntry shield = MovesetManager.register(
             EpicFight.identifier("shield"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.BIPED_BLOCK)
                     .addLivingMotionModifier(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK)
     );
 
-    public static MovesetEntry tachi2HMS = MovesetManager.register(
+    public static MoveSetEntry tachi2HMS = MovesetManager.register(
             EpicFight.identifier("tachi_2h"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
                             LivingMotions.IDLE,
                             LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
@@ -208,9 +208,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
     );
 
-    public static MovesetEntry uchigatanaBase = MovesetManager.register(
+    public static MoveSetEntry uchigatanaBase = MovesetManager.register(
             EpicFight.identifier("uchigatana_base"),
-            Moveset.builder().addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
+            MoveSet.builder().addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
                     .addComboAttacks(
                             Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2,
                             Animations.UCHIGATANA_AUTO3, Animations.UCHIGATANA_DASH,
@@ -227,9 +227,9 @@ public class Movesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static MovesetEntry uchigatanaSheathed = MovesetManager.register(
+    public static MoveSetEntry uchigatanaSheathed = MovesetManager.register(
             EpicFight.identifier("uchigatana_sheathed"),
-            Moveset.builder()
+            MoveSet.builder()
                     .parent(EpicFight.identifier("uchigatana_base"))
                     .addComboAttacks(
                             Animations.UCHIGATANA_SHEATHING_AUTO,
@@ -244,9 +244,9 @@ public class Movesets
                     .shouldRenderSheath(livingEntityPatch -> true)
     );
 
-    public static MovesetEntry glove = MovesetManager.register(
+    public static MoveSetEntry glove = MovesetManager.register(
             EpicFight.identifier("glove"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
                     .addComboAttacks(
@@ -258,9 +258,9 @@ public class Movesets
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RELENTLESS_COMBO.get())
     );
 
-    public static MovesetEntry bow = MovesetManager.register(
+    public static MoveSetEntry bow = MovesetManager.register(
             EpicFight.identifier("bow"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionModifier(LivingMotions.AIM, Animations.BIPED_BOW_AIM)
                     .addLivingMotionModifier(LivingMotions.IDLE, Animations.BIPED_IDLE)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK)
@@ -277,9 +277,9 @@ public class Movesets
                             Animations.FIST_AIR_SLASH)
     );
 
-    public static MovesetEntry crossBow = MovesetManager.register(
+    public static MoveSetEntry crossBow = MovesetManager.register(
             EpicFight.identifier("crossbow"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addLivingMotionsRecursive(Animations.BIPED_HOLD_CROSSBOW,
                             LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.RUN,
                             LivingMotions.SWIM, LivingMotions.FALL, LivingMotions.FLOAT, LivingMotions.SNEAK)
@@ -293,9 +293,9 @@ public class Movesets
                     .addLivingMotionModifier(LivingMotions.SHOT, Animations.BIPED_CROSSBOW_SHOT)
     );
 
-    public static MovesetEntry tridentMS = MovesetManager.register(
+    public static MoveSetEntry tridentMS = MovesetManager.register(
             EpicFight.identifier("trident"),
-            Moveset.builder()
+            MoveSet.builder()
                     .addComboAttacks(
                             Animations.TRIDENT_AUTO1,
                             Animations.TRIDENT_AUTO2,

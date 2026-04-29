@@ -3,9 +3,9 @@ package yesman.epicfight.api.ex_cap.core.data.modifier;
 import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.api.ex_cap.core.data.ItemPreset;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
-import yesman.epicfight.api.ex_cap.core.data.MovesetEntry;
+import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
+import yesman.epicfight.api.ex_cap.core.data.MoveSet;
+import yesman.epicfight.api.ex_cap.core.data.MoveSetEntry;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import yesman.epicfight.world.capabilities.item.Style;
 
@@ -52,9 +52,9 @@ public record WeaponModifier(ResourceLocation id, ResourceLocation target, Map<R
             this.type = type;
         }
 
-        public ModifierBuilder setTarget(ItemPreset itemPreset)
+        public ModifierBuilder setTarget(BuilderEntry builderEntry)
         {
-            return setTarget(itemPreset.id());
+            return setTarget(builderEntry.id());
         }
 
         @ApiStatus.Internal
@@ -71,19 +71,19 @@ public record WeaponModifier(ResourceLocation id, ResourceLocation target, Map<R
             return this;
         }
 
-        public ModifierBuilder modifyMoveset(Style style, MovesetEntry moveSet)
+        public ModifierBuilder modifyMoveset(Style style, MoveSetEntry moveSet)
         {
             this.moveSetModifier.put(style, moveSet.id());
             return this;
         }
 
 
-        public ModifierBuilder modifyMoveset(Style style, Moveset.Builder builder)
+        public ModifierBuilder modifyMoveset(Style style, MoveSet.MoveSetBuilder builder)
         {
             if (this.target == null) {
                 throw new IllegalStateException("You must call setTarget() before defining a dynamic moveset!");
             }
-            ResourceLocation modifiedMoveset = ResourceLocation.fromNamespaceAndPath(target.getNamespace(), target.getPath() + "/modified/" + style.toString().toLowerCase(Locale.ROOT));
+            ResourceLocation modifiedMoveset = ResourceLocation.parse(target.toString() + "/modified/" + style.toString().toLowerCase(Locale.ROOT));
             this.modifyMoveset(style, MovesetManager.register(modifiedMoveset, builder));
             return this;
         }

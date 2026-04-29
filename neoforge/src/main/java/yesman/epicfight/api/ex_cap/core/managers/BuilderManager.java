@@ -4,8 +4,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.EpicFight;
-import yesman.epicfight.api.ex_cap.core.data.ItemPreset;
+import yesman.epicfight.api.ex_cap.core.data.BuilderEntry;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -16,7 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @ApiStatus.Experimental
-public class ItemPresetManager {
+public class BuilderManager {
     private static final Map<ResourceLocation, CapabilityItem.Builder<?>> BUILDERS = Maps.newHashMap();
     private static final Map<ResourceLocation, CapabilityItem.Builder<?>> REGISTERED_BUILDERS = Maps.newHashMap();
     private static boolean FROZEN = false;
@@ -25,7 +24,7 @@ public class ItemPresetManager {
         return BUILDERS.get(id);
     }
 
-    public static CapabilityItem.Builder<?> get(ItemPreset entry)
+    public static CapabilityItem.Builder<?> get(BuilderEntry entry)
     {
         return get(entry.id());
     }
@@ -38,28 +37,15 @@ public class ItemPresetManager {
      * </p>
      * @param id      The unique {@link ResourceLocation} for the builder (e.g., "modid:weapon_type")
      * @param builder The {@link CapabilityItem.Builder} instance defining the weapon's properties
-     * @return A {@link ItemPreset} containing the ID and the builder, used for referencing
+     * @return A {@link BuilderEntry} containing the ID and the builder, used for referencing
      * the capability in other registries or inheritance.
      */
-    public static ItemPreset register(ResourceLocation id, CapabilityItem.Builder<?> builder) {
+    public static BuilderEntry register(ResourceLocation id, CapabilityItem.Builder<?> builder) {
         if (FROZEN)
             throw new UnsupportedOperationException("Registry is frozen, cannot register " + id.toString());
-        if (REGISTERED_BUILDERS.containsKey(id)) {
-            throw new IllegalArgumentException("Builder with ID " + id + " already exists!");
-        }
         builder.identifier(id);
-        if (builder instanceof WeaponCapability.Builder weapon)
-        {
-            weapon.assemble();
-        }
         REGISTERED_BUILDERS.put(id, builder);
-        return new ItemPreset(id, builder);
-    }
-
-    public static void freeze()
-    {
-        EpicFight.LOGGER.info("Freezing Item Preset registry");
-        FROZEN = true;
+        return new BuilderEntry(id, builder);
     }
 
     public static void modify(WeaponModifier modifier)
@@ -72,7 +58,7 @@ public class ItemPresetManager {
     }
 
     @ApiStatus.Internal
-    public static void refresh()
+    public static void acceptEvent()
     {
         BUILDERS.clear();
         BUILDERS.putAll(REGISTERED_BUILDERS);

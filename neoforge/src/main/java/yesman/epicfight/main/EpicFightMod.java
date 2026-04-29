@@ -1,6 +1,5 @@
 package yesman.epicfight.main;
 
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import yesman.epicfight.api.ex_cap.core.listeners.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -52,9 +51,6 @@ import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillReloadListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
-import yesman.epicfight.api.ex_cap.core.managers.ItemPresetManager;
-import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import yesman.epicfight.client.events.engine.IEventBasedEngine;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.gui.screen.config.EpicFightSettingScreen;
@@ -149,6 +145,7 @@ public class EpicFightMod {
 	}
 
 
+
 	public static void logAndStacktraceIfDevSide(BiConsumer<Logger, String> logFunction, String message, Function<String, Throwable> exceptionProvider) {
 		logAndStacktraceIfDevSide(logFunction, message, exceptionProvider, message);
 	}
@@ -193,7 +190,6 @@ public class EpicFightMod {
 
 		modEventBus.addListener(this::constructMod);
 		modEventBus.addListener(this::doCommonStuff);
-		modEventBus.addListener(this::onLoadComplete);
 		modEventBus.addListener(this::addPackFindersEvent);
 		modEventBus.addListener(this::buildCreativeTabWithSkillBooks);
         modEventBus.addListener(this::addDatapackRegistryEvent);
@@ -298,13 +294,6 @@ public class EpicFightMod {
     		animationregistryevent.getBuilders().stream().sorted(Comparator.comparing(AnimationManager.AnimationBuilder::namespace)).forEach(builder -> builder.task().accept(builder));
     	});
     }
-
-	public void onLoadComplete(final FMLLoadCompleteEvent event) {
-		ItemPresetManager.freeze();
-		MovesetManager.freeze();
-		ConditionalManager.freeze();
-	}
-
 
 	private void doCommonStuff(final FMLCommonSetupEvent event) {
 		event.enqueueWork(Armatures::registerEntityTypes);

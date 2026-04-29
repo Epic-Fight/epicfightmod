@@ -10,7 +10,7 @@ import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
-public class ProviderConditionals
+public class MainConditionals
 {
     public static final ConditionalEntry DEFAULT_1H_WIELD_STYLE = ConditionalManager.register(
             EpicFight.identifier("default_1h_wield_style"),

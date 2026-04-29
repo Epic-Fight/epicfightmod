@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
  * requirements (e.g., dual-wielding, sheathing, or specific skill activations).
  * </p>
  * @param id      The unique {@link ResourceLocation} assigned to this condition.
- * @param builder The {@link ProviderConditional.Builder} containing
+ * @param builder The {@link ProviderConditional.ProviderConditionalBuilder} containing
  * the logic predicate used for runtime evaluation.
  */
-public record ConditionalEntry(ResourceLocation id, ProviderConditional.Builder builder) { }
+public record ConditionalEntry(ResourceLocation id, ProviderConditional.ProviderConditionalBuilder builder) { }

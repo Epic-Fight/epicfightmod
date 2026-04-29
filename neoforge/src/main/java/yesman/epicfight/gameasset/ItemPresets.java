@@ -37,8 +37,7 @@ public class ItemPresets
             .setTierValues(0, 0, 0.0, 0.0)
             .addMoveSet(CapabilityItem.Styles.ONE_HAND, Movesets.sword1HMS)
             .addMoveSet(CapabilityItem.Styles.TWO_HAND,  Movesets.sword2HMS)
-            .addConditionals(ProviderConditionals.DUAL_SWORDS)
-                    .addConditional(ProviderConditional.createDefault(CapabilityItem.Styles.ONE_HAND, false))
+            .addConditionals(ProviderConditionals.DUAL_SWORDS, ProviderConditionals.DEFAULT_1H_WIELD_STYLE)
             .addTag(EpicFight.identifier("sword"))
     );
 

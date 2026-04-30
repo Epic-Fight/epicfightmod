@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [21.17.1] - 2026-04-29
 ### Changes
- - ExCap has been transitioned into Modifier
- - Existing ExCap registration has been turned from event driven into Registry Driven via DeferredRegister.
+ - Introduced the Hybrid Registry System
+   - The hybrid Registry system uses the DeferredRegister to register new data statically, while also allowing Datapacks to override it down the line.
+     - DeferredRegister registers it upon static compile-time while datapacks then override it upon a world load or running /reload
+ - Added Modifiers – A replacement of ExCap's system for Dynamic Overrides
+ - Existing ExCap registration for Core Epic Fight content has been turned from event driven into Registry Driven via DeferredRegister.
  - Added the option to register a Weapon Capability monolithically via just the Builder. Modularity is no longer forced.
 
 

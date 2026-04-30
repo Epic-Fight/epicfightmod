@@ -1,6 +1,7 @@
 package yesman.epicfight.api.ex_cap.core.provider;
 
 import com.google.common.collect.Lists;
+import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.Style;
 
@@ -10,6 +11,7 @@ import java.util.List;
 /**
  * This class is meant to be as an extendbale
  */
+@ApiStatus.Experimental
 public class CoreWeaponCapabilityProvider
 {
     private final List<ProviderConditional> conditionals;

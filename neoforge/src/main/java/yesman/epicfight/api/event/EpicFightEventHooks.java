@@ -1,16 +1,18 @@
 package yesman.epicfight.api.event;
 
+import yesman.epicfight.api.event.subscription.DefaultEventSubscription;
 import yesman.epicfight.api.event.types.animation.*;
 import yesman.epicfight.api.event.types.entity.*;
 import yesman.epicfight.api.event.types.player.*;
 import yesman.epicfight.api.event.types.registry.*;
+import yesman.epicfight.api.ex_cap.core.events.*;
 import yesman.epicfight.api.utils.side.LogicalSide;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 /// These are pre-defined hooks for all existing event types
 ///
 /// To register an event listener that subscribes a specific event, call one of [EventHook#registerEvent],
-/// [CancelableEventHook#registerCancelableEvent], or [CancelableEventHook#registerContextAwareEvent].
+/// [CancelableEventHook#registerEvent(DefaultEventSubscription)], or [CancelableEventHook#registerContextAwareEvent].
 ///
 /// If you want to listen an event not globally, but per entity, call the exact same registering methods in
 /// [EntityEventListener], which you can access by [LivingEntityPatch#getEventListener]. Be aware that you
@@ -68,7 +70,16 @@ public final class EpicFightEventHooks {
         public static final EventHook<SkillBuilderModificationEvent> MODIFY_SKILL_BUILDER = EventHook.createEventHook();
         public static final EventHook<RegisterMobSkillBookLootTableEvent> SKILLBOOK_LOOT_TABLE = EventHook.createEventHook();
         public static final EventHook<WeaponCapabilityPresetRegistryEvent> WEAPON_CAPABILITY_PRESET = EventHook.createEventHook();
-
+        @Deprecated
+        public static final EventHook<ExCapabilityBuilderPopulationEvent> EX_CAP_DATA_POPULATION = EventHook.createEventHook();
+        @Deprecated
+        public static final EventHook<ExCapBuilderCreationEvent> EX_CAP_BUILDER_CREATION = EventHook.createEventHook();
+        @Deprecated
+        public static final EventHook<ExCapDataRegistrationEvent> EX_CAP_DATA_CREATION = EventHook.createEventHook();
+        @Deprecated
+        public static final EventHook<ExCapMovesetRegistryEvent> EX_CAP_MOVESET_REGISTRY = EventHook.createEventHook();
+        @Deprecated
+        public static final EventHook<ConditionalRegistryEvent> EX_CAP_CONDITIONAL_REGISTRATION = EventHook.createEventHook();
         private Registry() {}
     }
 

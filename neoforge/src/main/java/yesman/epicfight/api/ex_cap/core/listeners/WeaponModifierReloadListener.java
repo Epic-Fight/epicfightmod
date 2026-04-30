@@ -7,12 +7,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.ex_cap.core.managers.ModifierManager;
 import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
+@ApiStatus.Experimental
 public class WeaponModifierReloadListener extends SimpleJsonResourceReloadListener
 {
     public static final String DIRECTORY = "capabilities/weapons/modifiers";

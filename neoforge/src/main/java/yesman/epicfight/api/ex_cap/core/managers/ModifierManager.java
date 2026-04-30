@@ -3,11 +3,13 @@ package yesman.epicfight.api.ex_cap.core.managers;
 import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.registry.EpicFightRegistries;
 
 import java.util.Map;
 
+@ApiStatus.Experimental
 public class ModifierManager {
     private static final Map<ResourceLocation, WeaponModifier> BUILDERS = Maps.newHashMap();
 
@@ -17,6 +19,7 @@ public class ModifierManager {
         EpicFightRegistries.MODIFIERS.entrySet().forEach(
                 entry -> BUILDERS.put(entry.getKey().location(), entry.getValue().build(entry.getKey().location())));
     }
+
 
     public static void add(ResourceLocation rl, CompoundTag tag)
     {

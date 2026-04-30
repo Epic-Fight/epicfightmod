@@ -1,8 +1,11 @@
 package yesman.epicfight.api.ex_cap.core.data.modifier;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@ApiStatus.Experimental
 public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocation, Operation> conditionalModifier, Map<Style, ResourceLocation> movesetModifier) {
     public enum Operation {
         APPEND,
@@ -77,6 +81,7 @@ public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocatio
             this.conditionalModifier.put(key, Operation.APPEND);
         }
 
+        @ApiStatus.Internal
         public Builder addConditionalModifier(DeferredConditional... conditionals) {
             for (DeferredConditional conditional : conditionals) {
                 this.conditionalModifier.put(conditional.getId(), Operation.APPEND);
@@ -89,10 +94,12 @@ public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocatio
             return this;
         }
 
+        @ApiStatus.Internal
         public Builder removeConditionalModifier(ResourceLocation key) {
             this.conditionalModifier.put(key, Operation.REMOVE);
             return this;
         }
+
 
         public Builder removeConditionalModifier(DeferredConditional conditional) {
             return this.removeConditionalModifier(conditional.getId());
@@ -114,7 +121,7 @@ public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocatio
 
         public WeaponModifier build(ResourceLocation builderId) {
             assemble(builderId);
-            return new WeaponModifier(target, conditionalModifier, movesetModifier);
+            return new WeaponModifier(ImmutableList.copyOf(target), ImmutableMap.copyOf(conditionalModifier), ImmutableMap.copyOf(movesetModifier));
         }
     }
 }

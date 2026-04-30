@@ -26,12 +26,13 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.Predicate;
 
+@ApiStatus.Experimental
 public class ProviderConditional
 {
 	///Helper Methods
 	/**
 	 * Creates a basic provider conditional that always applies the given style.
-	 * * @param style          The combat style to apply.
+	 * @param style          The combat style to apply.
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#DEFAULT}.
 	 */
@@ -44,7 +45,7 @@ public class ProviderConditional
 
 	/**
 	 * Creates a conditional that applies based on a specific weapon category (e.g., Greatswords).
-	 * * @param style          The style to apply if the weapon matches the category.
+	 * @param style          The style to apply if the weapon matches the category.
 	 * @param category       The {@link WeaponCategory} to check for.
 	 * @param hand           The {@link InteractionHand} that must be holding the weapon.
 	 * @param offHandVisible Whether the off-hand item is rendered.
@@ -62,7 +63,7 @@ public class ProviderConditional
 	/**
 	 * Creates a conditional for a specific individual item.
 	 * Use this to override category-wide movesets for unique "named" weapons.
-	 * * @param style          The style to apply if the specific item is held.
+	 * @param style          The style to apply if the specific item is held.
 	 * @param item           The {@link Item} instance to check for.
 	 * @param hand           The {@link InteractionHand} required.
 	 * @param offHandVisible Whether the off-hand item is rendered.
@@ -79,7 +80,7 @@ public class ProviderConditional
 
 	/**
 	 * Creates a conditional based on whether a specific skill is active or toggled on.
-	 * * @param style          The style to apply when the skill condition is met.
+	 * @param style          The style to apply when the skill condition is met.
 	 * @param skill          The {@link Skill} to monitor.
 	 * @param slot           The {@link SkillSlot} where the skill is located.
 	 * @param activation     True to check if the skill is active, false for existence only.
@@ -97,7 +98,7 @@ public class ProviderConditional
 
 	/**
 	 * Creates a conditional that checks a boolean value within a skill's data map.
-	 * * @param style          The style to apply if the key is true.
+	 * @param style          The style to apply if the key is true.
 	 * @param skill          The skill containing the data.
 	 * @param slot           The slot where the skill is assigned.
 	 * @param key            The boolean {@link SkillDataKey} to check.
@@ -116,7 +117,7 @@ public class ProviderConditional
 
 	/**
 	 * Creates a custom logic conditional using a code-based predicate.
-	 * * @param style          The style to apply if the predicate returns true.
+	 * @param style          The style to apply if the predicate returns true.
 	 * @param predicate      The custom logic to evaluate against the entity.
 	 * @param offHandVisible Whether the off-hand item is rendered.
 	 * @return A builder configured for {@link ProviderConditionalType#CUSTOM}.

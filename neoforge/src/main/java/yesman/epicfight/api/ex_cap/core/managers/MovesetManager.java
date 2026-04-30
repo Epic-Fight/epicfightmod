@@ -3,23 +3,27 @@ package yesman.epicfight.api.ex_cap.core.managers;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.EpicFight;
+import yesman.epicfight.api.ex_cap.core.events.ExCapMovesetRegistryEvent;
 import yesman.epicfight.registry.EpicFightRegistries;
 
 import java.util.Map;
 
+@ApiStatus.Experimental
 public class MovesetManager
 {
     private static final Map<ResourceLocation, Moveset.Builder> MOVESETS = Maps.newHashMap();
     private static final Map<ResourceLocation, Moveset.Builder> BUILDER_DECLARED_MOVESETS = Maps.newHashMap();
 
-    public static void acceptEvent()
+    public static void acceptEvent(@Deprecated ExCapMovesetRegistryEvent event)
     {
         MOVESETS.clear();
         EpicFightRegistries.MOVESETS.entrySet().forEach(entry -> MOVESETS.put(entry.getKey().location(), entry.getValue()));
         MOVESETS.putAll(BUILDER_DECLARED_MOVESETS);
+        MOVESETS.putAll(event.getMovesets());
     }
 
     public static void addMoveset(ResourceLocation rl, Moveset.Builder builder)

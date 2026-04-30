@@ -522,7 +522,7 @@ public class WeaponCapability extends CapabilityItem {
 
         /**
          * Sets the scaling values used to calculate attributes based on weapon tier.
-         * * @param baseAP         Base Armor Penetration.
+         * @param baseAP         Base Armor Penetration.
          * @param aPScaling      Armor Penetration gained per tier.
          * @param impactBase     Base Impact/Knockback.
          * @param impactScaling  Impact gained per tier.
@@ -558,6 +558,25 @@ public class WeaponCapability extends CapabilityItem {
 			this.swingSound = swingSound;
 			return this;
 		}
+
+        /**
+         * @deprecated Use {@link #swingSound(Holder)} instead.
+         * @param swingSound the raw object
+         * @return the builder
+         */
+        @Deprecated
+        public Builder swingSound(SoundEvent swingSound) {
+            return swingSound(Holder.direct(swingSound));
+        }
+
+        /**
+         * @deprecated Use {@link #swingSound(Holder)} instead.
+         * @param hitParticle the raw object
+         * @return the builder
+         */
+        public Builder hitParticle(HitParticleType hitParticle) {
+            return hitParticle(Holder.direct(hitParticle));
+        }
 
         /**
          * Links an external conditional provider to this weapon.
@@ -622,6 +641,11 @@ public class WeaponCapability extends CapabilityItem {
 			this.hitSound = hitSound;
 			return this;
 		}
+
+        public Builder hitSound(SoundEvent hitSound) {
+            this.hitSound = Holder.direct(hitSound);
+            return this;
+        }
 		
 		public Builder hitParticle(Holder<ParticleType<?>> hitParticle) {
 			this.hitParticle = hitParticle;

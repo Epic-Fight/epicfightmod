@@ -3,6 +3,7 @@ package yesman.epicfight.api.ex_cap.core.managers;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import org.jetbrains.annotations.ApiStatus;
+import yesman.epicfight.api.ex_cap.core.events.ConditionalRegistryEvent;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -29,11 +30,13 @@ public class ConditionalManager
     }
 
     @ApiStatus.Internal
-    public static void acceptEvent()
+    public static void acceptEvent(@Deprecated ConditionalRegistryEvent event)
     {
+
         CONDITIONALS.clear();
         EpicFightRegistries.PROVIDER_CONDITIONALS.entrySet().forEach(registryKey -> CONDITIONALS.put(registryKey.getKey().location(), registryKey.getValue()));
         CONDITIONALS.putAll(BUILDER_DECLARED_CONDITIONALS);
+        CONDITIONALS.putAll(event.getConditionals());
     }
 
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
+import yesman.epicfight.api.ex_cap.core.events.ExCapBuilderCreationEvent;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredPreset;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -30,7 +31,7 @@ public class ItemPresetManager {
 
 
     @ApiStatus.Internal
-    public static void acceptEvent() {
+    public static void acceptEvent(@Deprecated ExCapBuilderCreationEvent event) {
         BUILDERS.clear();
         for (var entry : EpicFightRegistries.BUILDERS.entrySet()) {
             entry.getValue().identifier(entry.getKey().location());
@@ -39,9 +40,10 @@ public class ItemPresetManager {
                 builder.exportBuiltMovesets();
                 builder.exportBuiltConditionals();
             }
+            ExCapManager.addAcceptor(entry.getKey().location());
             BUILDERS.put(entry.getKey().location(), entry.getValue());
         }
-
+        BUILDERS.putAll(event.getBuilders());
     }
 
     @ApiStatus.Internal
@@ -52,7 +54,7 @@ public class ItemPresetManager {
 
     public static void add(ResourceLocation id, CompoundTag cTag)
     {
-
+        //TODO: Implement
     }
 
     public static void modify(WeaponModifier modifier)

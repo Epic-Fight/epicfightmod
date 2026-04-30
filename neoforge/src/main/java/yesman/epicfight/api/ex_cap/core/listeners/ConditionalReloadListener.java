@@ -3,6 +3,9 @@ package yesman.epicfight.api.ex_cap.core.listeners;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.ApiStatus;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.ex_cap.core.events.ConditionalRegistryEvent;
 import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -13,6 +16,7 @@ import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;
 
+@ApiStatus.Experimental
 public class ConditionalReloadListener extends SimpleJsonResourceReloadListener
 {
     public static final String DIRECTORY = "capabilities/weapons/conditionals";
@@ -27,13 +31,23 @@ public class ConditionalReloadListener extends SimpleJsonResourceReloadListener
     @Override
     protected void apply(@NotNull Map<ResourceLocation, JsonElement> elementMap, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller)
     {
-        ConditionalManager.acceptEvent();
+        @Deprecated
+        ConditionalRegistryEvent event = createEvent();
+        ConditionalManager.acceptEvent(event);
         elementMap.forEach(ConditionalManager::add);
+    }
+
+    @Deprecated
+    private static ConditionalRegistryEvent createEvent()
+    {
+        return EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.post(new ConditionalRegistryEvent());
     }
 
     public static void processServerPacket(SPDatapackSync packet) {
         if (packet.packetType() == SPDatapackSync.PacketType.PROVIDER_CONDITIONAL) {
-            ConditionalManager.acceptEvent();
+            @Deprecated
+            ConditionalRegistryEvent event = createEvent();
+            ConditionalManager.acceptEvent(event);
         }
     }
 }

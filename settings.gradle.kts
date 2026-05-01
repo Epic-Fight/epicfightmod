@@ -22,14 +22,6 @@ pluginManagement {
             "https://maven.neoforged.net/releases",
             "net.neoforged"
         )
-        strictMaven(
-            "Fabric",
-            "https://maven.fabricmc.net/",
-        ) {
-            @Suppress("UnstableApiUsage")
-            includeGroupAndSubgroups("net.fabricmc")
-            includeGroup("fabric-loom")
-        }
     }
     // Gradle Convention Plugins: https://docs.gradle.org/current/userguide/implementing_gradle_plugins_convention.html
     includeBuild("gradle/build-logic")
@@ -40,9 +32,3 @@ plugins {
 }
 
 rootProject.name = "Epic Fight"
-
-include(
-    ":common",
-    ":neoforge",
-    ":fabric",
-)

@@ -13,12 +13,6 @@ moddevgradle = "2.0.134"
 # https://projects.neoforged.net/neoforged/neoform
 neoform = "1.21.1-20240808.144430"
 
-# Fabric
-fabric-loader = "0.18.2"
-fabric-api = "0.116.7+1.21.1"
-fabric-loom = "1.14-SNAPSHOT"
-modmenu-fabric = "11.0.3"
-
 # SpongePowered Mixin
 mixin = "0.8.7"
 
@@ -29,8 +23,8 @@ kubejs = "2101.7.1-build.181"
 rhino = "2006.2.4-build.17"
 architectury = "13.0.8"
 controlify = "2.5.0+1.21.1-neoforge"
-azurelib = "2.3.28"
-azurelib-armor = "2.3.15"
+azurelib = "3.1.8"
+azurelib-armor = "3.1.4"
 geckolib = "4.8.3"
 sodium = "mc1.21.1-0.6.13-neoforge"
 iris = "1.8.12+1.21.1-neoforge"
@@ -50,16 +44,9 @@ mcSafeResources = "0.0.2"
 modPublish = "1.1.0"
 
 [libraries]
-# Fabric
-fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-fabric-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
-fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
-modmenu-fabric = { module = "com.terraformersmc:modmenu", version.ref = "modmenu-fabric" }
-
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 
 forgeconfigapiport-common = { module = "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi", version.ref = "forgeconfigapiport" }
-forgeconfigapiport-fabric = { module = "fuzs.forgeconfigapiport:forgeconfigapiport-fabric", version.ref = "forgeconfigapiport" }
 
 jei-common-api = { module = "mezz.jei:jei-1.21.1-common-api", version.ref = "jei" }
 jei-neoforge-api = { module = "mezz.jei:jei-1.21.1-neoforge-api", version.ref = "jei" }
@@ -98,7 +85,6 @@ modPublish-gradle-plugin = { module = "me.modmuss50.mod-publish-plugin:me.modmus
 [plugins]
 # Mod-loader plugins
 moddevgradle = { id = "net.neoforged.moddev", version.ref = "moddevgradle" }
-fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric-loom" }
 
 # Helper plugins
 mcSafeResources = { id = "dev.echoellet.mc-safe-resources", version.ref = "mcSafeResources" }

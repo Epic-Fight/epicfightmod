@@ -19,22 +19,6 @@ fun RepositoryHandler.strictMaven(name: String, url: String, vararg includeGroup
     }
 }
 
-fun RepositoryHandler.parchmentMcRepository() {
-    strictMaven(
-        "ParchmentMC",
-        "https://maven.parchmentmc.org",
-        "org.parchmentmc", "org.parchmentmc.data",
-    )
-}
-
-fun RepositoryHandler.terraformersRepository() {
-    strictMaven(
-        "Terraformers (Mod Menu)",
-        "https://maven.terraformersmc.com",
-        "com.terraformersmc",
-    )
-}
-
 const val generationTaskGroup = "generation"
 
 private val Project.versionCatalog: VersionCatalog
@@ -88,12 +72,6 @@ private val Project.modAuthors: String
 val Project.groupId: String
     get() = gradleProperty("group_id")
 
-private val Project.fabricLoaderVersion: String
-    get() = catalogVersion("fabric-loader")
-
-private val Project.fabricApiVersion: String
-    get() = catalogVersion("fabric-api")
-
 private val Project.neoForgeVersion: String
     get() = catalogVersion("neoforge")
 
@@ -115,14 +93,10 @@ private fun Project.getFullModVersion(variant: String): String = "${modVersion}-
 
 enum class ModLoader(val conventionalName: String) {
     NeoForge("neoforge"),
-    Fabric("fabric"),
     ;
 
     val isForgeLike: Boolean
         get() = this == NeoForge
-
-    val isFabricLike: Boolean
-        get() = this == Fabric
 }
 
 private fun Project.extractCurrentVersionChangelog(): String? {
@@ -149,7 +123,6 @@ private fun Project.buildReleaseChangelog(
         val modLoaderName = modLoader.name
         val modLoaderVersion: String = when (modLoader) {
             ModLoader.NeoForge -> neoForgeVersion
-            ModLoader.Fabric -> fabricLoaderVersion
         }
 
         append(
@@ -159,10 +132,6 @@ private fun Project.buildReleaseChangelog(
     - **$modLoaderName:** $modLoaderVersion
     """.trimIndent()
         )
-
-        if (modLoader.isFabricLike) {
-            appendLine("- **Fabric API:** $fabricApiVersion")
-        }
     }
 }
 
@@ -200,19 +169,8 @@ fun Project.configureModPublish(
         file.set(jarFile())
         additionalFiles.from(sourcesJar)
 
-        val requiredDependencies = buildList {
-            if (modLoader.isFabricLike) {
-                add("fabric-api")
-                add("forge-config-api-port")
-            }
-        }
-
-        val optionalDependencies =
-            buildList {
-                if (modLoader.isFabricLike) {
-                    add("modmenu")
-                }
-            }
+        val requiredDependencies = emptyList<String>()
+        val optionalDependencies = emptyList<String>()
 
         curseforge {
             accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
@@ -258,12 +216,12 @@ fun Project.configureModPublish(
 }
 
 /**
- * The placeholders to be replaced with in mod loader metadata (fabric.mod.json, neoforge.mods.toml).
+ * The placeholders to be replaced with in NeoForge mod metadata (neoforge.mods.toml).
  *
  * ### **Example:**
  *
- * ```json
- * "id": "${modId}"
+ * ```toml
+ * modId = "${modId}"
  * ```
  *
  * Gradle projects are expected to use this in `tasks.processResources {}` configuration,
@@ -282,21 +240,10 @@ val Project.modPlatformMetadataReplaceProperties: Map<String, Any>
         "displayUrl" to modDisplayUrl,
         "description" to modDescription,
         "authors" to modAuthors,
-        // Fabric requires authors as a JSON array; Forge accepts a single string.
-        // Authors are read from gradle.properties, comma-separated.
-        // This converts `X, Y` -> `"X", "Y"` for Fabric support.
-        "authorEntries" to modAuthors
-            .split(",")
-            .joinToString(
-                separator = "\", \"",
-                prefix = "\"",
-                postfix = "\""
-            ) { it.trim() },
         "credits" to modCredits,
         "sourceCode" to modSourceCode,
         "minecraft" to mcVersion,
         "neoforgeVersion" to neoForgeVersion,
         "javaVersion" to javaVersion,
         "forgeconfigapiportVersion" to catalogVersion("forgeconfigapiport"),
-        "fabricLoader" to fabricLoaderVersion,
     )

@@ -29,6 +29,7 @@ import yesman.epicfight.api.ex_cap.core.provider.CoreWeaponCapabilityProvider;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
+import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -40,6 +41,7 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import java.util.*;
 import java.util.function.Function;
@@ -52,6 +54,7 @@ public class WeaponCapability extends CapabilityItem {
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
     @Deprecated(since = "26.1")
 	protected final Skill passiveSkill;
+    protected final Map<Holder<CustomData<?>>, Object> customData;
     protected final boolean offHandAlone;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
@@ -70,9 +73,8 @@ public class WeaponCapability extends CapabilityItem {
 	protected final ZoomInType zoomInType;
 	protected final float reach;
 
-    /// A custom capability tag that ease identifying categories
-    ///
-    /// Weapon capabilities have registry name of their weapon type builder
+    /// A custom capability tag that eases identifying categories
+    /// Weapon capabilities have a registry name of their weapon type builder
     protected Set<ResourceLocation> customTags;
 
 	protected WeaponCapability(WeaponCapability.Builder builder) {
@@ -85,6 +87,7 @@ public class WeaponCapability extends CapabilityItem {
         this.autoAttackMotions = builder.autoAttackMotionMap;
 		this.innateSkill = builder.innateSkillByStyle;
 		this.livingMotionModifiers = builder.livingMotionModifiers;
+        this.customData = ImmutableMap.copyOf(builder.customData);
 		this.stylegetter = builder.styleProvider;
 		this.weaponCombinationPredicator = builder.weaponCombinationPredicator;
 		this.passiveSkill = builder.passiveSkill;
@@ -138,6 +141,12 @@ public class WeaponCapability extends CapabilityItem {
             }
         }
         return super.getGuardMotion(skill, blockType, playerpatch);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> getCustomData(DeferredCustomData<? extends CustomData<T>> data) {
+        Object result = customData.get(data);
+        return Optional.of((T) result);
     }
 
     @Override
@@ -357,6 +366,7 @@ public class WeaponCapability extends CapabilityItem {
         double aPScaling;
         final Map<Style, Moveset.Builder> pendingBuilders;
         final List<ProviderConditional.Builder> pendingConditionals;
+        final Map<Holder<CustomData<?>>, Object> customData;
         double impactBase;
         double impactScaling;
         /** @deprecated Use {@link Moveset}. Maps styles to auto-attack animation sequences. */
@@ -395,6 +405,7 @@ public class WeaponCapability extends CapabilityItem {
             copy.comboCounterHandler = this.comboCounterHandler;
 
             copy.canBePlacedOffhand = this.canBePlacedOffhand;
+            copy.customData.putAll(this.customData);
             copy.zoomInType = this.zoomInType;
             copy.reach = this.reach;
 
@@ -432,8 +443,12 @@ public class WeaponCapability extends CapabilityItem {
             }
 
             copy.customTags.addAll(this.customTags);
-
             return copy;
+        }
+
+        @ApiStatus.Internal
+        public void registerCustomData(Holder<CustomData<?>> data) {
+            customData.put(data, data.value().defaultValue());
         }
 
 		protected Builder() {
@@ -448,6 +463,7 @@ public class WeaponCapability extends CapabilityItem {
 			this.passiveSkill = null;
 			this.swingSound = EpicFightSounds.WHOOSH;
 			this.hitSound = EpicFightSounds.BLUNT_HIT;
+            this.customData = Maps.newHashMap();
             this.moveSets = Maps.newHashMap();
 			this.hitParticle = EpicFightParticles.HIT_BLADE;
 			this.autoAttackMotionMap = Maps.newHashMap();
@@ -651,6 +667,16 @@ public class WeaponCapability extends CapabilityItem {
 			this.hitParticle = hitParticle;
 			return this;
 		}
+
+        public <T> Builder setCustomData(DeferredCustomData<? extends CustomData<T>> customData, T data) {
+            if (this.customData.containsKey(customData)) {
+                this.customData.put(customData, data);
+            }
+            else {
+                EpicFight.LOGGER.warn("Custom data type {} does not exist. Assigning {} failed.", customData.getId(), data);
+            }
+            return this;
+        }
 
         public Builder addMoveset(Style style, ResourceLocation moveSet) {
             moveSets.put(style, moveSet);

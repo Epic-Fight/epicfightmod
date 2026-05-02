@@ -24,6 +24,7 @@ public class MovesetManager
         EpicFightRegistries.MOVESETS.entrySet().forEach(entry -> MOVESETS.put(entry.getKey().location(), entry.getValue()));
         MOVESETS.putAll(BUILDER_DECLARED_MOVESETS);
         MOVESETS.putAll(event.getMovesets());
+        MOVESETS.values().forEach( builder -> EpicFightRegistries.MOVESET_DATA.holders().forEach(builder::registerCustomData));
     }
 
     public static void addMoveset(ResourceLocation rl, Moveset.Builder builder)
@@ -37,7 +38,6 @@ public class MovesetManager
             Moveset.Builder builder = Moveset.Builder.deserialize(jsonElement);
             MOVESETS.put(id, builder);
         } catch (JsonParseException e) {
-            //Skip invalid JSON
             EpicFight.LOGGER.warn(e.getMessage());
         }
     }

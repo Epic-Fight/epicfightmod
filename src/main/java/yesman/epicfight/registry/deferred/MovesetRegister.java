@@ -18,18 +18,14 @@ public final class MovesetRegister extends DeferredRegister<Moveset.Builder> {
     public static MovesetRegister create(String namespace)
     {
         return new MovesetRegister(EpicFightRegistries.Keys.MOVESETS, namespace);
-
     }
-
 
     public DeferredMoveset registerMoveset(String name, Supplier<Moveset.Builder> builder) {
         this.register(name, builder);
-
         ResourceKey<Moveset.Builder> key = ResourceKey.create(
                 this.getRegistryKey(),
                 ResourceLocation.fromNamespaceAndPath(this.getNamespace(), name)
         );
-
         return new DeferredMoveset(key);
     }
 }

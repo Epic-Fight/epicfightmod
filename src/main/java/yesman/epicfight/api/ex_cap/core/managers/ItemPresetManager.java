@@ -44,6 +44,14 @@ public class ItemPresetManager {
             BUILDERS.put(entry.getKey().location(), entry.getValue());
         }
         BUILDERS.putAll(event.getBuilders());
+        BUILDERS.values().forEach( builder -> {
+            if (builder instanceof WeaponCapability.Builder weaponBuilder)
+            {
+                EpicFightRegistries.WEAPON_DATA.holders().forEach(
+                        weaponBuilder::registerCustomData
+                );
+            }
+        });
     }
 
     @ApiStatus.Internal

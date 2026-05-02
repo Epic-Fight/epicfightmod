@@ -1,5 +1,6 @@
 package yesman.epicfight.api.ex_cap.core.data;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
@@ -19,11 +20,13 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.registry.EpicFightRegistries;
+import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -38,6 +41,7 @@ public class Moveset
     private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
     private final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
     private final Holder<Skill> weaponPassiveSkill;
+    private final Map<Holder<CustomData<?>>, Object> customData;
     private final AnimationManager.AnimationAccessor<? extends AttackAnimation> revelationAnimation;
     private final Predicate<LivingEntityPatch<?>> sheathRender;
     private final BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> customMotion;
@@ -52,12 +56,23 @@ public class Moveset
         this.livingMotionModifiers = builder.livingMotionModifiers;
         this.skillSpecificGuardAnimations = builder.skillSpecificGuardAnimations;
         this.guardPoses = builder.guardPoses;
+        this.customData = ImmutableMap.copyOf(builder.customData);
         this.modifier = builder.modifier;
         this.defaultGuardAnimations = builder.defaultGuardAnimations;
         this.weaponInnateSkill = builder.weaponInnateSkill;
         this.weaponPassiveSkill = builder.weaponPassiveSkill;
         this.revelationAnimation = builder.revelationAnimation;
         this.customMotion = builder.motion;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getCustomData(Holder<CustomData<T>> holder)
+    {
+        try {
+            return (T) customData.get(holder);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public RenderModifier getRenderModifier() {
@@ -135,12 +150,13 @@ public class Moveset
      */
     public static class Builder
     {
+        protected final Map<Holder<CustomData<?>>, Object> customData;
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> comboAttackAnimations;
         protected final List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> mountAttackAnimations;
         protected final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> livingMotionModifiers;
         protected BiFunction<ItemStack, PlayerPatch<?>, Skill> weaponInnateSkill;
         protected final Map<Skill, Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>>> skillSpecificGuardAnimations;
-        private final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
+        protected final Map<Skill, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> guardPoses;
         protected final Map<GuardSkill.BlockType, List<AnimationManager.AnimationAccessor<? extends StaticAnimation>>> defaultGuardAnimations;
         protected Holder<Skill> weaponPassiveSkill;
         protected Predicate<LivingEntityPatch<?>> sheathRender;
@@ -163,6 +179,7 @@ public class Moveset
             weaponInnateSkill = null;
             weaponPassiveSkill = null;
             revelationAnimation = null;
+            this.customData = Maps.newHashMap();
         }
 
         /**
@@ -180,6 +197,11 @@ public class Moveset
             return this;
         }
 
+        public void registerCustomData(Holder<CustomData<?>> holder)
+        {
+            this.customData.put(holder, holder.value().get());
+        }
+
         public Builder parent(DeferredMoveset moveset)
         {
             return this.parent(moveset.getId());
@@ -194,6 +216,15 @@ public class Moveset
         public Builder setMotionPredicate(BiFunction<LivingEntityPatch<?>, InteractionHand, LivingMotion> lambda)
         {
             this.motion = lambda;
+            return this;
+        }
+
+        public <T> Builder setCustomData(DeferredCustomData<? extends CustomData<T>> data, T customData)
+        {
+            if (this.customData.containsKey(data))
+            {
+                this.customData.put(data, customData);
+            }
             return this;
         }
 

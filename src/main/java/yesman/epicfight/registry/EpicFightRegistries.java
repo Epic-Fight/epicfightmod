@@ -21,6 +21,7 @@ import yesman.epicfight.registry.entries.*;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 import yesman.epicfight.world.entity.data.ExpandedEntityDataAccessor;
 
 import java.util.List;
@@ -37,6 +38,9 @@ public abstract class EpicFightRegistries {
     public static final Registry<Moveset.Builder> MOVESETS = new RegistryBuilder<>(Keys.MOVESETS).sync(true).create();
     public static final Registry<ProviderConditional.Builder> PROVIDER_CONDITIONALS = new RegistryBuilder<>(Keys.PROVIDER_CONDITIONALS).sync(true).create();
     public static final Registry<WeaponModifier.Builder> MODIFIERS = new RegistryBuilder<>(Keys.MODIFIERS).sync(true).create();
+    public static final Registry<CustomData<?>> WEAPON_DATA = new RegistryBuilder<>(Keys.WEAPON_DATA).sync(true).create();
+    public static final Registry<CustomData<?>> MOVESET_DATA = new RegistryBuilder<>(Keys.MOVESET_DATA).sync(true).create();
+
     // Deferred Registries
     public static final List<DeferredRegister<?>> DEFERRED_REGISTRIES = List.of(
         EpicFightArmorMaterials.REGISTRY,
@@ -71,7 +75,8 @@ public abstract class EpicFightRegistries {
         ResourceKey<Registry<Moveset.Builder>> MOVESETS = key("moveset");
         ResourceKey<Registry<ProviderConditional.Builder>> PROVIDER_CONDITIONALS = key("provider_conditional");
         ResourceKey<Registry<WeaponModifier.Builder>> MODIFIERS = key("modifiers");
-
+        ResourceKey<Registry<CustomData<?>>> WEAPON_DATA = key("weapon_data");
+        ResourceKey<Registry<CustomData<?>>> MOVESET_DATA = key("moveset_data");
         ResourceKey<Registry<Supplier<Condition<?>>>> CONDITION = key("condition");
         ResourceKey<Registry<ExpandedEntityDataAccessor<?>>> EXPANDED_ENTITY_DATA_ACCESSOR = key("expanded_entity_data_accessor");
         ResourceKey<Registry<SynchedAnimationVariableKey<?>>> SYNCHED_ANIMATION_VARIABLE_KEY = key("synched_animation_variable_key");

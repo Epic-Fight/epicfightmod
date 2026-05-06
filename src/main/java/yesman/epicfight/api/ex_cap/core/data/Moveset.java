@@ -74,6 +74,15 @@ public class Moveset
             return null;
         }
     }
+    @SuppressWarnings("unchecked")
+    public <T> T getCustomData(DeferredCustomData<CustomData<T>> holder)
+    {
+        try {
+            return (T) customData.get(holder);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     public RenderModifier getRenderModifier() {
         return modifier;

@@ -3,8 +3,10 @@ package yesman.epicfight.skill.dodge;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -14,14 +16,18 @@ import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.registry.entries.EpicFightMovesetData;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class DodgeSkill extends Skill {
@@ -81,8 +87,19 @@ public class DodgeSkill extends Skill {
 		ServerPlayerPatch executor = skillContainer.getServerExecutor();
 		int i = args.getInt("direction");
 		float yRot = args.getFloat("yRot");
-		
-		executor.playAnimationSynchronized(this.animations[i], 0);
+		AnimationAccessor<? extends StaticAnimation> animation = this.animations[i];
+
+		//An example of custom data, this is from a moveset.
+		CapabilityItem item = executor.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+		if (item instanceof WeaponCapability weaponCapability)
+		{
+			BiFunction<SkillContainer, CompoundTag, AnimationManager.AnimationAccessor<? extends StaticAnimation>> function = weaponCapability.getCurrentSet(executor).getCustomData(EpicFightMovesetData.DODGE_ANIMATION);
+			if (function != null) {
+				animation = function.apply(skillContainer, args) != null ? function.apply(skillContainer, args) : animation;
+			}
+		}
+
+		executor.playAnimationSynchronized(animation, 0);
 		executor.setModelYRot(yRot, true);
 	}
 	

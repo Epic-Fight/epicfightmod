@@ -240,7 +240,7 @@ public class WeaponCapability extends CapabilityItem {
 		return this.canBePlacedOffhand;
 	}
 	
-	@Override
+	@Override @Deprecated(forRemoval = true)
 	public boolean shouldCancelCombo(LivingEntityPatch<?> entitypatch) {
 		return this.comboCancel.apply(this.getStyle(entitypatch));
 	}
@@ -598,6 +598,7 @@ public class WeaponCapability extends CapabilityItem {
          * @param hitParticle the raw object
          * @return the builder
          */
+        @Deprecated
         public Builder hitParticle(HitParticleType hitParticle) {
             return hitParticle(Holder.direct(hitParticle));
         }

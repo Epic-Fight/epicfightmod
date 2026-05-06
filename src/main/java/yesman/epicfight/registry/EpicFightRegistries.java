@@ -67,7 +67,8 @@ public abstract class EpicFightRegistries {
         EpicFightMovesets.REGISTRY,
         EpicFightProviderConditionals.REGISTRY,
         EpicFightItemCapabilityPresets.REGISTRY,
-        EpicFightModifiers.REGISTRY
+        EpicFightModifiers.REGISTRY,
+        EpicFightMovesetData.REGISTER
     );
 
     public interface Keys {

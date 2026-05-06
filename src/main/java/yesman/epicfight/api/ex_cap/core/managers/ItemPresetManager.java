@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.resources.ResourceLocation;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.api.ex_cap.core.events.ExCapBuilderCreationEvent;
 import yesman.epicfight.registry.EpicFightRegistries;
@@ -35,6 +36,7 @@ public class ItemPresetManager {
         BUILDERS.clear();
         for (var entry : EpicFightRegistries.BUILDERS.entrySet()) {
             entry.getValue().identifier(entry.getKey().location());
+            EpicFight.LOGGER.info("Pulling {} from register", entry.getKey().location());
             if (entry.getValue() instanceof WeaponCapability.Builder builder)
             {
                 builder.exportBuiltMovesets();
@@ -84,6 +86,7 @@ public class ItemPresetManager {
                     }
                 });
                 weaponBuilder.addMovesets(modifier.movesetModifier());
+                modifier.weaponCustomData().forEach(weaponBuilder::setCustomDataInternal);
             }
         }
 

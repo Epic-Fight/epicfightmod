@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.EpicFight;
+import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.api.ex_cap.core.events.ExCapMovesetRegistryEvent;
 import yesman.epicfight.registry.EpicFightRegistries;
 
@@ -25,6 +26,7 @@ public class MovesetManager
         MOVESETS.putAll(BUILDER_DECLARED_MOVESETS);
         MOVESETS.putAll(event.getMovesets());
         MOVESETS.values().forEach( builder -> EpicFightRegistries.MOVESET_DATA.holders().forEach(builder::registerCustomData));
+        ModifierManager.modifyMovesets();
     }
 
     public static void addMoveset(ResourceLocation rl, Moveset.Builder builder)
@@ -40,6 +42,12 @@ public class MovesetManager
         } catch (JsonParseException e) {
             EpicFight.LOGGER.warn(e.getMessage());
         }
+    }
+
+    public static void modifyData(WeaponModifier modifier)
+    {
+        modifier.movesetCustomData().forEach((resourceLocation, deferredCustomDataObjectMap) ->
+                MOVESETS.get(resourceLocation).addCustomData(deferredCustomDataObjectMap));
     }
 
     public static Moveset.Builder getBuilder(ResourceLocation id)

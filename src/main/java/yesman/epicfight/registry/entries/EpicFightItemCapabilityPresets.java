@@ -169,7 +169,6 @@ public final class EpicFightItemCapabilityPresets
                     .addMoveset(CapabilityItem.Styles.ONE_HAND, EpicFightMovesets.SWORD_1H)
                     .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.SWORD_DUAL)
                     .addConditionals(EpicFightProviderConditionals.DUAL_SWORDS, EpicFightProviderConditionals.DEFAULT_1H_WIELD_STYLE)
-                    /* Monolithic Registration Example */
                     .addMoveset(CapabilityItem.Styles.SHEATH, Moveset.builder()
                             .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
                                     LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
@@ -183,8 +182,7 @@ public final class EpicFightItemCapabilityPresets
                             .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get()))
                     .addConditional(ProviderConditional.createSkillCondition(CapabilityItem.Styles.SHEATH, EpicFightSkills.SWORD_MASTER,
                             SkillSlots.PASSIVE1, false, false))
-                    /* End Monolithic Registration Example */
-                    .addTag(EpicFight.identifier("sword")));
+                    .addTag(EpicFight.identifier("bokken")));
 
     public static final DeferredWeapon SPEAR = REGISTRY.registerWeapon("spear",
             () -> WeaponCapability.builder()

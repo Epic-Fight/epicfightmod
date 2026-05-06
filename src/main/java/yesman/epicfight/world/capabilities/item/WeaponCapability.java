@@ -100,6 +100,7 @@ public class WeaponCapability extends CapabilityItem {
 		this.zoomInType = builder.zoomInType;
 		this.reach = builder.reach;
         this.customTags = Collections.unmodifiableSet(builder.customTags);
+        this.id = builder.identifier;
 	}
 
 
@@ -448,12 +449,13 @@ public class WeaponCapability extends CapabilityItem {
 
         @ApiStatus.Internal
         public void registerCustomData(Holder<CustomData<?>> data) {
-            customData.put(data, data.value().defaultValue());
+            customData.putIfAbsent(data, data.value().defaultValue());
         }
+
+
 
 		protected Builder() {
             this.provider = Lists.newArrayList();
-            this.identifier = null;
             this.offHandAlone = false;
             this.pendingBuilders = Maps.newHashMap();
             this.pendingConditionals = Lists.newArrayList();
@@ -480,6 +482,11 @@ public class WeaponCapability extends CapabilityItem {
             this.impactScaling = 1;
 		}
 
+        public Builder identifier(ResourceLocation id)
+        {
+            return super.identifier(id);
+        }
+
         /**
          * Configures whether the weapon functions independently in the off-hand.
          * @param offHandAlone True for independent off-hand logic.
@@ -498,6 +505,7 @@ public class WeaponCapability extends CapabilityItem {
                                 identifier.getNamespace(),
                                 identifier.getPath() + "/generated/" + style.toString().toLowerCase(Locale.ROOT)
                         );
+
                         MovesetManager.addMoveset(id, builder);
                         this.addMoveset(style, id);
                     })
@@ -769,5 +777,9 @@ public class WeaponCapability extends CapabilityItem {
 		public Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> getComboAnimations() {
 			return ImmutableMap.copyOf(this.autoAttackMotionMap);
 		}
-	}
+
+        public void setCustomDataInternal(DeferredCustomData<? extends CustomData<?>> data, Object obj) {
+            this.customData.put(data, obj);
+        }
+    }
 }

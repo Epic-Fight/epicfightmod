@@ -197,6 +197,11 @@ public class Moveset
             return this;
         }
 
+        public void addCustomData(Map<DeferredCustomData<? extends CustomData<?>>, Object> dataMap)
+        {
+            customData.putAll(dataMap);
+        }
+
         public void registerCustomData(Holder<CustomData<?>> holder)
         {
             this.customData.put(holder, holder.value().get());

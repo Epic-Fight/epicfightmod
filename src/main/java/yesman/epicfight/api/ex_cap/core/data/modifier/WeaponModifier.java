@@ -11,10 +11,9 @@ import yesman.epicfight.api.ex_cap.core.data.Moveset;
 import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
 import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
 import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
-import yesman.epicfight.registry.deferred.holders.DeferredConditional;
-import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
-import yesman.epicfight.registry.deferred.holders.DeferredWeapon;
+import yesman.epicfight.registry.deferred.holders.*;
 import yesman.epicfight.world.capabilities.item.Style;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @ApiStatus.Experimental
-public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocation, Operation> conditionalModifier, Map<Style, ResourceLocation> movesetModifier) {
+public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocation, Operation> conditionalModifier, Map<Style, ResourceLocation> movesetModifier, Map<ResourceLocation, Map<DeferredCustomData<? extends CustomData<?>>, Object>> movesetCustomData, Map<DeferredCustomData<? extends CustomData<?>>, Object> weaponCustomData) {
     public enum Operation {
         APPEND,
         REMOVE
@@ -37,9 +36,13 @@ public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocatio
         private final Map<Style, ResourceLocation> movesetModifier;
         private final List<ProviderConditional.Builder> conditionalBuilders;
         private final Map<Style, Moveset.Builder> movesetBuilders;
+        private final Map<ResourceLocation, Map<DeferredCustomData<? extends CustomData<?>>, Object>> movesetCustomData;
+        private final Map<DeferredCustomData<? extends CustomData<?>>, Object> weaponCustomData;
         private Builder() {
             this.target = Lists.newArrayList();
             this.conditionalModifier = Maps.newHashMap();
+            this.movesetCustomData = Maps.newHashMap();
+            this.weaponCustomData = Maps.newHashMap();
             this.movesetModifier = Maps.newHashMap();
             this.conditionalBuilders = Lists.newArrayList();
             this.movesetBuilders = Maps.newHashMap();
@@ -119,9 +122,28 @@ public record WeaponModifier(List<ResourceLocation> targets, Map<ResourceLocatio
             return this;
         }
 
+        public <T> Builder setMovesetData(ResourceLocation rl, DeferredCustomData<? extends CustomData<T>> data, T value)
+        {
+            this.movesetCustomData.computeIfAbsent(rl, s -> Maps.newHashMap()).put(data, value);
+            return this;
+        }
+
+        public <T> Builder setMovesetData(DeferredMoveset moveset, DeferredCustomData<? extends CustomData<T>> data, T value)
+        {
+            return this.setMovesetData(moveset.getId(), data, value);
+        }
+
+        public <T> Builder setWeaponData(DeferredCustomData<? extends CustomData<T>> data, T value)
+        {
+            this.weaponCustomData.put(data, value);
+            return this;
+        }
+
         public WeaponModifier build(ResourceLocation builderId) {
             assemble(builderId);
-            return new WeaponModifier(ImmutableList.copyOf(target), ImmutableMap.copyOf(conditionalModifier), ImmutableMap.copyOf(movesetModifier));
+            Map<ResourceLocation, Map<DeferredCustomData<? extends CustomData<?>>, Object>> movesetCustomData = Maps.newHashMap();
+            this.movesetCustomData.forEach((style, data) -> movesetCustomData.put(style, ImmutableMap.copyOf(data)));
+            return new WeaponModifier(ImmutableList.copyOf(target), ImmutableMap.copyOf(conditionalModifier), ImmutableMap.copyOf(movesetModifier), ImmutableMap.copyOf(movesetCustomData), ImmutableMap.copyOf(weaponCustomData));
         }
     }
 }

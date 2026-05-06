@@ -18,6 +18,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.AttackAnimation;
@@ -102,12 +103,14 @@ public class CapabilityItem {
 
 	protected Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
 	protected Map<Style, ItemAttributeModifiers> modifiers;
+	///For debugging only
+	protected ResourceLocation id;
 	protected Collider collider;
 	
 	protected CapabilityItem(CapabilityItem.Builder<?> builder) {
 		this.weaponCategory = builder.category;
 		this.collider = builder.collider;
-		
+		this.id = builder.identifier;
 		ImmutableMap.Builder<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMapbuilder = ImmutableMap.builder();
 		
 		for (Map.Entry<Style, Map<Holder<Attribute>, AttributeModifier>> entry : builder.attributeMap.entrySet()) {
@@ -258,7 +261,7 @@ public class CapabilityItem {
 		SkillContainer weaponInnateSkillContainer = playerpatch.getSkill(SkillSlots.WEAPON_INNATE);
 		PayloadBundleBuilder toLocal = PayloadBundleBuilder.create();
 		PayloadBundleBuilder toRemote = PayloadBundleBuilder.create();
-		
+		EpicFight.LOGGER.info("Capability Item Preset: {}", id);
 		if (weaponInnateSkill != null) {
 			if (weaponInnateSkillContainer.getSkill() != weaponInnateSkill) {
 				weaponInnateSkillContainer.setSkill(weaponInnateSkill);

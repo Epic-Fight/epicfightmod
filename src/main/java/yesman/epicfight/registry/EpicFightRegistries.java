@@ -97,6 +97,8 @@ public abstract class EpicFightRegistries {
         event.register(BUILDERS);
         event.register(MOVESETS);
         event.register(MODIFIERS);
+        event.register(WEAPON_DATA);
+        event.register(MOVESET_DATA);
         event.register(PROVIDER_CONDITIONALS);
         event.register(EXPANDED_ENTITY_DATA_ACCESSOR);
         event.register(SKILL);

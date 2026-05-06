@@ -30,4 +30,9 @@ public class ModifierManager {
     {
         BUILDERS.forEach((entry, builder) -> ItemPresetManager.modify(builder));
     }
+
+    public static void modifyMovesets()
+    {
+        BUILDERS.forEach((entry, builder) -> MovesetManager.modifyData(builder));
+    }
 }

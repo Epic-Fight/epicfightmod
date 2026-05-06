@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import yesman.epicfight.api.ex_cap.core.managers.ModifierManager;
 import yesman.epicfight.network.server.SPDatapackSync;
 
 import java.util.Map;

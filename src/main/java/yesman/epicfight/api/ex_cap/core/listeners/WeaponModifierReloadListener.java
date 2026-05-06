@@ -27,12 +27,13 @@ public class WeaponModifierReloadListener extends SimpleJsonResourceReloadListen
 
     @Override
     protected @NotNull Map<ResourceLocation, JsonElement> prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
+        ModifierManager.acceptEvent();
         return super.prepare(resourceManager, profiler);
+
     }
 
     @Override
     protected void apply(@NotNull Map<ResourceLocation, JsonElement> resourceLocationJsonElementMap, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller) {
-        ModifierManager.acceptEvent();
         ModifierManager.modify();
     }
 
@@ -40,6 +41,7 @@ public class WeaponModifierReloadListener extends SimpleJsonResourceReloadListen
         if (packet.packetType() == SPDatapackSync.PacketType.MODIFIER) {
             ModifierManager.acceptEvent();
             ModifierManager.modify();
+
         }
     }
 }

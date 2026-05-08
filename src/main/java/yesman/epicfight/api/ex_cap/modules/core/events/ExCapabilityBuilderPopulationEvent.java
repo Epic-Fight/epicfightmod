@@ -11,7 +11,7 @@ import yesman.epicfight.api.ex_cap.managers.DatasetManager;
 import java.util.Map;
 import java.util.List;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ExCapabilityBuilderPopulationEvent extends Event {
     private final Map<ResourceLocation, List<ExCapData.Builder>> builders;
 

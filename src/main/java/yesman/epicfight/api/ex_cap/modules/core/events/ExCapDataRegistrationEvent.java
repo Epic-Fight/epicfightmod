@@ -10,7 +10,7 @@ import yesman.epicfight.api.ex_cap.modules.core.data.ExCapDataEntry;
 
 import java.util.Map;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ExCapDataRegistrationEvent extends Event
 {
     private final Map<ResourceLocation, ExCapData.Builder> dataMap = Maps.newHashMap();

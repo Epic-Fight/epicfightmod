@@ -9,7 +9,7 @@ import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 
 import java.util.Map;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ConditionalRegistryEvent extends Event
 {
     private final Map<ResourceLocation, ProviderConditional.Builder> conditionals;
@@ -23,12 +23,12 @@ public class ConditionalRegistryEvent extends Event
         return ImmutableMap.copyOf(conditionals);
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void addConditional(ResourceLocation id, ProviderConditional.Builder builder) {
         conditionals.put(id, builder);
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void addConditional(ConditionalEntry... entry) {
         for (ConditionalEntry ent : entry)
         {

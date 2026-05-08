@@ -49,11 +49,11 @@ import java.util.function.Function;
 
 public class WeaponCapability extends CapabilityItem {
     protected final CoreWeaponCapabilityProvider coreProvider;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Function<LivingEntityPatch<?>, Style> stylegetter;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Skill passiveSkill;
     protected final Map<Holder<CustomData<?>>, Object> customData;
     protected final boolean offHandAlone;
@@ -61,14 +61,14 @@ public class WeaponCapability extends CapabilityItem {
 	protected final SoundEvent hitSound;
 	protected final HitParticleType hitParticle;
     protected final Map<Style, Moveset> moveSets;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotions;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Map<Style, Function<ItemStack, Skill>> innateSkill;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
 	protected final Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
 	protected final boolean canBePlacedOffhand;
-    @Deprecated(since = "26.1")
+    @Deprecated(since = "26.1", forRemoval = true)
     protected final Function<Style, Boolean> comboCancel;
     protected final ModifyComboCounter.ComboCounterHandler comboCounterHandler;
 	protected final ZoomInType zoomInType;
@@ -188,7 +188,7 @@ public class WeaponCapability extends CapabilityItem {
 	}
 
     /// Legacy method
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public Skill getPassiveSkill()
     {
         return passiveSkill;
@@ -205,7 +205,7 @@ public class WeaponCapability extends CapabilityItem {
     }
 
     /// Legacy method used by addons
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "1.1.0")
     public final List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
     {
         return this.autoAttackMotions.get(Styles.MOUNT);
@@ -216,7 +216,6 @@ public class WeaponCapability extends CapabilityItem {
         Style style = coreProvider.getStyle(entityPatch);
         if (style == null)
         {
-            //Fallback
             return this.stylegetter.apply(entityPatch);
         }
         return style;
@@ -355,11 +354,11 @@ public class WeaponCapability extends CapabilityItem {
         /** List of resource locations for conditional logic providers. */
         List<ResourceLocation> provider;
         /** @deprecated Moved to {@link Moveset}. Fallback for determining the current combat style. */
-        @Deprecated Function<LivingEntityPatch<?>, Style> styleProvider;
+        @Deprecated(forRemoval = true) Function<LivingEntityPatch<?>, Style> styleProvider;
         /** @deprecated Moved to {@link Moveset}. Determines if specific weapon combinations are valid. */
-        @Deprecated Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
+        @Deprecated(forRemoval = true) Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
         /** @deprecated Moved to {@link Moveset}. The passive skill granted by this weapon. */
-        @Deprecated Skill passiveSkill;
+        @Deprecated(forRemoval = true) Skill passiveSkill;
 		Holder<SoundEvent> swingSound;
 		Holder<SoundEvent> hitSound;
 		Holder<ParticleType<?>> hitParticle;
@@ -372,11 +371,11 @@ public class WeaponCapability extends CapabilityItem {
         double impactBase;
         double impactScaling;
         /** @deprecated Use {@link Moveset}. Maps styles to auto-attack animation sequences. */
-        @Deprecated Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotionMap;
+        @Deprecated(forRemoval = true) Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> autoAttackMotionMap;
         /** @deprecated Use {@link Moveset}. Maps styles to the innate skill they provide. */
-        @Deprecated Map<Style, Function<ItemStack, Skill>> innateSkillByStyle;
+        @Deprecated(forRemoval = true) Map<Style, Function<ItemStack, Skill>> innateSkillByStyle;
         /** @deprecated Use {@link Moveset}. Modifies living animations (walking, idling) based on style. */
-        @Deprecated Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
+        @Deprecated(forRemoval = true) Map<Style, Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> livingMotionModifiers;
         /** @deprecated Use {@link #comboCounterHandler}. Logic for resetting/canceling combos. */
         @Deprecated Function<Style, Boolean> comboCancel;
         ModifyComboCounter.ComboCounterHandler comboCounterHandler;
@@ -541,7 +540,7 @@ public class WeaponCapability extends CapabilityItem {
         }
 
 
-        @Deprecated
+        @Deprecated(forRemoval = true)
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
 			return this;
@@ -576,6 +575,7 @@ public class WeaponCapability extends CapabilityItem {
             this.addStyleAttibutes(Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(impactBase + impactScaling * tier));
         }
 
+        @Deprecated(forRemoval = true)
 		public Builder passiveSkill(Skill passiveSkill) {
 			this.passiveSkill = passiveSkill;
 			return this;
@@ -587,7 +587,7 @@ public class WeaponCapability extends CapabilityItem {
 		}
 
         /**
-         * @deprecated Use {@link #swingSound(Holder)} instead.
+         * @deprecated Use {@link #swingSound(Holder)} instead for safely handling sound events.
          * @param swingSound the raw object
          * @return the builder
          */
@@ -597,7 +597,7 @@ public class WeaponCapability extends CapabilityItem {
         }
 
         /**
-         * @deprecated Use {@link #swingSound(Holder)} instead.
+         * @deprecated Use {@link #swingSound(Holder)} instead for safely handling sound events.
          * @param hitParticle the raw object
          * @return the builder
          */
@@ -670,6 +670,10 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
+        /**
+         * @deprecated Use {@link #hitSound(Holder)} instead for safely handling sound events.
+         */
+        @Deprecated(forRemoval = true)
         public Builder hitSound(SoundEvent hitSound) {
             this.hitSound = Holder.direct(hitSound);
             return this;
@@ -722,7 +726,7 @@ public class WeaponCapability extends CapabilityItem {
         }
 
 
-        @Deprecated
+        @Deprecated(forRemoval = true)
         public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {
                 EpicFight.LOGGER.warn("Unable to put an empty animation to weapon capability builder: {}, {}", livingMotion, animation);
@@ -742,19 +746,19 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
-		@SafeVarargs @Deprecated
+		@SafeVarargs @Deprecated(forRemoval = true, since = "1.21.1")
 		public final Builder newStyleCombo(Style style, AnimationAccessor<? extends AttackAnimation>... animation) {
 			this.autoAttackMotionMap.put(style, Lists.newArrayList(animation));
 			return this;
 		}
 
-        @Deprecated
+        @Deprecated(forRemoval = true, since = "1.21.1")
 		public Builder weaponCombinationPredicator(Function<LivingEntityPatch<?>, Boolean> predicator) {
 			this.weaponCombinationPredicator = predicator;
 			return this;
 		}
 
-        @Deprecated
+        @Deprecated(forRemoval = true, since = "1.21.1")
 		public Builder innateSkill(Style style, Function<ItemStack, Skill> innateSkill) {
 			this.innateSkillByStyle.put(style, innateSkill);
 			return this;

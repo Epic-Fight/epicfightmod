@@ -10,7 +10,7 @@ import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import java.util.Map;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ExCapBuilderCreationEvent extends Event
 {
     private final Map<ResourceLocation, WeaponCapability.Builder> builders = Maps.newHashMap();

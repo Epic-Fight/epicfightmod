@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @deprecated Use the static register via {@link yesman.epicfight.registry.deferred.MovesetRegister} this exists primarily for legacy compatibility
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ExCapMovesetRegistryEvent extends Event
 {
     private final Map<ResourceLocation, Moveset.Builder> movesets;

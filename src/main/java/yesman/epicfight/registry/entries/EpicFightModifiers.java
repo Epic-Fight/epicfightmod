@@ -2,9 +2,9 @@ package yesman.epicfight.registry.entries;
 
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
-import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
+import yesman.epicfight.api.ex_cap.data.Moveset;
+import yesman.epicfight.api.ex_cap.data.modifier.WeaponModifier;
+import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.deferred.ModifierRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredModifier;

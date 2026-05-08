@@ -4,7 +4,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
-import yesman.epicfight.api.ex_cap.core.managers.ExCapManager;
+import yesman.epicfight.api.ex_cap.managers.ExCapManager;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 
 public abstract class WeaponCapabilityPresets {

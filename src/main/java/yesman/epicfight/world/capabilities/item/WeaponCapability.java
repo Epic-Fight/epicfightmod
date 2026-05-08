@@ -22,11 +22,12 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
-import yesman.epicfight.api.ex_cap.core.managers.ConditionalManager;
-import yesman.epicfight.api.ex_cap.core.managers.MovesetManager;
-import yesman.epicfight.api.ex_cap.core.provider.CoreWeaponCapabilityProvider;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
+import yesman.epicfight.api.ex_cap.data.Moveset;
+import yesman.epicfight.api.ex_cap.managers.ConditionalManager;
+import yesman.epicfight.api.ex_cap.managers.ItemPresetManager;
+import yesman.epicfight.api.ex_cap.managers.MovesetManager;
+import yesman.epicfight.api.ex_cap.provider.CoreWeaponCapabilityProvider;
+import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
 import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
@@ -187,6 +188,7 @@ public class WeaponCapability extends CapabilityItem {
 	}
 
     /// Legacy method
+    @Deprecated
     public Skill getPassiveSkill()
     {
         return passiveSkill;
@@ -260,7 +262,6 @@ public class WeaponCapability extends CapabilityItem {
 		Moveset set = getCurrentSet(player);
         if (set == null || set.getLivingMotionModifiers() == null)
         {
-            //Fallback to legacy
             if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND) {
                 return super.getLivingMotionModifier(player, hand);
             }
@@ -388,6 +389,7 @@ public class WeaponCapability extends CapabilityItem {
 
         public Builder copy() {
             Builder copy = new Builder();
+            super.paste(copy);
             copy.constructor = this.constructor;
             copy.provider.addAll(this.provider);
             copy.category = this.category;
@@ -538,7 +540,8 @@ public class WeaponCapability extends CapabilityItem {
             this.moveSets.remove(style);
         }
 
-		
+
+        @Deprecated
 		public Builder styleProvider(Function<LivingEntityPatch<?>, Style> styleProvider) {
 			this.styleProvider = styleProvider;
 			return this;
@@ -572,12 +575,12 @@ public class WeaponCapability extends CapabilityItem {
             if (tier != 0) this.addStyleAttibutes(Styles.COMMON, EpicFightAttributes.ARMOR_NEGATION, EpicFightAttributes.getArmorNegationModifier(baseAP + aPScaling * tier));
             this.addStyleAttibutes(Styles.COMMON, EpicFightAttributes.IMPACT, EpicFightAttributes.getImpactModifier(impactBase + impactScaling * tier));
         }
-		
+
 		public Builder passiveSkill(Skill passiveSkill) {
 			this.passiveSkill = passiveSkill;
 			return this;
 		}
-		
+
 		public Builder swingSound(Holder<SoundEvent> swingSound) {
 			this.swingSound = swingSound;
 			return this;
@@ -616,12 +619,12 @@ public class WeaponCapability extends CapabilityItem {
 
         /**
          * Registers a conditional logic block and attaches it to this weapon.
-         * @param builder The builder for the conditional logic.
+         * @param builders The builders for the conditional logic.
          * @return This builder for chaining.
          */
-        public Builder addConditional(ProviderConditional.Builder builder)
+        public Builder addConditionals(ProviderConditional.Builder... builders)
         {
-            this.pendingConditionals.add(builder);
+            this.pendingConditionals.addAll(Arrays.asList(builders));
             return this;
         }
 
@@ -671,7 +674,7 @@ public class WeaponCapability extends CapabilityItem {
             this.hitSound = Holder.direct(hitSound);
             return this;
         }
-		
+
 		public Builder hitParticle(Holder<ParticleType<?>> hitParticle) {
 			this.hitParticle = hitParticle;
 			return this;
@@ -687,6 +690,7 @@ public class WeaponCapability extends CapabilityItem {
             return this;
         }
 
+
         public Builder addMoveset(Style style, ResourceLocation moveSet) {
             moveSets.put(style, moveSet);
             return this;
@@ -696,12 +700,12 @@ public class WeaponCapability extends CapabilityItem {
             this.addMoveset(style, moveSet.getId());
             return this;
         }
-		
+
 		public Builder canBePlacedOffhand(boolean canBePlacedOffhand) {
 			this.canBePlacedOffhand = canBePlacedOffhand;
 			return this;
 		}
-		
+
 		public Builder reach(float reach) {
 			this.reach = reach;
 			return this;
@@ -718,42 +722,45 @@ public class WeaponCapability extends CapabilityItem {
         }
 
 
+        @Deprecated
         public Builder livingMotionModifier(Style wieldStyle, LivingMotion livingMotion, AnimationAccessor<? extends StaticAnimation> animation) {
 			if (AnimationManager.checkNull(animation)) {
                 EpicFight.LOGGER.warn("Unable to put an empty animation to weapon capability builder: {}, {}", livingMotion, animation);
 				return this;
 			}
-			
+
 			if (this.livingMotionModifiers == null) {
 				this.livingMotionModifiers = Maps.newHashMap();
 			}
-			
+
 			if (!this.livingMotionModifiers.containsKey(wieldStyle)) {
 				this.livingMotionModifiers.put(wieldStyle, Maps.newHashMap());
 			}
-			
+
 			this.livingMotionModifiers.get(wieldStyle).put(livingMotion, animation);
-			
+
 			return this;
 		}
-		
-		@SafeVarargs
+
+		@SafeVarargs @Deprecated
 		public final Builder newStyleCombo(Style style, AnimationAccessor<? extends AttackAnimation>... animation) {
 			this.autoAttackMotionMap.put(style, Lists.newArrayList(animation));
 			return this;
 		}
-		
+
+        @Deprecated
 		public Builder weaponCombinationPredicator(Function<LivingEntityPatch<?>, Boolean> predicator) {
 			this.weaponCombinationPredicator = predicator;
 			return this;
 		}
-		
+
+        @Deprecated
 		public Builder innateSkill(Style style, Function<ItemStack, Skill> innateSkill) {
 			this.innateSkillByStyle.put(style, innateSkill);
 			return this;
 		}
 
-        /// @Deprecated - Use more sensitive version [#comboCounterHandler]
+        /// @deprecated - Use a more sensitive version [#comboCounterHandler]
         @Deprecated
 		public Builder comboCancel(Function<Style, Boolean> comboCancel) {
 			this.comboCancel = comboCancel;
@@ -774,7 +781,7 @@ public class WeaponCapability extends CapabilityItem {
 			this.zoomInType = zoomInType;
 			return this;
 		}
-		
+
 		public Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> getComboAnimations() {
 			return ImmutableMap.copyOf(this.autoAttackMotionMap);
 		}
@@ -782,5 +789,84 @@ public class WeaponCapability extends CapabilityItem {
         public void setCustomDataInternal(DeferredCustomData<? extends CustomData<?>> data, Object obj) {
             this.customData.put(data, obj);
         }
+
+        @Override
+        protected Builder merge() {
+            if (this.parent == null) {
+                return this;
+            }
+            Builder result = WeaponCapability.builder();
+            Deque<CapabilityItem.Builder<?>> stack = new ArrayDeque<>();
+            CapabilityItem.Builder<?> current = this;
+
+            while (current != null) {
+                stack.push(current);
+                current = ItemPresetManager.get(current.parent);
+            }
+            while (!stack.isEmpty()) {
+                CapabilityItem.Builder<?> builder = stack.pop();
+                applyWeapon(result, builder);
+            }
+            return result;
+        }
+    }
+
+    public static void applyWeapon(Builder result, CapabilityItem.Builder<?> builder) {
+        if (builder.attributeMap != null) {
+            result.attributeMap.putAll(builder.attributeMap);
+        }
+        if (builder.category != null) {
+            result.category = builder.category;
+        }
+        if (builder.collider != null) {
+            result.collider = builder.collider;
+        }
+        result.identifier = builder.identifier;
+        if (builder instanceof WeaponCapability.Builder weaponBuilder) {
+
+            if (weaponBuilder.swingSound != null) {
+                result.swingSound = weaponBuilder.swingSound;
+            }
+            if (weaponBuilder.hitSound != null) {
+                result.hitSound = weaponBuilder.hitSound;
+            }
+            if (weaponBuilder.hitParticle != null) {
+                result.hitParticle = weaponBuilder.hitParticle;
+            }
+
+            result.baseAP = weaponBuilder.baseAP;
+            result.aPScaling = weaponBuilder.aPScaling;
+            result.impactBase = weaponBuilder.impactBase;
+            result.impactScaling = weaponBuilder.impactScaling;
+            result.reach = weaponBuilder.reach;
+            result.zoomInType = weaponBuilder.zoomInType;
+            result.canBePlacedOffhand = weaponBuilder.canBePlacedOffhand;
+            result.offHandAlone = weaponBuilder.offHandAlone;
+
+            if (weaponBuilder.provider != null) result.provider.addAll(weaponBuilder.provider);
+            if (weaponBuilder.moveSets != null) result.moveSets.putAll(weaponBuilder.moveSets);
+            if (weaponBuilder.pendingBuilders != null) result.pendingBuilders.putAll(weaponBuilder.pendingBuilders);
+            if (weaponBuilder.pendingConditionals != null) result.pendingConditionals.addAll(weaponBuilder.pendingConditionals);
+            if (weaponBuilder.customData != null) result.customData.putAll(weaponBuilder.customData);
+
+            result.comboCounterHandler = weaponBuilder.comboCounterHandler;
+
+            if (weaponBuilder.styleProvider != null) result.styleProvider = weaponBuilder.styleProvider;
+            if (weaponBuilder.weaponCombinationPredicator != null) result.weaponCombinationPredicator = weaponBuilder.weaponCombinationPredicator;
+            if (weaponBuilder.passiveSkill != null) result.passiveSkill = weaponBuilder.passiveSkill;
+
+            if (weaponBuilder.autoAttackMotionMap != null) {
+                result.autoAttackMotionMap.putAll(weaponBuilder.autoAttackMotionMap);
+            }
+            if (weaponBuilder.innateSkillByStyle != null) {
+                result.innateSkillByStyle.putAll(weaponBuilder.innateSkillByStyle);
+            }
+            if (weaponBuilder.livingMotionModifiers != null) {
+                if (result.livingMotionModifiers == null) result.livingMotionModifiers = Maps.newHashMap();
+                result.livingMotionModifiers.putAll(weaponBuilder.livingMotionModifiers);
+            }
+            if (weaponBuilder.comboCancel != null) result.comboCancel = weaponBuilder.comboCancel;
+        }
+
     }
 }

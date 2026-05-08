@@ -6,7 +6,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.data.Moveset;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.deferred.MovesetRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
@@ -64,7 +64,7 @@ public class EpicFightMovesets
 
     public static final DeferredMoveset LONGSWORD_1H = REGISTRY.registerMoveset("longsword_1h",
             () -> Moveset.builder()
-                    .parent(LONGSWORD_2H.getId())
+                    .parent(LONGSWORD_2H)
                     .addLivingMotionModifier(LivingMotions.BLOCK_SHIELD, Animations.BIPED_BLOCK)
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.BIPED_BLOCK)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.SHARP_STAB.get())

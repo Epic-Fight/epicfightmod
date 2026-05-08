@@ -3,7 +3,7 @@ package yesman.epicfight.registry.deferred.holders;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.ApiStatus;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
+import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 
 public final class DeferredConditional extends DeferredHolder<ProviderConditional.Builder, ProviderConditional.Builder> {
     @ApiStatus.Internal

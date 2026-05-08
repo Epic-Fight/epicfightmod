@@ -37,7 +37,7 @@ public final class CommonItemCapabilityProvider implements ICapabilityProvider<I
 	public void registerWeaponTypesByClass() {
 		this.typedCapabilities.put(ArmorItem.class, EpicFightItemCapabilityPresets.ARMOR);
 		this.typedCapabilities.put(ShieldItem.class, EpicFightItemCapabilityPresets.SHIELD);
-        this.typedCapabilities.put(SwordItem.class, EpicFightItemCapabilityPresets.SWORD);
+        this.typedCapabilities.put(SwordItem.class, EpicFightItemCapabilityPresets.BOKKEN);
         this.typedCapabilities.put(PickaxeItem.class, EpicFightItemCapabilityPresets.PICKAXE);
         this.typedCapabilities.put(AxeItem.class, EpicFightItemCapabilityPresets.AXE);
         this.typedCapabilities.put(ShovelItem.class, EpicFightItemCapabilityPresets.SHOVEL);

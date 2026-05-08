@@ -2,7 +2,7 @@ package yesman.epicfight.registry.entries;
 
 import net.minecraft.world.InteractionHand;
 import yesman.epicfight.EpicFight;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
+import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.registry.deferred.ProviderConditionalRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
 import yesman.epicfight.skill.SkillSlots;

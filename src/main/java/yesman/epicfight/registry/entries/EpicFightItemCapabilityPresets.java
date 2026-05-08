@@ -2,8 +2,8 @@ package yesman.epicfight.registry.entries;
 
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
-import yesman.epicfight.api.ex_cap.core.provider.ProviderConditional;
+import yesman.epicfight.api.ex_cap.data.Moveset;
+import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.registry.deferred.ItemPresetRegister;
@@ -160,27 +160,14 @@ public final class EpicFightItemCapabilityPresets
                     .addTag(EpicFight.identifier("hoe"))
     );
 
+    /**
+     * Example weapon
+     */
     public static final DeferredWeapon BOKKEN = REGISTRY.registerWeapon("bokken", () ->
             WeaponCapability.builder()
-                    .category(CapabilityItem.WeaponCategories.SWORD)
-                    .hitSound(EpicFightSounds.BLADE_HIT)
-                    .collider(ColliderPreset.SWORD)
-                    .setTierValues(0, 0, 0.0, 0.0)
-                    .addMoveset(CapabilityItem.Styles.ONE_HAND, EpicFightMovesets.SWORD_1H)
-                    .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.SWORD_DUAL)
-                    .addConditionals(EpicFightProviderConditionals.DUAL_SWORDS, EpicFightProviderConditionals.DEFAULT_1H_WIELD_STYLE)
-                    .addMoveset(CapabilityItem.Styles.SHEATH, Moveset.builder()
-                            .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
-                                    LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
-                                    LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
-                            .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
-                            .addComboAttacks(
-                                    Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3,
-                                    Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH
-                            )
-                            .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
-                            .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get()))
-                    .addConditional(ProviderConditional.createSkillCondition(CapabilityItem.Styles.SHEATH, EpicFightSkills.SWORD_MASTER,
+                    .parent(SWORD)
+                    .addMoveset(CapabilityItem.Styles.SHEATH, EpicFightMovesets.TACHI_2H)
+                    .addConditionals(ProviderConditional.createSkillCondition(CapabilityItem.Styles.SHEATH, EpicFightSkills.SWORD_MASTER,
                             SkillSlots.PASSIVE1, false, false))
                     .addTag(EpicFight.identifier("bokken")));
 

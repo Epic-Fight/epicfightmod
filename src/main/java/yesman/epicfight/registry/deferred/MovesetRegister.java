@@ -4,7 +4,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import yesman.epicfight.api.ex_cap.core.data.Moveset;
+import yesman.epicfight.api.ex_cap.data.Moveset;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 

@@ -26,6 +26,7 @@ import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
+import yesman.epicfight.api.ex_cap.managers.ItemPresetManager;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
@@ -35,6 +36,7 @@ import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPSetRemotePlayerSkill;
 import yesman.epicfight.network.server.SPSetSkillContainerValue;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.deferred.holders.DeferredPreset;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
@@ -48,10 +50,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
@@ -505,17 +504,49 @@ public class CapabilityItem {
 	
 	@SuppressWarnings("unchecked")
 	public static class Builder<T extends Builder<T>> {
-		Function<T, CapabilityItem> constructor;
-		Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
-		WeaponCategory category;
-		Collider collider;
-		ResourceLocation identifier;
+		protected ResourceLocation parent;
+		protected Function<T, CapabilityItem> constructor;
+		protected Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
+		protected WeaponCategory category;
+		protected Collider collider;
+		protected ResourceLocation identifier;
 		
 		protected Builder() {
 			this.constructor = CapabilityItem::new;
 			this.attributeMap = Maps.newHashMap();
 			this.category = WeaponCategories.FIST;
 			this.collider = ColliderPreset.FIST;
+		}
+
+		public T copy()
+		{
+			Builder<T> result = new Builder<>();
+			result.parent = this.parent;
+			result.identifier = this.identifier;
+			result.attributeMap = this.attributeMap;
+			result.category = this.category;
+			result.collider = this.collider;
+			return (T) result;
+		}
+
+		protected void paste(T builder)
+		{
+			builder.parent = this.parent;
+			builder.identifier = this.identifier;
+			builder.attributeMap = this.attributeMap;
+			builder.category = this.category;
+			builder.collider = this.collider;
+		}
+
+		public T parent(ResourceLocation parent)
+		{
+			this.parent = parent;
+			return (T) this;
+		}
+
+		public T parent(DeferredPreset<T> preset)
+		{
+			return this.parent(preset.getId());
 		}
 
 		public T identifier(ResourceLocation id)
@@ -542,16 +573,58 @@ public class CapabilityItem {
 		public T addStyleAttibutes(Style style, Holder<Attribute> attribute, AttributeModifier attributePair) {
 			Map<Holder<Attribute>, AttributeModifier> map = this.attributeMap.computeIfAbsent(style, (key) -> new HashMap<> ());
 			map.put(attribute, attributePair);
-			
 			return (T)this;
+		}
+
+		//Only handles generics, if you want to make a full weapon capability you need a full override
+		protected T merge()
+		{
+			if (this.parent == null) {
+				return (T) this;
+			}
+			T result = (T) CapabilityItem.builder();
+			Deque<T> stack = new ArrayDeque<>();
+			Builder<T> current = this;
+
+			while (current != null) {
+				stack.push((T) current);
+				current = (T) ItemPresetManager.get(current.parent);
+			}
+			while (!stack.isEmpty()) {
+				T builder = stack.pop();
+				handleLayers(result, builder);
+			}
+			return (T)this;
+		}
+
+		protected void handleLayers(T result, T builder) {
+			apply(result, builder);
 		}
 		
 		public final CapabilityItem build() {
-			return this.constructor.apply((T)this);
+			return this.constructor.apply(this.merge());
 		}
 		
 		public Collider getCollider() {
 			return this.collider;
 		}
+
+		protected void apply(T result, T builder)
+		{
+			if (builder.constructor != null) {
+				result.constructor = builder.constructor;
+			}
+			if (builder.attributeMap != null) {
+				result.attributeMap.putAll(builder.attributeMap);
+			}
+			if (builder.category != null) {
+				result.category = builder.category;
+			}
+			if (builder.collider != null) {
+				result.collider = builder.collider;
+			}
+		}
 	}
+
+
 }

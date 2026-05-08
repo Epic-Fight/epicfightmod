@@ -30,7 +30,7 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
-import yesman.epicfight.api.ex_cap.core.managers.ItemPresetManager;
+import yesman.epicfight.api.ex_cap.managers.ItemPresetManager;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.network.server.SPDatapackSync;

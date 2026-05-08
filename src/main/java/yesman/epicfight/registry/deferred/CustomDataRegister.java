@@ -4,10 +4,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import yesman.epicfight.api.ex_cap.core.data.modifier.WeaponModifier;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
-import yesman.epicfight.registry.deferred.holders.DeferredModifier;
 import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import java.util.function.Supplier;

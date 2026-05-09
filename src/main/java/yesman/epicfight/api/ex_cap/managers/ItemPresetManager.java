@@ -72,6 +72,7 @@ public class ItemPresetManager {
         for (var target : modifier.targets())
         {
             CapabilityItem.Builder<?> builder = BUILDERS.get(target);
+            modifier.weaponCustomData().forEach(builder::setCustomDataInternal);
             if (builder instanceof WeaponCapability.Builder weaponBuilder)
             {
                 modifier.conditionalModifier().forEach((resourceLocation, operation) ->
@@ -86,7 +87,6 @@ public class ItemPresetManager {
                     }
                 });
                 weaponBuilder.addMovesets(modifier.movesetModifier());
-                modifier.weaponCustomData().forEach(weaponBuilder::setCustomDataInternal);
             }
         }
 

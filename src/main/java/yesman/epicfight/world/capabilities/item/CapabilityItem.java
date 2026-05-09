@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantments;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -36,6 +37,7 @@ import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.network.server.SPSetRemotePlayerSkill;
 import yesman.epicfight.network.server.SPSetSkillContainerValue;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
 import yesman.epicfight.registry.deferred.holders.DeferredPreset;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -48,6 +50,7 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -102,6 +105,7 @@ public class CapabilityItem {
 
 	protected Map<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMap;
 	protected Map<Style, ItemAttributeModifiers> modifiers;
+	protected final Map<Holder<CustomData<?>>, Object> customData;
 	///For debugging only
 	protected ResourceLocation id;
 	protected Collider collider;
@@ -110,6 +114,7 @@ public class CapabilityItem {
 		this.weaponCategory = builder.category;
 		this.collider = builder.collider;
 		this.id = builder.identifier;
+		this.customData = ImmutableMap.copyOf(builder.customData);
 		ImmutableMap.Builder<Style, Map<Holder<Attribute>, AttributeModifier>> attributeMapbuilder = ImmutableMap.builder();
 		
 		for (Map.Entry<Style, Map<Holder<Attribute>, AttributeModifier>> entry : builder.attributeMap.entrySet()) {
@@ -227,7 +232,14 @@ public class CapabilityItem {
 		return getMountAttackMotion();
 	}
 
-    /// Use {@link #getMountAttackMotion(PlayerPatch)} for dynamic assigning, this is used as legacy fallback.
+	@SuppressWarnings("unchecked")
+	public <T> Optional<T> getCustomData(DeferredCustomData<? extends CustomData<T>> data) {
+		Object result = customData.get(data);
+		return Optional.of((T) result);
+	}
+
+
+	/// Use {@link #getMountAttackMotion(PlayerPatch)} for dynamic assigning, this is used as legacy fallback.
     @Deprecated(forRemoval = true)
     public List<AnimationAccessor<? extends AttackAnimation>> getMountAttackMotion()
     {
@@ -510,10 +522,12 @@ public class CapabilityItem {
 		protected WeaponCategory category;
 		protected Collider collider;
 		protected ResourceLocation identifier;
-		
+		protected Map<Holder<CustomData<?>>, Object> customData;
+
 		protected Builder() {
 			this.constructor = CapabilityItem::new;
 			this.attributeMap = Maps.newHashMap();
+			this.customData = Maps.newHashMap();
 			this.category = WeaponCategories.FIST;
 			this.collider = ColliderPreset.FIST;
 		}
@@ -536,6 +550,7 @@ public class CapabilityItem {
 			builder.attributeMap = this.attributeMap;
 			builder.category = this.category;
 			builder.collider = this.collider;
+			builder.customData = this.customData;
 		}
 
 		public T parent(ResourceLocation parent)
@@ -569,6 +584,14 @@ public class CapabilityItem {
 			this.collider = collider;
 			return (T)this;
 		}
+
+		public void setCustomDataInternal(DeferredCustomData<? extends CustomData<?>> data, Object obj) {
+			this.customData.put(data, obj);
+		}
+
+		public void setCustomDataInternal(Holder<CustomData<?>> data, Object obj) {
+			this.customData.put(data, obj);
+		}
 		
 		public T addStyleAttibutes(Style style, Holder<Attribute> attribute, AttributeModifier attributePair) {
 			Map<Holder<Attribute>, AttributeModifier> map = this.attributeMap.computeIfAbsent(style, (key) -> new HashMap<> ());
@@ -600,7 +623,22 @@ public class CapabilityItem {
 		protected void handleLayers(T result, T builder) {
 			apply(result, builder);
 		}
-		
+
+		@ApiStatus.Internal
+		public void registerCustomData(Holder<CustomData<?>> data) {
+			customData.putIfAbsent(data, data.value().defaultValue());
+		}
+
+		public <R> T setCustomData(DeferredCustomData<? extends CustomData<R>> customData, R data) {
+			if (this.customData.containsKey(customData)) {
+				this.customData.put(customData, data);
+			}
+			else {
+				EpicFight.LOGGER.warn("Custom data type {} does not exist. Assigning {} failed.", customData.getId(), data);
+			}
+			return (T)this;
+		}
+
 		public final CapabilityItem build() {
 			return this.constructor.apply(this.merge());
 		}

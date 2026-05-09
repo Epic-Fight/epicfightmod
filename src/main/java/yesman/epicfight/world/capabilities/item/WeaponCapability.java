@@ -55,7 +55,6 @@ public class WeaponCapability extends CapabilityItem {
 	protected final Function<LivingEntityPatch<?>, Boolean> weaponCombinationPredicator;
     @Deprecated(since = "26.1", forRemoval = true)
 	protected final Skill passiveSkill;
-    protected final Map<Holder<CustomData<?>>, Object> customData;
     protected final boolean offHandAlone;
 	protected final SoundEvent smashingSound;
 	protected final SoundEvent hitSound;
@@ -88,7 +87,6 @@ public class WeaponCapability extends CapabilityItem {
         this.autoAttackMotions = builder.autoAttackMotionMap;
 		this.innateSkill = builder.innateSkillByStyle;
 		this.livingMotionModifiers = builder.livingMotionModifiers;
-        this.customData = ImmutableMap.copyOf(builder.customData);
 		this.stylegetter = builder.styleProvider;
 		this.weaponCombinationPredicator = builder.weaponCombinationPredicator;
 		this.passiveSkill = builder.passiveSkill;
@@ -143,12 +141,6 @@ public class WeaponCapability extends CapabilityItem {
             }
         }
         return super.getGuardMotion(skill, blockType, playerpatch);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> Optional<T> getCustomData(DeferredCustomData<? extends CustomData<T>> data) {
-        Object result = customData.get(data);
-        return Optional.of((T) result);
     }
 
     @Override
@@ -367,7 +359,6 @@ public class WeaponCapability extends CapabilityItem {
         double aPScaling;
         final Map<Style, Moveset.Builder> pendingBuilders;
         final List<ProviderConditional.Builder> pendingConditionals;
-        final Map<Holder<CustomData<?>>, Object> customData;
         double impactBase;
         double impactScaling;
         /** @deprecated Use {@link Moveset}. Maps styles to auto-attack animation sequences. */
@@ -407,7 +398,6 @@ public class WeaponCapability extends CapabilityItem {
             copy.comboCounterHandler = this.comboCounterHandler;
 
             copy.canBePlacedOffhand = this.canBePlacedOffhand;
-            copy.customData.putAll(this.customData);
             copy.zoomInType = this.zoomInType;
             copy.reach = this.reach;
 
@@ -448,12 +438,6 @@ public class WeaponCapability extends CapabilityItem {
             return copy;
         }
 
-        @ApiStatus.Internal
-        public void registerCustomData(Holder<CustomData<?>> data) {
-            customData.putIfAbsent(data, data.value().defaultValue());
-        }
-
-
 
 		protected Builder() {
             this.provider = Lists.newArrayList();
@@ -466,7 +450,6 @@ public class WeaponCapability extends CapabilityItem {
 			this.passiveSkill = null;
 			this.swingSound = EpicFightSounds.WHOOSH;
 			this.hitSound = EpicFightSounds.BLUNT_HIT;
-            this.customData = Maps.newHashMap();
             this.moveSets = Maps.newHashMap();
 			this.hitParticle = EpicFightParticles.HIT_BLADE;
 			this.autoAttackMotionMap = Maps.newHashMap();
@@ -684,16 +667,6 @@ public class WeaponCapability extends CapabilityItem {
 			return this;
 		}
 
-        public <T> Builder setCustomData(DeferredCustomData<? extends CustomData<T>> customData, T data) {
-            if (this.customData.containsKey(customData)) {
-                this.customData.put(customData, data);
-            }
-            else {
-                EpicFight.LOGGER.warn("Custom data type {} does not exist. Assigning {} failed.", customData.getId(), data);
-            }
-            return this;
-        }
-
 
         public Builder addMoveset(Style style, ResourceLocation moveSet) {
             moveSets.put(style, moveSet);
@@ -789,10 +762,6 @@ public class WeaponCapability extends CapabilityItem {
 		public Map<Style, List<AnimationAccessor<? extends AttackAnimation>>> getComboAnimations() {
 			return ImmutableMap.copyOf(this.autoAttackMotionMap);
 		}
-
-        public void setCustomDataInternal(DeferredCustomData<? extends CustomData<?>> data, Object obj) {
-            this.customData.put(data, obj);
-        }
 
         @Override
         protected Builder merge() {

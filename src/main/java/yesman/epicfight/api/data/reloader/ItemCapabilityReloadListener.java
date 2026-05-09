@@ -33,16 +33,15 @@ import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightConditions;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.*;
+import yesman.epicfight.world.capabilities.item.custom.CustomData;
 import yesman.epicfight.world.capabilities.provider.ExtraEntryProvider;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -158,6 +157,17 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 					for (Map.Entry<Holder<Attribute>, AttributeModifier> attribute : attributeEntry.entrySet()) {
 						innerDefaultCapabilityBuilder.addStyleAttibutes(Style.ENUM_MANAGER.getOrThrow(key), attribute.getKey(), attribute.getValue());
 					}
+				}
+			}
+
+			if (tag.contains("custom_data")) {
+				CompoundTag data = tag.getCompound("custom_data");
+
+				for (var key : data.getAllKeys()) {
+					Optional<Holder.Reference<CustomData<?>>> trueData = EpicFightRegistries.WEAPON_DATA.getHolder(ResourceLocation.parse(key));
+					trueData.ifPresent(
+							d -> innerDefaultCapabilityBuilder.setCustomDataInternal(d, data.get(key))
+					);
 				}
 			}
 			

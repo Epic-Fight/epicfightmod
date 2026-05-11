@@ -30,7 +30,6 @@ import yesman.epicfight.api.ex_cap.provider.CoreWeaponCapabilityProvider;
 import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
-import yesman.epicfight.registry.deferred.holders.DeferredCustomData;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -42,7 +41,6 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.item.custom.CustomData;
 
 import java.util.*;
 import java.util.function.Function;

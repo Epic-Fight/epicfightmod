@@ -113,7 +113,9 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
         eventListener.registerEvent(
             EpicFightClientEventHooks.Control.MAPPED_MOVEMENT_INPUT_UPDATE,
             event -> {
-                if (this.isActivated(skillContainer) && skillContainer.getExecutor().getAdvancedHoldingItemCapability(InteractionHand.MAIN_HAND).getInnateSkill(skillContainer.getExecutor(), skillContainer.getExecutor().getOriginal().getMainHandItem()) == this) {
+                // Resolve the innate skill against the active combat hand so a longsword carried
+                // in the offhand still gates the sprint cancel through Liechtenauer's stance check.
+                if (this.isActivated(skillContainer) && skillContainer.getExecutor().getAdvancedHoldingItemCapability(skillContainer.getExecutor().getPrimaryHand()).getInnateSkill(skillContainer.getExecutor(), skillContainer.getExecutor().getOriginal().getItemInHand(skillContainer.getExecutor().getPrimaryHand())) == this) {
                     LocalPlayer clientPlayer = skillContainer.getClientExecutor().getOriginal();
                     clientPlayer.setSprinting(false);
                     clientPlayer.sprintTriggerTime = -1;
@@ -162,7 +164,11 @@ public class LiechtenauerSkill extends WeaponInnateSkill {
         if (container.getExecutor().isLogicalClient()) {
             return super.canExecute(container);
         } else {
-            ItemStack itemstack = container.getExecutor().getOriginal().getMainHandItem();
+            // Pull from the active combat hand so the offhand-only Liechtenauer carrier passes
+            // canExecute on the server. Without this, the server-side resolver would only see the
+            // bare mainhand and reject the activation that the client already sent.
+            InteractionHand hand = container.getExecutor().getPrimaryHand();
+            ItemStack itemstack = container.getExecutor().getOriginal().getItemInHand(hand);
             return EpicFightCapabilities.getItemStackCapability(itemstack).getInnateSkill(container.getExecutor(), itemstack) == this && container.getExecutor().getOriginal().getVehicle() == null;
         }
     }

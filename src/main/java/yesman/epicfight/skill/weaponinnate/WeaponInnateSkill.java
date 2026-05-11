@@ -72,8 +72,12 @@ public abstract class WeaponInnateSkill extends Skill {
 	
 	@Override
 	public boolean canExecute(SkillContainer container) {
-		ItemStack itemstack = container.getExecutor().getOriginal().getMainHandItem();
-		
+		// Read the active combat hand so an offhand-only carrier (mirror mode) still passes the
+		// "is this skill the cap's innate?" check. Hardcoding mainhand here was the reason
+		// long-press attacks did nothing on offhand: the client-side gate failed before the cast
+		// request was ever sent to the server.
+		ItemStack itemstack = container.getExecutor().getOriginal().getItemInHand(container.getExecutor().getPrimaryHand());
+
 		return super.canExecute(container)
 				&& EpicFightCapabilities.getItemStackCapability(itemstack).getInnateSkill(container.getExecutor(), itemstack) == this
 				&& container.getExecutor().getOriginal().getVehicle() == null

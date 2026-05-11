@@ -3,7 +3,6 @@ package yesman.epicfight.skill.guard;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,10 +62,12 @@ public class ParryingSkill extends GuardSkill {
         super.onInitiate(skillContainer, eventListener);
 
         skillContainer.runOnServer(playerpatch -> {
-            CapabilityItem itemCapability = skillContainer.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
+            CapabilityItem itemCapability = skillContainer.getExecutor().getPrimaryItemCapability();
 
             if (this.isHoldingWeaponAvailable(skillContainer.getExecutor(), itemCapability, BlockType.GUARD) && this.isExecutableState(skillContainer.getExecutor())) {
-                skillContainer.getExecutor().getOriginal().startUsingItem(InteractionHand.MAIN_HAND);
+                // Trigger use-item on whichever hand actually holds the weapon so the offhand-only
+                // case begins parrying instead of attempting to use the empty mainhand.
+                skillContainer.getExecutor().getOriginal().startUsingItem(skillContainer.getExecutor().getPrimaryHand());
             }
 
             int lastActive = skillContainer.getDataManager().getDataValue(EpicFightSkillDataKeys.LAST_ACTIVE);

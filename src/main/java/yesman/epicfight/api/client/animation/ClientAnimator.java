@@ -339,29 +339,39 @@ public class ClientAnimator extends Animator {
 	
 	@Override
 	public Pose getPose(float partialTicks) {
-		return this.getPose(partialTicks, true);
+		float mirrorBlend = this.entitypatch.getMirrorBlend(partialTicks);
+		Pose composedPose = this.getPose(partialTicks, true);
+
+		if (mirrorBlend <= 0.0F) {
+			return composedPose;
+		}
+		Pose mirrored = yesman.epicfight.api.animation.PoseMirror.mirrorPose(composedPose);
+		if (mirrorBlend >= 1.0F) {
+			return mirrored;
+		}
+		return Pose.interpolatePose(composedPose, mirrored, mirrorBlend);
 	}
-	
+
 	public Pose getPose(float partialTicks, boolean useCurrentMotion) {
 		Pose composedPose = new Pose();
 		Pose baseLayerPose = this.baseLayer.getEnabledPose(this.entitypatch, useCurrentMotion, partialTicks);
-		
+
 		Map<Layer.Priority, Pair<AssetAccessor<? extends DynamicAnimation>, Pose>> layerPoses = Maps.newLinkedHashMap();
 		composedPose.load(baseLayerPose, Pose.LoadOperation.OVERWRITE);
-		
+
 		for (Layer.Priority priority : this.baseLayer.baseLayerPriority.highers()) {
 			Layer compositeLayer = this.baseLayer.compositeLayers.get(priority);
-			
+
 			if (!compositeLayer.isDisabled() && !compositeLayer.animationPlayer.isEmpty()) {
 				Pose layerPose = compositeLayer.getEnabledPose(this.entitypatch, useCurrentMotion, partialTicks);
 				layerPoses.put(priority, Pair.of(compositeLayer.animationPlayer.getAnimation(), layerPose));
 				composedPose.load(layerPose, Pose.LoadOperation.OVERWRITE);
 			}
 		}
-		
+
 		Joint rootJoint = this.entitypatch.getArmature().rootJoint;
 		this.applyBindModifier(baseLayerPose, composedPose, rootJoint, layerPoses, useCurrentMotion);
-		
+
 		return composedPose;
 	}
 	

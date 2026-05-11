@@ -3,7 +3,6 @@ package yesman.epicfight.skill.identity;
 import com.google.common.collect.Maps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -85,7 +84,7 @@ public class MeteorSlamSkill extends Skill {
                         return;
                     }
 
-                    CapabilityItem holdingItem = skillContainer.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
+                    CapabilityItem holdingItem = skillContainer.getExecutor().getPrimaryItemCapability();
 
                     if (!this.slamMotions.containsKey(holdingItem.getWeaponCategory())) {
                         return;

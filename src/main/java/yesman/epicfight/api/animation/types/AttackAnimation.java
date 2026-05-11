@@ -205,7 +205,7 @@ public class AttackAnimation extends ActionAnimation {
 		
 		if (prevState.attacking() || state.attacking() || (prevState.getLevel() <= 2 && state.getLevel() > 2)) {
 			if (!prevState.attacking() || (phase != this.getPhaseByTime(prevElapsedTime) && (state.attacking() || (prevState.getLevel() <= 2 && state.getLevel() > 2)))) {
-				entitypatch.onStrike(this, phase.hand);
+				entitypatch.onStrike(this, phase.effectiveHand(entitypatch));
 				entitypatch.playSound(this.getSwingSound(entitypatch, phase), 0.0F, 0.0F);
 				entitypatch.removeHurtEntities();
 			}
@@ -241,7 +241,7 @@ public class AttackAnimation extends ActionAnimation {
 							int prevInvulTime = target.invulnerableTime;
 							target.invulnerableTime = 0;
 							
-							AttackResult attackResult = entitypatch.attack(damagesource, target, phase.hand);
+							AttackResult attackResult = entitypatch.attack(damagesource, target, phase.effectiveHand(entitypatch));
 							target.invulnerableTime = prevInvulTime;
 							
 							if (attackResult.resultType.dealtDamage()) {
@@ -281,21 +281,22 @@ public class AttackAnimation extends ActionAnimation {
 	}
 	
 	protected int getMaxStrikes(LivingEntityPatch<?> entitypatch, Phase phase) {
+		InteractionHand hand = phase.effectiveHand(entitypatch);
 		return phase.getProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER)
-					.map(valueModifier -> (int)ValueModifier.calculator().attach(valueModifier).getResult(entitypatch.getMaxStrikes(phase.hand)))
-					.orElse(entitypatch.getMaxStrikes(phase.hand));
+					.map(valueModifier -> (int)ValueModifier.calculator().attach(valueModifier).getResult(entitypatch.getMaxStrikes(hand)))
+					.orElse(entitypatch.getMaxStrikes(hand));
 	}
-	
+
 	protected SoundEvent getSwingSound(LivingEntityPatch<?> entitypatch, Phase phase) {
-		return phase.getProperty(AttackPhaseProperty.SWING_SOUND).orElse(entitypatch.getSwingSound(phase.hand));
+		return phase.getProperty(AttackPhaseProperty.SWING_SOUND).orElse(entitypatch.getSwingSound(phase.effectiveHand(entitypatch)));
 	}
-	
+
 	protected SoundEvent getHitSound(LivingEntityPatch<?> entitypatch, Phase phase) {
-		return phase.getProperty(AttackPhaseProperty.HIT_SOUND).orElse(entitypatch.getWeaponHitSound(phase.hand));
+		return phase.getProperty(AttackPhaseProperty.HIT_SOUND).orElse(entitypatch.getWeaponHitSound(phase.effectiveHand(entitypatch)));
 	}
-	
+
 	public EpicFightDamageSource getEpicFightDamageSource(LivingEntityPatch<?> entitypatch, Entity target, Phase phase) {
-		return this.getEpicFightDamageSource(entitypatch.getDamageSource(this.getAccessor(), phase.hand), entitypatch, target, phase);
+		return this.getEpicFightDamageSource(entitypatch.getDamageSource(this.getAccessor(), phase.effectiveHand(entitypatch)), entitypatch, target, phase);
 	}
 	
 	public EpicFightDamageSource getEpicFightDamageSource(DamageSource originalSource, LivingEntityPatch<?> entitypatch, Entity target, Phase phase) {
@@ -333,7 +334,7 @@ public class AttackAnimation extends ActionAnimation {
 	
 	protected void spawnHitParticle(ServerLevel world, LivingEntityPatch<?> attacker, Entity hit, Phase phase) {
 		Optional<DeferredHolder<ParticleType<?>, HitParticleType>> particleOptional = phase.getProperty(AttackPhaseProperty.PARTICLE);
-		HitParticleType particle = particleOptional.map(DeferredHolder::get).orElseGet(() -> attacker.getWeaponHitParticle(phase.hand));
+		HitParticleType particle = particleOptional.map(DeferredHolder::get).orElseGet(() -> attacker.getWeaponHitParticle(phase.effectiveHand(attacker)));
 		particle.spawnParticleWithArgument(world, null, null, hit, attacker.getOriginal());
 	}
 	
@@ -342,7 +343,8 @@ public class AttackAnimation extends ActionAnimation {
         Phase phase = this.getPhaseByTime(entitypatch.getAnimator().getPlayerFor(this.getAccessor()).getElapsedTime());
         float speedFactor = this.getProperty(AttackAnimationProperty.ATTACK_SPEED_FACTOR).orElse(1.0F);
         Optional<Float> property = this.getProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED);
-        float correctedSpeed = property.map((value) -> entitypatch.getAttackSpeed(phase.hand) / value).orElse(this.getTotalTime() * entitypatch.getAttackSpeed(phase.hand));
+        InteractionHand effective = phase.effectiveHand(entitypatch);
+        float correctedSpeed = property.map((value) -> entitypatch.getAttackSpeed(effective) / value).orElse(this.getTotalTime() * entitypatch.getAttackSpeed(effective));
         correctedSpeed = Math.round(correctedSpeed * 1000.0F) / 1000.0F;
 
         return 1.0F + (correctedSpeed - 1.0F) * speedFactor;
@@ -513,7 +515,13 @@ public class AttackAnimation extends ActionAnimation {
 				this.properties.put(entry.getKey(), entry.getValue());
 			}
 		}
-		
+
+		/** Read-only view of all phase properties; used by mirror wrappers to clone phase
+		 *  configuration (damage modifiers, hit priority, sounds...) onto a remapped Phase. */
+		public Set<Map.Entry<AttackPhaseProperty<?>, Object>> getPropertyEntries() {
+			return this.properties.entrySet();
+		}
+
 		@SuppressWarnings("unchecked")
 		public <V> Optional<V> getProperty(AttackPhaseProperty<V> propertyType) {
 			return (Optional<V>) Optional.ofNullable(this.properties.get(propertyType));
@@ -540,6 +548,18 @@ public class AttackAnimation extends ActionAnimation {
 		}
 		
 		public InteractionHand getHand() {
+			return this.hand;
+		}
+
+		/** Returns the hand that should drive damage attribution, swing sounds, hit particles
+		 *  and similar per-hand reads for this phase given the entity's current state. Equals
+		 *  {@link #hand} for the normal mainhand-driven case; flips it when the entity is in
+		 *  offhand-only mirror mode so the offhand weapon's sound / impact / damage source is
+		 *  used instead of the (empty) mainhand's. */
+		public InteractionHand effectiveHand(LivingEntityPatch<?> entitypatch) {
+			if (entitypatch.isMirrorMode()) {
+				return this.hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+			}
 			return this.hand;
 		}
 	}

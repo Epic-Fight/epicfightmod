@@ -79,7 +79,7 @@ public class AnimationPlayer {
 		} else {
 			this.reset();
 		}
-		
+
 		this.play = animation;
 	}
 	

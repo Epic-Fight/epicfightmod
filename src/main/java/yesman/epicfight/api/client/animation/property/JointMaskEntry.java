@@ -54,6 +54,20 @@ public class JointMaskEntry {
 	public boolean isValid() {
 		return this.defaultMask != null;
 	}
+
+	/** Returns a copy with every joint name reflected through {@link yesman.epicfight.api.animation.PoseMirror#mirrorJointName}.
+	 *  All per-{@link LivingMotion} masks are mirrored together with the default mask, so an
+	 *  authored {@code right_arms} mask becomes {@code left_arms}, {@code right_arms_body}
+	 *  becomes {@code left_arms_body}, and symmetric masks like {@code root_upper_joints} are
+	 *  fixed points. */
+	public JointMaskEntry mirror() {
+		JointMaskEntry.Builder builder = builder();
+		builder.defaultMask(JointMaskSet.mirror(this.defaultMask));
+		for (Map.Entry<LivingMotion, JointMaskSet> entry : this.masks.entrySet()) {
+			builder.mask(entry.getKey(), JointMaskSet.mirror(entry.getValue()));
+		}
+		return builder.create();
+	}
 	
 	public static JointMaskEntry.Builder builder() {
 		return new JointMaskEntry.Builder();

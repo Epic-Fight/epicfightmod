@@ -10,6 +10,7 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.PoseMirror;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.Layer;
@@ -28,7 +29,7 @@ public class JointMask {
 		JointTransform lowestTransform = baseLayerPose.orElseEmpty(joint.getName());
 		JointTransform currentTransform = currentPose.orElseEmpty(joint.getName());
 		result.orElseEmpty(joint.getName()).translation().y = lowestTransform.translation().y;
-		
+
 		OpenMatrix4f lowestMatrix = lowestTransform.toMatrix();
 		OpenMatrix4f currentMatrix = currentTransform.toMatrix();
 		OpenMatrix4f currentToLowest = OpenMatrix4f.mul(OpenMatrix4f.invert(currentMatrix, null), lowestMatrix, null);
@@ -87,12 +88,28 @@ public class JointMask {
 		
 		public static JointMaskSet of(Set<JointMask> jointMasks) {
 			JointMaskSet jointMaskSet = new JointMaskSet();
-			
+
 			for (JointMask jointMask : jointMasks) {
 				jointMaskSet.masks.put(jointMask.jointName, jointMask.bindModifier);
 			}
-			
+
 			return jointMaskSet;
+		}
+
+		public Map<String, BindModifier> entries() {
+			return this.masks;
+		}
+
+		/** Returns a new {@link JointMaskSet} with each joint name reflected through
+		 *  {@link PoseMirror#mirrorJointName} (so {@code *_R} {@code *_L}). Bind modifiers are
+		 *  preserved on each remapped entry. Used by mirrored-animation variants so a single
+		 *  mainhand source data file can drive both hands without authoring an offhand mask. */
+		public static JointMaskSet mirror(JointMaskSet source) {
+			JointMaskSet result = new JointMaskSet();
+			for (Map.Entry<String, BindModifier> entry : source.masks.entrySet()) {
+				result.masks.put(PoseMirror.mirrorJointName(entry.getKey()), entry.getValue());
+			}
+			return result;
 		}
 	}
 }

@@ -297,19 +297,31 @@ public class AnimationTrailParticle extends AbstractTrailParticle<LivingEntityPa
 			
 			TrailInfo result = trailInfo.get().get(idx);
 			
-			if (result.hand() != null) {
-				ItemStack stack = entitypatch.getOriginal().getItemInHand(result.hand());
+
+			net.minecraft.world.InteractionHand resolvedHand = result.hand();
+			if (resolvedHand != null && entitypatch.isMirrorMode() && resolvedHand == net.minecraft.world.InteractionHand.MAIN_HAND) {
+				resolvedHand = net.minecraft.world.InteractionHand.OFF_HAND;
+			}
+
+			if (resolvedHand != null) {
+				ItemStack stack = entitypatch.getOriginal().getItemInHand(resolvedHand);
 				RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
-				
+
 				if (renderItemBase != null && renderItemBase.trailInfo() != null) {
 					result = renderItemBase.trailInfo().overwrite(result);
 				}
 			}
-			
-			result = entitypatch.getEntityDecorations().getModifiedTrailInfo(result, result.hand() == null ? CapabilityItem.EMPTY : entitypatch.getAdvancedHoldingItemCapability(result.hand()));
+
+			result = entitypatch.getEntityDecorations().getModifiedTrailInfo(result, resolvedHand == null ? CapabilityItem.EMPTY : entitypatch.getAdvancedHoldingItemCapability(resolvedHand));
 			
 			if (result.playable()) {
-				return new AnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, result);
+
+				Joint trailJoint = entitypatch.getArmature().searchJointById(jointId);
+				if (entitypatch.isMirrorMode()) {
+					Joint mirroredJoint = entitypatch.getArmature().searchJointByName(yesman.epicfight.api.animation.PoseMirror.mirrorJointName(trailJoint.getName()));
+					if (mirroredJoint != null) trailJoint = mirroredJoint;
+				}
+				return new AnimationTrailParticle(level, entitypatch, trailJoint, animation, result);
 			} else {
 				return null;
 			}

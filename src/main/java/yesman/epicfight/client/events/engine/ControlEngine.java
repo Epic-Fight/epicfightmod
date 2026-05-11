@@ -1003,16 +1003,28 @@ public class ControlEngine implements IEventBasedEngine {
             return;
         }
 
+		// Pick whichever hand is carrying the combat-categorized item so the swing-cancel rule
+		// also fires when the weapon sits in the offhand (mirror mode). Without this, a longsword
+		// held in the offhand against a stone block let the swing through and broke the block.
+		net.minecraft.world.item.ItemStack combatItemForSwing;
+		if (ClientConfig.combatCategorizedItems.contains(this.player.getMainHandItem().getItem())) {
+			combatItemForSwing = this.player.getMainHandItem();
+		} else if (ClientConfig.combatCategorizedItems.contains(this.player.getOffhandItem().getItem())) {
+			combatItemForSwing = this.player.getOffhandItem();
+		} else {
+			combatItemForSwing = net.minecraft.world.item.ItemStack.EMPTY;
+		}
+
 		if (
             triggeredAction == MinecraftInputAction.ATTACK_DESTROY &&
             InputManager.isBoundToSamePhysicalInput(EpicFightInputAction.ATTACK, MinecraftInputAction.ATTACK_DESTROY) &&
 			this.minecraft.hitResult.getType() == HitResult.Type.BLOCK &&
-			ClientConfig.combatCategorizedItems.contains(this.player.getMainHandItem().getItem())
+			!combatItemForSwing.isEmpty()
 		) {
 			BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
 			BlockState bs = this.minecraft.level.getBlockState(bp);
 
-			if (!this.player.getMainHandItem().getItem().canAttackBlock(bs, this.player.level(), bp, this.player) || this.player.getMainHandItem().getDestroySpeed(bs) <= 1.0F) {
+			if (!combatItemForSwing.getItem().canAttackBlock(bs, this.player.level(), bp, this.player) || combatItemForSwing.getDestroySpeed(bs) <= 1.0F) {
 				event.setSwingHand(false);
 				event.setCanceled(true);
 			}

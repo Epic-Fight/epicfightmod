@@ -74,6 +74,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	protected int staminaRegenAwaitTicks;
 	protected int lastChargingTick;
 	protected int chargingTicks;
+	protected int sprintTickCount;
 	protected HoldableSkill holdingSkill;
 	
 	// Manage the previous position here because playerpatch#tick called before entity#travel method.
@@ -191,9 +192,15 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	@Override
 	public void preTickServer() {
 		super.preTickServer();
-		
+
 		if (this.state.canBasicAttack()) {
 			this.tickSinceLastAction++;
+		}
+
+		if (this.original.isSprinting()) {
+			this.sprintTickCount++;
+		} else {
+			this.sprintTickCount = 0;
 		}
 		
 		if (!this.state.inaction()) {
@@ -513,6 +520,16 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	
 	public int getTickSinceLastAction() {
 		return this.tickSinceLastAction;
+	}
+
+	/// Number of consecutive ticks the player has been sprinting. Resets to 0 the moment
+	/// the sprint flag is dropped on the server. Updated each tick by [#preTickServer()].
+	public int getSprintTickCount() {
+		return this.sprintTickCount;
+	}
+
+	public void resetSprintTickCount() {
+		this.sprintTickCount = 0;
 	}
 	
 	public void setStaminaRegenAwaitTicks(int tick) {

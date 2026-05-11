@@ -254,7 +254,16 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
                     double index = Double.longBitsToDouble((long)idx++);
 
                     if (trailInfo.hand() != null) {
-                        ItemStack stack = entitypatch.getAdvancedHoldingItemStack(trailInfo.hand());
+                        // Trails are authored against MAIN_HAND. In offhand-only mirror mode the
+                        // weapon lives in OFF_HAND, so resolve the item from the active combat
+                        // hand instead -- otherwise the lookup hits the bare mainhand, the
+                        // weapon-specific trail config never applies, and trailInfo.playable()
+                        // fails so no trail particle is spawned at all.
+                        net.minecraft.world.InteractionHand resolvedHand =
+                            entitypatch.isMirrorMode() && trailInfo.hand() == net.minecraft.world.InteractionHand.MAIN_HAND
+                                ? net.minecraft.world.InteractionHand.OFF_HAND
+                                : trailInfo.hand();
+                        ItemStack stack = entitypatch.getAdvancedHoldingItemStack(resolvedHand);
                         RenderItemBase renderitembase = RenderEngine.getInstance().getItemRenderer(stack);
 
                         if (renderitembase != null && renderitembase.trailInfo() != null) {

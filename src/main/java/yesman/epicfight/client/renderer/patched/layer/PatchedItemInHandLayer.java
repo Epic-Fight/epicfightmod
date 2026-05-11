@@ -17,8 +17,8 @@ public class PatchedItemInHandLayer<E extends LivingEntity, T extends LivingEnti
 	@Override
 	protected void renderLayer(T entitypatch, E entityliving, RenderLayer<E, M> vanillaLayer, PoseStack postStack, MultiBufferSource buffer, int packedLight, OpenMatrix4f[] poses, float bob, float yRot, float xRot, float partialTicks) {
 		ItemStack mainHandStack = entitypatch.getOriginal().getMainHandItem();
-		
-		if (mainHandStack.getItem() != Items.AIR) {
+
+		if (mainHandStack.getItem() != Items.AIR && entitypatch.isMainhandItemValid()) {
 			RenderEngine.getInstance().getItemRenderer(mainHandStack).renderItemInHand(mainHandStack, entitypatch, InteractionHand.MAIN_HAND, poses, buffer, postStack, packedLight, partialTicks);
 		}
 		

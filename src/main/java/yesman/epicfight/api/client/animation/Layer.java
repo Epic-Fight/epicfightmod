@@ -27,7 +27,7 @@ public class Layer {
 	protected boolean disabled;
 	protected boolean paused;
 	public final AnimationPlayer animationPlayer;
-	
+
 	public Layer(Priority priority) {
 		this(priority, AnimationPlayer::new);
 	}
@@ -44,14 +44,14 @@ public class Layer {
 	public void playAnimation(AssetAccessor<? extends StaticAnimation> nextAnimation, LivingEntityPatch<?> entitypatch, float transitionTimeModifier) {
 		// Get pose before StaticAnimation#end is called
 		Pose lastPose = this.getCurrentPose(entitypatch);
-		
+
 		if (!this.animationPlayer.isEnd()) {
 			this.animationPlayer.getAnimation().get().end(entitypatch, nextAnimation, false);
 		}
-		
+
 		this.resume();
 		nextAnimation.get().begin(entitypatch);
-		
+
 		if (!nextAnimation.get().isMetaAnimation()) {
 			this.setLinkAnimation(nextAnimation, entitypatch, lastPose, transitionTimeModifier);
 			this.linkAnimation.putOnPlayer(this.animationPlayer, entitypatch);
@@ -59,7 +59,7 @@ public class Layer {
 			this.nextAnimation = nextAnimation;
 		}
 	}
-	
+
 	/**
 	 * Plays an animation without a link animation
 	 */
@@ -67,23 +67,23 @@ public class Layer {
 		if (!this.animationPlayer.isEnd()) {
 			this.animationPlayer.getAnimation().get().end(entitypatch, nextAnimation, false);
 		}
-		
+
 		this.resume();
-		
+
 		nextAnimation.get().begin(entitypatch);
 		nextAnimation.get().putOnPlayer(this.animationPlayer, entitypatch);
 		entitypatch.updateEntityState();
 		this.nextAnimation = null;
 	}
-	
+
 	protected void playLivingAnimation(AssetAccessor<? extends StaticAnimation> nextAnimation, LivingEntityPatch<?> entitypatch) {
 		if (!this.animationPlayer.isEnd()) {
 			this.animationPlayer.getAnimation().get().end(entitypatch, nextAnimation, false);
 		}
-		
+
 		this.resume();
 		nextAnimation.get().begin(entitypatch);
-		
+
 		if (!nextAnimation.get().isMetaAnimation()) {
 			this.concurrentLinkAnimation.acceptFrom(this.animationPlayer.getRealAnimation(), nextAnimation, this.animationPlayer.getElapsedTime());
 			this.concurrentLinkAnimation.putOnPlayer(this.animationPlayer, entitypatch);
@@ -121,7 +121,7 @@ public class Layer {
 				if (!this.animationPlayer.getAnimation().get().isLinkAnimation() && !this.nextAnimation.get().isLinkAnimation()) {
 					this.nextAnimation.get().begin(entitypatch);
 				}
-				
+
 				this.nextAnimation.get().putOnPlayer(this.animationPlayer, entitypatch);
 				this.nextAnimation = null;
 			} else {
@@ -183,10 +183,10 @@ public class Layer {
 	public Pose getEnabledPose(LivingEntityPatch<?> entitypatch, boolean useCurrentMotion, float partialTick) {
 		Pose pose = this.animationPlayer.getCurrentPose(entitypatch, partialTick);
 		this.animationPlayer.getAnimation().get().getJointMaskEntry(entitypatch, useCurrentMotion).ifPresent((jointEntry) -> pose.disableJoint((entry) -> jointEntry.isMasked(this.getLivingMotion(entitypatch, useCurrentMotion), entry.getKey())));
-		
+
 		return pose;
 	}
-	
+
 	public void off(LivingEntityPatch<?> entitypatch) {
 		if (!this.isDisabled() && !(this.animationPlayer.getAnimation() instanceof LayerOffAnimation)) {
 			if (this.priority == null) {
@@ -198,7 +198,7 @@ public class Layer {
 			}
 		}
 	}
-	
+
 	public void disableLayer() {
 		this.disabled = true;
 		this.animationPlayer.setPlayAnimation(Animations.EMPTY_ANIMATION);

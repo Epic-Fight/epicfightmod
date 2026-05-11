@@ -186,6 +186,10 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
         if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
             if (animation.doesHeadRotFollowEntityHead()) {
                 float headRelativeRot = Mth.rotLerp(partialTick, Mth.wrapDegrees(this.original.yBodyRotO - this.original.yHeadRotO), Mth.wrapDegrees(this.original.yBodyRot - this.original.yHeadRot));
+                // See AbstractClientPlayerPatch.poseTick: PoseMirror now preserves the Head's
+                // frontResult, so the yaw injected below survives the mirror untouched and we no
+                // longer pre-negate under isMirrorMode (which used to snap the head at the
+                // moment the F-swap flipped mirror state).
                 OpenMatrix4f toOriginalRotation = new OpenMatrix4f(this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"))).removeScale().removeTranslation().invert();
                 Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);
                 Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
@@ -193,6 +197,12 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
                 pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
             }
         }
+    }
+
+    @Override
+    public void preTickClient() {
+        super.preTickClient();
+        this.tickMirrorBlend();
     }
 
     @Override @ClientOnly
@@ -928,8 +938,129 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
         }
     }
 
+    /**
+     * Persistent "offhand-only mirror" mode: true when the mainhand is bare (empty or fist
+     * gloves) and the offhand carries a real one-handed weapon. While true:
+     *
+     * <ul>
+     *   <li>{@link yesman.epicfight.api.client.animation.Layer#getEnabledPose} reflects the
+     *       composed pose across X = 0 so the entity appears as a left-handed wielder.</li>
+     *   <li>{@link yesman.epicfight.api.collider.Collider#updateAndSelectCollideEntity}
+     *       remaps the queried joint to the opposite side so hits land where the visual
+     *       weapon is.</li>
+     *   <li>{@link #getPrimaryItemCapability()} / {@link #getPrimaryHand()} return the
+     *       offhand cap / OFF_HAND, letting skill systems migrate to a single accessor that
+     *       transparently picks up the active weapon.</li>
+     * </ul>
+     *
+     * Derived purely from inventory (which vanilla syncs both ways), so server and every
+     * tracking client compute the same value without extra network plumbing. Greatswords are
+     * naturally excluded -- vanilla blocks them from the offhand slot via
+     * {@code canBePlacedOffhand=false}.
+     */
+    public boolean isMirrorMode() {
+        CapabilityItem mainhand = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        boolean mainhandIsBare = mainhand.isEmpty()
+                || mainhand.getWeaponCategory() == CapabilityItem.WeaponCategories.FIST;
+        if (!mainhandIsBare) {
+            return false;
+        }
+        CapabilityItem offhand = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+        // Shields are not weapons -- they have authored offhand animations of their own (BIPED_BLOCK
+        // routes to shield_offhand via MirrorAnimation). Triggering the global pose mirror on top of
+        // that would double-flip the shield-side body pose into the mainhand-looking variant.
+        return !offhand.isEmpty()
+                && offhand.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST
+                && offhand.getWeaponCategory() != CapabilityItem.WeaponCategories.SHIELD;
+    }
+
+    /** Smoothed approximation of {@link #isMirrorMode()} for rendering: 0 = not mirrored,
+     *  1 = fully mirrored, intermediate values during transitions. Without this, pressing F to
+     *  swap mainhand/offhand snaps the entire pose across X = 0 in a single frame; with the
+     *  blend, ClientAnimator.getPose interpolates between the unmirrored and mirrored poses
+     *  over a handful of ticks so the transition is visible as a fold instead of a teleport. */
+    private float mirrorBlend = 0.0F;
+    private float mirrorBlendO = 0.0F;
+    private static final float MIRROR_BLEND_STEP = 0.2F;
+
+    /** Tick the blend toward whichever endpoint matches the live mirror state. Call from the
+     *  client tick path -- the field is per-instance and the server patch doesn't render, so
+     *  ticking it server-side would just be wasted work. */
+    public void tickMirrorBlend() {
+        this.mirrorBlendO = this.mirrorBlend;
+        float target = this.isMirrorMode() ? 1.0F : 0.0F;
+
+        if (this.mirrorBlend < target) {
+            this.mirrorBlend = Math.min(target, this.mirrorBlend + MIRROR_BLEND_STEP);
+        } else if (this.mirrorBlend > target) {
+            this.mirrorBlend = Math.max(target, this.mirrorBlend - MIRROR_BLEND_STEP);
+        }
+    }
+
+    public float getMirrorBlend(float partialTick) {
+        return Mth.lerp(partialTick, this.mirrorBlendO, this.mirrorBlend);
+    }
+
+    /** Hand currently driving combat. {@link InteractionHand#OFF_HAND} when {@link #isMirrorMode()}
+     *  reports true, {@link InteractionHand#MAIN_HAND} otherwise. */
+    public InteractionHand getPrimaryHand() {
+        return this.isMirrorMode() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+    }
+
+    /** Capability of the active combat weapon. Equivalent to
+     *  {@code getHoldingItemCapability(getPrimaryHand())} -- existing call sites that read
+     *  {@code getHoldingItemCapability(MAIN_HAND)} can migrate here for transparent offhand-mode
+     *  support without otherwise changing semantics. */
+    public CapabilityItem getPrimaryItemCapability() {
+        return this.getHoldingItemCapability(this.getPrimaryHand());
+    }
+
+    /** The mainhand wins when both hands carry items: the mainhand render is never suppressed by
+     *  whatever is in the offhand. Suppression of the offhand item (when it conflicts with the
+     *  mainhand or with the mainhand's natural two-handed style) is handled in
+     *  {@link #isOffhandItemValid()}. */
+    public boolean isMainhandItemValid() {
+        return true;
+    }
+
     public boolean isOffhandItemValid() {
-        return this.getHoldingItemCapability(InteractionHand.MAIN_HAND).checkOffhandValid(this);
+        // When the mainhand is bare/fist-only, an offhand one-handed weapon is treated as valid
+        // on its own so the renderer shows it and the universal mirrored-combo path in
+        // ComboAttacks can fire. The original mainhand-driven check still runs for every other
+        // case, so dual-wield pairs and opt-in companions (shield + sword, ...) keep their
+        // existing semantics. Greatswords are unaffected: vanilla blocks them from the offhand
+        // slot via canBePlacedOffhand=false.
+        //
+        // We deliberately do not call offhand.getStyle(this).canUseOffhand() here -- the
+        // dual-pair style conditionals (DUAL_SWORDS, DUAL_DAGGERS, ...) only check "does offhand
+        // hold category X?" without verifying a matching mainhand, so when queried from the
+        // offhand cap with mainhand empty they misfire and report TWO_HAND. The category +
+        // empty-mainhand check below is enough to determine validity for our purposes.
+        CapabilityItem mainhand = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        boolean mainhandIsBare = mainhand.isEmpty()
+                || mainhand.getWeaponCategory() == CapabilityItem.WeaponCategories.FIST;
+
+        if (mainhandIsBare) {
+            CapabilityItem offhand = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+            boolean offhandIsRealWeapon = !offhand.isEmpty()
+                    && offhand.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST;
+            if (offhandIsRealWeapon) {
+                return true;
+            }
+        } else {
+            // Mainhand has a real item. If the offhand also carries a weapon whose natural single-wield
+            // style is two-handed (katana, longsword, ...), the mainhand wins -- suppress the offhand
+            // render so the two items don't fight side-by-side.
+            CapabilityItem offhand = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+            if (offhand instanceof yesman.epicfight.world.capabilities.item.WeaponCapability weaponCap) {
+                yesman.epicfight.world.capabilities.item.Style natural = weaponCap.getNaturalSingleWieldStyle(this);
+                if (natural != null && !natural.canUseOffhand()) {
+                    return false;
+                }
+            }
+        }
+
+        return mainhand.checkOffhandValid(this);
     }
 
     public Joint getParentJointOfHand(InteractionHand hand) {

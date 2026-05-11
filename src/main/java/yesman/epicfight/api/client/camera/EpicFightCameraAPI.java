@@ -487,14 +487,26 @@ public final class EpicFightCameraAPI {
             return true;
         }
 
+        // Resolve the active combat item across both hands so the outliner rule (and the
+        // implicit "this player is in combat stance, treat block hits as attack targets")
+        // covers offhand-only mirror mode too.
+        net.minecraft.world.item.ItemStack combatItem;
         if (ClientConfig.combatCategorizedItems.contains(this.minecraft.player.getMainHandItem().getItem())) {
+            combatItem = this.minecraft.player.getMainHandItem();
+        } else if (ClientConfig.combatCategorizedItems.contains(this.minecraft.player.getOffhandItem().getItem())) {
+            combatItem = this.minecraft.player.getOffhandItem();
+        } else {
+            combatItem = net.minecraft.world.item.ItemStack.EMPTY;
+        }
+
+        if (!combatItem.isEmpty()) {
             BlockHitResult blockHitResult = RenderEngine.asBlockHitResult(this.minecraft.hitResult);
 
             // For the combat preferred items, checks if the holding item is the fastest tool to dig the block (e.g. sword <=> cobweb block)
             if (blockHitResult != null) {
                 BlockPos bp = ((BlockHitResult)this.minecraft.hitResult).getBlockPos();
                 BlockState bs = this.minecraft.level.getBlockState(bp);
-                return !this.minecraft.player.getMainHandItem().getItem().canAttackBlock(bs, this.minecraft.player.level(), bp, this.minecraft.player) || !this.minecraft.player.getMainHandItem().isCorrectToolForDrops(bs);
+                return !combatItem.getItem().canAttackBlock(bs, this.minecraft.player.level(), bp, this.minecraft.player) || !combatItem.isCorrectToolForDrops(bs);
             }
 
             return true;

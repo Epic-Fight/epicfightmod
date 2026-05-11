@@ -106,6 +106,14 @@ public class DodgeSkill extends Skill {
 	@Override
 	public boolean isExecutableState(PlayerPatch<?> executor) {
 		EntityState playerState = executor.getEntityState();
-		return !(executor.isInAir() || !playerState.canUseSkill()) && !executor.getOriginal().isInWater() && !executor.getOriginal().onClimbable() && executor.getOriginal().getVehicle() == null;
+		// Strictly require onGround() rather than the laxer isInAir() check; isInAir() is true only for
+		// elytra-flying or the FALL motion, so a player mid-jump (JUMP motion) would otherwise slip
+		// through and dodge in the air. The skill running off a ledge into a fall is still allowed
+		// because we only check at cast time.
+		return executor.getOriginal().onGround()
+			&& playerState.canUseSkill()
+			&& !executor.getOriginal().isInWater()
+			&& !executor.getOriginal().onClimbable()
+			&& executor.getOriginal().getVehicle() == null;
 	}
 }

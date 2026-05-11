@@ -161,7 +161,10 @@ public class BladeRushSkill extends WeaponInnateSkill {
 
     @Override @ClientOnly
     public void validationFeedback(SkillContainer container) {
-        Skill skill = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getInnateSkill(container.getExecutor(), container.getExecutor().getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
+        // Resolve the innate skill against the active combat hand so the offhand-only carrier
+        // gets the same validation feedback as a mainhand wielder.
+        InteractionHand activeHand = container.getExecutor().getPrimaryHand();
+        Skill skill = container.getExecutor().getHoldingItemCapability(activeHand).getInnateSkill(container.getExecutor(), container.getExecutor().getOriginal().getItemInHand(activeHand));
 
         if (this.equals(skill) && !this.checkExecuteCondition(container)) {
             if (container.getExecutor().getTarget() == null || !container.getExecutor().getTarget().isAlive()) {

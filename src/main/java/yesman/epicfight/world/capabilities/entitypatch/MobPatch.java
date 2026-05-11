@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -128,10 +129,20 @@ public abstract class MobPatch<T extends Mob> extends LivingEntityPatch<T> {
             else
                 currentCompositeMotion = LivingMotions.AIM;
         } else {
-            if (CrossbowItem.isCharged(this.original.getMainHandItem()))
+            if (CrossbowItem.isCharged(this.original.getMainHandItem())) {
                 currentCompositeMotion = LivingMotions.AIM;
-            else
+            } else if (this.currentLivingMotion == LivingMotions.MOUNT
+                    && this.original.getTarget() != null
+                    && this.original.getMainHandItem().getItem() instanceof ProjectileWeaponItem) {
+                // BIPED_MOUNT folds the arms inward; with a bow the held item would collapse against
+                // the body. While the rider has a target, layer the AIM pose (root+upper joints,
+                // MIDDLE composite) on top so the upper body holds the bow forward while the legs
+                // keep the mount pose. Without a target we leave it on the base mount motion so it
+                // doesn't loop the draw animation idle.
+                currentCompositeMotion = LivingMotions.AIM;
+            } else {
                 currentCompositeMotion = this.currentLivingMotion;
+            }
         }
     }
 

@@ -2,7 +2,6 @@ package yesman.epicfight.skill.passive;
 
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
@@ -64,7 +63,9 @@ public class EmergencyEscapeSkill extends PassiveSkill {
                     if (
                         (
                             !event.isStateExecutable() && animation instanceof AttackAnimation &&
-                            this.availableWeapons.contains(container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory())
+                            // Use the active combat cap so the offhand-only carrier can still
+                            // emergency-escape mid-attack with their weapon's category gate.
+                            this.availableWeapons.contains(container.getExecutor().getPrimaryItemCapability().getWeaponCategory())
                         ) ||
                         (
                             state.hurt() &&

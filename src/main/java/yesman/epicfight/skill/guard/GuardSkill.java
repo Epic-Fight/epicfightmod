@@ -7,7 +7,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -135,7 +134,10 @@ public class GuardSkill extends Skill implements HoldableSkill {
             event -> {
                 if (
                     skillContainer.isActivated() &&
-                    this.isHoldingWeaponAvailable(skillContainer.getExecutor(), skillContainer.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND), GuardSkill.BlockType.GUARD)
+                    // Use the active combat cap so guarding works with an offhand-only weapon
+                    // in mirror mode -- otherwise the bare mainhand would fail the available-weapon
+                    // check and the BLOCK motion would never trigger on the visual side.
+                    this.isHoldingWeaponAvailable(skillContainer.getExecutor(), skillContainer.getExecutor().getPrimaryItemCapability(), GuardSkill.BlockType.GUARD)
                 ) {
                     event.setMotion(LivingMotions.BLOCK);
                 }
@@ -164,7 +166,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
         eventListener.registerEvent(
             EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
             event -> {
-                CapabilityItem itemCapability = skillContainer.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
+                CapabilityItem itemCapability = skillContainer.getExecutor().getPrimaryItemCapability();
 
                 if (skillContainer.isActivated() && skillContainer.getExecutor().getHoldingSkill() == this) {
                     DamageSource damageSource = event.getDamageSource();
@@ -307,7 +309,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 	
     @Override
     public boolean canExecute(SkillContainer container) {
-		return this.checkExecuteCondition(container) && this.isHoldingWeaponAvailable(container.getExecutor(), container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND), BlockType.GUARD);
+		return this.checkExecuteCondition(container) && this.isHoldingWeaponAvailable(container.getExecutor(), container.getExecutor().getPrimaryItemCapability(), BlockType.GUARD);
 	}
     
 	protected float getPenalizer(CapabilityItem itemCapability) {

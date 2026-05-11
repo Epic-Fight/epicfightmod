@@ -114,8 +114,10 @@ public class Animations {
     public static AnimationAccessor<StaticAnimation> BIPED_SIT;
     public static AnimationAccessor<StaticAnimation> BIPED_JUMP;
     public static AnimationAccessor<LongHitAnimation> BIPED_DEATH;
-    public static AnimationAccessor<StaticAnimation> BIPED_DIG_MAINHAND;
-    public static AnimationAccessor<StaticAnimation> BIPED_DIG_OFFHAND;
+    public static AnimationAccessor<StaticAnimation> BIPED_EQUIP_ITEM;
+    public static AnimationAccessor<ReversedAnimation> BIPED_UNEQUIP_ITEM;
+    public static AnimationAccessor<MirroredAnimation> BIPED_EQUIP_ITEM_OFFHAND;
+    public static AnimationAccessor<MirroredAnimation> BIPED_UNEQUIP_ITEM_OFFHAND;
     public static AnimationAccessor<SelectiveAnimation> BIPED_DIG;
     public static AnimationAccessor<MovementAnimation> BIPED_RUN_SPEAR;
     public static AnimationAccessor<StaticAnimation> BIPED_HOLD_GREATSWORD;
@@ -523,6 +525,28 @@ public class Animations {
                 new DirectStaticAnimation(0.1F, true, EpicFightMod.identifier("biped/living/dig_mainhand"), Armatures.BIPED),
                 new DirectStaticAnimation(0.1F, true, EpicFightMod.identifier("biped/living/dig_offhand"), Armatures.BIPED)
             )
+        );
+
+        // Equip flourish: short upper-body clip played when an item arrives in a held slot.
+        // The mainhand variants sit on COMPOSITE_LAYER/HIGH with a "right_arms" mask; the offhand
+        // variants sit on COMPOSITE_LAYER/HIGHEST with a "left_arms" mask and apply pose mirroring
+        // at runtime via MirroredAnimation. Putting them above MIDDLE means hold_uchigatana etc.
+        // (which live on MIDDLE/LOWEST) keep ticking on the layers underneath, so when the
+        // flourish finishes those clips just resume rather than needing a re-trigger.
+        BIPED_EQUIP_ITEM = builder.nextAccessor("biped/living/equip_item", (accessor) ->
+            new StaticAnimation(0.1F, false, accessor, Armatures.BIPED)
+        );
+
+        BIPED_UNEQUIP_ITEM = builder.nextAccessor("biped/living/unequip_item", (accessor) ->
+            new ReversedAnimation(0.1F, false, accessor, BIPED_EQUIP_ITEM, Armatures.BIPED)
+        );
+
+        BIPED_EQUIP_ITEM_OFFHAND = builder.nextAccessor("biped/living/equip_item_offhand", (accessor) ->
+            new MirroredAnimation(0.1F, false, accessor, BIPED_EQUIP_ITEM, Armatures.BIPED)
+        );
+
+        BIPED_UNEQUIP_ITEM_OFFHAND = builder.nextAccessor("biped/living/unequip_item_offhand", (accessor) ->
+            new MirroredAnimation(0.1F, false, accessor, BIPED_UNEQUIP_ITEM, Armatures.BIPED)
         );
 
         BIPED_BOW_AIM = builder.nextAccessor("biped/combat/bow_aim", (accessor) -> new AimAnimation(true, accessor, "biped/combat/bow_aim_mid", "biped/combat/bow_aim_up", "biped/combat/bow_aim_down", "biped/combat/bow_aim_lying", Armatures.BIPED));
@@ -2373,9 +2397,11 @@ public class Animations {
         };
 
         public static final AnimationEvent.E0 SET_TOOLS_BACK_WHEN_MOUNT = (entitypatch, animation, params) -> {
-            if (!entitypatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).availableOnHorse(entitypatch) && entitypatch.getArmature() instanceof ToolHolderArmature toolArmature) {
-                moveToolBonesToBack(entitypatch, animation, toolArmature);
-            }
+            // Keep the weapon in hand on every mount. The original behavior sheathed it to the back
+            // whenever the weapon wasn't `availableOnHorse`, which broke skeletons on skeleton horses
+            // (skeleton trap), spider jockeys, and chicken jockeys -- the bow visually clipped to the
+            // skeleton's back even though the rider was actively shooting. Bows/crossbows still aim
+            // and shoot via the existing AIM/SHOT composite layer regardless of mount type.
         };
 
         @SuppressWarnings("incomplete-switch")
@@ -2476,12 +2502,11 @@ public class Animations {
         };
 
         public static final AnimationEvent.E2<CapabilityItem, CapabilityItem> SET_TOOLS_BACK_WHEN_MOUNT_AND_ITEM_CHANGED = (entitypatch, animation, params) -> {
+            // Mirror SET_TOOLS_BACK_WHEN_MOUNT: keep weapons in hand on every mount type. Always
+            // revert the parent joint of hand back to the hand joints so swapped-in weapons render
+            // in the rider's hands rather than clipping to the back.
             if (entitypatch.getArmature() instanceof ToolHolderArmature humanoidArmature) {
-                if (!params.first().availableOnHorse(entitypatch)) {
-                    moveToolBonesToBack(entitypatch, animation, humanoidArmature);
-                } else {
-                    moveToolBonesToHands(entitypatch, animation, humanoidArmature);
-                }
+                moveToolBonesToHands(entitypatch, animation, humanoidArmature);
             }
         };
 

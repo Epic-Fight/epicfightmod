@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeGamerule;
+import yesman.epicfight.skill.SkillSlots;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -114,6 +115,18 @@ public class EpicFightGameRules {
         , true
     );
 
+    /// Maximum number of passive skills a player may have equipped at once. Default 3 preserves
+    /// the legacy hard cap. Upper bound is [SkillSlots#CORE_PASSIVE_SLOT_COUNT] because that's how
+    /// many passive `SkillSlots` enum constants this mod actually declares; raising past that has
+    /// no effect.
+    public static final ConfigurableGameRule<Integer, ModConfigSpec.IntValue, GameRules.IntegerValue> MAX_PASSIVE_SKILLS = EpicFightGameRules.create(
+          "maxPassiveSkills"
+        , GameRules.Category.PLAYER
+        , configBuilder -> configBuilder.defineInRange("default_gamerule.maxPassiveSkills", 3, 0, SkillSlots.CORE_PASSIVE_SLOT_COUNT)
+        , RuleType.INTEGER
+        , true
+    );
+
 	public static final Map<String, ConfigurableGameRule<?, ?, ?>> GAME_RULES = ImmutableMap.<String, ConfigurableGameRule<?, ?, ?>>builder()
 			.put("globalStun", GLOBAL_STUN)
 			.put("keepSkills", KEEP_SKILLS)
@@ -127,6 +140,7 @@ public class EpicFightGameRules {
 			.put("epicDrop", EPIC_DROP)
 			.put("skillReplaceCooldown", SKILL_REPLACE_COOLDOWN)
             .put("allowVanillaMelee", ALLOW_VANILLA_MELEE)
+            .put("maxPassiveSkills", MAX_PASSIVE_SKILLS)
 			.build();
 	
 	public static void registerGameRules() {

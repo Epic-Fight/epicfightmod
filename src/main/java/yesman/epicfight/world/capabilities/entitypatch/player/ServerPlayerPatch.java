@@ -55,9 +55,11 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
                 if (!event.getDamageSource().shouldChargeWeapon()) return;
 
                 SkillContainer container = this.getSkill(SkillSlots.WEAPON_INNATE);
-                ItemStack mainHandItem = this.getOriginal().getMainHandItem();
+                // Charge the weapon-innate slot from whichever hand is the active combat hand so
+                // an offhand-only carrier accumulates resource on hits with their offhand weapon.
+                ItemStack activeItem = this.getOriginal().getItemInHand(this.getPrimaryHand());
 
-                if (!container.isFull() && !container.isActivated() && container.hasSkill(EpicFightCapabilities.getItemStackCapability(mainHandItem).getInnateSkill(this, mainHandItem))) {
+                if (!container.isFull() && !container.isActivated() && container.hasSkill(EpicFightCapabilities.getItemStackCapability(activeItem).getInnateSkill(this, activeItem))) {
                     float value = container.getResource() + event.getModifiedDamage();
 
                     if (value > 0.0F) {
@@ -118,8 +120,26 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			this.resetHolding();
 		}
 		
-		CapabilityItem mainHandCap = (hand == InteractionHand.MAIN_HAND) ? toCap : this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
-		mainHandCap.changeWeaponInnateSkill(this, (hand == InteractionHand.MAIN_HAND) ? to : this.original.getMainHandItem());
+		// Drive innate-skill registration from the cap that's actually the active combat weapon.
+		// In offhand-only mirror mode the mainhand is bare/fist and has no innate, so without
+		// this the WEAPON_INNATE skill slot stays empty -- the long-press would never fire
+		// Liechtenauer/Battojutsu/etc. for an offhand-only weapon. Use the post-update value of
+		// each slot when computing primary so the cap reflects what the player will be holding
+		// after this updateHeldItem call returns.
+		ItemStack postMainItem = (hand == InteractionHand.MAIN_HAND) ? to : this.original.getMainHandItem();
+		ItemStack postOffItem = (hand == InteractionHand.OFF_HAND) ? to : this.original.getOffhandItem();
+		CapabilityItem postMainCap = (hand == InteractionHand.MAIN_HAND) ? toCap : this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+		CapabilityItem postOffCap = (hand == InteractionHand.OFF_HAND) ? toCap : this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+		boolean mainBareAfter = postMainCap.isEmpty()
+				|| postMainCap.getWeaponCategory() == CapabilityItem.WeaponCategories.FIST;
+		// Keep parity with {@link LivingEntityPatch#isMirrorMode}: shields don't trigger mirror mode.
+		boolean offhandRealAfter = !postOffCap.isEmpty()
+				&& postOffCap.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST
+				&& postOffCap.getWeaponCategory() != CapabilityItem.WeaponCategories.SHIELD;
+		boolean willMirror = mainBareAfter && offhandRealAfter;
+		CapabilityItem innateCap = willMirror ? postOffCap : postMainCap;
+		ItemStack innateItem = willMirror ? postOffItem : postMainItem;
+		innateCap.changeWeaponInnateSkill(this, innateItem);
         EpicFightEventHooks.Player.CHANGE_INNATE_SKILL.postWithListener(new ChangeInnateSkillEvent(this, from, fromCap, to, toCap, hand), this.getEventListener());
 
 		if (hand == InteractionHand.OFF_HAND) {
@@ -178,9 +198,25 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		
 		CapabilityItem mainhandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
 		CapabilityItem offhandCap = this.getAdvancedHoldingItemCapability(InteractionHand.OFF_HAND);
-		
+
 		Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingMotionModifiers = new HashMap<>(mainhandCap.getLivingMotionModifier(this, InteractionHand.MAIN_HAND));
-		livingMotionModifiers.putAll(offhandCap.getLivingMotionModifier(this, InteractionHand.OFF_HAND));
+		Map<LivingMotion, ? extends AssetAccessor<? extends StaticAnimation>> offhandModifiers = offhandCap.getLivingMotionModifier(this, InteractionHand.OFF_HAND);
+
+		// Match the universal-mirror approach used for combo animations: when the weapon is alone
+		// in the offhand and the cap didn't return any living-motion modifiers from the OFF_HAND
+		// query, re-query the cap as if it were the mainhand. Built-in weapons already plug their
+		// offhand-mirror handling into the OFF_HAND path (WeaponCapability.getLivingMotionModifier
+		// + the bypass in getCurrentSet), so they take the first branch and we never re-query --
+		// no behavior change for them. Addon caps that only ever register modifiers under
+		// MAIN_HAND (the typical "I don't know about offhand-only mode" custom CapabilityItem)
+		// return empty here, fall through to the second query, and hand back their hold/walk/run
+		// set. The visual flip is applied once at the renderer in ClientAnimator.getPose, so we
+		// don't need a mirrored animation -- the mainhand animation plays through the pose mirror
+		// and lands on the correct side.
+		if (offhandModifiers.isEmpty() && this.isMirrorMode()) {
+			offhandModifiers = offhandCap.getLivingMotionModifier(this, InteractionHand.MAIN_HAND);
+		}
+		livingMotionModifiers.putAll(offhandModifiers);
 		
 		for (Map.Entry<LivingMotion, AssetAccessor<? extends StaticAnimation>> entry : livingMotionModifiers.entrySet()) {
 			AssetAccessor<? extends StaticAnimation> aniamtion = entry.getValue();

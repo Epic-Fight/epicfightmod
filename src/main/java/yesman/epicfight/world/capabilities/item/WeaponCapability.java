@@ -106,8 +106,40 @@ public class WeaponCapability extends CapabilityItem {
 
     public Moveset getCurrentSet(LivingEntityPatch<?> patch)
     {
+        // Offhand-only mirror mode: getStyle() goes through the cap's conditional list and the
+        // dual-pair conditionals (DUAL_SWORDS / DUAL_DAGGERS) misfire because they only check
+        // "offhand category", so a single weapon in the offhand still resolves to the dual
+        // moveset. Re-evaluate while skipping those offhand-targeted WEAPON_CATEGORY conditionals
+        // to get the natural single-wield style — TWO_HAND for longsword/katana (the moveset
+        // that carries LONGSWORD_GUARD and LIECHTENAUER), ONE_HAND for a regular sword (the
+        // moveset that carries SWORD_GUARD and SWEEPING_EDGE) — i.e. the same moveset the player
+        // would see with the weapon in mainhand alone. The reference-equality check keeps the
+        // bypass off the mainhand cap and off non-mirror sessions.
+        if (patch.isMirrorMode() && patch.getHoldingItemCapability(InteractionHand.OFF_HAND) == this && this.moveSets != null) {
+            Style natural = coreProvider.getNaturalSingleWieldStyle(patch);
+            if (natural != null) {
+                Moveset set = this.moveSets.get(natural);
+                if (set != null) return set;
+            }
+            Moveset fallback = this.moveSets.get(Styles.COMMON);
+            if (fallback != null) return fallback;
+        }
         Style style = getStyle(patch);
         return moveSets.getOrDefault(style, moveSets.get(Styles.COMMON));
+    }
+
+    /**
+     * Returns the moveset registered for an explicit style, bypassing {@link #getStyle}. Used by
+     * the offhand-only universal-mirror path in {@code ComboAttacks}: when a weapon sits alone
+     * in the offhand, the dual-pair conditionals (DUAL_SWORDS / DUAL_DAGGERS / ...) misfire
+     * because they only check "is offhand category X?" without verifying the mainhand companion,
+     * so {@code getStyle()} returns {@code TWO_HAND}. We bypass that and explicitly request the
+     * one-handed moveset so the single-weapon combo plays instead of the dual combo. Falls back
+     * to the {@code COMMON} moveset, then null, when nothing is registered for the style.
+     */
+    public Moveset getMoveSetForStyle(Style style) {
+        if (this.moveSets == null) return null;
+        return this.moveSets.getOrDefault(style, this.moveSets.get(Styles.COMMON));
     }
 
     private AnimationAccessor<? extends StaticAnimation> processGuard(List<AnimationAccessor<? extends StaticAnimation>> motions, GuardSkill.BlockType blockType, PlayerPatch<?> playerpatch, SkillContainer container, int counter)
@@ -212,7 +244,16 @@ public class WeaponCapability extends CapabilityItem {
         }
         return style;
 	}
-	
+
+    /// Public accessor for {@link CoreWeaponCapabilityProvider#getNaturalSingleWieldStyle}. Returns
+    /// the style this cap would use if held alone on either hand (TWO_HAND for longsword/katana,
+    /// ONE_HAND for sword/dagger), bypassing the dual-pair offhand misfire described in the
+    /// provider. Used by {@link LivingEntityPatch#isMainhandItemValid} to suppress the mainhand
+    /// item render when a two-handed-by-nature weapon sits alone in the offhand.
+    public Style getNaturalSingleWieldStyle(LivingEntityPatch<?> entityPatch) {
+        return coreProvider.getNaturalSingleWieldStyle(entityPatch);
+    }
+
 	@Override
 	public SoundEvent getSmashingSound() {
 		return this.smashingSound;
@@ -251,12 +292,22 @@ public class WeaponCapability extends CapabilityItem {
     @Override
 	public Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> getLivingMotionModifier(LivingEntityPatch<?> player, InteractionHand hand) {
 		Moveset set = getCurrentSet(player);
+		// getCurrentSet handles the offhand-only mirror-mode bypass centrally: it re-evaluates
+		// the cap's style providers while filtering out the dual-pair conditionals that misfire
+		// when this cap sits alone in the offhand. So the natural single-wield moveset comes
+		// back here -- TWO_HAND for longsword (LONGSWORD_GUARD + LIECHTENAUER hold/walk),
+		// ONE_HAND for a regular sword -- and the player's hold/walk/block modifiers match what
+		// they'd see with the weapon in mainhand. The visual flip is applied once at the
+		// renderer in ClientAnimator.getPose.
+		boolean offhandMirror = hand == InteractionHand.OFF_HAND && player.isMirrorMode();
         if (set == null || set.getLivingMotionModifiers() == null)
         {
-            if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND) {
+            if (this.livingMotionModifiers == null || hand == InteractionHand.OFF_HAND && !offhandMirror) {
                 return super.getLivingMotionModifier(player, hand);
             }
-            Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> motions = this.livingMotionModifiers.getOrDefault(this.getStyle(player), Maps.newHashMap());
+            Style legacyStyle = offhandMirror ? coreProvider.getNaturalSingleWieldStyle(player) : this.getStyle(player);
+            if (legacyStyle == null) legacyStyle = Styles.ONE_HAND;
+            Map<LivingMotion, AnimationAccessor<? extends StaticAnimation>> motions = this.livingMotionModifiers.getOrDefault(legacyStyle, Maps.newHashMap());
             this.livingMotionModifiers.getOrDefault(Styles.COMMON, Maps.newHashMap()).forEach(motions::putIfAbsent);
 
             return motions;
@@ -328,6 +379,9 @@ public class WeaponCapability extends CapabilityItem {
     @Override
     public LivingMotion getLivingMotion(LivingEntityPatch<?> entitypatch, InteractionHand hand) {
         Moveset set = getCurrentSet(entitypatch);
+        // getCurrentSet has the offhand-only mirror-mode bypass; it returns the natural
+        // single-wield moveset for this cap so the custom motion (e.g. LIECHTENAUER hold) lines
+        // up with what the player would see in mainhand.
         if (set == null || set.getCustomMotion().apply(entitypatch, hand) == null)
             return super.getLivingMotion(entitypatch, hand);
         return set.getCustomMotion().apply(entitypatch, hand);
@@ -682,7 +736,7 @@ public class WeaponCapability extends CapabilityItem {
 			this.canBePlacedOffhand = canBePlacedOffhand;
 			return this;
 		}
-
+		
 		public Builder reach(float reach) {
 			this.reach = reach;
 			return this;

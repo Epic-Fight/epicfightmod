@@ -63,9 +63,23 @@ public class AimAnimation extends StaticAnimation {
 					float ratio = (f - Math.abs(entitypatch.getOriginal().getXRot())) / f;
 					float yRotHead = Mth.lerp(partialTicks, entitypatch.getOriginal().yHeadRotO, entitypatch.getOriginal().yHeadRot);
 					float yRot = entitypatch.getOriginal().getVehicle() != null ? yRotHead : Mth.lerp(partialTicks, entitypatch.getOriginal().yBodyRotO, entitypatch.getOriginal().yBodyRot);
-					
-					MathUtils.mulQuaternion(QuaternionUtils.YP.rotationDegrees(Mth.wrapDegrees(yRot - yRotHead) * ratio), head.rotation(), head.rotation());
-					chest.frontResult(JointTransform.rotation(QuaternionUtils.YP.rotationDegrees(Mth.wrapDegrees(yRotHead - yRot) * ratio)), OpenMatrix4f::mulAsOriginInverse);
+					// Pre-negate both yaw corrections in mirror mode. The pose pair (head.rotation
+					// and chest.frontResult) is designed so the chest twists toward the head's
+					// world direction while the head's local rotation cancels that twist, keeping
+					// head world rotation matching the authored pose. PoseMirror's global flip
+					// (qy negation) preserves the cancellation -- both terms flip together -- but
+					// flips the chest twist's world direction, leaving the chest visually leaning
+					// AWAY from where the camera is pointing on offhand. With the body still
+					// tracking yHeadRot via vanilla tickHeadTurn, the rendered chest no longer
+					// follows the head, so the head appears to rotate way past the body's clamp
+					// limit (most visible when turning camera left, where the asymmetric head/arm
+					// pose biases the visual). Negating both deltas pre-mirror means the global
+					// flip restores them to the mainhand world signs while keeping the
+					// cancellation intact.
+					float mirrorSign = entitypatch.isMirrorMode() ? -1.0F : 1.0F;
+
+					MathUtils.mulQuaternion(QuaternionUtils.YP.rotationDegrees(Mth.wrapDegrees(yRot - yRotHead) * ratio * mirrorSign), head.rotation(), head.rotation());
+					chest.frontResult(JointTransform.rotation(QuaternionUtils.YP.rotationDegrees(Mth.wrapDegrees(yRotHead - yRot) * ratio * mirrorSign)), OpenMatrix4f::mulAsOriginInverse);
 				}
 			}
 		);

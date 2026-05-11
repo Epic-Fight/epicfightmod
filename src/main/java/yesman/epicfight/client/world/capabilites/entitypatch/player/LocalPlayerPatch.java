@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -409,10 +410,12 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void updateHeldItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
 		super.updateHeldItem(mainHandCap, offHandCap);
-		
+
 		if (ClientConfig.playerBehaviorStrategy == ClientConfig.PlayerBehaviorStrategy.SWITCHING_MODE) {
-			if (ClientConfig.combatCategorizedItems.contains(this.original.getMainHandItem().getItem())) {
-				this.toEpicFightMode(true); 
+
+			if (ClientConfig.combatCategorizedItems.contains(this.original.getMainHandItem().getItem())
+					|| ClientConfig.combatCategorizedItems.contains(this.original.getOffhandItem().getItem())) {
+				this.toEpicFightMode(true);
 			} else if (ClientConfig.miningCategorizedItems.contains(this.original.getMainHandItem().getItem())) {
 				this.toVanillaMode(true);
 			}
@@ -450,7 +453,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
         if (entityHitResult != null) {
             Entity hitEntity = entityHitResult.getEntity();
 
-            if (!(hitEntity instanceof LivingEntity) && !(hitEntity instanceof PartEntity)) {
+            if (!(hitEntity instanceof LivingEntity) && !(hitEntity instanceof PartEntity) && !(hitEntity instanceof Interaction)) {
                 return false;
             }
         }
@@ -460,13 +463,26 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
         }
 
         if (ClientConfig.playerBehaviorStrategy.checkHitResult()) {
+            // Resolve the combat item against the active hand: in offhand-only mirror mode the
+            // weapon lives in the offhand, so a mainhand-only check would treat the player as
+            // unarmed and let block-break run against blocks that they're actually trying to
+            // attack with the offhand weapon.
+            ItemStack combatItem;
             if (ClientConfig.combatCategorizedItems.contains(this.original.getMainHandItem().getItem())) {
+                combatItem = this.original.getMainHandItem();
+            } else if (ClientConfig.combatCategorizedItems.contains(this.original.getOffhandItem().getItem())) {
+                combatItem = this.original.getOffhandItem();
+            } else {
+                combatItem = ItemStack.EMPTY;
+            }
+
+            if (!combatItem.isEmpty()) {
                 BlockHitResult blockHitResult = RenderEngine.asBlockHitResult(this.minecraft.hitResult);
 
                 if (blockHitResult != null && this.minecraft.level != null) {
                     BlockPos bp = blockHitResult.getBlockPos();
                     BlockState bs = this.minecraft.level.getBlockState(bp);
-                    return !this.original.getMainHandItem().getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !this.original.getMainHandItem().isCorrectToolForDrops(bs);
+                    return !combatItem.getItem().canAttackBlock(bs, this.original.level(), bp, this.original) || !combatItem.isCorrectToolForDrops(bs);
                 }
             } else {
                 return RenderEngine.hitResultNotEquals(this.minecraft.hitResult, HitResult.Type.BLOCK);

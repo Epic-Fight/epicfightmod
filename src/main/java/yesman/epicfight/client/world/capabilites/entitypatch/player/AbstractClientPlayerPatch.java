@@ -19,6 +19,8 @@ import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
@@ -35,6 +37,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.online.EpicSkins;
 import yesman.epicfight.config.ClientConfig;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -177,18 +180,53 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
             this.original.yBodyRot = this.original.yHeadRot;
         }
 
-        boolean isMainHandChanged = this.prevHeldItem != this.original.getInventory().getSelected().getItem();
-        boolean isOffHandChanged = this.prevHeldItemOffHand != this.original.getInventory().offhand.getFirst().getItem();
+        Item currentMain = this.original.getInventory().getSelected().getItem();
+        Item currentOff = this.original.getInventory().offhand.getFirst().getItem();
+        boolean isMainHandChanged = this.prevHeldItem != currentMain;
+        boolean isOffHandChanged = this.prevHeldItemOffHand != currentOff;
 
-        if (isMainHandChanged || isOffHandChanged) {
+        // F-swap during use-item (pressing F while scoped through a spyglass, eating, drinking,
+        // blocking, ...). Both slots flip simultaneously and the items trade places, but the
+        // vanilla {@code usedItemHand} stays on the original hand, so {@code MirrorAnimation}'s
+        // begin-time routing keeps the animation glued to the now-empty side. Skip the
+        // {@code updateHeldItem}/equip-flourish path (which would also call cancelItemUse) and
+        // re-trigger whatever LivingMotion is currently driving the layer the meta animation
+        // re-runs {@link MirrorAnimation#begin} and routes to the new hand via
+        // {@code resolveActiveHand}.
+        // Items literally trade slots the previous-frame mainhand item is now in the offhand
+        // and vice versa. This catches the asymmetric case (using item in mainhand, empty offhand)
+        // too: spyglass moves to offhand, AIR moves to mainhand, both prev/current still match
+        // by reference. We deliberately don't require both hands to be non-empty.
+        boolean isFSwapDuringUse = isMainHandChanged && isOffHandChanged
+            && this.prevHeldItem == currentOff
+            && this.prevHeldItemOffHand == currentMain
+            && this.original.isUsingItem();
+
+        if (isFSwapDuringUse) {
+            ClientAnimator animator = this.getClientAnimator();
+            yesman.epicfight.api.animation.LivingMotion compositeMotion = animator.currentCompositeMotion();
+            AssetAccessor<? extends StaticAnimation> compositeAnim = animator.getCompositeLivingMotion(compositeMotion);
+            if (compositeAnim != null && compositeAnim.isPresent()
+                && compositeAnim.get() instanceof yesman.epicfight.api.animation.types.MirrorAnimation) {
+                this.playAnimationInClientSide(compositeAnim, 0.0F);
+            }
+            this.prevHeldItem = currentMain;
+            this.prevHeldItemOffHand = currentOff;
+        } else if (isMainHandChanged || isOffHandChanged) {
             this.updateHeldItem(this.getHoldingItemCapability(InteractionHand.MAIN_HAND), this.getHoldingItemCapability(InteractionHand.OFF_HAND));
 
             if (isMainHandChanged) {
-                this.prevHeldItem = this.original.getInventory().getSelected().getItem();
+                AssetAccessor<? extends StaticAnimation> mainAnim =
+                    currentMain == Items.AIR ? Animations.BIPED_UNEQUIP_ITEM : Animations.BIPED_EQUIP_ITEM;
+                this.playAnimationInClientSide(mainAnim, 0.0F);
+                this.prevHeldItem = currentMain;
             }
 
             if (isOffHandChanged) {
-                this.prevHeldItemOffHand = this.original.getInventory().offhand.getFirst().getItem();
+                AssetAccessor<? extends StaticAnimation> offAnim =
+                    currentOff == Items.AIR ? Animations.BIPED_UNEQUIP_ITEM_OFFHAND : Animations.BIPED_EQUIP_ITEM_OFFHAND;
+                this.playAnimationInClientSide(offAnim, 0.0F);
+                this.prevHeldItemOffHand = currentOff;
             }
         }
 
@@ -285,6 +323,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
         if (pose.hasTransform("Head") && this.armature.hasJoint("Head")) {
             if (animation.doesHeadRotFollowEntityHead()) {
                 float headRelativeRot = Mth.rotLerp(partialTick, Mth.wrapDegrees(this.modelYRotO - this.original.yHeadRotO), Mth.wrapDegrees(this.modelYRot - this.original.yHeadRot));
+
                 OpenMatrix4f headTransform = this.armature.getBoundTransformFor(pose, this.armature.searchJointByName("Head"));
                 OpenMatrix4f toOriginalRotation = headTransform.removeScale().removeTranslation().invert();
                 Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, null);

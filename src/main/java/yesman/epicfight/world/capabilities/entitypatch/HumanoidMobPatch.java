@@ -10,10 +10,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -120,10 +126,109 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 	}
 	
 	public void setAIAsMounted(Entity ridingEntity) {
-		if (this.isArmed()) {
-			if (ridingEntity instanceof AbstractHorse) {
+		if (ridingEntity instanceof AbstractHorse) {
+			if (this.isArmed()) {
 				this.original.goalSelector.addGoal(0, new AnimatedAttackGoal<>(this, MobCombatBehaviors.MOUNT_HUMANOID_BEHAVIORS.build(this)));
 				this.original.goalSelector.addGoal(1, new TargetChasingGoal(this, this.getOriginal(), 1.0D, true));
+			}
+		} else {
+			// Non-horse mounts (e.g. chicken jockey, spider jockey) carry the rider rather than provide
+			// dedicated mounted-combat motions, so let the rider keep its on-foot AI for attack timing.
+			// The vehicle is driven by the preTick hook below, not by a goal -- adding a goal during
+			// setAIAsMounted is unreliable because the chicken-jockey spawn sequence can race against
+			// EF's capability-attach (rider becomes a passenger before its patch's setAIAsMounted runs),
+			// leaving the goal never installed. preTick runs unconditionally every tick the rider lives.
+			this.setAIAsInfantry(this.original.getMainHandItem().getItem() instanceof ProjectileWeaponItem);
+		}
+	}
+
+	/** Heavy additive boost on the vehicle's MOVEMENT_SPEED while a hostile rider is chasing.
+	 *  Applied/removed dynamically from preTick to track the rider's target acquisition state. */
+	private static final AttributeModifier PASSENGER_CHASE_SPEED_BOOST =
+		new AttributeModifier(EpicFightMod.identifier("passenger_chase_speed_boost"), 0.00005D, AttributeModifier.Operation.ADD_VALUE);
+
+	private boolean drivingVehicle = false;
+
+	@Override
+	public void preTick() {
+		super.preTick();
+
+		// Drive the vehicle from the rider every tick. preTick runs regardless of goal state, so this
+		// works even when the rider was spawned already-mounted (chicken jockey via /summon) and any
+		// goal-based hookup might have missed its window during EF's capability-attach race.
+		this.drivePassengerVehicle();
+	}
+
+	private void drivePassengerVehicle() {
+		if (this.original == null || this.original.level().isClientSide()) {
+			return;
+		}
+
+		Entity vehicleEntity = this.original.getVehicle();
+		if (!(vehicleEntity instanceof Mob vehicleMob) || vehicleEntity instanceof AbstractHorse) {
+			// No vehicle (or it's a horse, which has its own mounted-combat handling) -- make sure
+			// we strip the boost if we just dismounted, then bail.
+			this.applyVehicleSpeedBoost(null);
+			this.drivingVehicle = false;
+			return;
+		}
+
+		LivingEntity target = this.getTarget();
+		if (target == null || !target.isAlive()) {
+			// No target: revert speed and stop nav so the chicken doesn't keep streaking.
+			if (this.drivingVehicle) {
+				this.applyVehicleSpeedBoost(null);
+				vehicleMob.getNavigation().stop();
+				this.drivingVehicle = false;
+			}
+			return;
+		}
+
+		this.applyVehicleSpeedBoost(vehicleMob);
+		this.drivingVehicle = true;
+
+		double dx = target.getX() - vehicleMob.getX();
+		double dz = target.getZ() - vehicleMob.getZ();
+		double horizDistSqr = dx * dx + dz * dz;
+
+		vehicleMob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+
+		if (horizDistSqr >= 36.0D) {
+			// Far: pathfind. Re-path every tick so the chicken always heads at the player's
+			// current position rather than a stale target location. speedModifier 1.5 matches the
+			// pace of vanilla mob chase goals (vanilla MeleeAttackGoal uses ~1.0-1.2).
+			Path path = vehicleMob.getNavigation().createPath(target, 0);
+			if (path != null) {
+				vehicleMob.getNavigation().moveTo(path, 1.5D);
+			}
+		} else if (horizDistSqr > 0.0001D) {
+			// Close: stop navigation and overwrite delta each tick with a fixed velocity straight
+			// at the player. SET, not ADD: friction can't erode a re-set delta, and collision-zeroing
+			// only lasts the single tick before we restore it next tick. 0.25 b/tick = 5 b/s,
+			// roughly vanilla zombie chase pace -- enough to wedge against the player without
+			// rocketing past them.
+			if (!vehicleMob.getNavigation().isDone()) {
+				vehicleMob.getNavigation().stop();
+			}
+			double dist = Math.sqrt(horizDistSqr);
+			Vec3 delta = vehicleMob.getDeltaMovement();
+			vehicleMob.setDeltaMovement(
+				(dx / dist) * 0.25D,
+				delta.y,
+				(dz / dist) * 0.25D
+			);
+			float yaw = (float) (Math.atan2(dz, dx) * (180D / Math.PI)) - 90.0F;
+			vehicleMob.setYRot(yaw);
+			vehicleMob.yBodyRot = yaw;
+		}
+	}
+
+	/** Sync the chase speed modifier on a target vehicle (or strip it from any prior vehicle). */
+	private void applyVehicleSpeedBoost(Mob targetVehicle) {
+		if (targetVehicle != null) {
+			AttributeInstance speedAttr = targetVehicle.getAttribute(Attributes.MOVEMENT_SPEED);
+			if (speedAttr != null && !speedAttr.hasModifier(PASSENGER_CHASE_SPEED_BOOST.id())) {
+				speedAttr.addTransientModifier(PASSENGER_CHASE_SPEED_BOOST);
 			}
 		}
 	}
@@ -194,7 +299,16 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 		CapabilityItem offhandCap = this.getAdvancedHoldingItemCapability(InteractionHand.OFF_HAND);
 		
 		Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingMotionModifiers = new HashMap<>(mainhandCap.getLivingMotionModifier(this, InteractionHand.MAIN_HAND));
-		livingMotionModifiers.putAll(offhandCap.getLivingMotionModifier(this, InteractionHand.OFF_HAND));
+		Map<LivingMotion, ? extends AssetAccessor<? extends StaticAnimation>> offhandModifiers = offhandCap.getLivingMotionModifier(this, InteractionHand.OFF_HAND);
+
+		// Same offhand-mirror reroute as ServerPlayerPatch: built-in caps already cover the OFF_HAND
+		// path, so they take the first query and we never re-query. Addon caps that only register
+		// MAIN_HAND modifiers return empty from OFF_HAND, fall through to the MAIN_HAND query, and
+		// the visual flip in ClientAnimator.getPose lands the result on the correct side.
+		if (offhandModifiers.isEmpty() && this.isMirrorMode()) {
+			offhandModifiers = offhandCap.getLivingMotionModifier(this, InteractionHand.MAIN_HAND);
+		}
+		livingMotionModifiers.putAll(offhandModifiers);
 		
 		boolean hasChange = false;
 		

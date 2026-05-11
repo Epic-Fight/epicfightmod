@@ -3,7 +3,6 @@ package yesman.epicfight.skill.identity;
 import com.google.common.collect.Maps;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -173,7 +172,9 @@ public class RevelationSkill extends Skill {
 	public void executeOnServer(SkillContainer container, CompoundTag arguments) {
 		super.executeOnServer(container, arguments);
 		
-		CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
+		// Source the revelation animation map from the active combat cap so a longsword in
+		// the offhand resolves the correct category-specific motion.
+		CapabilityItem holdingItem = container.getExecutor().getPrimaryItemCapability();
 		AnimationAccessor<? extends StaticAnimation> animation = this.motions.containsKey(holdingItem.getWeaponCategory()) ? this.motions.get(holdingItem.getWeaponCategory()).apply(holdingItem, container.getExecutor()) : Animations.REVELATION_ONEHAND;
 		if (holdingItem instanceof WeaponCapability weaponCap)
         {

@@ -38,6 +38,11 @@ public class KnockdownWakeupSkill extends DodgeSkill {
 	public boolean isExecutableState(PlayerPatch<?> executor) {
 		EntityState playerState = executor.getEntityState();
 		float elapsedTime = executor.getAnimator().getPlayerFor(null).getElapsedTime();
-		return !(executor.isInAir() || (playerState.hurt() && !playerState.knockDown())) && !executor.getOriginal().isInWater() && !executor.getOriginal().onClimbable() && elapsedTime > 0.7F;
+		// See DodgeSkill#isExecutableState: require onGround() rather than the laxer isInAir().
+		return executor.getOriginal().onGround()
+			&& !(playerState.hurt() && !playerState.knockDown())
+			&& !executor.getOriginal().isInWater()
+			&& !executor.getOriginal().onClimbable()
+			&& elapsedTime > 0.7F;
 	}
 }

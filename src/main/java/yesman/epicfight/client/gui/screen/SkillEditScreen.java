@@ -20,8 +20,10 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlot;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.skill.PlayerSkills;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
@@ -77,8 +79,36 @@ public class SkillEditScreen extends Screen {
         int left = this.width / 2 - 96;
         int top = this.height / 2 - 82;
 
+        boolean mergedPassiveCreated = false;
+
         for (SkillSlot skillSlot : SkillSlot.ENUM_MANAGER.universalValues()) {
             if ((this.player.isCreative() || !this.skills.getSkillContainersFor(skillSlot.category()).isEmpty()) && skillSlot.category().learnable()) {
+                // The vanilla EF passive slots collapse into a single merged button.
+                // Addon-defined SkillSlot implementations whose category() is PASSIVE keep their
+                // own individual buttons, preserving the legacy behavior addons expect.
+                boolean isCorePassive = skillSlot.category() == SkillCategories.PASSIVE && skillSlot instanceof SkillSlots;
+
+                if (isCorePassive) {
+                    if (mergedPassiveCreated) {
+                        // already represented by the merged button
+                        continue;
+                    }
+                    mergedPassiveCreated = true;
+
+                    SlotButton mergedButton =
+                        new MergedPassiveSlotButton(
+                            left,
+                            top,
+                            button -> this.populatePassiveEquipList((SlotButton) button)
+                        );
+
+                    this.slotButtons.put(skillSlot, mergedButton);
+                    this.addRenderableWidget(mergedButton);
+                    top += STRIDE;
+
+                    continue;
+                }
+
                 SkillContainer skillContainer = this.skills.getSkillContainerFor(skillSlot);
 
                 SlotButton slotButton =
@@ -121,7 +151,9 @@ public class SkillEditScreen extends Screen {
                                             EpicFightNetworkManager.sendToServer(new CPChangeSkill(skillSlot, skill.holder(), -1));
                                             this.skills.addLearnedSkill(skill);
 
-                                            this.onClose();
+                                            // Update active flags in place; rebuilding the list mid-click would invalidate
+                                            // the button reference vanilla still holds for setFocused() and crash maybeScroll().
+                                            this.refreshEquipSkillButtonStates();
                                         }
                                     )
                                     .setActive(this.skills.getSkillContainer(skill) == null)
@@ -195,6 +227,129 @@ public class SkillEditScreen extends Screen {
 
     private boolean canScroll() {
         return this.equipSkillButtons.size() > MAX_SKILL_OPTIONS_ROWS;
+    }
+
+    private void refreshEquipSkillButtonStates() {
+        for (EquipSkillButton button : this.equipSkillButtons) {
+            button.setActive(this.skills.getSkillContainer(button.skill) == null);
+        }
+    }
+
+    /// Populates the equip-skill list for the merged Passive slot. Equipping a skill from this
+    /// list goes to the first empty `SkillSlots` passive container and is rejected once the
+    /// `maxPassiveSkills` game rule limit is reached.
+    private void populatePassiveEquipList(SlotButton clickedButton) {
+        this.start = 0;
+
+        for (Button shownButton : this.equipSkillButtons) {
+            this.children().remove(shownButton);
+        }
+
+        this.equipSkillButtons.clear();
+        int k = this.width / 2 - 69;
+
+        MutableInt widgetHeight = new MutableInt(this.height / 2 - 78);
+        Stream<Skill> learnedSkill =
+            this.player.isCreative() ?
+                SkillReloadListener.getSkills(skill -> skill.getCategory() == SkillCategories.PASSIVE).stream() :
+                this.skills.listAcquiredSkills().filter(skill -> skill.getCategory() == SkillCategories.PASSIVE);
+
+        learnedSkill.forEach(skill -> {
+            this.equipSkillButtons.add(
+                new EquipSkillButton(
+                    k,
+                    widgetHeight.intValue(),
+                    147,
+                    24,
+                    skill,
+                    Component.translatable(skill.getTranslationKey()),
+                    replaceSkillButton -> {
+                        if (!this.isButtonVisible(replaceSkillButton)) {
+                            return;
+                        }
+                        this.equipPassive(skill);
+                    }
+                )
+                .setActive(this.skills.getSkillContainer(skill) == null)
+            );
+
+            widgetHeight.add(EquipSkillButton.SPACING);
+        });
+
+        for (Button shownButton : this.equipSkillButtons) {
+            this.addRenderableWidget(shownButton);
+        }
+
+        this.selectedSlotButton = clickedButton;
+    }
+
+    /// Equips a passive skill into the first empty core passive slot, respecting the
+    /// `maxPassiveSkills` game rule. No-op when the limit is reached or no slot is free.
+    private void equipPassive(Skill skill) {
+        if (this.countEquippedCorePassives() >= this.maxPassiveSkillsRule()) {
+            return;
+        }
+
+        SkillSlot targetSlot = this.findFirstEmptyCorePassiveSlot();
+
+        if (targetSlot == null) {
+            return;
+        }
+
+        SkillContainer container = this.skills.getSkillContainerFor(targetSlot);
+        container.setSkill(skill);
+        EpicFightNetworkManager.sendToServer(new CPChangeSkill(targetSlot, skill.holder(), -1));
+        this.skills.addLearnedSkill(skill);
+
+        // In-place refresh; same reason as the per-slot equip path -- avoids invalidating the button
+        // reference vanilla still holds for setFocused() after this lambda returns.
+        this.refreshEquipSkillButtonStates();
+    }
+
+    private int countEquippedCorePassives() {
+        int count = 0;
+
+        for (SkillSlot slot : SkillSlot.ENUM_MANAGER.universalValues()) {
+            if (slot.category() == SkillCategories.PASSIVE && slot instanceof SkillSlots) {
+                if (!this.skills.getSkillContainerFor(slot).isEmpty()) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private SkillSlot findFirstEmptyCorePassiveSlot() {
+        for (SkillSlot slot : SkillSlot.ENUM_MANAGER.universalValues()) {
+            if (slot.category() == SkillCategories.PASSIVE && slot instanceof SkillSlots) {
+                SkillContainer container = this.skills.getSkillContainerFor(slot);
+
+                if (container.isEmpty() && !container.onReplaceCooldown()) {
+                    return slot;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private SkillContainer findFirstEquippedCorePassive() {
+        for (SkillSlot slot : SkillSlot.ENUM_MANAGER.universalValues()) {
+            if (slot.category() == SkillCategories.PASSIVE && slot instanceof SkillSlots) {
+                SkillContainer container = this.skills.getSkillContainerFor(slot);
+
+                if (!container.isEmpty()) {
+                    return container;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private int maxPassiveSkillsRule() {
+        return EpicFightGameRules.MAX_PASSIVE_SKILLS.getRuleValue(this.player.level());
     }
 
     private boolean isButtonVisible(Button button) {
@@ -325,8 +480,10 @@ public class SkillEditScreen extends Screen {
         public void setFocused(boolean focused) {
             super.setFocused(focused);
 
-            // Supports key arrow navigation
-            maybeScroll();
+            // Supports key arrow navigation. Skip on unfocus to avoid acting on stale callbacks.
+            if (focused) {
+                maybeScroll();
+            }
         }
 
         private void maybeScroll() {
@@ -336,6 +493,11 @@ public class SkillEditScreen extends Screen {
             final int scroll = SkillEditScreen.this.scroll;
 
             final int index = slotButtons.values().stream().toList().indexOf(this);
+
+            if (index < 0) {
+                return;
+            }
+
             final int relativeIndex = index - scroll;
 
             final boolean needsScrollDown = relativeIndex >= (MAX_SLOT_ROWS - 1);
@@ -348,6 +510,47 @@ public class SkillEditScreen extends Screen {
                     scrollUp();
                 }
             }
+        }
+    }
+
+    /// Single slot button that represents the entire core (`SkillSlots`) PASSIVE category.
+    /// Visually shows the icon of the first equipped passive (or the empty icon when none),
+    /// and renders a `<count>/<max>` tooltip. Forwards into [#equipPassive] when a skill from
+    /// the equip-list is clicked.
+    ///
+    /// We pass `PASSIVE1`'s container to the parent constructor so the existing logic that
+    /// looks up a slot button by `selectedSlotButton.skillContainer.getSlot()` keeps working.
+    class MergedPassiveSlotButton extends SlotButton {
+        public MergedPassiveSlotButton(int x, int y, OnPress pressedAction) {
+            super(
+                x,
+                y,
+                SkillEditScreen.this.skills.getSkillContainerFor(SkillSlots.PASSIVE1),
+                pressedAction,
+                SkillCategories.PASSIVE.getTranslationKey().copy()
+            );
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            this.active = true;
+            int yTex = (this.isHoveredOrFocused() || selectedSlotButton == this) ? 35 : 17;
+            guiGraphics.blit(SKILL_EDIT_UI, this.getX(), this.getY(), 237, yTex, this.width, this.height);
+
+            SkillContainer firstEquipped = SkillEditScreen.this.findFirstEquippedCorePassive();
+
+            if (firstEquipped != null && firstEquipped.getSkill() != null) {
+                RenderSystem.enableBlend();
+                guiGraphics.blit(firstEquipped.getSkill().getSkillTexture(), this.getX() + 1, this.getY() + 1, this.getWidth() - 2, this.getHeight() - 2, 0, 0, 128, 128, 128, 128);
+                RenderSystem.disableBlend();
+            } else {
+                guiGraphics.blit(EMPTY_SKILL_SLOT_ICON, this.getX() + 1, this.getY() + 1, this.getWidth() - 2, this.getHeight() - 2, 0, 0, 128, 128, 128, 128);
+            }
+
+            int equipped = SkillEditScreen.this.countEquippedCorePassives();
+            int max = SkillEditScreen.this.maxPassiveSkillsRule();
+            MutableComponent tip = SkillCategories.PASSIVE.getTranslationKey().copy().append(" (" + equipped + "/" + max + ")");
+            this.setTooltip(Tooltip.create(tip));
         }
     }
 
@@ -373,6 +576,8 @@ public class SkillEditScreen extends Screen {
 
     public class EquipSkillButton extends Button {
         private static final int SPACING = 26;
+        private static final int DEEQUIP_BUTTON_SIZE = 9;
+        private static final int DEEQUIP_BUTTON_MARGIN = 3;
 
         private final Skill skill;
 
@@ -393,11 +598,34 @@ public class SkillEditScreen extends Screen {
 
             if (!this.active) {
                 guiGraphics.drawString(font, Component.literal(skills.getSkillContainer(this.skill).getSlot().toString().toLowerCase(Locale.ROOT)), this.getX() + EquipSkillButton.SPACING, this.getY() + 12, 16736352, false);
+
+                if (this.isHovered) {
+                    int dx = this.getDeequipButtonX();
+                    int dy = this.getDeequipButtonY();
+                    boolean overX = this.isMouseOverDeequip(mouseX, mouseY);
+                    int bg = overX ? 0xFFAA0000 : 0x88000000;
+                    guiGraphics.fill(dx, dy, dx + DEEQUIP_BUTTON_SIZE, dy + DEEQUIP_BUTTON_SIZE, bg);
+
+                    // Pixel-perfect centered X. Two 1px diagonals crossing at the box center.
+                    int cx = dx + DEEQUIP_BUTTON_SIZE / 2;
+                    int cy = dy + DEEQUIP_BUTTON_SIZE / 2;
+                    int armLen = 2;
+                    int xColor = 0xFFFFFFFF;
+                    for (int o = -armLen; o <= armLen; o++) {
+                        guiGraphics.fill(cx + o, cy + o, cx + o + 1, cy + o + 1, xColor);
+                        guiGraphics.fill(cx + o, cy - o, cx + o + 1, cy - o + 1, xColor);
+                    }
+                }
             }
         }
 
         @Override
         public boolean mouseClicked(double x, double y, int pressType) {
+            if (this.visible && pressType == 0 && !this.active && this.isMouseOverDeequip(x, y)) {
+                this.deequipSkill();
+                return true;
+            }
+
             if (this.visible && pressType == 1) {
                 boolean flag = this.clickedNoCountActive(x, y);
 
@@ -410,6 +638,35 @@ public class SkillEditScreen extends Screen {
             return super.mouseClicked(x, y, pressType);
         }
 
+        private int getDeequipButtonX() {
+            return this.getX() + this.width - DEEQUIP_BUTTON_SIZE - DEEQUIP_BUTTON_MARGIN;
+        }
+
+        private int getDeequipButtonY() {
+            return this.getY() + DEEQUIP_BUTTON_MARGIN;
+        }
+
+        private boolean isMouseOverDeequip(double mouseX, double mouseY) {
+            int dx = this.getDeequipButtonX();
+            int dy = this.getDeequipButtonY();
+            return mouseX >= dx && mouseX < dx + DEEQUIP_BUTTON_SIZE && mouseY >= dy && mouseY < dy + DEEQUIP_BUTTON_SIZE;
+        }
+
+        private void deequipSkill() {
+            SkillContainer container = skills.getSkillContainer(this.skill);
+
+            if (container == null) {
+                return;
+            }
+
+            this.playDownSound(Minecraft.getInstance().getSoundManager());
+            container.setSkill(null);
+            EpicFightNetworkManager.sendToServer(new CPChangeSkill(container.getSlot(), null, -1));
+
+            // In-place refresh: see comment on the equip path for why we don't call selectedSlotButton.onPress().
+            SkillEditScreen.this.refreshEquipSkillButtonStates();
+        }
+
         public void openSkillInfoScreen() {
             this.playDownSound(Minecraft.getInstance().getSoundManager());
             minecraft.setScreen(new SkillBookScreen(player, this.skill, null, SkillEditScreen.this));
@@ -419,8 +676,11 @@ public class SkillEditScreen extends Screen {
         public void setFocused(boolean focused) {
             super.setFocused(focused);
 
-            // Supports key arrow navigation
-            maybeScroll();
+            // Supports key arrow navigation. Skip on unfocus (and on stale callbacks
+            // from removed buttons) to avoid corrupting `start` with -1.
+            if (focused) {
+                maybeScroll();
+            }
         }
 
         private void maybeScroll() {
@@ -429,6 +689,13 @@ public class SkillEditScreen extends Screen {
             final int maxRows = MAX_SKILL_OPTIONS_ROWS;
 
             final int i = buttons.indexOf(this);
+
+            // This button has already been removed from the list (e.g. category switch
+            // rebuilt the equip buttons). Don't touch scroll — `start = -1` would crash render().
+            if (i < 0) {
+                return;
+            }
+
             final boolean isOutsideVisibleRowsAtBottom = i >= start + maxRows;
             final boolean isOutsideVisibleRowsAtTop = i < start;
 

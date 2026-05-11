@@ -52,6 +52,14 @@ public class JointTransform {
 	public Vec3f scale() {
 		return this.scale;
 	}
+
+	/** Direct access to the auxiliary transform stack
+	 *  Package-private so {@link PoseMirror} can rebuild entries with mirrored transforms; the
+	 *  rest of the codebase should keep using the {@link #parent(JointTransform, MatrixOperation)}
+	 *  / {@link #jointLocal(JointTransform, MatrixOperation)} setters which run merge logic. */
+	Map<String, TransformEntry> entries() {
+		return this.entries;
+	}
 	
 	public void clearTransform() {
 		this.translation.set(0.0F, 0.0F, 0.0F);

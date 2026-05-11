@@ -23,7 +23,14 @@ public class TargetInEyeHeight extends EntityPatchCondition {
 	
 	@Override
 	public boolean predicate(LivingEntityPatch<?> target) {
-		double veticalDistance = Math.abs(target.getOriginal().getY() - target.getTarget().getY());
+		// When the mob is a passenger (chicken jockey, skeleton trap, etc.) its Y is offset upward
+		// by the vehicle. Compare against the vehicle's Y so the rider can still hit a target at
+		// ground level despite being lifted; otherwise the eye-height check fails and the rider
+		// never triggers its attack behaviors.
+		double mobY = target.getOriginal().isPassenger() && target.getOriginal().getVehicle() != null
+			? target.getOriginal().getVehicle().getY()
+			: target.getOriginal().getY();
+		double veticalDistance = Math.abs(mobY - target.getTarget().getY());
 		return veticalDistance < target.getOriginal().getEyeHeight();
 	}
 	

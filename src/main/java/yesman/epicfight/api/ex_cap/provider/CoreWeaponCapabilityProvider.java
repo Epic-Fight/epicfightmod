@@ -1,6 +1,7 @@
 package yesman.epicfight.api.ex_cap.provider;
 
 import com.google.common.collect.Lists;
+import net.minecraft.world.InteractionHand;
 import org.jetbrains.annotations.ApiStatus;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.Style;
@@ -60,6 +61,32 @@ public class CoreWeaponCapabilityProvider
         sortByPriority();
         for (ProviderConditional conditional : conditionals)
         {
+            if (conditional.test(entityPatch))
+            {
+                return conditional.style;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Evaluate conditionals while skipping dual-pair offhand triggers — used when this cap is the
+     * only weapon (offhand-only mirror mode). The DUAL_SWORDS / DUAL_DAGGERS conditionals only
+     * test "is offhand a matching category", so they fire whenever this cap sits in OFF_HAND even
+     * with an empty mainhand and falsely report TWO_HAND. Filtering out OFF_HAND-targeted
+     * WEAPON_CATEGORY conditionals leaves the natural style (DEFAULT_*, etc.) — TWO_HAND for
+     * longsword/katana, ONE_HAND for sword/dagger — which is the answer we want for single-wield.
+     */
+    public Style getNaturalSingleWieldStyle(LivingEntityPatch<?> entityPatch)
+    {
+        sortByPriority();
+        for (ProviderConditional conditional : conditionals)
+        {
+            if (conditional.hand == InteractionHand.OFF_HAND
+                    && conditional.type == ProviderConditionalType.WEAPON_CATEGORY)
+            {
+                continue;
+            }
             if (conditional.test(entityPatch))
             {
                 return conditional.style;

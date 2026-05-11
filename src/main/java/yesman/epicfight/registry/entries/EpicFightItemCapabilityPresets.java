@@ -128,26 +128,10 @@ public final class EpicFightItemCapabilityPresets
                     .addTag(EpicFight.identifier("shield"))
     );
 
-    public static final DeferredWeapon PICKAXE = REGISTRY.registerWeapon("pickaxe",
-            () -> WeaponCapability.builder()
-                    .category(CapabilityItem.WeaponCategories.PICKAXE)
-                    .hitSound(EpicFightSounds.BLADE_HIT)
-                    .collider(ColliderPreset.TOOLS)
-                    .setTierValues(0, 6d, 0.4, 0.1)
-                    .addMoveset(CapabilityItem.Styles.ONE_HAND, EpicFightMovesets.AXE_1H)
-                    .addConditionals(EpicFightProviderConditionals.DEFAULT_1H_WIELD_STYLE)
-                    .addTag(EpicFight.identifier("pickaxe"))
-    );
-
-    public static final DeferredWeapon SHOVEL = REGISTRY.registerWeapon("shovel",
-            () -> WeaponCapability.builder()
-                    .category(CapabilityItem.WeaponCategories.SHOVEL)
-                    .collider(ColliderPreset.TOOLS)
-                    .setTierValues(0, 0d, 0.8, 0.4)
-                    .addMoveset(CapabilityItem.Styles.ONE_HAND, EpicFightMovesets.AXE_1H)
-                    .addConditionals(EpicFightProviderConditionals.DEFAULT_1H_WIELD_STYLE)
-                    .addTag(EpicFight.identifier("shovel"))
-    );
+    public static final DeferredWeapon PICKAXE = REGISTRY.registerWeapon("pickaxe", () ->
+            WeaponCapability.builder().parent(AXE).addTag(EpicFight.identifier("pickaxe")));
+    public static final DeferredWeapon SHOVEL = REGISTRY.registerWeapon("shovel", () ->
+            WeaponCapability.builder().parent(AXE).addTag(EpicFight.identifier("shovel")));
 
     public static final DeferredWeapon HOE = REGISTRY.registerWeapon("hoe",
             () -> WeaponCapability.builder()

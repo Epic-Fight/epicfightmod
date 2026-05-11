@@ -30,7 +30,6 @@ import yesman.epicfight.api.event.types.player.ModifyComboCounter;
 import yesman.epicfight.api.ex_cap.managers.ItemPresetManager;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.EpicFightNetworkManager.PayloadBundleBuilder;
 import yesman.epicfight.network.server.SPChangeSkill;
@@ -262,9 +261,33 @@ public class CapabilityItem {
     {
         return null;
     }
-	
+
 	public WeaponCategory getWeaponCategory() {
 		return this.weaponCategory;
+	}
+
+	public boolean isWeaponCategory(WeaponCategory target) {
+		if (this == target) return true;
+
+		// Population Phase: Use the ImmutableList directly
+		List<WeaponCategory> immediateParents = weaponCategory.getParents();
+		if (immediateParents.isEmpty()) return false;
+
+		Deque<WeaponCategory> stack = new ArrayDeque<>(immediateParents);
+		Set<WeaponCategory> visited = new HashSet<>();
+
+		while (!stack.isEmpty()) {
+			WeaponCategory current = stack.pop();
+			if (current == target) return true;
+
+			if (visited.add(current)) {
+				// Because of ImmutableList, we know getParents() is safe to loop
+				for (WeaponCategory p : current.getParents()) {
+					stack.push(p);
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void changeWeaponInnateSkill(ServerPlayerPatch playerpatch, ItemStack itemstack) {
@@ -446,7 +469,7 @@ public class CapabilityItem {
 	public ZoomInType getZoomInType() {
 		return ZoomInType.NONE;
 	}
-	
+
 	public enum WeaponCategories implements WeaponCategory {
 		NOT_WEAPON(WEAPON_CATEGORY_NOT_WEAPON),
         AXE(WEAPON_CATEGORY_AXE),
@@ -463,18 +486,30 @@ public class CapabilityItem {
         LONGSWORD(WEAPON_CATEGORY_LONGSWORD),
         DAGGER(WEAPON_CATEGORY_DAGGER),
         SHIELD(WEAPON_CATEGORY_SHIELD),
-        RANGED(WEAPON_CATEGORY_RANGED)
-        ;
+		BOW(WEAPON_CATEGORY_RANGED);
 
         final Component translationKey;
+		final List<WeaponCategory> parent;
 		final int id;
 		
-		WeaponCategories(String translationKey) {
+		WeaponCategories(String translationKey, WeaponCategory... parents) {
             this.translationKey = Component.translatable(translationKey);
 			this.id = WeaponCategory.ENUM_MANAGER.assign(this);
+			this.parent = ImmutableList.copyOf(parents);
 		}
 
-        @Override
+		WeaponCategories(String translationKey) {
+			this.translationKey = Component.translatable(translationKey);
+			this.id = WeaponCategory.ENUM_MANAGER.assign(this);
+			this.parent = ImmutableList.of();
+		}
+
+		@Override
+		public List<WeaponCategory> getParents() {
+			return parent;
+		}
+
+		@Override
         public Component getTranslatable() {
             return this.translationKey;
         }

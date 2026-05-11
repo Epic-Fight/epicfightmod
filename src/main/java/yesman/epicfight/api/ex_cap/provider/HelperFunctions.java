@@ -13,7 +13,7 @@ public class HelperFunctions
 	//Initial Helper Functions
 	public static boolean itemCheck(LivingEntityPatch<?> entityPatch, WeaponCategory category, InteractionHand hand)
 	{
-		return entityPatch.getHoldingItemCapability(hand).getWeaponCategory() == category;
+		return entityPatch.getHoldingItemCapability(hand).isWeaponCategory(category);
 	}
 	public static boolean skillCheck(LivingEntityPatch<?> entityPatch, Skill skill, SkillSlot slot)
 	{

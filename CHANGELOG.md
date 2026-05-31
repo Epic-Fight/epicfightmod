@@ -11,11 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Simply Tooltips Compatibility with a plethora of Epic Fight's own features.
 ### Changes
 - Used `@WrapOperation` instead of `@Redirect` to improve compatibility with other mods' mixins.
+- Updated GeckoLib compatibility 
 ### Deprecations
 - Deprecated `setWeaponData()` as `modifyBuilder()` made the former method redundant.
 ### Fixes
 - More inheritance issues regarding `WeaponCapability`
-- Custom Data in Item Presets not working due to logic error.
+- Custom Data in Item Presets was not working due to a logic error.
 - Skills not using `isWeaponCategory()`
 
 ## [21.17.2] - 2026-05-12

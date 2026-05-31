@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 - Used `@WrapOperation` instead of `@Redirect` to improve compatibility with other mods' mixins.
 ### Deprecations
-- Deprecated `setWeaponData()` as `modifyBuilder()` made the formet method redundant.
+- Deprecated `setWeaponData()` as `modifyBuilder()` made the former method redundant.
 ### Fixes
 - More inheritance issues regarding `WeaponCapability`
 - Custom Data in Item Presets not working due to logic error.

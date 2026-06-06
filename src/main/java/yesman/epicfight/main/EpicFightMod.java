@@ -1,6 +1,7 @@
 package yesman.epicfight.main;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
@@ -27,6 +28,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -203,6 +205,7 @@ public class EpicFightMod {
 
     	NeoForge.EVENT_BUS.addListener(this::command);
         NeoForge.EVENT_BUS.addListener(this::addReloadListnerEvent);
+		modEventBus.addListener(this::onDataRegister);
 
     	LivingMotion.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, LivingMotions.class);
     	SkillCategory.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, SkillCategories.class);
@@ -224,7 +227,14 @@ public class EpicFightMod {
             modEventBus.addListener(ComputeShaderProvider::epicfight$registerComputeShaders);
         }
         loadModCompatibilityModules(modEventBus);
+	}
 
+	private void onDataRegister(GatherDataEvent event) {
+		DataGenerator generator = event.getGenerator();
+		generator.addProvider(
+				event.includeServer(),
+				new EpicFightDataGen(generator.getPackOutput(), event.getLookupProvider())
+		);
 	}
 
     private List<? extends Class<? extends ICompatModule>> getCompatibilityModules(final boolean isClientSide) {

@@ -17,8 +17,13 @@ import yesman.epicfight.EpicFight;
 import java.util.List;
 import java.util.Optional;
 
-public class EpicFightEnchantments {
+public final class EpicFightEnchantments {
+    private EpicFightEnchantments() {}
+
     public static final ResourceKey<Enchantment> LIGHTWEIGHT = key("lightweight");
+    public static final ResourceKey<Enchantment> UNSHAKABLE = key("unshakable");
+    public static final ResourceKey<Enchantment> IMPACTFUL = key("impactful");
+    public static final ResourceKey<Enchantment> ARMOR_PIERCING = key("armor_piercing");
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         var items = context.lookup(Registries.ITEM);
@@ -30,6 +35,7 @@ public class EpicFightEnchantments {
     }
 
     public static final class Effects {
+
         public static final EnchantmentAttributeEffect LIGHTWEIGHT = new EnchantmentAttributeEffect(EpicFightEnchantments.LIGHTWEIGHT.location(), EpicFightAttributes.WEIGHT, LevelBasedValue.perLevel(-0.1f, -0.1f), AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
 
     }

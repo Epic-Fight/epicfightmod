@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
+## [21.17.4] - 2026-06-09
+### Additions
+- Added 4 new enchantments that improve the player's combat experience.
+  - Lightweight: Reduces the weight of a player's armor.
+  - Unshakable: Increases the stun armor
+  - Impactful: Increases the impact of the weapon.
+  - Armor Piercing: Increases the Armor Negation of a weapon. Similar to Breach but is non-exclusive to the Mace.
+### Fixes
+- Fixed the client-server desync regarding Guard and HoldableSkill
 ## [21.17.3] - 2026-05-14
 ### Additions
 - Added Item Specific Overrides to Builder to allow any explicit tier configurations.

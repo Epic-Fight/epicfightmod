@@ -105,9 +105,9 @@ dependencies {
 
     compileOnly(libs.kubejs)
     compileOnly(libs.rhino)
-    implementation(libs.architectury)
+    compileOnly(libs.architectury)
 
-    implementation(libs.bundles.simply)
+    compileOnly(libs.bundles.simply)
 
     // Libraries for tr7zw featured mods
     compileOnly("libs:TRansition:1.0.6")
@@ -124,8 +124,8 @@ dependencies {
 
     compileOnly(libs.fgm)
 
-    implementation(libs.creativeCore)
-    implementation(libs.playerRevive)
+    compileOnly(libs.creativeCore)
+    compileOnly(libs.playerRevive)
 }
 
 tasks.processResources {

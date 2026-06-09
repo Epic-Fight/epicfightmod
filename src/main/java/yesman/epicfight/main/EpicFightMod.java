@@ -174,7 +174,6 @@ public class EpicFightMod {
 
     public EpicFightMod(IEventBus modEventBus, ModContainer modContainer) {
 		ModPlatformProvider.initialize(new NeoForgeModPlatform());
-		TooltipProviderRegistry.register(new EpicFightTooltipProvider(), 2);
     	if (EpicFightSharedConstants.isPhysicalClient()) {
 			EpicFightClient.initialize(new NeoForgeClientModPlatform(modEventBus));
 			// TODO: (MULTI_LOADER) EpicFightKeyMappings must be in common and not neoforge,

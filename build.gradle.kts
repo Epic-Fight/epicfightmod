@@ -123,6 +123,7 @@ dependencies {
     }
 
     compileOnly(libs.fgm)
+    implementation(libs.mcaReborn)
 
     compileOnly(libs.creativeCore)
     compileOnly(libs.playerRevive)

@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout source repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Clone target repo
         run: |

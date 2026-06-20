@@ -12,7 +12,6 @@ import yesman.epicfight.compat.fgm.WildfireFGMCompat;
 import yesman.epicfight.compat.firstperson.FirstPersonCompat;
 import yesman.epicfight.compat.geckolib.GeckolibCompat;
 import yesman.epicfight.compat.iris.IRISCompat;
-import yesman.epicfight.compat.mca.MCARebornCompat;
 import yesman.epicfight.compat.playeranimator.PlayerAnimatorCompat;
 import yesman.epicfight.compat.playerrevive.PlayerReviveCompat;
 import yesman.epicfight.compat.simplytooltips.SimplyTooltipsModule;
@@ -37,8 +36,7 @@ public enum MinecraftMod {
     BETTER_THIRD_PERSON("betterthirdperson", true, BetterThirdPersonCompat.class),
     PLAYER_REVIVE("playerrevive", true, PlayerReviveCompat.class),
     WILDFIRES_GENDER_MOD("wildfire_gender", true, WildfireFGMCompat.class),
-    SIMPLY_TOOLTIPS("simplytooltips", true, SimplyTooltipsModule.class),
-    MCA_REBORN("mca", false, MCARebornCompat.class);
+    SIMPLY_TOOLTIPS("simplytooltips", true, SimplyTooltipsModule.class);
 
     private final @NotNull String modId;
     private final boolean isClientOnly;

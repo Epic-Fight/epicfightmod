@@ -20,6 +20,9 @@ out
 build
 .gradle
 
+# generated Minecraft and NeoForge reference sources
+/references/
+
 # other
 eclipse
 run

@@ -280,40 +280,6 @@ public final class EpicFightRenderTypes extends RenderType {
 		}
 	}
 	
-	private static final RenderType ENTITY_UI_COLORED = 
-		create(
-			  EpicFightMod.prefix("ui_color")
-			, DefaultVertexFormat.POSITION_COLOR
-			, VertexFormat.Mode.QUADS
-			, 256
-			, true
-			, false
-			, RenderType.CompositeState.builder()
-				.setShaderState(POSITION_COLOR_SHADER)
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(NO_LIGHTMAP)
-				.setOverlayState(NO_OVERLAY)
-				.createCompositeState(false)
-		);
-	
-	private static final Function<ResourceLocation, RenderType> ENTITY_UI_TEXTURE = Util.memoize(
-		(textureLocation) -> create( 
-			  EpicFightMod.prefix("ui_texture")
-			, DefaultVertexFormat.POSITION_TEX
-			, VertexFormat.Mode.QUADS
-			, 256
-			, true
-			, false
-			, RenderType.CompositeState.builder()
-				.setShaderState(POSITION_TEX_SHADER)
-				.setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
-				.setTransparencyState(NO_TRANSPARENCY)
-				.setLightmapState(NO_LIGHTMAP)
-				.setOverlayState(NO_OVERLAY)
-				.createCompositeState(false)
-		)
-	);
-	
 	private static final RenderType OBB = create(
 		  EpicFightMod.prefix("debug_collider")
 		, DefaultVertexFormat.POSITION_COLOR_NORMAL
@@ -345,20 +311,6 @@ public final class EpicFightRenderTypes extends RenderType {
 			.setTransparencyState(NO_TRANSPARENCY)
 			.setWriteMaskState(COLOR_DEPTH_WRITE)
 			.setCullState(NO_CULL)
-			.createCompositeState(false)
-	);
-	
-	private static final RenderType GUI_TRIANGLE = create(
-		  EpicFightMod.prefix("gui_triangle")
-		, DefaultVertexFormat.POSITION_COLOR
-		, VertexFormat.Mode.TRIANGLES
-		, 256
-		, false
-		, false
-		, RenderType.CompositeState.builder()
-			.setShaderState(RENDERTYPE_GUI_SHADER)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setDepthTestState(LEQUAL_DEPTH_TEST)
 			.createCompositeState(false)
 	);
 	
@@ -555,24 +507,12 @@ public final class EpicFightRenderTypes extends RenderType {
 		return textureReplacedRenderType;
 	}
 	
-	public static RenderType entityUIColor() {
-		return ENTITY_UI_COLORED;
-	}
-	
-	public static RenderType entityUITexture(ResourceLocation resourcelocation) {
-		return ENTITY_UI_TEXTURE.apply(resourcelocation);
-	}
-	
 	public static RenderType debugCollider() {
 		return OBB;
 	}
 	
 	public static RenderType debugQuads() {
 		return DEBUG_QUADS;
-	}
-	
-	public static RenderType guiTriangle() {
-		return GUI_TRIANGLE;
 	}
 	
 	public static RenderType overlayModel(ResourceLocation textureLocation) {

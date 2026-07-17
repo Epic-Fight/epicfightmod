@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -49,9 +48,4 @@ public class ForbiddenStrengthSkill extends PassiveSkill {
         );
     }
 
-	@Override @ClientOnly
-	public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumptionList) {
-		consumptionList.add(Component.translatable("attribute.name.epicfight.health.consume.tooltip"), Component.translatable("skill.epicfight.forbidden_strength.consume.tooltip"), SkillBookScreen.HEALTH_TEXTURE_INFO);
-		return true;
-	}
 }

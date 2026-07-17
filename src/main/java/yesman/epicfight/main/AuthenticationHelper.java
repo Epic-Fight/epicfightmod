@@ -1,7 +1,6 @@
 package yesman.epicfight.main;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
 
@@ -14,10 +13,6 @@ public interface AuthenticationHelper {
 		EnumValue<AuthenticationProvider> provider
 	);
 	
-	default Screen getAvatarEditorScreen(Screen parentScreen) {
-		return null;
-	}
-
     Status status();
 
     /**

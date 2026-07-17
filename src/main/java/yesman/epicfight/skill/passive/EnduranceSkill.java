@@ -7,7 +7,6 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -83,10 +82,6 @@ public class EnduranceSkill extends PassiveSkill {
         super.cancelOnServer(container, arguments);
     }
 
-    @Override @ClientOnly
-    public boolean shouldDraw(SkillContainer container) {
-        return container.getStack() == 0;
-    }
 
     @Override @ClientOnly
     public List<Object> getTooltipArgsOfScreen(List<Object> list) {
@@ -94,10 +89,4 @@ public class EnduranceSkill extends PassiveSkill {
         return list;
     }
 
-    @Override @ClientOnly
-    public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumptionList) {
-        consumptionList.add(Component.translatable("attribute.name.epicfight.cooldown.consume.tooltip"), Component.translatable("attribute.name.epicfight.cooldown.consume", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.getConsumption())), SkillBookScreen.COOLDOWN_TEXTURE_INFO);
-        consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("attribute.name.epicfight.stamina_current_ratio.consume", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.staminaRatio * 100.0F)), SkillBookScreen.STAMINA_TEXTURE_INFO);
-        return true;
-    }
 }

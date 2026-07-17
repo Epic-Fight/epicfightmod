@@ -7,7 +7,6 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,7 +19,6 @@ import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProp
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec2f;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -252,128 +250,5 @@ public abstract class WeaponInnateSkill extends Skill {
 		new Vec2f(1.0F, 0.0F)
 	};
 	
-	@Override @ClientOnly
-	public boolean shouldDraw(SkillContainer container) {
-		return true;
-	}
 	
-	@Override @ClientOnly
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-		boolean creative = container.getExecutor().getOriginal().isCreative();
-		boolean fullstack = creative || container.isFull();
-		boolean canUse = !container.isDisabled() && container.getSkill().checkExecuteCondition(container);
-		
-		float cooldownRatio = (fullstack || container.isActivated()) ? 1.0F : container.getResource(partialTick);
-		int vertexNum = 0;
-		float iconSize = 32.0F;
-		float bottom = y + iconSize;
-		float right = x + iconSize;
-		float middle = x + iconSize * 0.5F;
-		float lastVertexX = 0;
-		float lastVertexY = 0;
-		float lastTexX = 0;
-		float lastTexY = 0;
-		
-		if (cooldownRatio < 0.125F) {
-			vertexNum = 6;
-			lastTexX = cooldownRatio / 0.25F;
-			lastTexY = 0.0F;
-			lastVertexX = middle + iconSize * lastTexX;
-			lastVertexY = y;
-			lastTexX += 0.5F;
-		} else if (cooldownRatio < 0.375F) {
-			vertexNum = 5;
-			lastTexX = 1.0F;
-			lastTexY = (cooldownRatio - 0.125F) / 0.25F;
-			lastVertexX = right;
-			lastVertexY = y + iconSize * lastTexY;
-		} else if (cooldownRatio < 0.625F) {
-			vertexNum = 4;
-			lastTexX = (cooldownRatio - 0.375F) / 0.25F;
-			lastTexY = 1.0F;
-			lastVertexX = right - iconSize * lastTexX;
-			lastVertexY = bottom;
-			lastTexX = 1.0F - lastTexX;
-		} else if (cooldownRatio < 0.875F) {
-			vertexNum = 3;
-			lastTexX = 0.0F;
-			lastTexY = (cooldownRatio - 0.625F) / 0.25F;
-			lastVertexX = x;
-			lastVertexY = bottom - iconSize * lastTexY;
-			lastTexY = 1.0F - lastTexY;
-		} else {
-			vertexNum = 2;
-			lastTexX = (cooldownRatio - 0.875F) / 0.25F;
-			lastTexY = 0.0F;
-			lastVertexX = x + iconSize * lastTexX;
-			lastVertexY = y;
-		}
-		
-		RenderSystem.enableBlend();
-		RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, container.getSkill().getSkillTexture());
-		
-		if (canUse) {
-			if (container.getStack() > 0) {
-				RenderSystem.setShaderColor(0.0F, 0.64F, 0.72F, 0.8F);
-			} else {
-				RenderSystem.setShaderColor(0.0F, 0.5F, 0.5F, 0.6F);
-			}
-		} else {
-			RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 0.6F);
-		}
-		
-		PoseStack poseStack = guiGraphics.pose();
-		Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_TEX);
-        
-        for (int j = 0; j < vertexNum; j++) {
-        	bufferbuilder.addVertex(poseStack.last(), x + iconSize * CLOCK_POS[j].x, y + iconSize * CLOCK_POS[j].y, 0.0F).setUv(CLOCK_POS[j].x, CLOCK_POS[j].y);
-		}
-        
-        bufferbuilder.addVertex(poseStack.last(), lastVertexX, lastVertexY, 0.0F).setUv(lastTexX, lastTexY);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        
-        if (canUse) {
-			RenderSystem.setShaderColor(0.08F, 0.79F, 0.95F, 1.0F);
-		} else {
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		}
-        
-        GL11.glCullFace(GL11.GL_FRONT);
-        bufferbuilder = tessellator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_TEX);
-        
-        for (int j = 0; j < 2; j++) {
-        	bufferbuilder.addVertex(poseStack.last(), x + iconSize * CLOCK_POS[j].x, y + iconSize * CLOCK_POS[j].y, 0.0F).setUv(CLOCK_POS[j].x, CLOCK_POS[j].y);
-		}
-		
-		for (int j = CLOCK_POS.length - 1; j >= vertexNum; j--) {
-        	bufferbuilder.addVertex(poseStack.last(), x + iconSize * CLOCK_POS[j].x, y + iconSize * CLOCK_POS[j].y, 0.0F).setUv(CLOCK_POS[j].x, CLOCK_POS[j].y);
-		}
-        
-        bufferbuilder.addVertex(poseStack.last(), lastVertexX, lastVertexY, 0.0F).setUv(lastTexX, lastTexY);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        
-        GL11.glCullFace(GL11.GL_BACK);
-     	RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        if (container.isActivated() && (container.getSkill().getActivateType() == ActivateType.DURATION || container.getSkill().getActivateType() == ActivateType.DURATION_INFINITE)) {
-			String s = String.format("%.0f", container.getRemainDuration() / 20.0F);
-			int stringWidth = (gui.getFont().width(s) - 6) / 3;
-			guiGraphics.drawString(gui.getFont(), s, x + 13 - stringWidth, y + 13, 16777215, true);
-		} else if (!fullstack) {
-			String s = String.valueOf((int)(cooldownRatio * 100.0F));
-			int stringWidth = (gui.getFont().width(s) - 6) / 3;
-			guiGraphics.drawString(gui.getFont(), s, x + 13 - stringWidth, y + 13, 16777215, true);
-		}
-		
-		if (container.getSkill().getMaxStack() > 1) {
-			String s = String.valueOf(container.getStack());
-			int stringWidth = (gui.getFont().width(s) - 6) / 3;
-			guiGraphics.drawString(gui.getFont(), s, x + 25 - stringWidth, y + 22, 16777215, true);
-		}
-		
-		RenderSystem.disableBlend();
-	}
 }

@@ -19,7 +19,6 @@ import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.server.SPSkillFeedback;
@@ -172,9 +171,4 @@ public class DemolitionLeapSkill extends Skill implements ChargeableSkill {
 		}
 	}
 	
-	@Override @ClientOnly
-	public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumptionList) {
-		consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("attribute.name.epicfight.stamina_per_second.consume", ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(this.consumption), "0.25"), SkillBookScreen.STAMINA_TEXTURE_INFO);
-		return true;
-	}
 }

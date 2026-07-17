@@ -1,6 +1,5 @@
 package yesman.epicfight.skill.passive;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -11,7 +10,6 @@ import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations.DecorationOverlay;
@@ -100,24 +98,7 @@ public class BerserkerSkill extends PassiveSkill {
         );
     }
 
-    @Override @ClientOnly
-    public boolean shouldDraw(SkillContainer container) {
-        Player player = container.getExecutor().getOriginal();
-        float health = player.getHealth();
-        float maxHealth = player.getMaxHealth();
-        return (maxHealth - health) > 0.0F;
-    }
 
-    @Override @ClientOnly
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-        guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-        Player player = container.getExecutor().getOriginal();
-        float health = player.getHealth();
-        float maxHealth = player.getMaxHealth();
-        float lostHealthPercentage = (maxHealth - health) / maxHealth;
-        lostHealthPercentage = (float)Math.floor(lostHealthPercentage * 100.0F);
-        guiGraphics.drawString(gui.getFont(), String.format("%.0f%%", lostHealthPercentage), x + 4, y + 6, 16777215, true);
-    }
 
     @Override @ClientOnly
     public List<Object> getTooltipArgsOfScreen(List<Object> list) {

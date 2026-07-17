@@ -5,7 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.utils.ExtensibleEnum;
 import yesman.epicfight.api.utils.ExtensibleEnumManager;
 import yesman.epicfight.api.utils.ParseUtil;
-import yesman.epicfight.client.gui.screen.SkillEditScreen;
 import yesman.epicfight.main.EpicFightMod;
 
 public interface SkillCategory extends ExtensibleEnum {
@@ -19,7 +18,7 @@ public interface SkillCategory extends ExtensibleEnum {
 	/// Determines if the skill should be synched to clients
 	boolean shouldSynchronize();
 	
-	/// Determines if the skill is modifiable by player, through skill books, commands, or [SkillEditScreen]
+	/// Determines if the skill is modifiable by player through skill books or commands.
 	boolean learnable();
 
     /// Returns a translation key

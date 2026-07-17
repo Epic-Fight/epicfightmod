@@ -43,9 +43,6 @@ import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.event.types.player.SkillCastEvent;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.gui.screen.EmoteWheelScreen;
-import yesman.epicfight.client.gui.screen.SkillEditScreen;
-import yesman.epicfight.client.gui.screen.config.EpicFightSettingScreen;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.client.world.util.FakeLevel;
@@ -150,13 +147,6 @@ public class ControlEngine implements IEventBasedEngine {
         if (this.playerpatch == null) {
             return;
         }
-
-        InputManager.triggerOnPress(EpicFightInputAction.OPEN_SKILL_SCREEN, this::openSkillEditor);
-
-        InputManager.triggerOnPress(EpicFightInputAction.OPEN_CONFIG_SCREEN, this::openConfig);
-
-        // TODO: We need another way to detect when the key first pressed especailly for UI open key mappings
-        InputManager.triggerOnPress(EpicFightInputAction.OPEN_EMOTE_WHEEL_SCREEN, this::mayOpenEmoteWheel);
 
         InputManager.triggerOnPress(EpicFightInputAction.SWITCH_VANILLA_MODEL_DEBUGGING, this::switchVanillaModelDebugging);
 
@@ -354,25 +344,6 @@ public class ControlEngine implements IEventBasedEngine {
             ClientConfig.cameraVerticalLocation = Math.max(-2, ClientConfig.cameraVerticalLocation - 1);
         }
 	}
-
-    private void openSkillEditor() {
-        final PlayerSkills playerSkills = this.playerpatch.getPlayerSkills();
-        if (playerSkills == null) {
-            return;
-        }
-
-        this.minecraft.setScreen(new SkillEditScreen(this.player, playerSkills));
-    }
-
-    private void openConfig() {
-    	this.minecraft.setScreen(new EpicFightSettingScreen(null, null));
-    }
-
-    private void mayOpenEmoteWheel() {
-        if (this.minecraft.screen == null) {
-            this.minecraft.setScreen(new EmoteWheelScreen(this.playerpatch));
-        }
-    }
 
     private void switchVanillaModelDebugging() {
         boolean flag = ClientEngine.getInstance().switchVanillaModelDebuggingMode();

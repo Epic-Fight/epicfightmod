@@ -617,9 +617,6 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		return this.isLogicalClient();
 	}
 	
-	public void openSkillBook(ItemStack itemstack, InteractionHand hand) {
-	}
-
 	public void toggleMode() {
 		switch (this.playerMode) {
 		case VANILLA -> this.toEpicFightMode(true);

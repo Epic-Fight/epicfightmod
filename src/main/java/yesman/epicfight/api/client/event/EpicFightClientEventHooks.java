@@ -4,10 +4,7 @@ import yesman.epicfight.api.client.event.types.camera.*;
 import yesman.epicfight.api.client.event.types.control.MappedMovementInputUpdateEvent;
 import yesman.epicfight.api.client.event.types.entity.ModifyPlayerLivingMotionEvent;
 import yesman.epicfight.api.client.event.types.entity.ProcessEntityPairingPacketEvent;
-import yesman.epicfight.api.client.event.types.hud.TickTargetIndicatorEvent;
-import yesman.epicfight.api.client.event.types.registry.RegisterAttributeIconEvent;
 import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
-import yesman.epicfight.api.client.event.types.registry.RegisterWeaponCategoryIconEvent;
 import yesman.epicfight.api.client.event.types.render.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.client.event.types.render.PrepareModelEvent;
 import yesman.epicfight.api.client.event.types.render.RenderEnderDragonEvent;
@@ -54,18 +51,10 @@ public final class EpicFightClientEventHooks {
         private Entity() {}
     }
 
-    public static final class HUD {
-        public static final EventHook<TickTargetIndicatorEvent> TARGET_INDICATOR_TICK = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-
-        private HUD() {}
-    }
-
     public static final class Registry {
-        public static final EventHook<RegisterAttributeIconEvent> ATTRIBUTE_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
         public static final EventHook<RegisterPatchedRenderersEvent.ModifyEntity> MODIFY_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
         public static final EventHook<RegisterPatchedRenderersEvent.AddEntity> ADD_PATCHED_ENTITY = EventHook.createSidedEventHook(LogicalSide.CLIENT);
         public static final EventHook<RegisterPatchedRenderersEvent.Item> PATCHED_ITEM = EventHook.createSidedEventHook(LogicalSide.CLIENT);
-        public static final EventHook<RegisterWeaponCategoryIconEvent> WEAPON_CATEGORY_ICON = EventHook.createSidedEventHook(LogicalSide.CLIENT);
 
         private Registry() {}
     }

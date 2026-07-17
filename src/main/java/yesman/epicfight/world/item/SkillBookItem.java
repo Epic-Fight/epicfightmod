@@ -52,10 +52,6 @@ public class SkillBookItem extends Item {
 	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
 		ItemStack itemstack = player.getItemInHand(hand);
 		
-		EpicFightCapabilities.getUnparameterizedEntityPatch(player, PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.openSkillBook(itemstack, hand);
-		});
-		
 		player.awardStat(Stats.ITEM_USED.get(this));
 		
 		return InteractionResultHolder.pass(itemstack);

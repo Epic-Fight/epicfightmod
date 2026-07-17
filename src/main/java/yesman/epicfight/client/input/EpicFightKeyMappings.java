@@ -22,33 +22,6 @@ public class EpicFightKeyMappings {
                     EpicFightInputCategories.GUI
             ));
 
-    public static final KeyMapping SKILL_EDIT =
-            registerKey(new KeyMapping(
-                    LangKeys.KEY_SKILL_GUI,
-                    KeyConflictContext.IN_GAME,
-                    InputConstants.Type.KEYSYM,
-                    InputConstants.KEY_K,
-                    EpicFightInputCategories.GUI
-            ));
-
-    public static final KeyMapping OPEN_CONFIG_SCREEN =
-            registerKey(new KeyMapping(
-                    LangKeys.KEY_CONFIG,
-                    KeyConflictContext.IN_GAME,
-                    InputConstants.Type.KEYSYM,
-                    -1,
-                    EpicFightInputCategories.GUI
-            ));
-
-    public static final KeyMapping OPEN_EMOTE_WHEEL =
-            registerKey(new KeyMapping(
-                    LangKeys.KEY_EMOTE,
-                    KeyConflictContext.IN_GAME,
-                    InputConstants.Type.KEYSYM,
-                    InputConstants.KEY_Y,
-                    EpicFightInputCategories.GUI
-            ));
-
     // In-game keymappings
     public static final KeyMapping DODGE =
             registerKey(new CombatKeyMapping(

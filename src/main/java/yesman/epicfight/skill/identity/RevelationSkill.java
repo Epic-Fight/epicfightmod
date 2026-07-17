@@ -1,20 +1,17 @@
 package yesman.epicfight.skill.identity;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
-import yesman.epicfight.api.client.event.types.hud.TickTargetIndicatorEvent;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
@@ -157,15 +154,6 @@ public class RevelationSkill extends Skill {
             this
         );
 
-        eventListener.registerEvent(
-            EpicFightClientEventHooks.HUD.TARGET_INDICATOR_TICK,
-            event -> {
-                if (this.isActivated(skillContainer)) {
-                    event.setType(TickTargetIndicatorEvent.Type.FLASH);
-                }
-            },
-            this
-        );
     }
 
 	@Override
@@ -198,15 +186,5 @@ public class RevelationSkill extends Skill {
 		}
 	}
 
-	@ClientOnly @Override
-	public boolean shouldDraw(SkillContainer container) {
-		return container.getExecutor().getTarget() != null;
-	}
 
-    @ClientOnly @Override
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-		guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-		int stacks = container.getRemainDuration() > 0 ? 0 : this.maxRevelationStacks.getOrDefault(container.getExecutor().getTarget().getType(), this.defaultRevelationStacks) - container.getDataManager().getDataValue(EpicFightSkillDataKeys.STACKS);
-		guiGraphics.drawString(gui.getFont(), String.format("%d", stacks), x + 18, y + 14, 16777215, true);
-	}
 }

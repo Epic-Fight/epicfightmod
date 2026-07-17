@@ -1,6 +1,5 @@
 package yesman.epicfight.data.conditions.entity;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -32,11 +31,5 @@ public class CustomCondition<T extends LivingEntityPatch<?>> implements Conditio
 	@Override
 	public boolean predicate(T target) {
 		return predicate.apply(target);
-	}
-	
-	@Override @ClientOnly
-    @OnlyIn(Dist.CLIENT) // TODO: Remove OnlyIn annotation and completely decouple the widget provider code
-	public List<ParameterEditor> getAcceptingParameters(Screen screen) {
-		return null;
 	}
 }

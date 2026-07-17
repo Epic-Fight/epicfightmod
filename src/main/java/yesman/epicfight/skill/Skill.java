@@ -2,7 +2,6 @@ package yesman.epicfight.skill;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -30,8 +29,6 @@ import yesman.epicfight.api.event.types.player.SkillCancelEvent;
 import yesman.epicfight.api.event.types.player.SkillCastEvent;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -160,13 +157,6 @@ public abstract class Skill implements IdentifierProvider {
 	 */
 	public boolean checkExecuteCondition(SkillContainer container) {
 		return true;
-	}
-
-	/// Fired when the player failed at casting the skill since of validation failed.
-    ///
-    /// Notify which state caused validation fail via screen messages, custom UI, chats, etc
-	@ClientOnly
-	public void validationFeedback(SkillContainer container) {
 	}
 
 	/// Returns a skill cast request packet to send to the server
@@ -480,9 +470,6 @@ public abstract class Skill implements IdentifierProvider {
 		return this;
 	}
 
-	@ClientOnly
-	public void onScreen(LocalPlayerPatch playerpatch, float resolutionX, float resolutionY) {
-	}
 
     @ClientOnly
 	public List<Component> getTooltipOnItem(ItemStack itemStack, CapabilityItem cap, PlayerPatch<?> playerpatch) {
@@ -494,19 +481,8 @@ public abstract class Skill implements IdentifierProvider {
 		return list;
 	}
 
-    @ClientOnly
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-	}
 
-    @ClientOnly
-	public ResourceLocation getSkillTexture() {
-		return ResourceLocation.fromNamespaceAndPath(this.getRegistryName().getNamespace(), String.format("textures/gui/skills/%s/%s.png", this.category.toString().toLowerCase(Locale.ROOT), this.getRegistryName().getPath()));
-	}
 
-    @ClientOnly
-	public boolean shouldDraw(SkillContainer container) {
-		return false;
-	}
 	
 	@Override
 	public String toString() {
@@ -538,10 +514,6 @@ public abstract class Skill implements IdentifierProvider {
 		return null;
 	}
 
-    @ClientOnly
-	public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumeIconList) {
-		return false;
-	}
 	
 	public Holder<Skill> holder() {
 		return this.holder;

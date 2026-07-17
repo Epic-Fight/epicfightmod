@@ -2,7 +2,6 @@ package yesman.epicfight.compat.kubejs.skill;
 
 import dev.latvian.mods.kubejs.registry.BuilderBase;
 import dev.latvian.mods.kubejs.typings.Info;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -10,8 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.event.EntityEventListener;
-import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.compat.kubejs.CallbackUtils;
 import yesman.epicfight.registry.entries.EpicFightCreativeTabs;
 import yesman.epicfight.skill.*;
@@ -25,8 +22,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class CustomSkill extends Skill {
-    public record DrawOnGuiContext(BattleModeGui getGui, SkillContainer getContainer, GuiGraphics getGuiGraphics, float getX, float getY) {}
-    public record OnScreenContext(LocalPlayerPatch getLocalPlayerPatch, float getResolutionX, float getResolutionY) {}
     public record GetTooltipOnItem(ItemStack getItemStack, CapabilityItem getCap, PlayerPatch<?> getPlayerPatch) {}
 
     private final BiConsumer<SkillContainer, EntityEventListener> onInitiate;
@@ -35,8 +30,6 @@ public class CustomSkill extends Skill {
     private final BiConsumer<SkillContainer, CompoundTag> executeOnClient;
     private final BiConsumer<SkillContainer, CompoundTag> cancelOnServer;
     private final BiConsumer<SkillContainer, CompoundTag> cancelOnClient;
-    private final Consumer<DrawOnGuiContext> drawOnGui;
-    private final Predicate<SkillContainer> shouldDraw;
     private final Predicate<SkillContainer> canExecute;
     private final Predicate<PlayerPatch<?>> executableState;
     private final BiConsumer<SkillContainer, Float> setConsumption;
@@ -45,12 +38,10 @@ public class CustomSkill extends Skill {
     private final int maxStackSize;
     private final int maxDuration;
     private final Predicate<PlayerPatch<?>> shouldDeactivateAutomatically;
-    private final Consumer<OnScreenContext> onScreen;
     private final Function<GetTooltipOnItem, List<Component>> getTooltipOnItem;
     private final Function<List<Object>, List<Object>> getTooltipArgsOfScreen;
 
     private final ResourceLocation tab;
-    private ResourceLocation textureLocation = this.getSkillTexture();
 
 
     public CustomSkill(CustomSkillBuilder builder) {
@@ -69,8 +60,6 @@ public class CustomSkill extends Skill {
         this.executeOnClient = builder.executeOnClient;
         this.cancelOnServer = builder.cancelOnServer;
         this.cancelOnClient = builder.cancelOnClient;
-        this.drawOnGui = builder.drawOnGui;
-        this.shouldDraw = builder.shouldDraw;
         this.canExecute = builder.canExecute;
         this.executableState = builder.executableState;
         this.setConsumption = builder.setConsumption;
@@ -79,22 +68,12 @@ public class CustomSkill extends Skill {
         this.maxStackSize = builder.maxStackSize;
         this.maxDuration = builder.maxDuration;
         this.shouldDeactivateAutomatically = builder.shouldDeactivateAutomatically;
-        this.onScreen = builder.onScreen;
         this.getTooltipOnItem = builder.getTooltipOnItem;
         this.getTooltipArgsOfScreen = builder.getTooltipArgsOfScreen;
-
-        if (builder.textureLocation != null) {
-            this.textureLocation = builder.textureLocation;
-        }
 
         this.tab = builder.tab;
     }
 
-    @Override
-    public boolean shouldDraw(SkillContainer container) {
-        if (shouldDraw != null) return shouldDraw.test(container);
-        return super.shouldDraw(container);
-    }
 
     @Override
     public boolean canExecute(SkillContainer container) {
@@ -133,14 +112,6 @@ public class CustomSkill extends Skill {
         super.cancelOnClient(container, arguments);
     }
 
-    @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-        if (drawOnGui != null) {
-            DrawOnGuiContext context = new DrawOnGuiContext(gui, container, guiGraphics, x, y);
-            CallbackUtils.safeCallback(drawOnGui, context, "Error while drawing HUD for skill: " + getRegistryName());
-        }
-        super.drawOnGui(gui, container, guiGraphics, x, y, partialTick);
-    }
 
     @Override
     public void onRemoved(SkillContainer container) {
@@ -191,14 +162,6 @@ public class CustomSkill extends Skill {
         return super.shouldDeactivateAutomatically(executor);
     }
 
-    @Override
-    public void onScreen(LocalPlayerPatch localPlayerPatch, float resolutionX, float resolutionY) {
-        if (onScreen != null) {
-            OnScreenContext context = new OnScreenContext(localPlayerPatch, resolutionX, resolutionY);
-            CallbackUtils.safeCallback(onScreen, context, "Error while executing onScreen for skill: " + getRegistryName());
-        }
-        super.onScreen(localPlayerPatch, resolutionX, resolutionY);
-    }
 
     @Override
     public List<Component> getTooltipOnItem(ItemStack itemStack, CapabilityItem cap, PlayerPatch<?> playerPatch) {
@@ -215,10 +178,6 @@ public class CustomSkill extends Skill {
         return super.getTooltipArgsOfScreen(args);
     }
 
-    @Override
-    public ResourceLocation getSkillTexture() {
-        return textureLocation;
-    }
 
     @Override
     public CreativeModeTab getCreativeTab() {
@@ -233,7 +192,6 @@ public class CustomSkill extends Skill {
             - category
             - activateType
             - resource
-            - texture
             """)
     public static class CustomSkillBuilder extends BuilderBase<Skill> {
         public ResourceLocation tab;
@@ -247,8 +205,6 @@ public class CustomSkill extends Skill {
         private BiConsumer<SkillContainer, CompoundTag> executeOnClient;
         private BiConsumer<SkillContainer, CompoundTag> cancelOnServer;
         private BiConsumer<SkillContainer, CompoundTag> cancelOnClient;
-        private Consumer<DrawOnGuiContext> drawOnGui;
-        private Predicate<SkillContainer> shouldDraw;
         private Predicate<SkillContainer> canExecute;
         private Predicate<PlayerPatch<?>> executableState;
         private BiConsumer<SkillContainer, Float> setConsumption;
@@ -257,11 +213,9 @@ public class CustomSkill extends Skill {
         private int maxStackSize = 1;
         private int maxDuration = 0;
         private Predicate<PlayerPatch<?>> shouldDeactivateAutomatically;
-        private Consumer<OnScreenContext> onScreen;
         private Function<GetTooltipOnItem, List<Component>> getTooltipOnItem;
         private Function<List<Object>, List<Object>> getTooltipArgsOfScreen;
 
-        private ResourceLocation textureLocation;
 
         public CustomSkillBuilder(ResourceLocation id) {
             super(id);
@@ -299,16 +253,6 @@ public class CustomSkill extends Skill {
                 """)
         public CustomSkillBuilder resource(Skill.Resource resource) {
             this.resource = resource;
-            return this;
-        }
-
-        @Info("""
-                Sets the texture of the skill. Input a string or resource location of the texture.
-                Example: `minecraft:textures/block/stone.png`
-                Required.
-                """)
-        public CustomSkillBuilder texture(ResourceLocation textureLocation) {
-            this.textureLocation = textureLocation;
             return this;
         }
 
@@ -411,22 +355,6 @@ public class CustomSkill extends Skill {
         }
 
         @Info("""
-                Consumer that is called to draw the skill on the GUI.
-                """)
-        public CustomSkillBuilder drawOnGui(Consumer<DrawOnGuiContext> consumer) {
-            this.drawOnGui = consumer;
-            return this;
-        }
-
-        @Info("""
-                Predicate that is called to check if the skill should be drawn on the GUI.
-                """)
-        public CustomSkillBuilder shouldDraw(Predicate<SkillContainer> predicate) {
-            this.shouldDraw = predicate;
-            return this;
-        }
-
-        @Info("""
                 Predicate that is called to check if the skill can be executed.
                 """)
         public CustomSkillBuilder canExecute(Predicate<SkillContainer> predicate) {
@@ -439,14 +367,6 @@ public class CustomSkill extends Skill {
                 """)
         public CustomSkillBuilder executableState(Predicate<PlayerPatch<?>> predicate) {
             this.executableState = predicate;
-            return this;
-        }
-
-        @Info("""
-                Consumer that is called when the skill is added from the skill HUD.
-                """)
-        public CustomSkillBuilder onScreen(Consumer<OnScreenContext> consumer) {
-            this.onScreen = consumer;
             return this;
         }
 

@@ -43,14 +43,6 @@ public class EpicFightGameRules {
 			, true
 	);
 	
-	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> DISABLE_ENTITY_UI = create(
-			  "disableEntityUI"
-			, GameRules.Category.MISC
-			, configBuilder -> configBuilder.define("default_gamerule.disapleEntityUI", false)
-			, RuleType.BOOLEAN
-			, true
-	);
-	
 	public static final ConfigurableGameRule<Boolean, ModConfigSpec.BooleanValue, GameRules.BooleanValue> CAN_SWITCH_PLAYER_MODE = create(
 			  "canSwitchPlayerMode"
 			, GameRules.Category.PLAYER
@@ -131,7 +123,6 @@ public class EpicFightGameRules {
 			.put("globalStun", GLOBAL_STUN)
 			.put("keepSkills", KEEP_SKILLS)
 			.put("hasFallAnimation", HAS_FALL_ANIMATION)
-			.put("disableEntityUI", DISABLE_ENTITY_UI)
 			.put("canSwitchPlayerMode", CAN_SWITCH_PLAYER_MODE)
 			.put("stiffComboAttacks", STIFF_COMBO_ATTACKS)
 			.put("noMobsInBossfight", NO_MOBS_IN_BOSSFIGHT)

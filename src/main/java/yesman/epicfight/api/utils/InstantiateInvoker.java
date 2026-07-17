@@ -11,7 +11,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.exception.AnimationInvokeException;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -52,11 +51,7 @@ public class InstantiateInvoker {
 	}
 	
 	private static AssetAccessor<? extends Armature> getArmature(String id) {
-		if (EpicFightSharedConstants.isPhysicalClient()) {
-			return DatapackEditScreen.getCurrentScreen() != null ? DatapackEditScreen.getArmature(id) : Armatures.getOrCreate(ResourceLocation.parse(id), Armature::new);
-		} else {
-			return Armatures.getOrCreate(ResourceLocation.parse(id), Armature::new);
-		}
+		return Armatures.getOrCreate(ResourceLocation.parse(id), Armature::new);
 	}
 	
 	public static void registerPrimitive(String keyword, Class<?> clz, Function<String, Object> decoder) {

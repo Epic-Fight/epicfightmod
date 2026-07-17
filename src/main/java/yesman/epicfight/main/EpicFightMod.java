@@ -25,7 +25,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -56,12 +55,7 @@ import yesman.epicfight.api.ex_cap.listeners.ItemPresetReloadListener;
 import yesman.epicfight.api.ex_cap.listeners.MovesetReloadListener;
 import yesman.epicfight.api.ex_cap.listeners.WeaponModifierReloadListener;
 import yesman.epicfight.client.events.engine.IEventBasedEngine;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
-import yesman.epicfight.client.gui.screen.config.EpicFightSettingScreen;
-import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen;
-import yesman.epicfight.client.gui.widgets.AnchoredButton;
-import yesman.epicfight.client.gui.widgets.ColorDeterminator;
-import yesman.epicfight.client.gui.widgets.common.WidgetTheme;
+import yesman.epicfight.client.ItemCategoryManager;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.online.cosmetics.Emote;
 import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
@@ -185,7 +179,6 @@ public class EpicFightMod {
 			EpicFightKeyMappings.registerKeys();
 
     		modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
-    		modContainer.registerExtensionPoint(IConfigScreenFactory.class, EpicFightSettingScreen::new);
     		IEventBasedEngine.init(NeoForge.EVENT_BUS, modEventBus);
     	} else {
     		modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
@@ -215,8 +208,6 @@ public class EpicFightMod {
     	if (EpicFightSharedConstants.isPhysicalClient()) {
             InputAction.ENUM_MANAGER.registerEnumCls(EpicFightMod.MODID, EpicFightInputAction.class);
             InputAction.ENUM_MANAGER.registerEnumCls("minecraft", MinecraftInputAction.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("color_determinator_theme"), ColorDeterminator.Theme.class);
-            WidgetTheme.ENUM_MANAGER.registerEnumCls(EpicFightMod.prefix("anchored_button_built_in_theme"), AnchoredButton.BuiltInTheme.class);
         }
     	EpicFightRegistries.DEFERRED_REGISTRIES.forEach(deferredRegistry -> deferredRegistry.register(modEventBus));
 
@@ -268,7 +259,6 @@ public class EpicFightMod {
     	event.enqueueWork(WeaponCategory.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(Faction.ENUM_MANAGER::loadEnum);
     	event.enqueueWork(EntityPairingPacketType.ENUM_MANAGER::loadEnum);
-        event.enqueueWork(WidgetTheme.ENUM_MANAGER::loadEnum);
 
     	if (EpicFightSharedConstants.isPhysicalClient()) {
             event.enqueueWork(InputAction.ENUM_MANAGER::loadEnum);
@@ -355,11 +345,10 @@ public class EpicFightMod {
         public static void onClientSetup(FMLClientSetupEvent event) {
         	event.enqueueWork(ComputeShaderProvider::checkIfSupports);
     		event.enqueueWork(CommonEntityPatchProvider.ClientModule::registerClientPlayerPatches);
-    		event.enqueueWork(SkillBookScreen::registerIconItems);
     		event.enqueueWork(EpicFightItemProperties::registerItemProperties);
     		event.enqueueWork(() -> {
     			if (ClientConfig.combatCategorizedItems.isEmpty() && ClientConfig.miningCategorizedItems.isEmpty()) {
-    				ItemsPreferenceScreen.resetItems();
+					ItemCategoryManager.resetItems();
     			}
     		});
         }

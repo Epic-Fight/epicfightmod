@@ -1,8 +1,6 @@
 package yesman.epicfight.config;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
@@ -18,12 +16,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.utils.CirculatableEnum;
-import yesman.epicfight.api.utils.math.Vec2i;
+import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;
-import yesman.epicfight.client.gui.ScreenCalculations.HorizontalBasis;
-import yesman.epicfight.client.gui.ScreenCalculations.VerticalBasis;
-import yesman.epicfight.client.gui.widgets.ColorDeterminator;
+import yesman.epicfight.api.utils.ColorUtils;
 import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.main.AuthenticationHelper.AuthenticationProvider;
 import yesman.epicfight.main.EpicFightMod;
@@ -34,15 +29,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static yesman.epicfight.generated.LangKeys.*;
-
 @EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 public class ClientConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     // UI
-    public static final BooleanValue SHOW_TARGET_INDICATOR = BUILDER.define("ingame.show_target_indicator", () -> true);
-    public static final EnumValue<HealthBarVisibility> HEALTH_BAR_VISIBILITY = BUILDER.defineEnum("ingame.health_bar_show_option", HealthBarVisibility.HURT);
     public static final BooleanValue SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP = BUILDER.define("ingame.show_epicfight_attributes", () -> true);
     public static final DoubleValue TARGET_OUTLINE_COLOR = BUILDER.defineInRange("ingame.target_outline_color", 0.0D, 0.0D, 1.0D);
     public static final EnumValue<BlockGuideOptions> MINE_BLOCK_GUIDE_OPTION = BUILDER.defineEnum("ingame.mine_block_guide_option", BlockGuideOptions.CROSSHAIR);
@@ -104,30 +95,6 @@ public class ClientConfig {
         return false;
     });
 
-    // UI Component positions
-
-    // Stamina bar
-    public static final ConfigValue<Integer> STAMINA_BAR_X = BUILDER.define("ingame.ui.stamina_bar_x", 120);
-    public static final ConfigValue<Integer> STAMINA_BAR_Y = BUILDER.define("ingame.ui.stamina_bar_y", 10);
-    public static final EnumValue<HorizontalBasis> STAMINA_BAR_BASE_X = BUILDER.defineEnum("ingame.ui.stamina_bar_x_base", HorizontalBasis.RIGHT);
-    public static final EnumValue<VerticalBasis> STAMINA_BAR_BASE_Y = BUILDER.defineEnum("ingame.ui.stamina_bar_y_base", VerticalBasis.BOTTOM);
-    // Weapon Innate
-    public static final ConfigValue<Integer> WEAPON_INNATE_X = BUILDER.define("ingame.ui.weapon_innate_x", 42);
-    public static final ConfigValue<Integer> WEAPON_INNATE_Y = BUILDER.define("ingame.ui.weapon_innate_y", 48);
-    public static final EnumValue<HorizontalBasis> WEAPON_INNATE_BASE_X = BUILDER.defineEnum("ingame.ui.weapon_innate_x_base", HorizontalBasis.RIGHT);
-    public static final EnumValue<VerticalBasis> WEAPON_INNATE_BASE_Y = BUILDER.defineEnum("ingame.ui.weapon_innate_y_base", VerticalBasis.BOTTOM);
-    // Passives
-    public static final ConfigValue<Integer> PASSIVE_X = BUILDER.define("ingame.ui.passives_x", 70);
-    public static final ConfigValue<Integer> PASSIVE_Y = BUILDER.define("ingame.ui.passives_y", 36);
-    public static final EnumValue<HorizontalBasis> PASSIVE_BASE_X = BUILDER.defineEnum("ingame.ui.passives_x_base", HorizontalBasis.RIGHT);
-    public static final EnumValue<VerticalBasis> PASSIVE_BASE_Y = BUILDER.defineEnum("ingame.ui.passives_y_base", VerticalBasis.BOTTOM);
-    public static final EnumValue<AlignDirection> PASSIVE_ALIGN_DIRECTION = BUILDER.defineEnum("ingame.ui.passives_align_direction", AlignDirection.HORIZONTAL);
-    // Charging bar
-    public static final ConfigValue<Integer> CHARGING_BAR_X = BUILDER.define("ingame.ui.charging_bar_x", -119);
-    public static final ConfigValue<Integer> CHARGING_BAR_Y = BUILDER.define("ingame.ui.charging_bar_y", 60);
-    public static final EnumValue<HorizontalBasis> CHARGING_BAR_BASE_X = BUILDER.defineEnum("ingame.ui.charging_bar_x_base", HorizontalBasis.CENTER);
-    public static final EnumValue<VerticalBasis> CHARGING_BAR_BASE_Y = BUILDER.defineEnum("ingame.ui.charging_bar_y_base", VerticalBasis.CENTER);
-
     //Epic Skins Tokens
     public static final ModConfigSpec.ConfigValue<String> ACCESS_TOKEN = BUILDER.comment("Login information for epic fight patron server. Do not change these values manually").define("access_token", "");
     public static final ModConfigSpec.ConfigValue<String> REFRESH_TOKNE = BUILDER.define("refresh_token", "");
@@ -172,32 +139,11 @@ public class ClientConfig {
     public static Set<Item> miningCategorizedItems;
 
     // UI Config values
-    public static boolean showTargetIndicator;
-    public static HealthBarVisibility healthBarVisibility;
     public static boolean showEpicFightAttributesInTooltip;
     public static double targetOutlineColor;
     public static int packedTargetOutlineColor = 0xFFFFFFFF;
     public static BlockGuideOptions mineBlockGuideOption;
     public static boolean enableTargetEntityGuide;
-
-    // UI Component position values
-    public static int staminaBarX;
-    public static int staminaBarY;
-    public static HorizontalBasis staminaBarBaseX;
-    public static VerticalBasis staminaBarBaseY;
-    public static int weaponInnateX;
-    public static int weaponInnateY;
-    public static HorizontalBasis weaponInnateBaseX;
-    public static VerticalBasis weaponInnateBaseY;
-    public static int passiveX;
-    public static int passiveY;
-    public static HorizontalBasis passiveBaseX;
-    public static VerticalBasis passiveBaseY;
-    public static AlignDirection passiveAlignDirection;
-    public static int chargingBarX;
-    public static int chargingBarY;
-    public static HorizontalBasis chargingBarBaseX;
-    public static VerticalBasis chargingBarBaseY;
 
     @SubscribeEvent
     static void epicfight$modConfigLoading(final ModConfigEvent.Loading event) {
@@ -207,7 +153,7 @@ public class ClientConfig {
 
         maxStuckProjectiles = MAX_STUCK_PROJECTILES.get();
         targetOutlineColor = TARGET_OUTLINE_COLOR.get();
-        packedTargetOutlineColor = ColorDeterminator.positionToPackedRGBA(targetOutlineColor);
+        packedTargetOutlineColor = ColorUtils.hue(targetOutlineColor);
         bloodEffects = BLOOD_EFFECTS.get();
         showEpicFightAttributesInTooltip = SHOW_EPICFIGHT_ATTRIBUTES_IN_TOOLTIP.get();
         activateComputeShader = ACTIVATE_COMPUTE_SHADER.get();
@@ -239,26 +185,6 @@ public class ClientConfig {
         miningCategorizedItems = MINING_CATEGORIZED_ITEMS.get().stream()
                 .map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
                 .collect(Collectors.toSet());
-
-        showTargetIndicator = SHOW_TARGET_INDICATOR.get();
-        healthBarVisibility = HEALTH_BAR_VISIBILITY.get();
-        staminaBarX = STAMINA_BAR_X.get();
-        staminaBarY = STAMINA_BAR_Y.get();
-        staminaBarBaseX = STAMINA_BAR_BASE_X.get();
-        staminaBarBaseY = STAMINA_BAR_BASE_Y.get();
-        weaponInnateX = WEAPON_INNATE_X.get();
-        weaponInnateY = WEAPON_INNATE_Y.get();
-        weaponInnateBaseX = WEAPON_INNATE_BASE_X.get();
-        weaponInnateBaseY = WEAPON_INNATE_BASE_Y.get();
-        passiveX = PASSIVE_X.get();
-        passiveY = PASSIVE_Y.get();
-        passiveBaseX = PASSIVE_BASE_X.get();
-        passiveBaseY = PASSIVE_BASE_Y.get();
-        passiveAlignDirection = PASSIVE_ALIGN_DIRECTION.get();
-        chargingBarX = CHARGING_BAR_X.get();
-        chargingBarY = CHARGING_BAR_Y.get();
-        chargingBarBaseX = CHARGING_BAR_BASE_X.get();
-        chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
 
         if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
             EpicFightMod.LOGGER.info("Epic Fight web server connection helper: supported");
@@ -297,11 +223,11 @@ public class ClientConfig {
             save.add(() -> {
                 TARGET_OUTLINE_COLOR.set(targetOutlineColor);
                 TARGET_OUTLINE_COLOR.save();
-                packedTargetOutlineColor = ColorDeterminator.positionToPackedRGBA(targetOutlineColor);
+                packedTargetOutlineColor = ColorUtils.hue(targetOutlineColor);
             });
             discard.add(() -> {
                 targetOutlineColor = TARGET_OUTLINE_COLOR.get();
-                packedTargetOutlineColor = ColorDeterminator.positionToPackedRGBA(targetOutlineColor);
+                packedTargetOutlineColor = ColorUtils.hue(targetOutlineColor);
             });
         }
 
@@ -498,176 +424,6 @@ public class ClientConfig {
                 miningCategorizedItems.addAll(MINING_CATEGORIZED_ITEMS.get().stream().map(itemStr -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemStr))).toList());
             });
         }
-
-        if (showTargetIndicator != SHOW_TARGET_INDICATOR.get()) {
-            save.add(() -> {
-                SHOW_TARGET_INDICATOR.set(showTargetIndicator);
-                SHOW_TARGET_INDICATOR.save();
-            });
-            discard.add(() -> showTargetIndicator = SHOW_TARGET_INDICATOR.get());
-        }
-
-        if (healthBarVisibility != HEALTH_BAR_VISIBILITY.get()) {
-            save.add(() -> {
-                HEALTH_BAR_VISIBILITY.set(healthBarVisibility);
-                HEALTH_BAR_VISIBILITY.save();
-            });
-            discard.add(() -> healthBarVisibility = HEALTH_BAR_VISIBILITY.get());
-        }
-
-        if (staminaBarX != STAMINA_BAR_X.get()) {
-            save.add(() -> {
-                STAMINA_BAR_X.set(staminaBarX);
-                STAMINA_BAR_X.save();
-            });
-            discard.add(() -> staminaBarX = STAMINA_BAR_X.get());
-        }
-
-        if (staminaBarY != STAMINA_BAR_Y.get()) {
-            save.add(() -> {
-                STAMINA_BAR_Y.set(staminaBarY);
-                STAMINA_BAR_Y.save();
-            });
-            discard.add(() -> staminaBarY = STAMINA_BAR_Y.get());
-        }
-
-        if (staminaBarBaseX != STAMINA_BAR_BASE_X.get()) {
-            save.add(() -> {
-                STAMINA_BAR_BASE_X.set(staminaBarBaseX);
-                STAMINA_BAR_BASE_X.save();
-            });
-            discard.add(() -> staminaBarBaseX = STAMINA_BAR_BASE_X.get());
-        }
-
-        if (staminaBarBaseY != STAMINA_BAR_BASE_Y.get()) {
-            save.add(() -> {
-                STAMINA_BAR_BASE_Y.set(staminaBarBaseY);
-                STAMINA_BAR_BASE_Y.save();
-            });
-            discard.add(() -> staminaBarBaseY = STAMINA_BAR_BASE_Y.get());
-        }
-
-        if (weaponInnateX != WEAPON_INNATE_X.get()) {
-            save.add(() -> {
-                WEAPON_INNATE_X.set(weaponInnateX);
-                WEAPON_INNATE_X.save();
-            });
-            discard.add(() -> weaponInnateX = WEAPON_INNATE_X.get());
-        }
-
-        if (weaponInnateY != WEAPON_INNATE_Y.get()) {
-            save.add(() -> {
-                WEAPON_INNATE_Y.set(weaponInnateY);
-                WEAPON_INNATE_Y.save();
-            });
-            discard.add(() -> weaponInnateY = WEAPON_INNATE_Y.get());
-        }
-
-        if (weaponInnateBaseX != WEAPON_INNATE_BASE_X.get()) {
-            save.add(() -> {
-                WEAPON_INNATE_BASE_X.set(weaponInnateBaseX);
-                WEAPON_INNATE_BASE_X.save();
-            });
-            discard.add(() -> weaponInnateBaseX = WEAPON_INNATE_BASE_X.get());
-        }
-
-        if (weaponInnateBaseY != WEAPON_INNATE_BASE_Y.get()) {
-            save.add(() -> {
-                WEAPON_INNATE_BASE_Y.set(weaponInnateBaseY);
-                WEAPON_INNATE_BASE_Y.save();
-            });
-            discard.add(() -> weaponInnateBaseY = WEAPON_INNATE_BASE_Y.get());
-        }
-
-        if (passiveX != PASSIVE_X.get()) {
-            save.add(() -> {
-                PASSIVE_X.set(passiveX);
-                PASSIVE_X.save();
-            });
-            discard.add(() -> passiveX = PASSIVE_X.get());
-        }
-
-        if (passiveY != PASSIVE_Y.get()) {
-            save.add(() -> {
-                PASSIVE_Y.set(passiveY);
-                PASSIVE_Y.save();
-            });
-            discard.add(() -> passiveY = PASSIVE_Y.get());
-        }
-
-        if (passiveBaseX != PASSIVE_BASE_X.get()) {
-            save.add(() -> {
-                PASSIVE_BASE_X.set(passiveBaseX);
-                PASSIVE_BASE_Y.save();
-            });
-            discard.add(() -> passiveBaseX = PASSIVE_BASE_X.get());
-        }
-
-        if (passiveBaseY != PASSIVE_BASE_Y.get()) {
-            save.add(() -> {
-                PASSIVE_BASE_Y.set(passiveBaseY);
-                PASSIVE_BASE_Y.save();
-            });
-            discard.add(() -> passiveBaseY = PASSIVE_BASE_Y.get());
-        }
-
-        if (passiveAlignDirection != PASSIVE_ALIGN_DIRECTION.get()) {
-            save.add(() -> {
-                PASSIVE_ALIGN_DIRECTION.set(passiveAlignDirection);
-                PASSIVE_ALIGN_DIRECTION.save();
-            });
-            discard.add(() -> passiveAlignDirection = PASSIVE_ALIGN_DIRECTION.get());
-        }
-
-        if (chargingBarX != CHARGING_BAR_X.get()) {
-            save.add(() -> {
-                CHARGING_BAR_X.set(chargingBarX);
-                CHARGING_BAR_X.save();
-            });
-            discard.add(() -> chargingBarX = CHARGING_BAR_X.get());
-        }
-
-        if (chargingBarY != CHARGING_BAR_Y.get()) {
-            save.add(() -> {
-                CHARGING_BAR_Y.set(chargingBarY);
-                CHARGING_BAR_Y.save();
-            });
-            discard.add(() -> chargingBarY = CHARGING_BAR_Y.get());
-        }
-
-        if (chargingBarBaseX != CHARGING_BAR_BASE_X.get()) {
-            save.add(() -> {
-                CHARGING_BAR_BASE_X.set(chargingBarBaseX);
-                CHARGING_BAR_BASE_X.save();
-            });
-            discard.add(() -> chargingBarBaseX = CHARGING_BAR_BASE_X.get());
-        }
-
-        if (chargingBarBaseY != CHARGING_BAR_BASE_Y.get()) {
-            save.add(() -> {
-                CHARGING_BAR_BASE_Y.set(chargingBarBaseY);
-                CHARGING_BAR_BASE_Y.save();
-            });
-            discard.add(() -> chargingBarBaseY = CHARGING_BAR_BASE_Y.get());
-        }
-    }
-
-    public static Vec2i getStaminaPosition() {
-        int posX = staminaBarBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), staminaBarX);
-        int posY = staminaBarBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), staminaBarY);
-        return new Vec2i(posX, posY);
-    }
-
-    public static Vec2i getWeaponInnatePosition() {
-        int posX = weaponInnateBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), weaponInnateX);
-        int posY = weaponInnateBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), weaponInnateY);
-        return new Vec2i(posX, posY);
-    }
-
-    public static Vec2i getChargingBarPosition() {
-        int posX = chargingBarBaseX.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth(), chargingBarX);
-        int posY = chargingBarBaseY.positionGetter.apply(Minecraft.getInstance().getWindow().getGuiScaledHeight(), chargingBarY);
-        return new Vec2i(posX, posY);
     }
 
     /// TODO: this is a cheap resolution for a crash by unknown reason: https://mclo.gs/nehnpG3
@@ -690,59 +446,25 @@ public class ClientConfig {
         return tpsType;
     }
 
-    /// Determines which entities should show the health bar
-    public enum HealthBarVisibility implements CirculatableEnum<HealthBarVisibility>, StringRepresentable {
-        /// None of entities will show the health bar
-        NONE(GUI_WIDGET_SETTINGS_UI_HEALTH_BAR_NONE),
-
-        /// Entities whose health is lower than max health show the health bar
-        HURT(GUI_WIDGET_SETTINGS_UI_HEALTH_BAR_HURT),
-
-        /// An entity that the player is targeting currently will show the health bar
-        TARGET(GUI_WIDGET_SETTINGS_UI_HEALTH_BAR_TARGET),
-
-        /// Both hurt and targeted entities will show the health bar
-        TARGET_AND_HURT(GUI_WIDGET_SETTINGS_UI_HEALTH_BAR_TARGET_AND_HURT);
-
-        final Component translatable;
-
-        HealthBarVisibility(String translationKey) {
-            this.translatable = Component.translatable(translationKey);
-        }
-
-        @Override
-        public HealthBarVisibility nextEnum() {
-            return HealthBarVisibility.values()[(this.ordinal() + 1) % 4];
-        }
-
-        @Override
-        public String getSerializedName() {
-            return this.translatable.getString();
-        }
-    }
-
     /// Determines which indicators are activated for block mining guide
     public enum BlockGuideOptions implements CirculatableEnum<BlockGuideOptions>, StringRepresentable {
         /// Changes nothign
-        NONE(false, false, GUI_WIDGET_SETTINGS_UI_MINE_BLOCK_GUIDE_NONE),
+        NONE(false, false),
 
         /// Crosshair changes when player looks at the block with mining preferred item
-        CROSSHAIR(true, false, GUI_WIDGET_SETTINGS_UI_MINE_BLOCK_GUIDE_CROSSHAIR),
+        CROSSHAIR(true, false),
 
         /// Block flashes white when player looks at the block with mining preferred item
-        HIGHLIGHT(false, true, GUI_WIDGET_SETTINGS_UI_MINE_BLOCK_GUIDE_HIGHLIGHT),
+        HIGHLIGHT(false, true),
 
         /// Both crosshair and block highlight will be appeared
-        CROSSHAIR_AND_HIGHLIGHT(true, true, GUI_WIDGET_SETTINGS_UI_MINE_BLOCK_GUIDE_CROSSHAIR_AND_HIGHLIGHT);
+        CROSSHAIR_AND_HIGHLIGHT(true, true);
 
         final boolean showCrosshair;
         final boolean showBlockHighlight;
-        final Component translatable;
-
-        BlockGuideOptions(boolean showCrosshair, boolean showBlockHighlight, String translationKey) {
+        BlockGuideOptions(boolean showCrosshair, boolean showBlockHighlight) {
             this.showCrosshair = showCrosshair;
             this.showBlockHighlight = showBlockHighlight;
-            this.translatable = Component.translatable(translationKey);
         }
 
         public boolean switchCrosshair() {
@@ -760,32 +482,29 @@ public class ClientConfig {
 
         @Override
         public String getSerializedName() {
-            return this.translatable.getString();
+            return ParseUtil.toLowerCase(this.name());
         }
     }
 
     /// The scope of vanilla actions that will be canceled when they conflict with Epic Fight keybinds (currently, it only supports mouse right button)
     public enum CanceledVanillaActions implements CirculatableEnum<CanceledVanillaActions>, StringRepresentable {
         /// Won't cancel any vanilla behavior
-        NONE(false, false, GUI_WIDGET_SETTINGS_CONTROLS_CANCELED_VANILLA_ACTIONS_NONE),
+        NONE(false, false),
 
         /// Cancel block interactions (e.g. opening UI screen for Furnace, Crafting Table)
-        INTERACTION(true, false, GUI_WIDGET_SETTINGS_CONTROLS_CANCELED_VANILLA_ACTIONS_INTERACTION),
+        INTERACTION(true, false),
 
         /// Cancel item interactions (like plowing dirt using a hoe)
-        ITEM_USE(false, true, GUI_WIDGET_SETTINGS_CONTROLS_CANCELED_VANILLA_ACTIONS_ITEM_USE),
+        ITEM_USE(false, true),
 
         /// Cancel both block and item interactions
-        INTERACTION_AND_ITEM_USE(true, true, GUI_WIDGET_SETTINGS_CONTROLS_CANCELED_VANILLA_ACTIONS_INTERACTION_AND_ITEM_USE);
+        INTERACTION_AND_ITEM_USE(true, true);
 
         final boolean cancelInteraction;
         final boolean cancelItemUse;
-        final Component translatable;
-
-        CanceledVanillaActions(boolean cancelBlockInteraction, boolean cancelItemInteraction, String translationKey) {
+        CanceledVanillaActions(boolean cancelBlockInteraction, boolean cancelItemInteraction) {
             this.cancelInteraction = cancelBlockInteraction;
             this.cancelItemUse = cancelItemInteraction;
-            this.translatable = Component.translatable(translationKey);
         }
 
         public boolean cancelInteraction() {
@@ -803,24 +522,21 @@ public class ClientConfig {
 
         @Override
         public String getSerializedName() {
-            return this.translatable.getString();
+            return ParseUtil.toLowerCase(this.name());
         }
     }
 
     /// Determines how item preference works
     public enum PlayerBehaviorStrategy implements CirculatableEnum<PlayerBehaviorStrategy>, StringRepresentable {
         /// Determines the next action based on crosshair hit result
-        ADAPTIVE(true, GUI_WIDGET_SETTINGS_CONTROLS_PLAYER_BAHAVIOR_STRATEGY_ADAPTIVE),
+        ADAPTIVE(true),
 
         /// Switches the player mode to each categorized preference, forcing the player to do only mine or attack.
-        SWITCHING_MODE(false, GUI_WIDGET_SETTINGS_CONTROLS_PLAYER_BAHAVIOR_STRATEGY_SWITCHING_MODE);
+        SWITCHING_MODE(false);
 
         final boolean checkHitResult;
-        final Component translatable;
-
-        PlayerBehaviorStrategy(boolean checkHitResult, String translationKey) {
+        PlayerBehaviorStrategy(boolean checkHitResult) {
             this.checkHitResult = checkHitResult;
-            this.translatable = Component.translatable(translationKey);
         }
 
         public boolean checkHitResult() {
@@ -829,7 +545,7 @@ public class ClientConfig {
 
         @Override
         public String getSerializedName() {
-            return this.translatable.getString();
+            return ParseUtil.toLowerCase(this.name());
         }
 
         @Override
@@ -844,18 +560,12 @@ public class ClientConfig {
         ///
         /// Cycles through all available perspectives, including any added by third-party mods.
         /// This does not change the existing vanilla behavior.
-        VANILLA(GUI_WIDGET_SETTINGS_CAMERA_PERSPECTIVE_TOGGLE_MODE_VANILLA),
+        VANILLA,
 
         /// Skips the third-person front perspective only.
         ///
         /// Other perspectives remain available and are not ignored.
-        SKIP_THIRD_PERSON_FRONT(GUI_WIDGET_SETTINGS_CAMERA_PERSPECTIVE_TOGGLE_MODE_SKIP_THIRD_PERSON_FRONT);
-
-        final Component translatable;
-
-        CameraPerspectiveToggleMode(String translationKey) {
-            this.translatable = Component.translatable(translationKey);
-        }
+        SKIP_THIRD_PERSON_FRONT;
 
         @Override
         public CameraPerspectiveToggleMode nextEnum() {
@@ -865,29 +575,26 @@ public class ClientConfig {
 
         @Override
         public @NotNull String getSerializedName() {
-            return this.translatable.getString();
+            return ParseUtil.toLowerCase(this.name());
         }
     }
 
     /// Determines when camera should transite to TPS perspective in third-person
     public enum TPSActivationType implements CirculatableEnum<TPSActivationType>, StringRepresentable {
         /// always locates the camera in player's back like vanilla
-        DISABLED(false, cameraApi -> false, GUI_WIDGET_SETTINGS_CAMERA_TPS_PERSPECTIVE_DISABLED),
+        DISABLED(false, cameraApi -> false),
 
         /// activate tps perspective when player aims
-        ON_AIMING(true, EpicFightCameraAPI::isZooming, GUI_WIDGET_SETTINGS_CAMERA_TPS_PERSPECTIVE_ON_AIMING),
+        ON_AIMING(true, EpicFightCameraAPI::isZooming),
 
         /// always activate tps perspective
-        ALWAYS(true, cameraApi -> true, GUI_WIDGET_SETTINGS_CAMERA_TPS_PERSPECTIVE_ALWAYS);
+        ALWAYS(true, cameraApi -> true);
 
         final boolean hasTPSTransition;
         final Predicate<EpicFightCameraAPI> checker;
-        final Component translatable;
-
-        TPSActivationType(boolean hasTPSTransition, Predicate<EpicFightCameraAPI> checker, String translationKey) {
+        TPSActivationType(boolean hasTPSTransition, Predicate<EpicFightCameraAPI> checker) {
             this.hasTPSTransition = hasTPSTransition;
             this.checker = checker;
-            this.translatable = Component.translatable(translationKey);
         }
 
         public boolean shouldSwitch(EpicFightCameraAPI cameraApi) {
@@ -905,7 +612,7 @@ public class ClientConfig {
 
         @Override
         public String getSerializedName() {
-            return this.translatable.getString();
+            return ParseUtil.toLowerCase(this.name());
         }
     }
 }

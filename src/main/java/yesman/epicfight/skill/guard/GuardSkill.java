@@ -1,7 +1,6 @@
 package yesman.epicfight.skill.guard;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -26,8 +25,6 @@ import yesman.epicfight.api.event.types.player.SkillCancelEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -397,16 +394,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 				&& !damageSource.is(DamageTypeTags.IS_FIRE);
 	}
 	
-	@Override
-	public boolean shouldDraw(SkillContainer container) {
-		return container.getDataManager().getDataValue(EpicFightSkillDataKeys.PENALTY) > 0.0F;
-	}
 	
-	@Override @ClientOnly
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-		guiGraphics.blit(EpicFightSkills.GUARD.get().getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-		guiGraphics.drawString(gui.getFont(), String.format("x%.1f", container.getDataManager().getDataValue(EpicFightSkillDataKeys.PENALTY)), x, y + 6, 16777215, true);
-	}
 	
 	
 	public static Entity getOffender(DamageSource damageSource) {
@@ -418,11 +406,6 @@ public class GuardSkill extends Skill implements HoldableSkill {
 		return this.guardMotions.keySet();
 	}
 	
-	@Override @ClientOnly
-	public boolean getCustomConsumptionTooltips(SkillBookScreen.AttributeIconList consumptionList) {
-		consumptionList.add(Component.translatable("attribute.name.epicfight.stamina.consume.tooltip"), Component.translatable("skill.epicfight.guard.consume.tooltip"), SkillBookScreen.STAMINA_TEXTURE_INFO);
-		return true;
-	}
 	
 	protected boolean isAdvancedGuard() {
 		return false;

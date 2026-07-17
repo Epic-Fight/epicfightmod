@@ -62,7 +62,6 @@ public final class VanillaGeneralClientEventHooks {
     public static void onPlayerLoggedIn(LocalPlayer player) {
         EpicFightCapabilities.getUnparameterizedEntityPatch(player, LocalPlayerPatch.class).ifPresent(entitypatch -> {
             ControlEngine.getInstance().reloadPlayerPatch(entitypatch);
-            RenderEngine.getInstance().initHUD(entitypatch);
         });
     }
 
@@ -95,7 +94,6 @@ public final class VanillaGeneralClientEventHooks {
         });
 
         ControlEngine.getInstance().reloadPlayerPatch(newCap);
-        RenderEngine.getInstance().initHUD(newCap);
     }
 
     public static void onPlayerLoggedOut(LocalPlayer player) {

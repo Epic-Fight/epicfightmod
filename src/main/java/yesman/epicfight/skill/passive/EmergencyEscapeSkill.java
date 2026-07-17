@@ -132,11 +132,6 @@ public class EmergencyEscapeSkill extends PassiveSkill {
         EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, container.getServerExecutor().getOriginal());
     }
 
-    @ClientOnly
-    @Override
-    public boolean shouldDraw(SkillContainer container) {
-        return container.getStack() == 0;
-    }
 
     @ClientOnly
     @Override

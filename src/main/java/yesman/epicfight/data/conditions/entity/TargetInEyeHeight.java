@@ -1,6 +1,5 @@
 package yesman.epicfight.data.conditions.entity;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -32,11 +31,5 @@ public class TargetInEyeHeight extends EntityPatchCondition {
 			: target.getOriginal().getY();
 		double veticalDistance = Math.abs(mobY - target.getTarget().getY());
 		return veticalDistance < target.getOriginal().getEyeHeight();
-	}
-	
-	@Override @ClientOnly
-    @OnlyIn(Dist.CLIENT) // TODO: Remove OnlyIn annotation and completely decouple the widget provider code
-	public List<ParameterEditor> getAcceptingParameters(Screen screen) {
-		return List.of();
 	}
 }

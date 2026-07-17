@@ -15,7 +15,6 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderer
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.particle.*;
 import yesman.epicfight.client.renderer.blockentity.FractureBlockRenderer;
 import yesman.epicfight.client.renderer.entity.DroppedNetherStarRenderer;
@@ -97,14 +96,6 @@ public final class ClientModBusEvent {
 				simOwner.getClothSimulator().restart(entry.getKey());
 			});
 		}
-	}
-	
-	@SubscribeEvent
-	public static void epicfight$registerGuiOverlaysEvent(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(EpicFightMod.identifier("stamina_bar"), RenderEngine.getInstance().battleModeHUD::renderStaminaBar);
-		event.registerAboveAll(EpicFightMod.identifier("skills"), RenderEngine.getInstance().battleModeHUD::renderNormalSkills);
-		event.registerAboveAll(EpicFightMod.identifier("weapon_innate"), RenderEngine.getInstance().battleModeHUD::renderWeaponInnateSkill);
-		event.registerAboveAll(EpicFightMod.identifier("charging_bar"), RenderEngine.getInstance().battleModeHUD::renderChargingBar);
 	}
 	
 	private static ResourceLocation wrapItemModelPath(ResourceLocation rl) {

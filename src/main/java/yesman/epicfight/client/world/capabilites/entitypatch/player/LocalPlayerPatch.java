@@ -40,7 +40,6 @@ import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -142,8 +141,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public void toVanillaMode(boolean synchronize) {
-		RenderEngine.getInstance().battleModeHUD.slideDown();
-		
 		if (this.playerMode != PlayerMode.VANILLA) {
 			if (ClientConfig.autoPerspectiveSwithing) {
 				this.minecraft.options.setCameraType(CameraType.FIRST_PERSON);
@@ -159,8 +156,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	
 	@Override
 	public void toEpicFightMode(boolean synchronize) {
-		RenderEngine.getInstance().battleModeHUD.slideUp();
-		
 		if (this.playerMode != PlayerMode.EPICFIGHT) {
 			if (ClientConfig.autoPerspectiveSwithing) {
 				this.minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);
@@ -388,14 +383,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		}
 		
 		EpicFightNetworkManager.sendToServer(payload);
-	}
-	
-	@Override
-	public void openSkillBook(ItemStack itemstack, InteractionHand hand) {
-		if (itemstack.has(EpicFightDataComponentTypes.SKILL)) {
-            Holder<Skill> skill = itemstack.get(EpicFightDataComponentTypes.SKILL);
-			Minecraft.getInstance().setScreen(new SkillBookScreen(this.original, skill.value(), hand, null));
-		}
 	}
 	
 	@Override

@@ -257,7 +257,6 @@ public class SkillContainer {
                 executor.resetHolding();
             } else {
                 if (!this.canUse(executor, event)) {
-                    this.skill.validationFeedback(this);
                     return event;
                 }
 
@@ -267,7 +266,6 @@ public class SkillContainer {
             }
         } else {
             if (!this.canUse(executor, event)) {
-                this.skill.validationFeedback(this);
                 return event;
             }
 

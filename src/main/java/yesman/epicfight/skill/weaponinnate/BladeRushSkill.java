@@ -155,23 +155,5 @@ public class BladeRushSkill extends WeaponInnateSkill {
         return container.getExecutor().getTarget() != null && container.getExecutor().getTarget().isAlive() && container.getExecutor().getOriginal().distanceToSqr(container.getExecutor().getTarget()) < 100.0D;
     }
 
-    @Override @ClientOnly
-    public void onScreen(LocalPlayerPatch playerpatch, float resolutionX, float resolutionY) {
-    }
 
-    @Override @ClientOnly
-    public void validationFeedback(SkillContainer container) {
-        // Resolve the innate skill against the active combat hand so the offhand-only carrier
-        // gets the same validation feedback as a mainhand wielder.
-        InteractionHand activeHand = container.getExecutor().getPrimaryHand();
-        Skill skill = container.getExecutor().getHoldingItemCapability(activeHand).getInnateSkill(container.getExecutor(), container.getExecutor().getOriginal().getItemInHand(activeHand));
-
-        if (this.equals(skill) && !this.checkExecuteCondition(container)) {
-            if (container.getExecutor().getTarget() == null || !container.getExecutor().getTarget().isAlive()) {
-                Minecraft.getInstance().gui.setOverlayMessage(Component.translatable(LangKeys.GUI_MESSAGE_INGAME_NO_TARGET_WARNING), false);
-            } else {
-                Minecraft.getInstance().gui.setOverlayMessage(Component.translatable(LangKeys.GUI_MESSAGE_INGAME_TOO_FAR_TARGET_WARNING), false);
-            }
-        }
-    }
 }

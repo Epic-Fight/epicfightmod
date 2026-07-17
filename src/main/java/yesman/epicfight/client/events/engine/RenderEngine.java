@@ -4,7 +4,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
@@ -57,10 +56,6 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.gui.BattleModeGui;
-import yesman.epicfight.client.gui.EntityUI;
-import yesman.epicfight.client.gui.VersionNotifier;
-import yesman.epicfight.client.gui.screen.overlay.OverlayManager;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
@@ -80,7 +75,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.BossPatch;
 import yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon.EnderDragonPatch;
 import yesman.epicfight.world.capabilities.item.*;
-import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,8 +89,6 @@ public class RenderEngine implements IEventBasedEngine {
         return INSTANCE;
     }
 
-    public final BattleModeGui battleModeHUD;
-    public final VersionNotifier versionNotifier;
     public final Minecraft minecraft;
 
     private final BiMap<EntityType<?>, Function<EntityType<?>, PatchedEntityRenderer>> entityRendererProvider;
@@ -104,7 +96,6 @@ public class RenderEngine implements IEventBasedEngine {
     private final Map<Item, RenderItemBase> itemRendererMapByInstance;
     private final Map<Class<?>, RenderItemBase> itemRendererMapByClass;
     private final Map<UUID, BossPatch> bossEventOwners = new ConcurrentHashMap<> ();
-    private final OverlayManager overlayManager;
     private FakeBlockRenderer fakeBlockRenderer;
 
     private FirstPersonRenderer firstPersonRenderer;
@@ -113,13 +104,10 @@ public class RenderEngine implements IEventBasedEngine {
 
     private RenderEngine() {
         this.minecraft = Minecraft.getInstance();
-        this.battleModeHUD = new BattleModeGui(this.minecraft);
-        this.versionNotifier = new VersionNotifier(this.minecraft);
         this.entityRendererProvider = HashBiMap.create();
         this.entityRendererCache = new HashMap<> ();
         this.itemRendererMapByInstance = new HashMap<> ();
         this.itemRendererMapByClass = new HashMap<> ();
-        this.overlayManager = new OverlayManager();
         this.fakeBlockRenderer = new VanillaFakeBlockRenderer();
     }
 
@@ -298,10 +286,6 @@ public class RenderEngine implements IEventBasedEngine {
         this.modelInitTimer = tick;
     }
 
-    public OverlayManager getOverlayManager() {
-        return this.overlayManager;
-    }
-
     public FirstPersonRenderer getFirstPersonRenderer() {
         return firstPersonRenderer;
     }
@@ -316,11 +300,6 @@ public class RenderEngine implements IEventBasedEngine {
 
     public void removeBossEventOwner(UUID uuid, BossPatch bosspatch) {
         this.bossEventOwners.remove(uuid);
-    }
-
-    public void initHUD(LocalPlayerPatch playerpatch) {
-        this.battleModeHUD.init(playerpatch);
-        this.versionNotifier.init();
     }
 
     private void freeUnusedSources() {
@@ -431,17 +410,6 @@ public class RenderEngine implements IEventBasedEngine {
                     event.setCanceled(true);
                 }
             }
-        }
-        if (!this.minecraft.options.hideGui && !EpicFightGameRules.DISABLE_ENTITY_UI.getRuleValue(livingentity.level())) {
-            EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
-                LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
-
-                for (EntityUI entityIndicator : EntityUI.ENTITY_UI_LIST) {
-                    if (entityIndicator.shouldDraw(livingentity, entityPatch, playerpatch, event.getPartialTick())) {
-                        entityIndicator.draw(livingentity, entityPatch, playerpatch, event.getPoseStack(), event.getMultiBufferSource(), event.getPartialTick());
-                    }
-                }
-            });
         }
     }
 
@@ -584,45 +552,6 @@ public class RenderEngine implements IEventBasedEngine {
         });
     }
 
-    private void epicfight$renderGuiPre(RenderGuiEvent.Pre event) {
-        Window window = Minecraft.getInstance().getWindow();
-        LocalPlayerPatch playerpatch = EpicFightCapabilities.getCachedLocalPlayerPatch();;
-
-        if (playerpatch != null) {
-            playerpatch.getPlayerSkills().listSkillContainers().filter(skillContainer -> skillContainer.getSkill() != null).forEach(skillContainer -> {
-                skillContainer.getSkill().onScreen(playerpatch, window.getGuiScaledWidth(), window.getGuiScaledHeight());
-            });
-
-            this.overlayManager.renderTick(window.getGuiScaledWidth(), window.getGuiScaledHeight());
-
-            //Shows the epic fight version in beta
-            this.versionNotifier.render(event.getGuiGraphics(), true);
-        }
-    }
-
-    private static final ResourceLocation YELLOWBAR_BACKGROUND = ResourceLocation.withDefaultNamespace("boss_bar/yellow_background");
-    private static final ResourceLocation YELLOWBAR_PROGRESS = ResourceLocation.withDefaultNamespace("boss_bar/yellow_progress");
-
-    private void epicfight$bossEventProgress(CustomizeGuiOverlayEvent.BossEventProgress event) {
-        if (event.getBossEvent().getName().getString().equals("Ender Dragon")) {
-            if (this.bossEventOwners.containsKey(event.getBossEvent().getId())) {
-                LivingEntityPatch<?> entitypatch = this.bossEventOwners.get(event.getBossEvent().getId()).cast();
-                float stunShield = entitypatch.getStunShield();
-
-                if (stunShield > 0) {
-                    float progression = stunShield / entitypatch.getMaxStunShield();
-
-                    int x = event.getX();
-                    int y = event.getY();
-
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    event.getGuiGraphics().blitSprite(YELLOWBAR_BACKGROUND, 182, 5, 0, 0, x, y + 6, 182, 5);
-                    event.getGuiGraphics().blitSprite(YELLOWBAR_PROGRESS, 182, 5, 0, 0, x, y + 6, (int)(182 * progression), 5);
-                }
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private void epicfight$renderHand(RenderHandEvent event) {
         LocalPlayerPatch playerpatch = EpicFightCapabilities.getCachedLocalPlayerPatch();;
@@ -678,30 +607,13 @@ public class RenderEngine implements IEventBasedEngine {
         }
     }
 
-    private void epicfight$renderTickPre(RenderFrameEvent.Pre event) {
-        EntityUI.HEALTH_BAR.reset();
-    }
-
-    private void epicfight$renderTickPost(RenderFrameEvent.Post event) {
-        EntityUI.HEALTH_BAR.remove();
-    }
-
     private void epicfight$clientTick$Pre(ClientTickEvent.Pre event) {
         EpicFightCameraAPI.getInstance().preClientTick();
-        EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(this.battleModeHUD::tick);
         this.freeUnusedSources();
     }
 
     private void epicfight$clientTick$Post(ClientTickEvent.Post event) {
         EpicFightCameraAPI.getInstance().postClientTick();
-    }
-
-    private void epicfight$levelTickPost(LevelTickEvent.Post event) {
-        if (!event.getLevel().isClientSide()) {
-            return;
-        }
-
-        EntityUI.HEALTH_BAR.tick();
     }
 
     private void epicfight$renderBlockHighlight(RenderHighlightEvent.Block event) {
@@ -765,18 +677,13 @@ public class RenderEngine implements IEventBasedEngine {
 
     @Override
     public void gameEventBus(IEventBus gameEventBus) {
-        gameEventBus.addListener(this::epicfight$bossEventProgress);
         gameEventBus.addListener(this::epicfight$renderLivingPre);
         gameEventBus.addListener(this::epicfight$itemTooltip);
         gameEventBus.addListener(this::epicfight$computeCameraAngles);
-        gameEventBus.addListener(this::epicfight$renderGuiPre);
         gameEventBus.addListener(this::epicfight$renderHand);
         gameEventBus.addListener(this::epicfight$renderAfterLevel);
-        gameEventBus.addListener(this::epicfight$renderTickPre);
-        gameEventBus.addListener(this::epicfight$renderTickPost);
         gameEventBus.addListener(this::epicfight$clientTick$Pre);
         gameEventBus.addListener(this::epicfight$clientTick$Post);
-        gameEventBus.addListener(this::epicfight$levelTickPost);
         gameEventBus.addListener(this::epicfight$renderBlockHighlight);
 
         EpicFightClientEventHooks.Render.RENDER_ENDER_DRAGON.registerEvent(this::epicfight$renderEnderDragon);

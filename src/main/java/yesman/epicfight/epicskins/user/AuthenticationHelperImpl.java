@@ -11,7 +11,6 @@ import com.google.gson.stream.JsonReader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -20,7 +19,6 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.online.EpicFightServerConnectionHelper;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.epicskins.client.screen.AvatarEditScreen;
 import yesman.epicfight.epicskins.exception.HttpResponseException;
 import yesman.epicfight.epicskins.exception.OfflineUserException;
 import yesman.epicfight.epicskins.util.JsonConverter;
@@ -100,11 +98,6 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 		} else {
 			this.status = Status.OFFLINE_MODE;
 		}
-	}
-	
-	@Override
-	public Screen getAvatarEditorScreen(Screen parentScreen) {
-		return new AvatarEditScreen(parentScreen);
 	}
 	
 	@Override

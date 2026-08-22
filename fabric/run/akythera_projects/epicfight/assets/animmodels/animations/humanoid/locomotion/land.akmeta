@@ -1,5 +1,6 @@
 {
-  "import_type": "common",
+  "import_type": "additive",
+  "ref_pose_provider": "epicfight:humanoid/locomotion/idle",
   "ref_pose_timestamp": 0.0,
   "preview_model": {
     "model_id": "minecraft:player",

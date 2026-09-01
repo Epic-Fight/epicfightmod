@@ -1,6 +1,6 @@
 package yesman.epicfight.client.renderer.shader.compute.loader;
 
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+
 import org.lwjgl.opengl.GL33C;
 import org.lwjgl.opengl.GL43;
 import yesman.epicfight.EpicFight;
@@ -64,7 +64,7 @@ public class ComputeShaderProvider {
         EpicFight.LOGGER.warn("[Computer Shader Acceleration] Compute Shader: {}", (supportComputeShader ? "Supported" : "Unsupported"));
     }
     
-    public static void epicfight$registerComputeShaders(RegisterShadersEvent event) {
+    public static void epicfight$registerComputeShaders(yesman.epicfight.platform.neoforged.client.event.RegisterShadersEvent event) {
         if (!supportComputeShader) return;
         
         clear();

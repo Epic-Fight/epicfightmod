@@ -15,8 +15,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
+
+
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.EpicFight;
@@ -122,11 +122,11 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	public static void readAnimationProperties(StaticAnimation animation) {
 		ResourceLocation dataLocation = getSubAnimationFileLocation(animation.getLocation(), AnimationSubFileReader.SUBFILE_CLIENT_PROPERTY);
 		ResourceLocation povLocation = getSubAnimationFileLocation(animation.getLocation(), AnimationSubFileReader.SUBFILE_POV_ANIMATION);
-		
+
 		getAnimationResourceManager().getResource(dataLocation).ifPresent((rs) -> {
 			AnimationSubFileReader.readAndApply(animation, rs, AnimationSubFileReader.SUBFILE_CLIENT_PROPERTY);
 		});
-		
+
 		getAnimationResourceManager().getResource(povLocation).ifPresent((rs) -> {
 			AnimationSubFileReader.readAndApply(animation, rs, AnimationSubFileReader.SUBFILE_POV_ANIMATION);
 		});
@@ -138,7 +138,6 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			serverResourceManager = resourceManager;
 		}
 
-		this.animations.clear();
 		this.animationById.entrySet().removeIf(entry -> !entry.getValue().inRegistry());
 		this.animationByName.entrySet().removeIf(entry -> !entry.getValue().inRegistry());
 		this.resourcepackAnimationCommands.clear();
@@ -156,6 +155,10 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 
 	@Override
 	protected void apply(List<ResourceLocation> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerIn) {
+		if (!objects.isEmpty() || !EpicFightSharedConstants.isPhysicalClient()) {
+			this.animations.clear();
+		}
+
 		Armatures.reload(resourceManager);
 
 		Set<ResourceLocation> registeredAnimation =
@@ -476,7 +479,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		}
 	}
 	
-	public static class AnimationRegistryEvent extends Event implements IModBusEvent {
+	public static class AnimationRegistryEvent {
 		private final List<AnimationBuilder> builders = Lists.newArrayList();
 		private final Set<String> namespaces = Sets.newHashSet();
 		

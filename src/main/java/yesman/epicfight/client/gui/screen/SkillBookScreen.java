@@ -1,4 +1,5 @@
 package yesman.epicfight.client.gui.screen;
+import yesman.epicfight.platform.neoforged.client.ClientHooks;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -25,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.neoforge.client.ClientHooks;
+
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
@@ -33,7 +34,7 @@ import yesman.epicfight.api.client.event.types.registry.RegisterAttributeIconEve
 import yesman.epicfight.api.client.event.types.registry.RegisterWeaponCategoryIconEvent;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
@@ -54,7 +55,7 @@ import static yesman.epicfight.generated.LangKeys.*;
 public class SkillBookScreen extends Screen {
     private static final Map<WeaponCategory, ItemStack> WEAPON_CATEGORY_ICONS = new HashMap<> ();
     private static final Map<Holder<Attribute>, TextureInfo> ATTRIBUTE_ICONS = new HashMap<> ();
-    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFightMod.identifier("textures/gui/screen/skillbook.png");
+    private static final ResourceLocation SKILLBOOK_BACKGROUND = EpicFight.identifier("textures/gui/screen/skillbook.png");
 
     public static final TextureInfo HEALTH_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 22, 205, 10, 10);
     public static final TextureInfo STAMINA_TEXTURE_INFO = new TextureInfo(SKILLBOOK_BACKGROUND, 32, 205, 10, 10);
@@ -234,7 +235,7 @@ public class SkillBookScreen extends Screen {
             )
             .bounds(this.width / 2 + 54, this.height / 2 + 90, 67, 21)
             .tooltip(Tooltip.create(tooltip, null))
-            .build(LearnButton::new);
+            .build();
 
         if (isUsing || !meetsCondition) {
             this.learnButton.active = false;
@@ -660,13 +661,13 @@ public class SkillBookScreen extends Screen {
 
     private static class LearnButton extends Button {
         protected static final WidgetSprites SPRITES = new WidgetSprites(
-            EpicFightMod.identifier("widget/skillbook_button"),
-            EpicFightMod.identifier("widget/skillbook_button_disabled"),
-            EpicFightMod.identifier("widget/skillbook_button_highlighted")
+            EpicFight.identifier("widget/skillbook_button"),
+            EpicFight.identifier("widget/skillbook_button_disabled"),
+            EpicFight.identifier("widget/skillbook_button_highlighted")
         );
 
         protected LearnButton(Builder builder) {
-            super(builder);
+            super(builder.x, builder.y, builder.width, builder.height, builder.message, builder.onPress, Button.DEFAULT_NARRATION);
         }
 
         @Override
@@ -681,7 +682,7 @@ public class SkillBookScreen extends Screen {
             guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             guiGraphics.pose().popPose();
 
-            int i = this.getFGColor();
+            int i = 0xFFFFFFFF;
             this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
         }
     }

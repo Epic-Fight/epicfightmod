@@ -15,11 +15,14 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.event.types.player.ChangeInnateSkillEvent;
@@ -45,7 +48,9 @@ import java.util.Map;
 public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	private LivingEntity attackTarget;
 	private boolean updatedMotionCurrentTick;
-	
+	private ItemStack prevHeldItem = ItemStack.EMPTY;
+	private ItemStack prevHeldItemOffHand = ItemStack.EMPTY;
+
 	public ServerPlayerPatch(ServerPlayer entity) {
 		super(entity);
 
@@ -79,6 +84,24 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
         PayloadBundleBuilder payloadBundleBuilder = PayloadBundleBuilder.beginWith(new SPInitSkills(this.getPlayerSkills()));
         payloadBundleBuilder.and(new BiDirectionalSyncEmoteSlots(this));
         payloadBundleBuilder.send((first, others) -> EpicFightNetworkManager.sendToPlayer(first, player, others));
+
+        // Initialize weapon innate skill for the player's current weapon.
+        // On Fabric, the LivingEntity#onEquipItem mixin may not fire on the first tick
+        // because lastEquipmentItemStacks is initialized with the player's loaded equipment
+        // before detectEquipmentUpdates runs. This ensures the WEAPON_INNATE skill slot
+        // is populated immediately on join, matching NeoForge's behavior where the
+        // LivingEquipmentChangeEvent fires during the first baseTick after join.
+        CapabilityItem mainhandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        CapabilityItem offhandCap = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+        boolean mainBare = mainhandCap.isEmpty() || mainhandCap.getWeaponCategory() == CapabilityItem.WeaponCategories.FIST;
+        boolean offhandReal = !offhandCap.isEmpty()
+                && offhandCap.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST
+                && offhandCap.getWeaponCategory() != CapabilityItem.WeaponCategories.SHIELD;
+        CapabilityItem innateCap = (mainBare && offhandReal) ? offhandCap : mainhandCap;
+        ItemStack innateItem = (mainBare && offhandReal) ? this.original.getOffhandItem() : this.original.getMainHandItem();
+        if (!innateCap.isEmpty()) {
+            innateCap.changeWeaponInnateSkill(this, innateItem);
+        }
 	}
 	
 	@Override
@@ -103,6 +126,27 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	public void preTick() {
 		super.preTick();
 		this.updatedMotionCurrentTick = false;
+
+		// Detect held item changes for the player. On Fabric, the LivingEntity#onEquipItem mixin
+		// does not fire when a player switches hotbar slots (only when setItemSlot is called),
+		// so we need to detect changes here and call updateHeldItem manually, matching NeoForge's
+		// LivingEquipmentChangeEvent behavior which fires from collectEquipmentChanges every tick.
+		ItemStack currentMain = this.original.getMainHandItem();
+		ItemStack currentOff = this.original.getOffhandItem();
+
+		if (!ItemStack.isSameItemSameComponents(this.prevHeldItem, currentMain)) {
+			CapabilityItem fromCap = EpicFightCapabilities.getItemStackCapability(this.prevHeldItem);
+			CapabilityItem toCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+			this.updateHeldItem(fromCap, toCap, this.prevHeldItem, this.original.getMainHandItem(), InteractionHand.MAIN_HAND);
+			this.prevHeldItem = currentMain.copy();
+		}
+
+		if (!ItemStack.isSameItemSameComponents(this.prevHeldItemOffHand, currentOff)) {
+			CapabilityItem fromCap = EpicFightCapabilities.getItemStackCapability(this.prevHeldItemOffHand);
+			CapabilityItem toCap = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+			this.updateHeldItem(fromCap, toCap, this.prevHeldItemOffHand, this.original.getOffhandItem(), InteractionHand.OFF_HAND);
+			this.prevHeldItemOffHand = currentOff.copy();
+		}
 	}
 
 	@Override
@@ -144,7 +188,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 
 		if (hand == InteractionHand.OFF_HAND) {
 			if (!from.isEmpty()) {
-				from.getAttributeModifiers().forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+				from.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
 					if (Attributes.ATTACK_SPEED.equals(attribute)) {
 						this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED).removeModifier(modifier);
 					}
@@ -160,7 +204,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			}
 			
 			if (!to.isEmpty()) {
-				to.getAttributeModifiers().forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+				to.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
 					if (Attributes.ATTACK_SPEED.equals(attribute)) {
 						this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED).addTransientModifier(modifier);
 					}
@@ -240,10 +284,10 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 		if (this.updatedMotionCurrentTick || !checkOldAnimations) {
 			this.getAnimator().resetLivingAnimations();
 			newLivingAnimations.forEach(this.getAnimator()::addLivingAnimation);
-			
+
 			SPChangeLivingMotion msg = new SPChangeLivingMotion(this.original.getId());
 			msg.putEntries(newLivingAnimations.entrySet());
-			
+
 			EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(msg, this.original);
 		}
 	}

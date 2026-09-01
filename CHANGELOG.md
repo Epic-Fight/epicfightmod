@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Fabric 1.21.1 support (Fabric Loader 0.19.3, Fabric API)
+- Native Fabric registration, networking, lifecycle, reload listener, config, and capability wiring
+- Trinkets integration as the Fabric equivalent of Curios
+- Compatibility modules for AzureLib, Female Gender, GeckoLib, JEI, and playerAnimator on Fabric
+
+### Changed
+- Replaced NeoForge side-marker stubs (Dist, OnlyIn, FMLEnvironment) with native Fabric environment APIs
+- Replaced NeoForge config stubs with NightConfig-backed config implementation
+- Moved internal NeoForge-shaped compatibility types into Epic Fight's own namespace to avoid classpath collisions
+- Required initialization now fails fast instead of silently catching errors
+
+### Fixed
+- Config class collision with ForgeConfigAPIPort causing `NoSuchMethodError` on startup
+- Mouse binding and block breaking not working in Epic Fight combat mode
+- Inverted block outline cancellation logic
+- Held-item flat shading caused by misread baked lightmap normals
+- Baked-light UV offset in patched item rendering
+
+### Known Limitations
+- Controlify and KubeJS are not currently supported on Fabric
+- Epic Fight: Skill Tree and ParCool have no Fabric versions
+- Several mod integrations (Iris, Sodium, 3D Skin Layers, etc.) have code present but are pending dedicated verification
+
 ## [21.17.3] - 2026-5-14
 ### Additions
 - Added Item Specific Overrides to Builder to allow any explicit tier configurations.

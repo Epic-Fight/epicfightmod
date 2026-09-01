@@ -19,7 +19,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -145,7 +145,7 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 	/** Heavy additive boost on the vehicle's MOVEMENT_SPEED while a hostile rider is chasing.
 	 *  Applied/removed dynamically from preTick to track the rider's target acquisition state. */
 	private static final AttributeModifier PASSENGER_CHASE_SPEED_BOOST =
-		new AttributeModifier(EpicFightMod.identifier("passenger_chase_speed_boost"), 0.00005D, AttributeModifier.Operation.ADD_VALUE);
+		new AttributeModifier(EpicFight.identifier("passenger_chase_speed_boost"), 0.00005D, AttributeModifier.Operation.ADD_VALUE);
 
 	private boolean drivingVehicle = false;
 
@@ -256,7 +256,7 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 		
 		if (hand == InteractionHand.OFF_HAND) {
 			if (!from.isEmpty()) {
-                from.getAttributeModifiers().forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+                from.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
 					if (attribute == Attributes.ATTACK_SPEED) {
 						this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED).removeModifier(modifier);
 					}
@@ -271,7 +271,7 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 			}
 			
 			if (!to.isEmpty()) {
-				to.getAttributeModifiers().forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+				to.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).forEach(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
 					if (attribute == Attributes.ATTACK_SPEED) {
 						this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED).addTransientModifier(modifier);
 					}

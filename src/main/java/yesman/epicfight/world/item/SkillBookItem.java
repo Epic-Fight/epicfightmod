@@ -43,7 +43,7 @@ public class SkillBookItem extends Item {
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		if (stack.has(EpicFightDataComponentTypes.SKILL.get())) {
 			Holder<Skill> skill = stack.get(EpicFightDataComponentTypes.SKILL.get());
-			ResourceLocation registryName = skill.getKey().location();
+			ResourceLocation registryName = skill.unwrapKey().get().location();
 			tooltipComponents.add(Component.translatable(String.format("skill.%s.%s", registryName.getNamespace(), registryName.getPath())).withStyle(ChatFormatting.DARK_GRAY));
 		}
 	}

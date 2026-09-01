@@ -1,7 +1,5 @@
 package yesman.epicfight.world.capabilities.provider;
 
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,8 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightEntityTypes;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
@@ -166,8 +162,8 @@ public final class CommonEntityPatchProvider {
     public static class ClientModule {
         public static void registerClientPlayerPatches() {
             INSTANCE.capabilities.put(EntityType.PLAYER, entity -> switch (entity) {
-                case LocalPlayer localPlayer -> new LocalPlayerPatch(localPlayer);
-                case RemotePlayer remotePlayer -> new AbstractClientPlayerPatch<>(remotePlayer);
+                case net.minecraft.client.player.LocalPlayer localPlayer -> new yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch(localPlayer);
+                case net.minecraft.client.player.RemotePlayer remotePlayer -> new yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch<>(remotePlayer);
                 case ServerPlayer serverPlayer -> new ServerPlayerPatch(serverPlayer);
                 case null, default -> null;
             });

@@ -46,7 +46,7 @@ import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.RenderingTool;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -85,7 +85,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
     public StaticAnimation() {
         super(0.0F, true);
 
-        this.resourceLocation = EpicFightMod.identifier("emtpy");
+        this.resourceLocation = EpicFight.identifier("emtpy");
         this.armature = null;
         this.filehash = StringUtil.EMPTY_STRING;
     }

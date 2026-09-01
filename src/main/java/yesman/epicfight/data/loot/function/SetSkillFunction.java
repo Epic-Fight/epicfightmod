@@ -81,7 +81,7 @@ public class SetSkillFunction extends LootItemConditionalFunction {
 		Holder<Skill> skill = this.selectRandomSkillFromSource(context.getRandom());
 		
 		if (skill != null) {
-			itemstack.set(EpicFightDataComponentTypes.SKILL, skill);
+			itemstack.set(EpicFightDataComponentTypes.SKILL.get(), skill);
 		}
 		
 		return itemstack;

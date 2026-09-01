@@ -289,12 +289,18 @@ public class MathUtils {
 	}
 	
 	private static final Matrix4f BUFFER4F = new Matrix4f();
-    private static final Matrix3f BUFFER3F = new Matrix3f();
 	
+	/// Delegates to [PoseStack#mulPose(Matrix4f)] so the normal matrix is updated alongside the pose.
+	///
+	/// This previously multiplied `pose()` by hand and then multiplied `normal()` by a `Matrix3f`
+	/// buffer that was never written to — i.e. by the identity — so normals were never rotated with
+	/// the geometry. Diffuse lighting is computed from those normals, which is why held items came
+	/// out with flat, uniform shading instead of vanilla's per-face shading. Vanilla additionally
+	/// skips pure translations, uses the rotation part when the matrix is orthonormal, and otherwise
+	/// recomputes the inverse-transpose, all of which we get for free by calling it.
 	public static void mulStack(PoseStack poseStack, OpenMatrix4f mat) {
 		OpenMatrix4f.exportToMojangMatrix(mat, BUFFER4F);
-        poseStack.last().pose().mul(BUFFER4F);
-        poseStack.last().normal().mul(BUFFER3F);
+		poseStack.mulPose(BUFFER4F);
 	}
 
     public static double getAngleBetween(Vec3f a, Vec3f b) {

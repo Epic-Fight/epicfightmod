@@ -592,22 +592,22 @@ public class ClientAnimator extends Animator {
 	@Override
 	public EntityState getEntityState() {
 		ParameterizedHashMap<StateFactor<?>> stateMap = new ParameterizedHashMap<> ();
-		
+
 		for (Layer layer : this.baseLayer.compositeLayers.values()) {
 			if (this.baseLayer.baseLayerPriority.isHigherThan(layer.priority)) {
 				continue;
 			}
-			
+
 			if (!layer.isOff()) {
 				stateMap.putAll(layer.animationPlayer.getAnimation().get().getStatesMap(this.entitypatch, layer.animationPlayer.getElapsedTime()));
 			}
-			
+
 			// put base layer states
 			if (layer.priority == this.baseLayer.baseLayerPriority) {
 				stateMap.putAll(this.baseLayer.animationPlayer.getAnimation().get().getStatesMap(this.entitypatch, this.baseLayer.animationPlayer.getElapsedTime()));
 			}
 		}
-		
+
 		return new EntityState(stateMap);
 	}
 }
